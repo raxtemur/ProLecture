@@ -1,0 +1,406 @@
+# Строки из manim-исходника `_2026/cross_entropy`
+
+Разобрано 384 строк; ещё 121 мест вызова содержат не литерал (переменная, конкатенация, результат функции) и не извлечены.
+
+
+## _2026/cross_entropy/arithmetic_coding.py
+
+- `  390` **ProbababilityOfAWord** · Tex · `P(``math\`
+
+## _2026/cross_entropy/entropy.py
+
+- `   99` **CompressibilitOfText** · Tex · `\vdots`
+- `  133` **CompressibilitOfText** · Tex · `\rightarrow`
+- `  137` **CompressibilitOfText** · Tex · `\sim 8.0 \text{bits} / \text{ch}`
+- `  146` **CompressibilitOfText** · Text · `ASCII`
+- `  147` **CompressibilitOfText** · Text · `Huffman`
+- `  148` **CompressibilitOfText** · Text · `Neural methods`
+- `  251` **SpaceOfCodewords** · Tex · `\vdots`
+- `  292` **SpaceOfCodewords** · TexText · `{n + 1} bit{`
+- `  515` **IntroduceRandomNoise** · Text · `Random Noise`
+- `  528` **IntroduceRandomNoise** · Text · `Random Noise is incompressible`
+- `  618` **IntroduceRandomNoise** · Text · `0 or 1`
+- `  622` **IntroduceRandomNoise** · Text · `50%`
+- `  747` **RandomNoiseIsIncompressible** · Tex · `\rightarrow m_i`
+- `  775` **RandomNoiseIsIncompressible** · Tex · `\vdots`
+- `  782` **RandomNoiseIsIncompressible** · Tex · `\rightarrow m_{n}`
+- `  786` **RandomNoiseIsIncompressible** · Tex · `\rightarrow m_{{2^n - {4 - n}}}`
+- `  820` **RandomNoiseIsIncompressible** · Tex · `P(m_i) = {1 \over 2^n}`
+- `  850` **RandomNoiseIsIncompressible** · Text · `= “{text}”`
+- `  954` **RandomNoiseIsIncompressible** · Tex · `m_{{{n}}}`
+- ` 1169` **InformationGraph** · Tex · `\left({{1 \over 2}} \right)^{n} = {{1 \over {2**n}}}`
+- ` 1174` **InformationGraph** · Tex · `-\log_2(1 / {2**n}) = {n}`
+- ` 1179` **InformationGraph** · Tex · `\Leftrightarrow`
+- ` 1212` **InformationGraph** · Text · `{n} bits`
+- ` 1221` **InformationGraph** · Tex · `-\log_2({self.input_var})`
+- ` 1238` **InformationGraph** · Tex · `1 \over {2**n}`
+- ` 1330` **InformationGraph** · Tex · `\text{Information} :=`
+- ` 1331` **InformationGraph** · Tex · `\text{Loss} =`
+- ` 1356` **InformationGraph** · Tex · `-\log_2({self.input_var})`
+- ` 1392` **InformationGraph** · Tex · `{1 \over x} - 1`
+- ` 1393` **InformationGraph** · Tex · `\tan\left({\pi \over 2}(1 - x)\right)`
+- ` 1394` **InformationGraph** · Tex · `\Gamma(x) - 1`
+- ` 1437` **InformationGraph** · Tex · `-\ln(x)`
+- ` 1440` **InformationGraph** · Tex · `-\log_2(x) \cdot \ln(2) = -\ln(x)`
+- ` 1449` **InformationGraph** · Tex · `d / dx`
+- ` 1451` **InformationGraph** · Tex · `1 / x`
+- ` 1488` **InformationGraph** · Tex · `f(x)`
+- ` 1579` **InformationOfLanguage** · Tex · `1/{denom}`
+- ` 1701` **InformationOfLanguage** · Tex · `p \rightarrow -\log_2(p)`
+- ` 1730` **InformationOfLanguage** · Text · `{n} bits`
+- ` 1877` **InformationOfLanguage** · Tex · `p_{{{n}}}`
+- ` 1901` **InformationOfLanguage** · Text · `“{short_text.upper()}”`
+- ` 1920` **InformationOfLanguage** · Tex · `P()`
+- ` 1928` **InformationOfLanguage** · Tex · `p_0 \cdot p_1 \cdot p_2 \cdot p_3 \cdots p_n`
+- ` 1960` **InformationOfLanguage** · Tex · `-\log_2()`
+- ` 1974` **InformationOfLanguage** · Tex · `-\log_2(p_0) -\log_2(p_1) -\log_2(p_2) - \cdots -\log_2(p_n)`
+- ` 2033` **InformationOfLanguage** · Text · `Optimal \n Encoding length`
+- ` 2035` **InformationOfLanguage** · Text · `Total information`
+- ` 2039` **InformationOfLanguage** · Tex · `\approx`
+- ` 2148` **InformationOfLanguage** · Text · `Average`
+- ` 2240` **InformationOfLanguage** · Text · `Average`
+- ` 2254` **InformationOfLanguage** · Text · `???`
+- ` 2320` **InformationOfLanguage** · Tex · `H[\text{English}]`
+- ` 2324` **InformationOfLanguage** · Tex · `\approx 1 \; {\text{bit} \over \text{char}}`
+- ` 2377` **GenericSymbolInformation** · Tex · `S_1`
+- ` 2420` **GenericSymbolInformation** · Text · `Average\nInformation`
+
+## _2026/cross_entropy/language_models.py
+
+- `  213` **NextTokenPredictions** · Tex · `\vdots`
+- `  292` **NextTokenPredictions** · Tex · `p = P(\text{true next token})`
+- `  331` **TokensAndPredictions2** · Text · `Tokens`
+- `  606` **AbstractGraphOfLossFunction** · Text · `Loss`
+- `  634` **AbstractGraphOfLossFunction** · Text · `Loss(model)`
+- `  645` **AbstractGraphOfLossFunction** · Text · `Good`
+- `  645` **AbstractGraphOfLossFunction** · Text · `Bad`
+- `  953` **LossFunction** · Text · `Information`
+- `  956` **LossFunction** · Text · `from the model’s perspective`
+- `  962` **LossFunction** · Text · `Loss`
+- `  983` **LossFunction** · Tex · `q_{{{n}}}`
+- `  997` **LossFunction** · Tex · `-\log(q)`
+- ` 1067` **LossFunction** · Tex · `\text{Loss} = 0.00`
+- ` 1240` **CrossEntropyWithOneHot** · Tex · `\text{Loss} = -\log(q)`
+- ` 1264` **CrossEntropyWithOneHot** · Text · `“Information loss”`
+- ` 1265` **CrossEntropyWithOneHot** · Text · `“Log loss”`
+- ` 1266` **CrossEntropyWithOneHot** · Text · `“Cross entropy loss”`
+- ` 1293` **CrossEntropyWithOneHot** · Tex · `\sum_i p_i (-\log q_i)`
+- ` 1326` **CrossEntropyWithOneHot** · Tex · `q_{n}`
+- ` 1375` **CrossEntropyWithOneHot** · Tex · `{p} \cdot (-\log q_{n})`
+- ` 1423` **CrossEntropyWithOneHot** · Text · `Why?`
+- ` 1454` **MyNameIsExample** · Text · `{in_text} {name}`
+- ` 1530` **MyNameIsExample** · Tex · `q_{{{name[0]}}}`
+- ` 1560` **MyNameIsExample** · Text · `Loss?`
+- ` 1576` **MyNameIsExample** · Tex · `\longleftarrow`
+- ` 1580` **MyNameIsExample** · Tex · `{self.loss_func_tex}({q_tex})`
+- ` 1643` **MyNameIsExample** · Tex · `p_{{{char}}}`
+- ` 1657` **MyNameIsExample** · Tex · `\text{{Average Loss}} = \sum_i p_i {self.loss_func_tex_in_sum}`
+- ` 1717` **MyNameIsExample** · Text · `Cross Entropy`
+- ` 1754` **MyNameIsExample** · TexText · `Goal: This is minimized when $q_i = p_i$`
+- ` 1784` **MyNameIsExample** · Tex · `\Rightarrow`
+- ` 1786` **MyNameIsExample** · Tex · `f(q) = -\lambda \log(q)`
+- ` 1788` **MyNameIsExample** · TexText · `For some constant $\lambda$`
+- ` 1914` **DistillationTrainingIdea** · Tex · `\text{Loss} = \sum_i p_i (-\log q_i)`
+- ` 1924` **DistillationTrainingIdea** · Tex · `{char}_{n}`
+
+## _2026/cross_entropy/part2_supplements.py
+
+- `    8` **CrossEntropyKLDivergenceTitles** · Text · `Cross-Entropy`
+- `    9` **CrossEntropyKLDivergenceTitles** · Text · `KL Divergence`
+- `   14` **CrossEntropyKLDivergenceTitles** · Tex · `\sum_i p_i \big(-\log(q_i)\big)`
+- `   15` **CrossEntropyKLDivergenceTitles** · Tex · `\sum_i p_i \log\left({p_i / q_i}\right)`
+- `  116` **PreviousVideos** · Text · `Gradient Descent`
+- `  116` **PreviousVideos** · Text · `Backpropagation`
+- `  157` **BillionsOfInputs** · Tex · `L(x, y)`
+- `  173` **BillionsOfInputs** · Tex · `w_{0}`
+- `  213` **EntropyOfPTitle** · Text · `Entropy of P`
+- `  214` **EntropyOfPTitle** · Tex · `\sum_i p_i (-\log_2 p_i)`
+- `  241` **KeyFact** · Text · `Key fact about Cross-Entropy\nof Q relative to P`
+- `  258` **KeyFact** · Text · `• Minimal when Q = P`
+- `  259` **KeyFact** · Text · `• Minimal value = H(P)`
+- `  298` **ThreeDEntropyGraph** · Tex · `p_1`
+- `  298` **ThreeDEntropyGraph** · Tex · `p_2`
+- `  381` **NeglectedFacts** · Text · `Batch size scheduling`
+- `  382` **NeglectedFacts** · Text · `Optimizer choice and tuning`
+- `  383` **NeglectedFacts** · Text · `Learning rate schedules`
+- `  384` **NeglectedFacts** · Text · `Gradient clipping`
+- `  385` **NeglectedFacts** · Text · `Compute-optimal scaling laws`
+- `  386` **NeglectedFacts** · Tex · `\vdots`
+- `  424` **DistillationArrow** · Text · `Distillation`
+- `  480` **ShowGradientEquation** · Tex · `\nabla_q \left(\sum_i p_i f(q_i) \right) = \lambda \nabla_q \left(\sum_i q_i \right)`
+- `  481` **ShowGradientEquation** · Tex · `p_i f'(q_i) = \lambda`
+- `  482` **ShowGradientEquation** · Tex · `q_i f'(q_i) = \lambda`
+- `  483` **ShowGradientEquation** · Tex · `f'(q) = {\lambda \over q}`
+- `  488` **ShowGradientEquation** · TexText · `for all $i$`
+- `  489` **ShowGradientEquation** · TexText · `Assuming minimum $\Leftrightarrow q_i = p_i$`
+- `  490` **ShowGradientEquation** · Tex · `f(q) = \lambda \log(q)`
+- `  526` **DifferenceLine** · Text · `Difference`
+- `  540` **ArrowsToFormula** · Tex · `\sum_i p_i (-\log q_i)`
+- `  571` **PiAndCircleAnalogy2** · Tex · `\sqrt{6 \sum_{n = 1}^{100} \frac{1}{n^2}}`
+- `  572` **PiAndCircleAnalogy2** · Tex · `= 3.1415926\dots`
+- `  587` **PiAndCircleAnalogy2** · Tex · `\infty`
+- `  617` **PiAndCircleAnalogy2** · Tex · `\sum_i p_i (-\log q_i)`
+- `  653` **PredictorCompressorTitle** · Text · `Predictor`
+- `  654` **PredictorCompressorTitle** · Tex · `\longleftrightarrow`
+- `  655` **PredictorCompressorTitle** · Text · `Compressor`
+
+## _2026/cross_entropy/robot.py
+
+- `  132` **RobotOnMoon** · Tex · `\mathbf{1/2}`
+- `  133` **RobotOnMoon** · Tex · `\mathbf{1/4}`
+- `  134` **RobotOnMoon** · Tex · `\mathbf{1/8}`
+- `  135` **RobotOnMoon** · Tex · `\mathbf{1/8}`
+- `  273` **RobotOnMoonShort** · Tex · `\mathbf{1/2}`
+- `  274` **RobotOnMoonShort** · Tex · `\mathbf{1/4}`
+- `  275` **RobotOnMoonShort** · Tex · `\mathbf{1/8}`
+- `  276` **RobotOnMoonShort** · Tex · `\mathbf{1/8}`
+- `  390` **RobotOnMoon3** · Tex · `\mathbf{1/2}`
+- `  391` **RobotOnMoon3** · Tex · `\mathbf{1/4}`
+- `  392` **RobotOnMoon3** · Tex · `\mathbf{1/8}`
+- `  393` **RobotOnMoon3** · Tex · `\mathbf{1/8}`
+- `  613` **RobotEncodings** · Tex · `{i:02b}`
+- `  655` **RobotEncodings** · Tex · `\frac{1}{`
+- `  719` **RobotEncodings** · Tex · `\frac{1}{`
+- `  747` **RobotEncodings** · Tex · `\frac{1}{`
+- `  868` **RobotEncodings** · Tex · `\text{code words}`
+- ` 1011` **RobotEncodings** · Tex · `\frac{1}{2} \cdot 1`
+- ` 1012` **RobotEncodings** · Tex · `\frac{1}{4} \cdot 2`
+- ` 1013` **RobotEncodings** · Tex · `\frac{1}{8} \cdot 3`
+- ` 1014` **RobotEncodings** · Tex · `\frac{1}{8} \cdot 3`
+- ` 1039` **RobotEncodings** · Tex · `\frac{1}{2} \cdot 1 + \frac{1}{4} \cdot 2 + \frac{1}{8} \cdot 3 + \frac{1}{8} \cdot 3 \\ = 1.75 \text{ bits}`
+- ` 1055` **RobotEncodings** · Tex · `\frac{1}{2} \cdot 2 + \frac{1}{4} \cdot 2 + \frac{1}{8} \cdot 2 + \frac{1}{8} \cdot 2 \\ = 2 \text{ bits}`
+- ` 1291` **RobotEncodings** · Tex · `{i:0{n}b}`
+- ` 1352` **RobotEncodings** · Tex · `:\ `
+- ` 1379` **RobotEncodings** · Tex · `\frac{1}{2}\ \ \cdot\ \  \frac{1}{2}\ \  \cdot\ \  \frac{1}{2}`
+- ` 1380` **RobotEncodings** · Tex · `\frac{1}{8}`
+- ` 1381` **RobotEncodings** · Tex · `\frac{1}{4}\ \  \cdot\ \  \frac{1}{2}`
+- ` 1503` **RobotEncodingsV2** · Tex · `{i:02b}`
+- ` 1545` **RobotEncodingsV2** · Tex · `\frac{1}{`
+- ` 1591` **RobotEncodingsV2** · Tex · `\frac{1}{`
+- ` 1617` **RobotEncodingsV2** · TexText · `Naive`
+- ` 1618` **RobotEncodingsV2** · TexText · `Optimized`
+- ` 1878` **RobotEncodingsV2** · Tex · `\text{code words}`
+- ` 1997` **RobotEncodingsV2** · Tex · `10`
+- ` 1998` **RobotEncodingsV2** · Tex · `100`
+- ` 2018` **RobotEncodingsV2** · Tex · `100`
+- ` 2142` **RobotEncodingsV2** · Tex · `\frac{1}{2} \cdot 1`
+- ` 2143` **RobotEncodingsV2** · Tex · `\frac{1}{4} \cdot 2`
+- ` 2144` **RobotEncodingsV2** · Tex · `\frac{1}{8} \cdot 3`
+- ` 2145` **RobotEncodingsV2** · Tex · `\frac{1}{8} \cdot 3`
+- ` 2170` **RobotEncodingsV2** · Tex · `\frac{1}{2} \cdot 1 + \frac{1}{4} \cdot 2 + \frac{1}{8} \cdot 3 + \frac{1}{8} \cdot 3 \\ = 1.75 \text{ bits}`
+- ` 2186` **RobotEncodingsV2** · Tex · `\frac{1}{2} \cdot 2 + \frac{1}{4} \cdot 2 + \frac{1}{8} \cdot 2 + \frac{1}{8} \cdot 2 \\ = 2 \text{ bits}`
+- ` 2350` **RobotEncodingsV2** · Tex · `\mathbf{P}(\text{any $n$-bit message}) = \frac{1}{2^n}`
+- ` 2363` **RobotEncodingsV2** · Tex · `p = 2^{-n}`
+- ` 2370` **RobotEncodingsV2** · Tex · `\log_2(p) = \log_2(2^{-n})`
+- ` 2373` **RobotEncodingsV2** · Tex · `\log_2(p) = -n`
+- ` 2379` **RobotEncodingsV2** · Tex · `\text{Information} =  -\log_2(p) = {n}`
+- ` 2441` **RobotEncodingsV2** · Tex · `p = 0.00`
+- ` 2449` **RobotEncodingsV2** · TexText · `(bits)`
+- ` 2450` **RobotEncodingsV2** · TexText · `Information $=$ 0.00 bits`
+- ` 2508` **NaiveEncodingBitsTwoMeanings** · Tex · `\frac{1}{`
+- ` 2522` **NaiveEncodingBitsTwoMeanings** · TexText · `Naive encoding:`
+- ` 2530` **NaiveEncodingBitsTwoMeanings** · TexText · `code word length (bits)`
+- ` 2531` **NaiveEncodingBitsTwoMeanings** · Tex · `-\log_2 p_i \text{ (bits)}`
+- ` 2533` **NaiveEncodingBitsTwoMeanings** · Tex · `2,\ 2,\ 2,\ 2,`
+- ` 2544` **NaiveEncodingBitsTwoMeanings** · Tex · `1,\ 2,\ 3,\ 3,`
+- ` 2564` **PerfectEncodingsAndEntropyDefinition** · Tex · `\frac{1}{`
+- ` 2679` **PerfectEncodingsAndEntropyDefinition** · Tex · `\text{Area}() = \sum_i p_i (-\log_2 p_i) = \text{Avg. information}`
+- ` 2763` **PerfectEncodingsAndEntropyDefinition** · Tex · `\text{Entropy} = 0.00 \text{ bits}`
+- ` 2822` **PerfectEncodingsAndEntropyDefinition** · TexText · `high probability $\Longleftrightarrow$ low information`
+- ` 2930` **PerfectEncodingsAndEntropyDefinitionV2** · Tex · `\frac{1}{`
+- ` 2953` **PerfectEncodingsAndEntropyDefinitionV2** · Tex · `\frac{1}{2} \cdot 1`
+- ` 2954` **PerfectEncodingsAndEntropyDefinitionV2** · Tex · `\frac{1}{4} \cdot 2`
+- ` 2955` **PerfectEncodingsAndEntropyDefinitionV2** · Tex · `\frac{1}{8} \cdot 3`
+- ` 2956` **PerfectEncodingsAndEntropyDefinitionV2** · Tex · `\frac{1}{8} \cdot 3`
+- ` 2969` **PerfectEncodingsAndEntropyDefinitionV2** · Tex · `\frac{1}{2} \cdot 1 + \frac{1}{4} \cdot 2 + \frac{1}{8} \cdot 3 + \frac{1}{8} \cdot 3 = 1.75 \text{ bits}`
+- ` 3114` **PerfectEncodingsAndEntropyDefinitionV2** · Tex · `\text{Avg. information} = \sum_i p_i (-\log_2 p_i)`
+- ` 3139` **PerfectEncodingsAndEntropyDefinitionV2** · Tex · `\text{Avg. information} = \sum_i p_i (-\log_2 p_i) = \text{Area}()`
+- ` 3173` **PerfectEncodingsAndEntropyDefinitionV2** · Tex · `H(P) = \sum_i p_i (-\log_2 p_i) = \text{Area}()`
+- ` 3180` **PerfectEncodingsAndEntropyDefinitionV2** · TexText · ```Entropy''`
+- ` 3189` **PerfectEncodingsAndEntropyDefinitionV2** · Tex · `= 0.00 \text{ bits}`
+- ` 3251` **PerfectEncodingsAndEntropyDefinitionV2** · TexText · `high probability $\Longleftrightarrow$ low information`
+- ` 3357` **CrossEntropyDefinition** · Tex · `\frac{1}{`
+- ` 3385` **CrossEntropyDefinition** · Tex · `\frac{1}{`
+- ` 3438` **CrossEntropyDefinition** · Tex · `\frac{1}{8} \cdot 1`
+- ` 3439` **CrossEntropyDefinition** · Tex · `\frac{1}{8} \cdot 2`
+- ` 3440` **CrossEntropyDefinition** · Tex · `\frac{1}{4} \cdot 3`
+- ` 3441` **CrossEntropyDefinition** · Tex · `\frac{1}{2} \cdot 3`
+- ` 3469` **CrossEntropyDefinition** · Tex · `\frac{1}{8} \cdot 1 + \frac{1}{8} \cdot 2 + \frac{1}{4} \cdot 3 + \frac{1}{2} \cdot 3 \\ = 2.625 \text{ bits}`
+- ` 3488` **CrossEntropyDefinition** · TexText · `Cross Entropy:`
+- ` 3510` **CrossEntropyDefinition** · Tex · `p_{i + 1}`
+- ` 3529` **CrossEntropyDefinition** · Tex · `q_{i + 1}`
+- ` 3553` **CrossEntropyDefinition** · TexText · `encoding`
+- ` 3554` **CrossEntropyDefinition** · TexText · `codeword length: \\ $-\log_2 q_i$`
+- ` 3578` **CrossEntropyDefinition** · TexText · `Avg. bits per instruction: \\[0.1in] $\displaystyle\sum_i p_i (-\log_2 q_i)$`
+- ` 3590` **CrossEntropyDefinition** · TexText · ```Cross Entropy of Q relative to P''`
+- ` 3716` **KLDivergenceDefinition** · Tex · `\frac{1}{`
+- ` 3740` **KLDivergenceDefinition** · Tex · `\frac{1}{`
+- ` 3767` **KLDivergenceDefinition** · Tex · `\frac{1}{8} \cdot 1 + \frac{1}{8} \cdot 2 + \frac{1}{4} \cdot 3 + \frac{1}{2} \cdot 3 = 2.625 \text{ bits}`
+- ` 3793` **KLDivergenceDefinition** · Tex · `\frac{1}{`
+- ` 3813` **KLDivergenceDefinition** · Tex · `\frac{1}{8} \cdot 3 + \frac{1}{8} \cdot 3 + \frac{1}{4} \cdot 2 + \frac{1}{2} \cdot 1 = 1.75 \text{ bits}`
+- ` 3825` **KLDivergenceDefinition** · Tex · `\left(\displaystyle\sum_i p_i \cdot -\log_2 q_i\right) - \left(\displaystyle\sum_i p_i \cdot -\log_2 p_i\right)`
+- ` 3886` **KLDivergenceDefinition** · Tex · `2.625 \text{ bits} - 1.75 \text{ bits} = 0.875 \text{ bits}`
+- ` 3897` **KLDivergenceDefinition** · TexText · `Kullback-Leibler Divergence:`
+- ` 3907` **KLDivergenceDefinition** · TexText · `KL Divergence:`
+- ` 3915` **KLDivergenceDefinition** · Tex · `= \displaystyle\sum_i p_i \cdot -\log_2 \frac{p_i}{q_i}`
+- ` 3994` **CrossEntropyDefinitionV2** · Tex · `\frac{1}{`
+- ` 4022` **CrossEntropyDefinitionV2** · Tex · `\frac{1}{`
+- ` 4075` **CrossEntropyDefinitionV2** · Tex · `\frac{1}{8} \cdot 1`
+- ` 4076` **CrossEntropyDefinitionV2** · Tex · `\frac{1}{8} \cdot 2`
+- ` 4077` **CrossEntropyDefinitionV2** · Tex · `\frac{1}{4} \cdot 3`
+- ` 4078` **CrossEntropyDefinitionV2** · Tex · `\frac{1}{2} \cdot 3`
+- ` 4106` **CrossEntropyDefinitionV2** · Tex · `\frac{1}{8} \cdot 1 + \frac{1}{8} \cdot 2 + \frac{1}{4} \cdot 3 + \frac{1}{2} \cdot 3 \\ = 2.625 \text{ bits}`
+- ` 4125` **CrossEntropyDefinitionV2** · TexText · `Cross Entropy:`
+- ` 4147` **CrossEntropyDefinitionV2** · Tex · `p_{i + 1}`
+- ` 4166` **CrossEntropyDefinitionV2** · Tex · `q_{i + 1}`
+- ` 4389` **CrossEntropyDefinitionV2** · TexText · `Avg. bits per instruction: \\[0.1in] $\displaystyle\sum_i q_i (-\log_2 q_i)$`
+- ` 4457` **CrossEntropyDefinitionV2** · TexText · `Entropy of Q`
+- ` 4561` **CrossEntropyDefinitionV2** · TexText · `Avg. bits per instruction: \\[0.1in] $\displaystyle\sum_i p_i (-\log_2 q_i)$`
+- ` 4575` **CrossEntropyDefinitionV2** · TexText · `Cross Entropy of Q relative to P`
+- ` 4700` **CrossEntropyDefinitionV2** · TexText · `Entropy of P`
+- ` 4708` **CrossEntropyDefinitionV2** · Tex · `\displaystyle\sum_i p_i (-\log_2 p_i)`
+- ` 4715` **CrossEntropyDefinitionV2** · TexText · `Cross Entropy of P relative to Q`
+- ` 4723` **CrossEntropyDefinitionV2** · Tex · `\displaystyle\sum_i q_i (-\log_2 p_i)`
+- ` 4951` **CrossEntropyDefinitionV2** · Tex · `s_`
+- ` 4972` **CrossEntropyDefinitionV2** · Tex · `s_`
+- ` 4995` **CrossEntropyDefinitionV2** · Tex · `s_`
+- ` 5017` **CrossEntropyDefinitionV2** · Tex · `s_`
+- ` 5067` **CrossEntropyDefinitionV2** · Tex · `-\log_2 0.5 = 1`
+- ` 5070` **CrossEntropyDefinitionV2** · Tex · `-\log_2 0.5 = 1`
+- ` 5083` **CrossEntropyDefinitionV2** · Tex · `-\log_2 0.9 \approx 0.15`
+- ` 5086` **CrossEntropyDefinitionV2** · Tex · `-\log_2 0.1 \approx 3.32`
+- ` 5099` **CrossEntropyDefinitionV2** · Tex · `0.9(-\log_2 0.5) \\ +\ 0.1(-\log_2 0.5) \\ \approx `
+- ` 5111` **CrossEntropyDefinitionV2** · Tex · `0.5(-\log_2 0.9) \\ +\ 0.5(-\log_2 0.1) \\ \approx `
+- ` 5121` **CrossEntropyDefinitionV2** · Tex · `1.0 \neq 1.74`
+- ` 5156` **CrossEntropyDefinitionV2** · Tex · `s_`
+- ` 5160` **CrossEntropyDefinitionV2** · Tex · `q_{str(i + 1)}`
+- ` 5176` **CrossEntropyDefinitionV2** · Tex · `s_`
+- ` 5180` **CrossEntropyDefinitionV2** · Tex · `p_{str(i + 1)}`
+- ` 5198` **CrossEntropyDefinitionV2** · Tex · `s_`
+- ` 5202` **CrossEntropyDefinitionV2** · Tex · `p_{str(i + 1)}`
+- ` 5219` **CrossEntropyDefinitionV2** · Tex · `s_`
+- ` 5223` **CrossEntropyDefinitionV2** · Tex · `q_{str(i + 1)}`
+- ` 5324` **CrossEntropyDefinitionV2** · Tex · `q_1`
+- ` 5363` **CrossEntropyDefinitionV2** · Tex · `1 - q_1`
+- ` 5377` **CrossEntropyDefinitionV2** · Tex · `1 - q_1`
+- ` 5428` **CrossEntropyDefinitionV2** · Tex · `p_1`
+- ` 5441` **CrossEntropyDefinitionV2** · Tex · `1 - p_1`
+- ` 5455` **CrossEntropyDefinitionV2** · Tex · `1 - p_1`
+- ` 5610` **CrossEntropyDefinitionV2** · Tex · `\text{min} = \displaystyle\sum_i p_i (-\log_2 p_i)`
+- ` 5723` **CrossEntropyDefinitionV3** · Tex · `\frac{1}{`
+- ` 5752` **CrossEntropyDefinitionV3** · Tex · `\frac{1}{`
+- ` 5806` **CrossEntropyDefinitionV3** · Tex · `\frac{1}{8} \cdot 1`
+- ` 5807` **CrossEntropyDefinitionV3** · Tex · `\frac{1}{8} \cdot 2`
+- ` 5808` **CrossEntropyDefinitionV3** · Tex · `\frac{1}{4} \cdot 3`
+- ` 5809` **CrossEntropyDefinitionV3** · Tex · `\frac{1}{2} \cdot 3`
+- ` 5837` **CrossEntropyDefinitionV3** · Tex · `\frac{1}{8} \cdot 1 + \frac{1}{8} \cdot 2 + \frac{1}{4} \cdot 3 + \frac{1}{2} \cdot 3 \\ = 2.625 \text{ bits}`
+- ` 5856` **CrossEntropyDefinitionV3** · TexText · `Cross Entropy:`
+- ` 5878` **CrossEntropyDefinitionV3** · Tex · `p_{i + 1}`
+- ` 5898` **CrossEntropyDefinitionV3** · Tex · `q_{i + 1}`
+- ` 6145` **CrossEntropyDefinitionV3** · TexText · `Avg. bits per instruction: \\[0.1in] $\displaystyle\sum_i q_i (-\log_2 q_i)$`
+- ` 6213` **CrossEntropyDefinitionV3** · TexText · `Entropy of Q`
+- ` 6342` **CrossEntropyDefinitionV3** · TexText · `Avg. bits per instruction: \\[0.1in] $\displaystyle\sum_i p_i (-\log_2 q_i)$`
+- ` 6356` **CrossEntropyDefinitionV3** · TexText · `Cross Entropy of Q relative to P`
+- ` 6493` **CrossEntropyDefinitionV3** · Tex · `-\log_2 0.50 = 1`
+- ` 6496` **CrossEntropyDefinitionV3** · Tex · `-\log_2 0.50 = 1`
+- ` 6502` **CrossEntropyDefinitionV3** · Tex · `0.50 \cdot 1 + 0.50 \cdot 1 = 1`
+- ` 6538` **CrossEntropyDefinitionV3** · Tex · `0.90 \cdot 1 + 0.10 \cdot 1 = 1`
+- ` 6603` **CrossEntropyDefinitionV3** · Tex · `-\log_2 0.90 = {information_1_value}`
+- ` 6606` **CrossEntropyDefinitionV3** · Tex · `-\log_2 0.10 = {information_2_value}`
+- ` 6614` **CrossEntropyDefinitionV3** · Tex · `0.90 \cdot {information_1_value} + 0.10 \cdot {information_2_value} = {entropy_value}`
+- ` 6677` **CrossEntropyDefinitionV3** · Tex · `0.50 \cdot {information_1_value} + 0.50 \cdot {information_2_value} = {cross_entropy_value}`
+- ` 6734` **CrossEntropyDefinitionV3** · Tex · `q_{str(i + 1)}`
+- ` 6752` **CrossEntropyDefinitionV3** · Tex · `p_{str(i + 1)}`
+- ` 6837` **CrossEntropyDefinitionV3** · Tex · `q_1`
+- ` 6867` **CrossEntropyDefinitionV3** · Tex · `1 - q_1`
+- ` 6909` **CrossEntropyDefinitionV3** · Tex · `p_1`
+- ` 6922` **CrossEntropyDefinitionV3** · Tex · `1 - p_1`
+- ` 7080` **CrossEntropyDefinitionV3** · Tex · `\text{min} = \displaystyle\sum_i p_i (-\log_2 p_i)`
+- ` 7254` **CrossEntropyDefinitionV3** · Tex · `p_1`
+- ` 7405` **InformationOfRobotInstructions** · Tex · `\text{Information}\Big(\Big) = -\log_2\left(\frac{1}{`
+- ` 7423` **InformationEntropyAndCrossEntropy** · Tex · `\text{Information}(\text{event}) = -\log_2(p_\text{event})`
+- ` 7427` **InformationEntropyAndCrossEntropy** · Tex · `\text{Entropy}(P) = \displaystyle\sum_i p_i \cdot -\log_2 p_i`
+- ` 7431` **InformationEntropyAndCrossEntropy** · Tex · `\text{Cross Entropy}(Q, P) = \displaystyle\sum_i p_i \cdot -\log_2 q_i`
+- ` 7463` **CrossEntropyIsAsymmetric** · Tex · `q_{i + 1}`
+- ` 7477` **CrossEntropyIsAsymmetric** · Tex · `p_{i + 1}`
+- ` 7491` **CrossEntropyIsAsymmetric** · Tex · `\displaystyle\sum_i p_i (-\log_2 q_i) \approx `
+- ` 7502` **CrossEntropyIsAsymmetric** · Tex · `p_{i + 1}`
+- ` 7516` **CrossEntropyIsAsymmetric** · Tex · `q_{i + 1}`
+- ` 7530` **CrossEntropyIsAsymmetric** · Tex · `\displaystyle\sum_i q_i (-\log_2 p_i) \approx `
+- ` 7646` **EntropyChart** · Tex · `p_{i}`
+- ` 7737` **EntropyChartTest** · Tex · `\frac{1}{`
+- ` 7750` **WhyLogsAreNice** · Tex · `-\log_2(p_1 \cdot p_2) = -(\log_2 p_1 + \log_2 p_2)`
+- ` 7761` **WhyLogsAreNice** · Tex · `p = {p:.9f}`
+- ` 7764` **WhyLogsAreNice** · Tex · `-\log_2 p \approx `
+- ` 7935` **InterpolateTest** · Tex · `010`
+- ` 8037` **SamplingSymbols** · Tex · `s_`
+- ` 8073` **SamplingSymbols** · Tex · `s_`
+- ` 8125` **RobotDistribution** · Tex · `\frac{1}{`
+- ` 8222` **MoreComplicatedCrossEntropyExampleAndKLDivergence** · Tex · `\sum_i p_i(-\log_2 q_i)`
+- ` 8237` **MoreComplicatedCrossEntropyExampleAndKLDivergence** · Tex · `0.00 \text{ bits}`
+- ` 8301` **MoreComplicatedCrossEntropyExampleAndKLDivergence** · Tex · `\sum_i p_i (-\log_2 p_i)`
+- ` 8320` **MoreComplicatedCrossEntropyExampleAndKLDivergence** · Tex · `\left(\sum_i p_i(-\log_2 q_i)\right) - \left(\sum_i p_i(-\log_2 p_i)\right)`
+- ` 8354` **MoreComplicatedCrossEntropyExampleAndKLDivergence** · TexText · `Cross Entropy of \\ Q relative to P`
+- ` 8363` **MoreComplicatedCrossEntropyExampleAndKLDivergence** · TexText · `Entropy of P`
+- ` 8373` **MoreComplicatedCrossEntropyExampleAndKLDivergence** · TexText · `Kullback-Leibler Divergence:`
+- ` 8384` **MoreComplicatedCrossEntropyExampleAndKLDivergence** · TexText · `KL Divergence:`
+- ` 8401` **RobotNewOptimalCode** · Tex · `\frac{1}{`
+- ` 8496` **KLDivergenceDemo** · Tex · `\begin{gathered}\text{KL Divergence of Q relative to P:} \\ \left(\sum_i p_i(-\log_2 q_i)\right) - \left(\sum_i p_i(-\log_2 p_i)\right)\end{gathered}`
+- ` 8570` **KLDivergenceDemo** · Tex · `\begin{gathered}\text{KL Divergence of P relative to Q:} \\ \left(\sum_i q_i(-\log_2 p_i)\right) - \left(\sum_i q_i(-\log_2 q_i)\right)\end{gathered}`
+- ` 8593` **KLDivergenceDemo** · Tex · `\neq`
+- ` 8604` **KLDivergenceDemo** · Tex · `= \displaystyle\sum_i p_i \left(\log_2 \frac{p_i}{q_i}\right)`
+- ` 8786` **LogBases** · Tex · `-\ln q`
+- ` 8790` **LogBases** · Tex · `-\log_2 q`
+
+## _2026/cross_entropy/supplements.py
+
+- `   56` **AmbientEncodingMachine3** · Tex · `8.0 \text{bits} / \text{sym}`
+- `   83` **AmbientEncodingMachine3** · Text · `Limit?`
+- `   84` **AmbientEncodingMachine3** · Tex · `H(P)`
+- `  136` **AmbientEncodingMachine3** · Tex · `s_{{{n}}}`
+- `  265` **WriteLLM** · Text · `LLM`
+- `  301` **SimpleEquiv** · Tex · `\Leftrightarrow`
+- `  307` **CrossEntropyWords** · Text · `“Cross-entropy” loss`
+- `  344` **CompressionIsIntellgenceWords** · Text · `The mathematical theory of`
+- `  353` **CompressionIsIntellgenceWords** · Tex · `\longrightarrow`
+- `  357` **CompressionIsIntellgenceWords** · Text · `is useful for`
+- `  361` **CompressionIsIntellgenceWords** · Text · `Artificial\nIntelligence`
+- `  395` **CompressionIsIntellgenceWords** · Text · `Compression is Intelligence`
+- `  433` **ThreeFoldRelationship** · Tex · `\Leftrightarrow`
+- `  434` **ThreeFoldRelationship** · Tex · `\longleftrightarrow`
+- `  435` **ThreeFoldRelationship** · Tex · `\longleftrightarrow`
+- `  443` **ThreeFoldRelationship** · Text · `Prediction`
+- `  444` **ThreeFoldRelationship** · Text · `Compression`
+- `  445` **ThreeFoldRelationship** · Text · `Intelligence`
+- `  457` **ThreeFoldRelationship** · Text · `Artificial\nIntelligence`
+- `  472` **KeyDefinitions** · Text · `Information`
+- `  473` **KeyDefinitions** · Text · `Entropy`
+- `  592` **EncodingQuestion** · Text · `Most Efficient Encoding?`
+- `  694` **PrefixFreeCodeName** · Text · `Prefix-free code`
+- `  712` **WeightedSum** · Tex · `\frac{1}{2} \cdot 1+\frac{1}{4} \cdot 2+\frac{1}{8} \cdot 3+\frac{1}{8} \cdot 3`
+- `  713` **WeightedSum** · Tex · `=1.75 \text{ bits}`
+- `  783` **FlashLogP** · Tex · `-\log_2(p)`
+- `  797` **AnnotateLogP** · Tex · `-\log_2(p) = n`
+- `  802` **AnnotateLogP** · Text · `Information`
+- `  810` **AnnotateLogP** · Text · `# bits`
+- `  823` **AnnotateLogP** · Tex · `!!`
+- `  826` **AnnotateLogP** · Tex · `\le`
+- `  877` **AlternateLogExpressions** · Tex · `-\log_2(p)`
+- `  878` **AlternateLogExpressions** · Tex · `= \log_2(1 / p)`
+- `  879` **AlternateLogExpressions** · Tex · `= \log_{1/2}(p)`
+- `  916` **TwoMeaningsOfBits** · Text · `“Bits” as`
+- `  917` **TwoMeaningsOfBits** · Tex · `-\log_2(p)`
+- `  920` **TwoMeaningsOfBits** · Text · `“Bits” as`
+- `  921` **TwoMeaningsOfBits** · Text · `# 1s and 0s`
+- `  951` **ThoughtBubbleWithLanguageQuestions** · Text · `British vs.\nAmerican?`
+- `  952` **ThoughtBubbleWithLanguageQuestions** · Text · `Slang?`
+- `  953` **ThoughtBubbleWithLanguageQuestions** · Text · `Australian?`
+- `  954` **ThoughtBubbleWithLanguageQuestions** · Text · `Jargon?`
+- `  982` **ShowKeyFormulas** · Tex · `I = -\log_2(p)`
+- `  983` **ShowKeyFormulas** · Tex · `H(p) = \sum_i p_i\big(-\log_2(p_i)\big)`
+- `  984` **ShowKeyFormulas** · Tex · `H(p, q) = \sum_i p_i\big(-\log_2(q_i)\big)`
+- `  985` **ShowKeyFormulas** · Tex · `D_{\text{KL}}(p || q) = \sum_i p_i\big(\log_2(p_i / q_i)\big)`
+- ` 1036` **EntropyRate** · Text · `Entropy Rate: `
+- ` 1037` **EntropyRate** · Tex · `\lim _{n \rightarrow \infty} \frac{1}{n} H\left(X_1, X_2, \ldots X_n\right)`
+- ` 1042` **EntropyRate** · Tex · `H(X)`
+- ` 1044` **EntropyRate** · Text · `Entropy:`

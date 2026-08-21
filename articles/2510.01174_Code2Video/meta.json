@@ -1,0 +1,28 @@
+{
+  "slug": "2510.01174_Code2Video",
+  "title": "Code2Video: A Code-centric Paradigm for Educational Video Generation",
+  "authors": [
+    "Yanzhe Chen",
+    "Kevin Qinghong Lin",
+    "Mike Zheng Shou"
+  ],
+  "arxiv_id": "2510.01174",
+  "abstract": "While recent generative models advance pixel-space video synthesis, they remain limited in producing professional educational videos, which demand disciplinary knowledge, precise visual structures, and coherent transitions, limiting their applicability in educational scenarios. Intuitively, such requirements are better addressed through the manipulation of a renderable environment, which can be explicitly controlled via logical commands (e.g., code). In this work, we propose Code2Video, a code-centric agent framework for generating educational videos via executable Python code. The framework comprises three collaborative agents: (i) Planner, which structures lecture content into temporally coherent flows and prepares corresponding visual assets; (ii) Coder, which converts structured instructions into executable Python codes while incorporating scope-guided auto-fix to enhance efficiency; and (iii) Critic, which leverages vision-language models (VLM) with visual anchor prompts to refine spatial layout and ensure clarity. To support systematic evaluation, we build MMMC, a benchmark of professionally produced, discipline-specific educational videos. We evaluate MMMC across diverse dimensions, including VLM-as-a-Judge aesthetic scores, code efficiency, and particularly, TeachQuiz, a novel end-to-end metric that quantifies how well a VLM, after unlearning, can recover knowledge by watching the generated videos. Our results demonstrate the potential of Code2Video as a scalable, interpretable, and controllable approach, achieving 40% improvement over direct code generation and producing videos comparable to human-crafted tutorials. The code and datasets are available at https://github.com/showlab/Code2Video.",
+  "published": "2025-10-01",
+  "url": "http://arxiv.org/abs/2510.01174v1",
+  "doi": null,
+  "primary_category": "cs.CV",
+  "categories": [
+    "cs.CV",
+    "cs.AI",
+    "cs.CL",
+    "cs.HC",
+    "cs.MM"
+  ],
+  "venue": null,
+  "code": null,
+  "review": "review.md",
+  "pdf": "paper.pdf",
+  "source_dir": "source",
+  "fetched_at": "2026-08-19T14:43:54+00:00"
+}

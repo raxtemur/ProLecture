@@ -1,0 +1,17 @@
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.DS_Store
+
+# сторонние репозитории, клонируются отдельно
+vendor/
+
+# тяжёлые артефакты — воспроизводятся скриптами из tools/
+data/videos/
+data/bundles/*/frames/
+demo/media/
+
+# исходники статей: держим только обзоры и иллюстрации
+articles/*/paper.pdf
+articles/*/source/
+articles/*/figures/*.pdf
