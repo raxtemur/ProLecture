@@ -3322,6 +3322,34 @@
    "text": "{char}_{n}"
   },
   {
+   "file": "_2026/cross_entropy/language_tree_visualization/language_tree.py",
+   "line": 484,
+   "scene": "BasicIdea",
+   "call": "TexText",
+   "text": "Document A"
+  },
+  {
+   "file": "_2026/cross_entropy/language_tree_visualization/language_tree.py",
+   "line": 488,
+   "scene": "BasicIdea",
+   "call": "TexText",
+   "text": "Document B"
+  },
+  {
+   "file": "_2026/cross_entropy/language_tree_visualization/language_tree.py",
+   "line": 516,
+   "scene": "BasicIdea",
+   "call": "TexText",
+   "text": "GZIP(AB)"
+  },
+  {
+   "file": "_2026/cross_entropy/language_tree_visualization/language_tree.py",
+   "line": 528,
+   "scene": "BasicIdea",
+   "call": "TexText",
+   "text": "GZIP(A)"
+  },
+  {
    "file": "_2026/cross_entropy/part2_supplements.py",
    "line": 8,
    "scene": "CrossEntropyKLDivergenceTitles",

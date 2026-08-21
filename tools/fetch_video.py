@@ -109,6 +109,9 @@ def report(out_dir: Path, video_id: str) -> None:
     print(f"  выложено     : {info.get('upload_date')}")
     print(f"  чаптеров     : {len(chapters)}")
     print(f"  субтитры     : ручные={sorted(manual)[:6]}… авто-en={'en' in auto}")
+    if not (out_dir / f"{video_id}.en.vtt").exists():
+        print("!! .en.vtt не скачался — у ролика может не быть ручных субтитров. "
+              "make_bundle без транскрипта работать не будет.")
     for f in sorted(out_dir.iterdir()):
         print(f"  {f.name:36} {f.stat().st_size/2**20:8.2f} МБ")
 

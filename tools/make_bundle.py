@@ -15,6 +15,7 @@
 import argparse
 import json
 import re
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -86,7 +87,7 @@ def iter_source_files(source: str) -> list[Path]:
     if p.is_file():
         return [p]
     if p.is_dir():
-        return sorted(p.glob("*.py"))
+        return sorted(p.rglob("*.py"))
     return []
 
 
@@ -131,7 +132,7 @@ def extract_frames(mp4: Path, out_dir: Path, times: list[float]) -> list[dict]:
     out_dir.mkdir(parents=True, exist_ok=True)
     frames = []
     for t in times:
-        name = f"t{t:09.2f}.jpg".replace(".", "_", 1)
+        name = f"t{int(t):05d}.jpg"
         dst = out_dir / name
         if not dst.exists():
             subprocess.run(
@@ -161,7 +162,11 @@ def main() -> None:
     info = json.loads(info_path.read_text(encoding="utf-8"))
 
     vtt = vdir / f"{vid}.en.vtt"
-    cues = parse_vtt(vtt) if vtt.exists() else []
+    if not vtt.exists():
+        sys.exit(f"нет {vtt}: субтитры не скачались. Перезапусти tools/fetch_video.py {vid} --force")
+    cues = parse_vtt(vtt)
+    if not cues:
+        sys.exit(f"{vtt} разобран, но не дал ни одной реплики — проверь формат файла")
     chapters = info.get("chapters") or []
     duration = float(info["duration"])
 
@@ -171,6 +176,13 @@ def main() -> None:
         None,
     )
     source = (row or {}).get("source", "")
+    if source and not iter_source_files(source):
+        guess = (row or {}).get("source_guess", "")
+        if guess and iter_source_files(guess):
+            print(f"[warn] путь {source} не существует, беру фаззи-догадку {guess}")
+            source = guess
+        else:
+            print(f"[warn] путь к исходнику {source!r} не существует, формул не будет")
     formulas, unparsed = extract_formulas(source)
 
     bdir = BUNDLES_DIR / vid
@@ -188,6 +200,8 @@ def main() -> None:
             *[c["start_time"] + 2 for c in chapters],
         })
         times = [t for t in times if 0 <= t < duration]
+        # имя кадра целочисленное, поэтому два близких момента дали бы один файл
+        times = sorted({int(t): t for t in times}.values())
         frames = extract_frames(vdir / f"{vid}.mp4", bdir / "frames", times)
 
     bundle = {
@@ -238,6 +252,8 @@ def main() -> None:
         flines.append(f"- `{f['line']:5d}` **{f['scene'] or '-'}** · {f['call']} · `{f['text']}`")
     (bdir / "formulas.md").write_text("\n".join(flines), encoding="utf-8")
 
+    if not args.no_frames:
+        print(f"  ffmpeg    : {shutil.which('ffmpeg') or 'НЕ НАЙДЕН'}")
     print(f"bundle → {bdir}")
     print(f"  чаптеров  : {len(chapters)}")
     print(f"  реплик    : {len(cues)}")

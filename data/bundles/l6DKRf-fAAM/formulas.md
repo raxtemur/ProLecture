@@ -1,6 +1,6 @@
 # Строки из manim-исходника `_2026/cross_entropy`
 
-Разобрано 384 строк; ещё 121 мест вызова содержат не литерал (переменная, конкатенация, результат функции) и не извлечены.
+Разобрано 388 строк; ещё 130 мест вызова содержат не литерал (переменная, конкатенация, результат функции) и не извлечены.
 
 
 ## _2026/cross_entropy/arithmetic_coding.py
@@ -102,6 +102,13 @@
 - ` 1788` **MyNameIsExample** · TexText · `For some constant $\lambda$`
 - ` 1914` **DistillationTrainingIdea** · Tex · `\text{Loss} = \sum_i p_i (-\log q_i)`
 - ` 1924` **DistillationTrainingIdea** · Tex · `{char}_{n}`
+
+## _2026/cross_entropy/language_tree_visualization/language_tree.py
+
+- `  484` **BasicIdea** · TexText · `Document A`
+- `  488` **BasicIdea** · TexText · `Document B`
+- `  516` **BasicIdea** · TexText · `GZIP(AB)`
+- `  528` **BasicIdea** · TexText · `GZIP(A)`
 
 ## _2026/cross_entropy/part2_supplements.py
 

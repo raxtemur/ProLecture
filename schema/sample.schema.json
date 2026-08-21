@@ -143,14 +143,16 @@
                 "speech",
                 "sound"
               ]
-            }
+            },
+            "uniqueItems": true
           },
           "depends_on": {
             "type": "array",
             "items": {
               "type": "integer",
               "minimum": 0
-            }
+            },
+            "uniqueItems": true
           },
           "evidence_span": {
             "type": "array",
