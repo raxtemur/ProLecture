@@ -13,7 +13,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Проектный замысел ProLecture целиком описан в [docs/plans/general.md](docs/plans/general.md),
 формат разметки — в [data/annotations/README.md](data/annotations/README.md), классы ошибок
-разметки и кто их ловит — в [docs/annotation_checklist.md](docs/annotation_checklist.md).
+разметки и кто их ловит — в [docs/annotation_checklist.md](docs/annotation_checklist.md),
+порядок работы агентов-разметчиков и ревьюеров — в
+[docs/annotation_pipeline.md](docs/annotation_pipeline.md) вместе с драфтами промптов
+в [docs/prompts/](docs/prompts/) и анти-примерами по шаблонам вопросов
+в [docs/question_templates.md](docs/question_templates.md).
+Контракт, по которому отчитываются субагенты-ревьюеры, — [schema/review.py](schema/review.py)
+(pydantic, не JSON-схема: его читает и модель тоже).
 Читай их перед любой правкой разметки или метрик: там зафиксированы решения, у которых
 есть неочевидное «почему».
 
@@ -41,6 +47,10 @@ $BASE tools/build_3b1b_mapping.py                  # урок -> youtube_id -> m
 $BASE tools/fetch_video.py <youtube_id>            # или --slug <lesson-slug>
 $BASE tools/make_bundle.py <youtube_id>            # --no-frames сохраняет уже нарезанные кадры
 $BASE tools/validate_samples.py data/annotations/*.jsonl
+
+# контракт ревью: сверка чеклиста с Item и проверка сохранённого ревью
+$BASE schema/review.py
+$BASE schema/review.py --check data/reviews/<VIDEO_ID>/<SAMPLE_ID>/full.1.json
 
 # ноутбук обзора (ядро — base conda, в rah_manim он не запустится)
 cd data && $BASE -m nbconvert --to notebook --execute --inplace \
@@ -116,8 +126,9 @@ vendor/site (3Blue1Brown.com)          vendor/videos (3b1b/videos)
   первого/последнего обязательного триггера. Ось определяется положением *доказательства*,
   а не окна ответа: у `post`-вопроса окно ответа тоже начинается в момент выдачи вопроса,
   и по окну он неотличим от `at`.
-- **`audio_dependency` остаётся `null`, пока `status == "draft"`** — это результат замера
-  (Фаза 3 плана), а не мнение разметчика. Мнение живёт отдельно в `audio_dependency_claim`.
+- **`audio_dependency` остаётся `null`, пока `status == "draft"`** — метка выводится
+  из ответов зондов модальностей (`visiononly_solved` и `solvable`, чеклист 4.5),
+  а не ставится мнением разметчика. Мнение живёт отдельно в `audio_dependency_claim`.
 
 Прочее, что проверяется: непересекающиеся окна, `t_ideal` внутри своего окна, `depends_on`
 только на более ранние индексы, дистрактор не лежит целиком до `question_time` и не
