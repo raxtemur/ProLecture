@@ -22,6 +22,10 @@
       "type": "string",
       "pattern": "^[A-Za-z0-9_.-]+$"
     },
+    "twin_of": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.-]+$"
+    },
     "video": {
       "type": "object",
       "required": [
@@ -99,7 +103,8 @@
           "t_ideal",
           "response",
           "rubric",
-          "trigger_modality"
+          "trigger_modality",
+          "evidence_span"
         ],
         "additionalProperties": false,
         "properties": {
@@ -158,6 +163,7 @@
             "type": "array",
             "minItems": 2,
             "maxItems": 2,
+            "description": "где лежит последнее по времени доказательство, из которого ответ следует к моменту t_end; это доказательство, а не подтверждение: то, чем проверяется верность самого эталона, живёт в provenance.evidence и может лежать позже окна (predict) или вне ролика (counterfact)",
             "items": {
               "type": "number",
               "minimum": 0
@@ -195,7 +201,6 @@
     "audio_dependency": {
       "enum": [
         "required",
-        "helpful",
         "unnecessary",
         null
       ]
@@ -238,14 +243,82 @@
         "created": {
           "type": "string"
         },
-        "chapter": {
-          "type": "string"
-        },
         "evidence": {
           "type": "array",
           "minItems": 1,
+          "description": "откуда взят эталонный ответ; структурировано, чтобы ссылки можно было проверять автоматически, а не регулярным выражением. Здесь живёт подтверждение — то, чем проверяется, что эталон верен; в отличие от evidence_span оно может лежать позже окна ответа (predict) или вне ролика вовсе (counterfact, type: other)",
           "items": {
-            "type": "string"
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "type",
+                  "t",
+                  "explanation"
+                ],
+                "properties": {
+                  "type": {
+                    "const": "frame"
+                  },
+                  "t": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "explanation": {
+                    "type": "string",
+                    "minLength": 5,
+                    "description": "зачем эта ссылка: что именно здесь видно или слышно"
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "type",
+                  "t_start",
+                  "t_end",
+                  "explanation"
+                ],
+                "properties": {
+                  "type": {
+                    "const": "speech"
+                  },
+                  "t_start": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "t_end": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "explanation": {
+                    "type": "string",
+                    "minLength": 5,
+                    "description": "зачем эта ссылка: что именно здесь видно или слышно"
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "type",
+                  "explanation"
+                ],
+                "properties": {
+                  "type": {
+                    "const": "other"
+                  },
+                  "explanation": {
+                    "type": "string",
+                    "minLength": 5,
+                    "description": "зачем эта ссылка: что именно здесь видно или слышно"
+                  }
+                }
+              }
+            ]
           }
         }
       }
@@ -262,6 +335,12 @@
             "draft",
             "validated",
             "rejected"
+          ]
+        },
+        "solvable": {
+          "type": [
+            "boolean",
+            "null"
           ]
         },
         "blind_solved": {
