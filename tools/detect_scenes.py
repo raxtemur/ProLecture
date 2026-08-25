@@ -62,7 +62,7 @@ SETTLE_EPS = 0.004     # покадровое шевеление, ниже ко�
 SETTLE_QUIET = 2       # столько тихих опросов подряд; один — это может быть пауза
                        # внутри длинной надписи, и кадр снимается полудописанным
 
-FRAME_FMT = "t{:08.1f}.jpg"   # t00887.2.jpg — сортируется лексикографически
+FRAME_FMT = "t{:08.1f}.jpg"   # t000887.2.jpg — сортируется лексикографически
 
 
 def require_cv2():
@@ -209,10 +209,15 @@ def detect(
         small = cv2.resize(full, small_size, interpolation=cv2.INTER_AREA).astype(np.float32)
 
         if ref_small is None:                      # первый кадр считаем снятым
-            if every <= 0:                         # в режиме слотов его выберет слот
+            if every <= 0:
                 take(t, small, full, "first", 0.0)
             else:
+                # в режиме слотов он не снимается сразу, но обязан участвовать
+                # в конкурсе своего слота: иначе слот 0 остаётся без кандидата,
+                # если опрос в нём был всего один
                 ref_small = small
+                best = {"slot": int((t - start) // every), "t": t, "small": small,
+                        "full": full, "score": float("inf"), "central": False}
             prev_small = small
             continue
 
@@ -270,9 +275,15 @@ def detect(
     if pending is not None and prev_small is not None:
         # смена сцены за settle_max до конца ролика: ждать больше нечего,
         # снимаем последним, что видели, иначе она пропадает молча
-        take(pending["t0"], prev_small, prev_full, pending["reason"], pending["score"])
+        # ВАЖНО: картинка тут позже записанной секунды (до settle_max),
+        # потому и причина отдельная — потребитель должен видеть разницу
+        take(pending["t0"], prev_small, prev_full, "scene-eof", pending["score"])
     if best is not None:
-        take(best["t"], best["small"], best["full"], "slot", best["score"])
+        # обрезанный по --end слот успевает набрать один кандидат у самой
+        # границы, и он оказывается вплотную к кадру предыдущего слота
+        near = cuts and best["t"] - cuts[-1]["t"] < 0.3 * every
+        if not near:
+            take(best["t"], best["small"], best["full"], "slot", best["score"])
     cap.release()
     if signal_path is not None:
         signal_path.write_text(json.dumps(signal), encoding="utf-8")
@@ -322,6 +333,13 @@ def main() -> None:
     args = ap.parse_args()
 
     mp4 = resolve_input(args.video)
+    cv2 = require_cv2()
+    cap = cv2.VideoCapture(str(mp4))
+    fps = cap.get(cv2.CAP_PROP_FPS) or 0.0
+    total = cap.get(cv2.CAP_PROP_FRAME_COUNT) or 0.0
+    cap.release()
+    duration = total / fps if fps else 0.0
+
     out_dir = None
     if args.write_frames:
         out_dir = Path(args.out_dir) if args.out_dir else (
@@ -356,7 +374,11 @@ def main() -> None:
         for c in cuts:
             print(f"{c['t']:9.2f}  {c['score']:.4f}  {c['reason']}")
 
-    span = (cuts[-1]["t"] - cuts[0]["t"]) if len(cuts) > 1 else 0.0
+    # знаменатель — разобранный участок, а не промежуток между первым и
+    # последним кадром: иначе оборванный прогон завышает частоту
+    span = (min(args.end, duration) if args.end else duration) - args.start
+    if span <= 0:
+        span = (cuts[-1]["t"] - cuts[0]["t"]) if len(cuts) > 1 else 0.0
     forced = sum(1 for c in cuts if c["reason"] == "max-gap")
     print(f"{mp4.name}: кадров {len(cuts)}"
           + (f", {len(cuts) / span * 60:.1f} на минуту" if span else "")

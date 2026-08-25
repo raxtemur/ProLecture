@@ -105,20 +105,26 @@ nvidia-smi --query-gpu=index,memory.used --format=csv,noheader   # должно 
 
 ## Прогон
 
+Сервер и модель по умолчанию — те же, что в разделе выше
+(`qwen36` на `http://localhost:8078/v1`), так что флаги нужны, только если
+сервер другой; постоянное значение удобно задать через `DESCRIBE_API_BASE`
+и `DESCRIBE_MODEL`.
+
 ```bash
 PY=/home/user/conda/bin/python3
 
-# 1. проба на минуте материала — смотреть глазами, прежде чем ждать час
-$PY tools/describe_video.py <id> --settled 0.5 --range 900-960 \
-    --api-base http://localhost:8077/v1 --model qwen3vl --out-prefix _probe
+# 1. проба на минуте материала — смотреть глазами, прежде чем ждать полчаса.
+#    Свой --out-prefix обязателен: у пробы будет свой каталог кадров
+$PY tools/describe_video.py <id> --range 900-960 --out-prefix _probe
 
 # 2. весь ролик
-$PY tools/describe_video.py <id> --settled 0.5 --workers 16 \
-    --api-base http://localhost:8077/v1 --model qwen3vl
+$PY tools/describe_video.py <id> --workers 16
 
 # 3. добить испорченные фрагменты, не переигрывая весь ролик
-$PY tools/describe_video.py <id> --settled 0.5 --redo-bad \
-    --api-base http://localhost:8077/v1 --model qwen3vl
+$PY tools/describe_video.py <id> --redo-bad
+
+# то же самое с другим сервером
+$PY tools/describe_video.py <id> --api-base http://gpu-node-3:8077/v1 --model qwen3vl
 ```
 
 ### Сервер на другой машине
@@ -129,10 +135,11 @@ $PY tools/describe_video.py <id> --settled 0.5 --redo-bad \
 ```bash
 # на машине с картами: слушать не только петлю
 NO_PROXY=localhost,127.0.0.1 $ES -m vllm.entrypoints.openai.api_server \
-    --model … --host 0.0.0.0 --port 8077 …
+    --model Qwen/Qwen3.6-35B-A3B --served-model-name qwen36 \
+    --host 0.0.0.0 --port 8078 …
 
 # на машине с данными
-$PY tools/describe_video.py <id> --api-base http://gpu-node-3:8077/v1 --model qwen3vl
+$PY tools/describe_video.py <id> --api-base http://gpu-node-3:8078/v1 --model qwen36
 ```
 
 Две вещи, на которых это ломается:
@@ -215,9 +222,10 @@ $PY tools/describe_video.py <id> --api-base http://gpu-node-3:8077/v1 --model qw
 бюджетом, а если и он не помог — из недописанного JSON спасается всё, что успело
 закрыться, и запись помечается `truncated`.
 
-**Кадров получилось не столько, сколько ждали.** `--range` режет список времён
-до нарезки, а каталог кадров чистится от прошлой нарезки — смеси двух прогонов
-в нём не бывает.
+**Кадров получилось не столько, сколько ждали.** При `--settled` и `--times`
+`--range` режет список времён до нарезки, при `--interval` — режется весь ролик,
+а лишнее отбрасывается после. Каталог кадров в обоих случаях чистится
+от прошлой нарезки: смеси двух прогонов в нём не бывает.
 
 **Два прогона по одному видео одновременно.** Каталог кадров зависит от
 `--out-prefix`: полный прогон режет в `frames_desc/`, проба с `--out-prefix _probe` —
