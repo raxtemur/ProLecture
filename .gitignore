@@ -9,9 +9,19 @@ vendor/
 # тяжёлые артефакты — воспроизводятся скриптами из tools/
 data/videos/
 data/bundles/*/frames/
+data/bundles/*/frames_desc/
+data/bundles/*/frames_desc_*/
+data/bundles/*/frames_scenes/
+
+# пробные прогоны описания: имя задаётся --out-prefix и начинается с подчёркивания
+data/bundles/*/_*.jsonl
+data/bundles/*/_*.md
 demo/media/
 
 # исходники статей: держим только обзоры и иллюстрации
 articles/*/paper.pdf
 articles/*/source/
 articles/*/figures/*.pdf
+
+# рабочие папки ревьюеров, воспроизводятся tools/prepare_review_workspace.py
+.review_ws/

@@ -5,11 +5,17 @@
     bundle.json     — машиночитаемо: чаптеры, транскрипт, формулы из исходника
     transcript.md   — транскрипт с таймкодами, разбитый по чаптерам
     formulas.md     — LaTeX-строки из manim-исходника (сцена, файл, строка)
-    frames/         — кадры каждые N секунд + на границах чаптеров
+    frames/         — кадры по детекции смены сцен (tools/detect_scenes.py)
+
+Равномерной сетки здесь больше нет. На manim-видео она ошибается сразу в две
+стороны: на статичном куске выдаёт несколько одинаковых кадров, а сцену, прожившую
+десять секунд между узлами сетки, не показывает вовсе. Замер и разбор —
+в docs/scene_detection.md. Нужен OpenCV (base conda).
 
 Использование:
     python tools/make_bundle.py l6DKRf-fAAM
-    python tools/make_bundle.py l6DKRf-fAAM --frame-interval 10
+    python tools/make_bundle.py l6DKRf-fAAM --scene-threshold 0.008
+    python tools/make_bundle.py l6DKRf-fAAM --no-frames     # оставить нарезку как есть
 """
 
 import argparse
@@ -19,6 +25,9 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import detect_scenes  # noqa: E402  (лежит рядом, в tools/)
 
 ROOT = Path(__file__).resolve().parent.parent
 VIDEOS_DIR = ROOT / "data" / "videos"
@@ -128,21 +137,31 @@ def extract_formulas(source: str) -> tuple[list[dict], int]:
 
 # ---------------------------------------------------------------- кадры
 
-def extract_frames(mp4: Path, out_dir: Path, times: list[float]) -> list[dict]:
-    out_dir.mkdir(parents=True, exist_ok=True)
-    frames = []
-    for t in times:
-        name = f"t{int(t):05d}.jpg"
-        dst = out_dir / name
-        if not dst.exists():
-            subprocess.run(
-                ["ffmpeg", "-v", "error", "-ss", str(t), "-i", str(mp4),
-                 "-frames:v", "1", "-q:v", "4", str(dst), "-y"],
-                check=False,
-            )
-        if dst.exists():
-            frames.append({"t": t, "path": str(dst.relative_to(ROOT))})
-    return frames
+def wipe_frames(out_dir: Path) -> None:
+    """Сносит все кадры перед новой нарезкой.
+
+    Мало снести кадры чужого режима: у `scenes` времена съёма зависят от
+    параметров детектора, и прогон с другим порогом оставляет свои файлы рядом
+    с новыми. Разметчик тогда видит смесь двух нарезок, а `bundle.json` —
+    только половину, которую записал последний прогон. Каталог кадров целиком
+    воспроизводится из mp4, терять там нечего.
+    """
+    if not out_dir.exists():
+        return
+    stale = list(out_dir.glob("t*.jpg"))
+    if stale:
+        print(f"[info] в {out_dir} {len(stale)} кадров прошлой нарезки — удаляю")
+        for f in stale:
+            f.unlink()
+    # Подкаталоги не трогаем: `frames/exact/` — это кеш ноутбука обзора
+    # (`data/data_overview.ipynb` режет туда дробные времена по требованию),
+    # а не остаток чужой нарезки. Но предупредить стоит: кадры там лежат
+    # в другом формате имени и к списку в bundle.json отношения не имеют.
+    for sub in sorted(d for d in out_dir.iterdir() if d.is_dir()):
+        inner = list(sub.glob("t*.jpg"))
+        if inner:
+            print(f"[info] в {sub} {len(inner)} кадров вне списка bundle.json "
+                  f"(кеш ноутбука) — оставляю как есть")
 
 
 # ---------------------------------------------------------------- сборка
@@ -150,7 +169,8 @@ def extract_frames(mp4: Path, out_dir: Path, times: list[float]) -> list[dict]:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("video_id")
-    ap.add_argument("--frame-interval", type=float, default=15.0)
+    ap.add_argument("--scene-threshold", type=float, default=detect_scenes.THRESHOLD,
+                    help=f"порог детектора сцен (по умолчанию {detect_scenes.THRESHOLD})")
     ap.add_argument("--no-frames", action="store_true")
     args = ap.parse_args()
 
@@ -192,17 +212,27 @@ def main() -> None:
     frames = []
     if args.no_frames and bundle_path.exists():
         # не затирать уже собранный список кадров
-        frames = json.loads(bundle_path.read_text(encoding="utf-8")).get("frames", [])
+        prev = json.loads(bundle_path.read_text(encoding="utf-8"))
+        frames = prev.get("frames", [])
     if not args.no_frames:
-        times = sorted({
-            *[round(t, 1) for t in
-              [i * args.frame_interval for i in range(int(duration / args.frame_interval) + 1)]],
-            *[c["start_time"] + 2 for c in chapters],
-        })
-        times = [t for t in times if 0 <= t < duration]
-        # имя кадра целочисленное, поэтому два близких момента дали бы один файл
-        times = sorted({int(t): t for t in times}.values())
-        frames = extract_frames(vdir / f"{vid}.mp4", bdir / "frames", times)
+        fdir = bdir / "frames"
+        # Сначала убеждаемся, что нарезка вообще возможна, и только потом сносим
+        # старую: иначе на машине без mp4 или без OpenCV `make_bundle.py <id>`
+        # удаляет 437 кадров, падает и оставляет bundle.json со списком путей,
+        # которых больше нет. Прежняя сетка ничего не удаляла, так что это
+        # был бы регресс, а не наследство.
+        mp4 = vdir / f"{vid}.mp4"
+        if not mp4.exists():
+            raise SystemExit(f"нет {mp4}: кадры резать нечем "
+                             f"(скачать: tools/fetch_video.py {vid})")
+        detect_scenes.require_cv2()
+        wipe_frames(fdir)
+        cuts = detect_scenes.detect(
+            mp4,
+            threshold=args.scene_threshold,
+            out_dir=fdir,
+        )
+        frames = [{"t": c["t"], "path": c["path"], "reason": c["reason"]} for c in cuts]
 
     bundle = {
         "video_id": vid,
@@ -259,7 +289,8 @@ def main() -> None:
     print(f"  реплик    : {len(cues)}")
     print(f"  формул    : {len(formulas)} из {len(formulas) + unparsed} мест вызова "
           f"({unparsed} не литералы), файлов {len(iter_source_files(source))}")
-    print(f"  кадров    : {len(frames)}")
+    print(f"  кадров    : {len(frames)}"
+          + (f" ({len(frames) / duration * 60:.1f} на минуту)" if duration else ""))
 
 
 if __name__ == "__main__":

@@ -12,7 +12,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
    `demo/`, `scripts/`.
 
 Проектный замысел ProLecture целиком описан в [docs/plans/general.md](docs/plans/general.md),
-формат разметки — в [data/annotations/README.md](data/annotations/README.md), классы ошибок
+формат разметки — в [data/annotations/README.md](data/annotations/README.md), нарезка
+кадров по смене сцен — в [docs/scene_detection.md](docs/scene_detection.md),
+прогон описания видеоряда — в [docs/video_description.md](docs/video_description.md), классы ошибок
 разметки и кто их ловит — в [docs/annotation_checklist.md](docs/annotation_checklist.md),
 порядок работы агентов-разметчиков и ревьюеров — в
 [docs/annotation_pipeline.md](docs/annotation_pipeline.md) вместе с драфтами промптов
@@ -29,8 +31,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 | Окружение | Путь | Что есть | Чего нет |
 |---|---|---|---|
-| `rah_manim` | `/home/jovyan/.mlspace/envs/rah_manim/bin/python` | manim CE 0.20.1, manim-voiceover, yt-dlp | matplotlib, pandas, jupyter, jsonschema |
-| base conda | `/home/user/conda/bin/python3` | matplotlib, pandas, jsonschema, jupyter | yt-dlp, manim |
+| `rah_manim` | `/home/jovyan/.mlspace/envs/rah_manim/bin/python` | manim CE 0.20.1, manim-voiceover, yt-dlp, cv2, openai | matplotlib, pandas, jupyter, jsonschema |
+| base conda | `/home/user/conda/bin/python3` | matplotlib, pandas, jsonschema, cv2, jupyter | yt-dlp, manim |
 
 `tools/fetch_video.py` сам ищет интерпретатор с `yt_dlp` (список в `CANDIDATE_PYTHONS`).
 Остальные инструменты и ядро ноутбука — base conda. LaTeX для manim берётся из TinyTeX
@@ -45,7 +47,9 @@ RAH=/home/jovyan/.mlspace/envs/rah_manim/bin/python
 # конвейер данных: маппинг -> скачивание -> bundle -> проверка разметки
 $BASE tools/build_3b1b_mapping.py                  # урок -> youtube_id -> manim-исходник
 $BASE tools/fetch_video.py <youtube_id>            # или --slug <lesson-slug>
-$BASE tools/make_bundle.py <youtube_id>            # --no-frames сохраняет уже нарезанные кадры
+$BASE tools/make_bundle.py <youtube_id>            # кадры режет детектор сцен; --no-frames оставляет прежние
+$BASE tools/detect_scenes.py <youtube_id>          # детектор сцен сам по себе
+$BASE tools/describe_video.py <youtube_id> --settled 0.5   # описание видеоряда VLM, нужен сервер
 $BASE tools/validate_samples.py data/annotations/*.jsonl
 
 # контракт ревью: сверка чеклиста с Item и проверка сохранённого ревью
