@@ -437,10 +437,13 @@ def _structured(bits: str) -> bool:
 def strip_bits(text: str) -> str:
     """Вырезает ленту случайных бит, оставляя осмысленные двоичные записи.
 
-    Одна функция на все поля: раньше `begin`/`end`/`events` резались подстановкой,
-    а `screen_text` — только если элемент состоял ИЗ ОДНОЙ ленты целиком. В итоге
-    186 элементов с лентой внутри доезжали до индекса, ради чистки которого
-    всё и делалось.
+    Применяется НЕ при записи, а при показе: `.jsonl` хранит то, что модель
+    сказала, дословно. Иначе настоящее двоичное кодовое слово — а ролик именно
+    про кодирование — пропадало бы навсегда, и вернуть его стоило бы двадцати
+    минут на двух A100.
+
+    Читатели, которым лента мешает (markdown этого же прогона, индекс
+    экранного текста в рабочей папке ревьюера), зовут её сами.
     """
     out = BITS_RE.sub(lambda m: m.group(0) if _structured(m.group(0)) else "…", text)
     return re.sub(r"\s{2,}", " ", out).strip()
@@ -493,12 +496,15 @@ def normalize(payload: dict, span: tuple[float, float]) -> dict:
     приписывает элементу секунду соседнего окна, и такой ключ лучше молчаливого
     сдвига в индексе.
     """
-    lo, hi = int(span[0]), int(span[1]) + 1
+    # верхняя граница ровно та, о которой спрашивали в промпте
+    # (`range(int(t_start), int(t_end) + 1)`): секунда за ней — уже соседнее
+    # окно, и полуслепой ревьюер не должен увидеть её через границу нарезки
+    lo, hi = int(span[0]), int(span[1])
 
     events = []
     for ev in payload.get("events", []):
         t = int(ev.get("t", -1))
-        text = strip_bits(str(ev.get("text", "")))
+        text = str(ev.get("text", "")).strip()
         if not text:
             continue
         events.append({"t": t if lo <= t <= hi else None, "text": text})
@@ -506,8 +512,8 @@ def normalize(payload: dict, span: tuple[float, float]) -> dict:
 
     screen: dict[str, list[dict]] = {}
     for item in payload.get("screen_text", []):
-        text = strip_bits(str(item.get("text", "")).strip().strip("`"))
-        if not text or text.strip("… ") == "" or text.lower() in ("нет", "-", "—"):
+        text = str(item.get("text", "")).strip().strip("`").strip()
+        if not text or text.lower() in ("нет", "-", "—"):
             continue
         t = int(item.get("t", -1))
         key = str(t) if lo <= t <= hi else "?"
@@ -515,10 +521,8 @@ def normalize(payload: dict, span: tuple[float, float]) -> dict:
             {"text": text, "location": item.get("location")})
 
     return {
-        # лента случайных бит не значит ничего и в общем описании тоже:
-        # без этого она приезжала в begin дословной строкой из сотни нулей
-        "begin": strip_bits(str(payload.get("begin", ""))),
-        "end": strip_bits(str(payload.get("end", ""))),
+        "begin": str(payload.get("begin", "")).strip(),
+        "end": str(payload.get("end", "")).strip(),
         "events": events,
         "screen_text": screen,
     }
@@ -618,7 +622,9 @@ def describe_chunk(client, model: str, chunk: dict, cues: list[dict],
         penalty = 1.05 if attempt == 1 else 1.2
         # повтор с тем же max_tokens упрётся в ту же стену; на обрыве по длине
         # бюджет надо поднимать, на петле — нет, там помогает штраф
-        budget = max_tokens if attempt == 1 else int(max_tokens * (1.8 if truncated else 1.0))
+        # бюджет растёт с каждой попыткой: повтор с тем же лимитом упирался
+        # в ту же стену, и третья попытка была копией второй
+        budget = int(max_tokens * (1.8 ** (attempt - 1))) if truncated else max_tokens
         msgs = messages
         if attempt > 1 and degenerate:
             msgs = messages + [
@@ -704,7 +710,8 @@ def write_markdown(path: Path, meta: dict, records: list[dict]) -> None:
         f"# Описание видеоряда — {meta.get('title', meta['video_id'])}",
         "",
         f"Видео `{meta['video_id']}`, длительность {meta['duration']:.0f} с. "
-        f"Фрагментов {len(records)}, кадров {sum(len(r['frame_times']) for r in records)}.",
+        f"Фрагментов {len(records)}, кадров {meta.get('n_frames', '?')} "
+        f"(отправок на сервер {sum(len(r.get('frame_times', [])) for r in records)}).",
         "",
         f"Модель `{meta['model']}`, окно {meta.get('window')} с со сдвигом "
         f"{meta.get('stride')} с (перекрытие {meta.get('overlap')} с), "
@@ -733,13 +740,13 @@ def write_markdown(path: Path, meta: dict, records: list[dict]) -> None:
             lines += ["> Модель ушла в повтор даже после переспроса — фрагменту "
                       "не верить, смотреть кадры.", ""]
         if rec.get("begin"):
-            lines += ["**Начало.** " + rec["begin"].replace("\n", " ").strip(), ""]
+            lines += ["**Начало.** " + strip_bits(rec["begin"].replace("\n", " ")), ""]
         if rec.get("events"):
             lines.append("**События.**")
             lines.append("")
             for ev in rec["events"]:
                 mark = f"`{fmt_t(ev['t'])}s`" if ev["t"] is not None else "`?`"
-                lines.append(f"- {mark} {ev['text']}")
+                lines.append(f"- {mark} {strip_bits(ev['text'])}")
             lines.append("")
         if rec.get("screen_text"):
             lines.append("**Текст на экране.**")
@@ -748,10 +755,13 @@ def write_markdown(path: Path, meta: dict, records: list[dict]) -> None:
                 for item in rec["screen_text"][sec]:
                     where = f" — {item['location']}" if item.get("location") else ""
                     mark = f"`{sec}s`" if sec != "?" else "`?`"
-                    lines.append(f"- {mark} `{item['text']}`{where}")
+                    shown = strip_bits(item["text"])
+                    if not shown or shown.strip("… ") == "":
+                        continue
+                    lines.append(f"- {mark} `{shown}`{where}")
             lines.append("")
         if rec.get("end"):
-            lines += ["**Конец.** " + rec["end"].replace("\n", " ").strip(), ""]
+            lines += ["**Конец.** " + strip_bits(rec["end"].replace("\n", " ")), ""]
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
@@ -994,10 +1004,13 @@ def main() -> None:
     records.sort(key=lambda r: r["chunk_index"])
     elapsed = time.time() - started
 
+    # Знаменатель — ЗАПРОШЕННЫЙ участок, а не собранные окна. Если считать
+    # по окнам, то потерянные кадры выпадают вместе со своими секундами
+    # из обеих частей дроби, и проверка радостно рапортует «дыр нет».
     covered = {e["t"] for r in records for e in r.get("events", []) if e.get("t") is not None}
-    want_seconds = set()
-    for ch in build_chunks(frames, args.window, args.stride):
-        want_seconds.update(range(int(ch["t_start"]), int(ch["t_end"]) + 1))
+    want_seconds: set[int] = set()
+    for a, b in (ranges or [(0.0, duration)]):
+        want_seconds.update(range(int(a), int(min(b, duration))))
     missing = sorted(want_seconds - covered)
     if missing:
         print(f"[warn] без событий осталось {len(missing)} секунд из "

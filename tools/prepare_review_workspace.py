@@ -29,6 +29,9 @@ import subprocess
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from describe_video import strip_bits  # noqa: E402  (лента бит режется на входе)
+
 ROOT = Path(__file__).resolve().parent.parent
 
 
@@ -124,8 +127,10 @@ def write_screen(desc: list[dict], out: Path, t0: float, t1: float) -> tuple[int
         for k in sorted(keys, key=int):
             t = float(int(k))
             for item in (c["screen_text"][k] or []):
-                txt = (item.get("text") or "").strip()
-                if not txt:
+                # лента случайных бит в .jsonl лежит дословно (там дословность
+                # и нужна), а в индексе она — мусор: чистим на входе
+                txt = strip_bits((item.get("text") or "").strip())
+                if not txt or txt.strip("… ") == "":
                     continue
                 key = (txt, item.get("location") or "")
                 prev = last_at.get(key)
@@ -377,6 +382,14 @@ def main() -> None:
         sys.exit("--index-only несовместим с папкой зонда: манифест называет каталог "
                  "бандла, где лежит весь ролик, и границу папки не удерживает. "
                  "Зондам и полу-слепому кадры кладутся копиями")
+    # `--dense` досемплирует уже готовую папку кадрами и ни индекс, ни копию
+    # экранного текста не пишет: молча проглоченный флаг выглядел бы так,
+    # будто индекс заказан и не нужен
+    if args.dense is not None and (args.screen or args.index_only):
+        which = " и ".join(n for n, v in (("--screen", args.screen),
+                                          ("--index-only", args.index_only)) if v)
+        sys.exit(f"{which} не работает вместе с --dense: этот режим только "
+                 f"досыпает кадры в готовую папку. Индекс кладётся при --until")
     if args.step < 1.0:
         sys.exit(f"--step {args.step}: имена кадров округляются до целой секунды, "
                  f"поэтому сетка мельче секунды молча склеится и вернёт вдвое меньше "
