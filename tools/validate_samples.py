@@ -368,17 +368,27 @@ def semantic_checks(s: dict) -> list[str]:
                 errs.append(f"distractor[{i}] пересекается с trigger[{t['idx']}]")
 
     st = s["validation"]["status"]
+    vis = s["validation"].get("visiononly_solved")
+    solv = s["validation"].get("solvable")
+
     # S-17 · чеклист 7.2 — audio_dependency пуст, пока замер не завершён.
     #   Ломается: метка, влияющая на выводы о модальностях, ставится мнением
     #   разметчика вместо замера — ровно та ошибка, за которую мы критикуем чужие
     #   работы. Мнение живёт отдельно, в audio_dependency_claim.
-    #   Замер завершён только у validated: до тех пор зонды отвечают по одному,
-    #   и метка, выведенная из части ответов, — это мнение, а не результат.
-    #   Проверить: audio_dependency := "required" при status draft
-    #   -> "метка ставится только замером".
-    if s["audio_dependency"] is not None and st != "validated":
-        errs.append(f"audio_dependency заполнен при статусе {st}: метка ставится только "
-                    f"замером, а замер завершён только у validated")
+    #
+    #   «Замер завершён» — это наличие ОБОИХ флагов, из которых метка выводится
+    #   по 4.5, а не статус сэмпла. Прежняя редакция требовала status=validated
+    #   и тем запрещала метку у rejected навсегда: сэмпл, решённый вслепую,
+    #   в validated не пройдёт по S-18 никогда, значит и замерить у него
+    #   зависимость от звука было нельзя. А замерять надо: отклонённые сэмплы —
+    #   материал для бейзлайнов-пустышек и для счёта контаминации, они уходят
+    #   из набора заданий, но не из измерений.
+    #   Проверить: audio_dependency := "required" при пустых зондах
+    #   -> "зонды ещё не отвечены".
+    if s["audio_dependency"] is not None and (vis is None or solv is None):
+        errs.append(f"audio_dependency заполнен, а зонды, из которых он выводится, "
+                    f"не отвечены (visiononly_solved={vis}, solvable={solv}): "
+                    f"метка ставится только замером")
 
     # S-18 · чеклист 7.2 — условия продвижения в validated.
     #   Ломается: сэмпл объявляется проверенным без ответов зондов, на которых
@@ -413,21 +423,20 @@ def semantic_checks(s: dict) -> list[str]:
     #   на audio_dependency и audio_dependency_claim.
     #   Проверить: visiononly_solved := true, audio_dependency := "required"
     #   -> "выводится unnecessary".
-    vis = s["validation"].get("visiononly_solved")
-    solv = s["validation"].get("solvable")
     if vis is True:
         derived = "unnecessary"
     elif vis is False and solv is True:
         derived = "required"
     else:
         derived = None
-    # Требовать совпадения имеет смысл только у validated: до тех пор зонды
-    # отвечают по одному, и промежуточное состояние «один флаг записан, метка ещё
-    # не выведена» законно. Прежнее условие (derived is None and ...) заклинивало
-    # сэмпл: записанный флаг делал derived непустым, S-25 требовал записать метку,
-    # а S-17 запрещал её при draft — валидного состояния не оставалось вовсе.
-    if s["audio_dependency"] != derived and st == "validated":
-        errs.append(f"audio_dependency={s['audio_dependency']!r}, но по зондам "
+    # Совпадения требуем в двух случаях: метка уже записана (тогда она обязана
+    # совпадать с выводимой при любом статусе — иначе rejected становится лазейкой
+    # для метки, поставленной мнением) и статус validated (там метка обязана быть).
+    # Промежуточное состояние «оба флага записаны, метка ещё не выведена» остаётся
+    # законным у draft и rejected — иначе сэмпл заклинивало бы между S-17 и S-25.
+    label = s["audio_dependency"]
+    if (label is not None or st == "validated") and label != derived:
+        errs.append(f"audio_dependency={label!r}, но по зондам "
                     f"(visiononly_solved={vis}, solvable={solv}) выводится {derived!r}")
 
     # S-27 · чеклист 7.7 — solvable согласован с одномодальными зондами.
