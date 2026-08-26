@@ -1,0 +1,155 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__GlYgs6v2YfU__q09",
+  "role": "semiblind",
+  "iteration": 1,
+  "model": "gpt-5",
+  "date": "2026-08-26",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q09/semiblind",
+  "budget": {
+    "frames_viewed": 40,
+    "sparse_step": 36,
+    "dense_intervals": [
+      {
+        "t_start": 1370,
+        "t_end": 1386
+      }
+    ],
+    "transcript_cues": null,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "Отрезок покрыт редкой сеткой; 1370–1385 с просмотрены посекундно. Раздельное появление до 1379.9 с отброшено.",
+  "prior_answer": "По одному вопросу нельзя вывести p и сравнить максимумы: список примеров и четыре q-столбика не приведены.",
+  "prior_answer_assumptions": [],
+  "recognized_video": false,
+  "recognized_how": "До просмотра не узнавал ни этот ролик, ни описанный момент.",
+  "scans": [
+    {
+      "idx": 0,
+      "t_from": 0,
+      "t_to": 1404,
+      "watched": [
+        {
+          "kind": "frame",
+          "t": 0,
+          "what": "Начало ролика."
+        },
+        {
+          "kind": "frame",
+          "t": 475,
+          "what": "Общие распределения."
+        },
+        {
+          "kind": "frame",
+          "t": 994,
+          "what": "Схема loss."
+        },
+        {
+          "kind": "frame",
+          "t": 1357,
+          "what": "Примеры имён только начинают появляться."
+        },
+        {
+          "kind": "frame",
+          "t": 1370,
+          "what": "Полный список: Alice 4, Bob 3, Charlie 2, Dora 1."
+        },
+        {
+          "kind": "frame",
+          "t": 1379,
+          "what": "Подписи q ещё дорисовываются; момент внутри приманки."
+        },
+        {
+          "kind": "frame",
+          "t": 1380,
+          "what": "Список и все четыре q-столбика с подписями одновременно читаемы; самый высокий q у Charlie."
+        }
+      ],
+      "candidates": [
+        {
+          "question": "Можно ли ответить по материалу к 1359 с?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Имена появляются, но модельные q-столбики ещё отсутствуют; это объявленная приманка."
+        },
+        {
+          "question": "Можно ли ответить по материалу к 1379 с?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Столбики и подписи q только завершают появление, а момент ещё внутри приманки."
+        },
+        {
+          "question": "Можно ли ответить по материалу к 1380 с?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Полный список и четыре подписанных q-столбика видны одновременно."
+        }
+      ],
+      "t_val": 1380,
+      "t_val_basis": "На кадре 1380 с читаются десять примеров (4 Alice, 3 Bob, 2 Charlie, 1 Dora) и q-столбики; самый высокий q-столбик у Charlie.",
+      "answer_at_t_val": "p(Alice,Bob,Charlie,Dora)=(0.4,0.3,0.2,0.1). Максимум p — Alice; максимум q — Charlie.",
+      "confidence": "high"
+    }
+  ],
+  "checks": [
+    {
+      "group": "shortcuts",
+      "item": "solvable-without-video",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1380,
+          "what": "Список и все четыре q-столбика с подписями одновременно читаемы; самый высокий q у Charlie."
+        }
+      ],
+      "findings": "До просмотра конкретные экранные значения, индексы или равенства, нужные для полного ответа, неизвестны.",
+      "criterion": "Пункт срабатывает только если весь предметный ответ выводится из вопроса и общих знаний без достраивания экрана.",
+      "steps": [
+        {
+          "question": "Можно ли дать полный ответ до просмотра?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Текст вопроса не содержит всех конкретных экранных данных."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "video-recognized",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1380,
+          "what": "Список и все четыре q-столбика с подписями одновременно читаемы; самый высокий q у Charlie."
+        }
+      ],
+      "findings": "До просмотра не было воспоминания об этом ролике или моменте.",
+      "criterion": "Пункт срабатывает, если ролик и ответ узнаны по памяти до открытия материалов.",
+      "steps": [
+        {
+          "question": "Был ли ролик узнан до просмотра?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Ролик и требуемый ответ заранее не узнавались."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

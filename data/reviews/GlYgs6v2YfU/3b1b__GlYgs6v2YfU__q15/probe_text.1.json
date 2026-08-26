@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "role": "probe_text",
+  "iteration": 1,
+  "model": "gpt-5.6",
+  "date": "2026-08-26",
+  "violations": [],
+  "notes": "Использован только transcript.md; кадры и индекс видеоряда не использовались.",
+  "sample_id": "3b1b__GlYgs6v2YfU__q15",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q15/probe_text",
+  "budget": {
+    "frames_viewed": 0,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 571,
+    "screen_index_used": false
+  },
+  "looked_at": [
+    {
+      "kind": "cue",
+      "t": 1897.7,
+      "what": "KL divergence вводится как cross-entropy минус entropy P."
+    },
+    {
+      "kind": "cue",
+      "t": 1953.9,
+      "what": "Подчёркивается асимметрия: Q relative to P не равно P relative to Q."
+    },
+    {
+      "kind": "cue",
+      "t": 1967.2,
+      "what": "Компактная форма скрывает разность cross-entropy и entropy."
+    }
+  ],
+  "steps": [
+    {
+      "question": "Как выглядит одно слагаемое разности двух сумм?",
+      "answer_bool": null,
+      "answer_number": null,
+      "answer_text": "(−pᵢ log qᵢ) − (−pᵢ log pᵢ)=−pᵢ log qᵢ+pᵢ log pᵢ.",
+      "why": "Cross-entropy Q relative to P использует −Σpᵢlog qᵢ, а entropy P — −Σpᵢlog pᵢ."
+    },
+    {
+      "question": "Почему возникает отношение pᵢ/qᵢ?",
+      "answer_bool": null,
+      "answer_number": null,
+      "answer_text": "pᵢ(log pᵢ−log qᵢ)=pᵢ log(pᵢ/qᵢ).",
+      "why": "По тождеству log a−log b=log(a/b), причём числитель P и знаменатель Q сохраняют направление Q relative to P."
+    }
+  ],
+  "answer": "Для одного i: (−pᵢ log qᵢ) − (−pᵢ log pᵢ)=−pᵢ log qᵢ+pᵢ log pᵢ=pᵢ(log pᵢ−log qᵢ)=pᵢ log(pᵢ/qᵢ). Поэтому D(Q relative to P)=Σᵢpᵢlog(pᵢ/qᵢ): pᵢ оказывается в числителе, qᵢ — в знаменателе.",
+  "basis": "Транскрипт [1897.7–1921.5] определяет KL как разность cross-entropy и entropy, [1953.9–1962.3] фиксирует направление и асимметрию, [1967.2–1981.3] подтверждает компактную форму. Алгебра выполнена по формулам, уже заданным ранее в транскрипте.",
+  "confidence": "high",
+  "insufficient": false
+}

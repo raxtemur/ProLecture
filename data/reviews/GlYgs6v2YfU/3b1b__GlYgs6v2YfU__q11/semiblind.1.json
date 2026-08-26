@@ -1,0 +1,155 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__GlYgs6v2YfU__q11",
+  "role": "semiblind",
+  "iteration": 1,
+  "model": "gpt-5",
+  "date": "2026-08-26",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q11/semiblind",
+  "budget": {
+    "frames_viewed": 40,
+    "sparse_step": 39,
+    "dense_intervals": [
+      {
+        "t_start": 1494,
+        "t_end": 1507
+      }
+    ],
+    "transcript_cues": null,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "Отрезок покрыт редкой сеткой; 1494–1506 с просмотрены посекундно.",
+  "prior_answer": "По одному вопросу нельзя дословно восстановить всю экранную цепочку условий; известен лишь общий лагранжев вывод логарифма.",
+  "prior_answer_assumptions": [],
+  "recognized_video": false,
+  "recognized_how": "До просмотра не узнавал ни этот ролик, ни описанный момент.",
+  "scans": [
+    {
+      "idx": 0,
+      "t_from": 0,
+      "t_to": 1544.4,
+      "watched": [
+        {
+          "kind": "frame",
+          "t": 0,
+          "what": "Начало ролика."
+        },
+        {
+          "kind": "frame",
+          "t": 707,
+          "what": "График минимума."
+        },
+        {
+          "kind": "frame",
+          "t": 1343,
+          "what": "Произвольная убывающая функция."
+        },
+        {
+          "kind": "frame",
+          "t": 1487,
+          "what": "Поставлена цель минимума при qᵢ=pᵢ."
+        },
+        {
+          "kind": "frame",
+          "t": 1496,
+          "what": "Черновая панель деталей ещё не полноэкранная."
+        },
+        {
+          "kind": "frame",
+          "t": 1504,
+          "what": "Панель деталей почти полностью развёрнута."
+        },
+        {
+          "kind": "frame",
+          "t": 1505,
+          "what": "Полноэкранная вставка Details for the extra-curious и вся цепочка читаемы."
+        }
+      ],
+      "candidates": [
+        {
+          "question": "Можно ли ответить по материалу к 1496 с?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Детали показаны как небольшая панель рядом с основной сценой, не полноэкранной вставкой."
+        },
+        {
+          "question": "Можно ли ответить по материалу к 1504 с?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Переход к полноэкранной вставке завершается."
+        },
+        {
+          "question": "Можно ли ответить по материалу к 1505 с?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Заголовок и вся цепочка условий полностью читаемы."
+        }
+      ],
+      "t_val": 1505,
+      "t_val_basis": "На кадре 1505 с полноэкранно показаны условия первого порядка и подстановка qᵢ=pᵢ, ведущие к логарифму.",
+      "answer_at_t_val": "pᵢf′(qᵢ)=λ для всех i; при условии минимума qᵢ=pᵢ получаем qᵢf′(qᵢ)=λ; значит f′(q)=λ/q, откуда f(q)=λlog(q).",
+      "confidence": "high"
+    }
+  ],
+  "checks": [
+    {
+      "group": "shortcuts",
+      "item": "solvable-without-video",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1505,
+          "what": "Полноэкранная вставка Details for the extra-curious и вся цепочка читаемы."
+        }
+      ],
+      "findings": "Текст вопроса не содержит всех конкретных экранных элементов, требуемых в ответе.",
+      "criterion": "Полный ответ должен выводиться без догадки о содержимом будущего кадра.",
+      "steps": [
+        {
+          "question": "Можно ли дать полный ответ до просмотра?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Требуемые функции, числа, токены или символы заранее не названы."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "video-recognized",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1505,
+          "what": "Полноэкранная вставка Details for the extra-curious и вся цепочка читаемы."
+        }
+      ],
+      "findings": "До просмотра не было воспоминания об этом ролике или моменте.",
+      "criterion": "Пункт срабатывает при узнавании конкретного видео и ответа по памяти.",
+      "steps": [
+        {
+          "question": "Был ли ролик узнан до просмотра?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Видео заранее не узнавалось."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

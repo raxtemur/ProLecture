@@ -1,0 +1,160 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__GlYgs6v2YfU__q06",
+  "role": "semiblind",
+  "iteration": 1,
+  "model": "gpt-5",
+  "date": "2026-08-26",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q06/semiblind",
+  "budget": {
+    "frames_viewed": 40,
+    "sparse_step": 28,
+    "dense_intervals": [
+      {
+        "t_start": 1105,
+        "t_end": 1128
+      }
+    ],
+    "transcript_cues": null,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "Отрезок покрыт редкой сеткой; 1105–1127 с просмотрены посекундно. Переходные кадры 1111–1119 отброшены.",
+  "prior_answer": "По одному вопросу нельзя назвать новый и прежний loss: их численные значения не приведены.",
+  "prior_answer_assumptions": [],
+  "recognized_video": false,
+  "recognized_how": "До просмотра не узнавал ни этот ролик, ни описанный момент.",
+  "scans": [
+    {
+      "idx": 0,
+      "t_from": 0,
+      "t_to": 1128,
+      "watched": [
+        {
+          "kind": "frame",
+          "t": 0,
+          "what": "Начало ролика."
+        },
+        {
+          "kind": "frame",
+          "t": 615,
+          "what": "Двухисходный пример."
+        },
+        {
+          "kind": "frame",
+          "t": 968,
+          "what": "Введение loss."
+        },
+        {
+          "kind": "frame",
+          "t": 1084,
+          "what": "Пример best/worst до общего loss."
+        },
+        {
+          "kind": "frame",
+          "t": 1117,
+          "what": "Состояние best стабильно: Loss = 1.53."
+        },
+        {
+          "kind": "frame",
+          "t": 1119,
+          "what": "Началась перестройка; промежуточные loss меняются."
+        },
+        {
+          "kind": "frame",
+          "t": 1120,
+          "what": "Переходное состояние показывает ещё неустойчивые значения."
+        },
+        {
+          "kind": "frame",
+          "t": 1121,
+          "what": "Полная перестройка на worst стабилизировалась: Loss = 11.11."
+        }
+      ],
+      "candidates": [
+        {
+          "question": "Можно ли ответить по материалу к 1117 с?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Зафиксирован только прежний best loss 1.53; нового worst ещё нет."
+        },
+        {
+          "question": "Можно ли ответить по материалу к 1119 с?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Столбики и total находятся в промежуточной анимации, объявленной приманкой."
+        },
+        {
+          "question": "Можно ли ответить по материалу к 1121 с?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Полное состояние worst стабилизировалось на 11.11; прежнее полное состояние было 1.53."
+        }
+      ],
+      "t_val": 1121,
+      "t_val_basis": "На кадре 1121 с перестройка завершена и loss для worst стабилен на 11.11; перед переходом best был 1.53.",
+      "answer_at_t_val": "Новый loss = 11.11, прежний loss = 1.53; скачок = 11.11 − 1.53 = 9.58.",
+      "confidence": "high"
+    }
+  ],
+  "checks": [
+    {
+      "group": "shortcuts",
+      "item": "solvable-without-video",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1121,
+          "what": "Полная перестройка на worst стабилизировалась: Loss = 11.11."
+        }
+      ],
+      "findings": "До просмотра конкретные экранные значения, индексы или равенства, нужные для полного ответа, неизвестны.",
+      "criterion": "Пункт срабатывает только если весь предметный ответ выводится из вопроса и общих знаний без достраивания экрана.",
+      "steps": [
+        {
+          "question": "Можно ли дать полный ответ до просмотра?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Текст вопроса не содержит всех конкретных экранных данных."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "video-recognized",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1121,
+          "what": "Полная перестройка на worst стабилизировалась: Loss = 11.11."
+        }
+      ],
+      "findings": "До просмотра не было воспоминания об этом ролике или моменте.",
+      "criterion": "Пункт срабатывает, если ролик и ответ узнаны по памяти до открытия материалов.",
+      "steps": [
+        {
+          "question": "Был ли ролик узнан до просмотра?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Ролик и требуемый ответ заранее не узнавались."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

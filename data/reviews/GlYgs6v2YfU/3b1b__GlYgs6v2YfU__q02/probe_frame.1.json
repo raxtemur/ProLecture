@@ -1,0 +1,7 @@
+{
+  "schema_version":"1.2","checklist_version":"2026-08-24","sample_id":"3b1b__GlYgs6v2YfU__q02","role":"probe_frame","iteration":1,"model":"gpt-5","date":"2026-08-26","workspace":".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q02/probe_frame",
+  "budget":{"frames_viewed":1,"sparse_step":null,"dense_intervals":[],"transcript_cues":0,"screen_index_used":false},"violations":[],"notes":"",
+  "looked_at":[{"kind":"frame","t":346.0,"what":"Справа полностью видны зелёные вероятности 1/8, 1/8, 1/4, 1/2, а над ними синие кодовые слова 0, 10, 110, 111."}],
+  "steps":[{"question":"Какие четыре взвешенных слагаемых задают среднее?","answer_bool":null,"answer_number":null,"answer_text":"(1/8)·1 + (1/8)·2 + (1/4)·3 + (1/2)·3","why":"Длины синих слов равны 1, 2, 3, 3 бита, а соответствующие зелёные вероятности — 1/8, 1/8, 1/4, 1/2."},{"question":"Чему равна сумма четырёх слагаемых?","answer_bool":null,"answer_number":2.625,"answer_text":null,"why":"Сумма равна 1/8 + 1/4 + 3/4 + 3/2 = 21/8."}],
+  "answer":"Среднее равно (1/8)·1 + (1/8)·2 + (1/4)·3 + (1/2)·3 = 21/8 = 2.625 бита на инструкцию.","basis":"Единственный кадр на 346-й секунде показывает четыре зелёные вероятности и старые синие кодовые слова целиком.","confidence":"high","insufficient":false
+}

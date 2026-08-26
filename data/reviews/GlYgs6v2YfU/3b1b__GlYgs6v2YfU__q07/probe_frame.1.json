@@ -1,0 +1,7 @@
+{
+  "schema_version":"1.2","checklist_version":"2026-08-24","sample_id":"3b1b__GlYgs6v2YfU__q07","role":"probe_frame","iteration":1,"model":"gpt-5","date":"2026-08-26","workspace":".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q07/probe_frame",
+  "budget":{"frames_viewed":1,"sparse_step":null,"dense_intervals":[],"transcript_cues":0,"screen_index_used":false},"violations":[],"notes":"",
+  "looked_at":[{"kind":"frame","t":1168.0,"what":"На графике показано равенство −log₂(x)·ln(2)=−ln(x) и соответствующие убывающие кривые."}],
+  "steps":[{"question":"Какое равенство замены основания показано?","answer_bool":null,"answer_number":null,"answer_text":"−log₂(x)·ln(2)=−ln(x).","why":"Равенство подписано над графиком."},{"question":"Меняет ли положительное масштабирование порядок моделей или минимум?","answer_bool":false,"answer_number":null,"answer_text":null,"why":"Умножение всех loss на положительную константу ln(2) сохраняет сравнения и аргумент минимума."}],
+  "answer":"Экранное равенство: −log₂(x)·ln(2)=−ln(x). Замена основания лишь умножает loss на положительную константу, поэтому не меняет ни порядок качества моделей, ни положение минимума.","basis":"Формула и кривые видны на единственном кадре 1168 с; вывод о сохранении порядка следует из положительного множителя ln(2).","confidence":"high","insufficient":false
+}

@@ -1,0 +1,49 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__GlYgs6v2YfU__q14",
+  "role": "semiblind",
+  "iteration": 1,
+  "model": "gpt-5",
+  "date": "2026-08-26",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q14/semiblind",
+  "budget": {"frames_viewed": 40, "sparse_step": 49, "dense_intervals": [{"t_start": 1930, "t_end": 1942}], "transcript_cues": null, "screen_index_used": true},
+  "violations": [],
+  "notes": "Отрезок покрыт редкой сеткой; 1930–1942 с просмотрены посекундно.",
+  "prior_answer": "По одному вопросу нельзя назвать три экранных числа: средние длины и потери в нём не приведены.",
+  "prior_answer_assumptions": [],
+  "recognized_video": false,
+  "recognized_how": "До просмотра не узнавал ни этот ролик, ни описанный момент.",
+  "scans": [{
+    "idx": 0, "t_from": 0, "t_to": 1950.1,
+    "watched": [
+      {"kind": "frame", "t": 0, "what": "Начало ролика."},
+      {"kind": "frame", "t": 1896, "what": "Начало объяснения KL divergence."},
+      {"kind": "frame", "t": 1934, "what": "Показана poorly-optimized средняя длина 2.625 bits/instruction."},
+      {"kind": "frame", "t": 1936, "what": "Добавлена optimal средняя длина 1.75 bits/instruction, но строка потерь ещё не полна."},
+      {"kind": "frame", "t": 1937, "what": "Обе таблицы и полная строка KL Divergence одновременно читаемы."}
+    ],
+    "candidates": [
+      {"question": "Можно ли дать все три числа на 1936 с?", "answer_bool": false, "answer_number": null, "answer_text": null, "why": "Обе средние длины уже показаны, но требуемая экранная величина потерь ещё не собрана полностью."},
+      {"question": "Можно ли дать все три числа на 1937 с?", "answer_bool": true, "answer_number": null, "answer_text": null, "why": "Одновременно читаются poorly-optimized, optimal и вычисленная разность."}
+    ],
+    "t_val": 1937,
+    "t_val_basis": "На 1937 с полностью видны обе средние длины и строка KL Divergence: 2.625 - 1.75 = 0.875 wasted bits/instruction.",
+    "answer_at_t_val": "Poorly-optimized: 2.625 bits/instruction. Optimal: 1.75 bits/instruction. Потери: 0.875 wasted bits/instruction.",
+    "confidence": "high"
+  }],
+  "checks": [
+    {"group": "shortcuts", "item": "solvable-without-video", "target": null,
+      "looked_at": [{"kind": "frame", "t": 1937, "what": "Обе таблицы и строка потерь с тремя числами."}],
+      "findings": "Три требуемых числа отсутствуют в формулировке вопроса.",
+      "criterion": "Полный ответ должен выводиться без догадки о содержимом будущего кадра.",
+      "steps": [{"question": "Можно ли дать полный ответ до просмотра?", "answer_bool": false, "answer_number": null, "answer_text": null, "why": "Ни одна из двух средних длин и величина потерь заранее не названы."}],
+      "result": "ok", "confidence": "high", "proposal": null, "uncovered": null},
+    {"group": "shortcuts", "item": "video-recognized", "target": null,
+      "looked_at": [{"kind": "frame", "t": 1937, "what": "Обе таблицы и строка потерь."}],
+      "findings": "До просмотра не было воспоминания об этом ролике или моменте.",
+      "criterion": "Пункт срабатывает при узнавании конкретного видео и ответа по памяти.",
+      "steps": [{"question": "Был ли ролик узнан до просмотра?", "answer_bool": false, "answer_number": null, "answer_text": null, "why": "Видео заранее не узнавалось."}],
+      "result": "ok", "confidence": "high", "proposal": null, "uncovered": null}
+  ]
+}

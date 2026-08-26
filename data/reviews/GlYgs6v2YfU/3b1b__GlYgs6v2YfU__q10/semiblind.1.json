@@ -1,0 +1,160 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__GlYgs6v2YfU__q10",
+  "role": "semiblind",
+  "iteration": 1,
+  "model": "gpt-5",
+  "date": "2026-08-26",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q10/semiblind",
+  "budget": {
+    "frames_viewed": 40,
+    "sparse_step": 37,
+    "dense_intervals": [
+      {
+        "t_start": 1450,
+        "t_end": 1466
+      }
+    ],
+    "transcript_cues": null,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "Отрезок покрыт редкой сеткой; 1450–1465 с просмотрены посекундно.",
+  "prior_answer": "По одному вопросу нельзя назвать три нарисованные функции-кандидата: они в тексте вопроса не перечислены.",
+  "prior_answer_assumptions": [],
+  "recognized_video": false,
+  "recognized_how": "До просмотра не узнавал ни этот ролик, ни описанный момент.",
+  "scans": [
+    {
+      "idx": 0,
+      "t_from": 0,
+      "t_to": 1472,
+      "watched": [
+        {
+          "kind": "frame",
+          "t": 0,
+          "what": "Начало ролика."
+        },
+        {
+          "kind": "frame",
+          "t": 748,
+          "what": "Минимум cross-entropy при Q=P."
+        },
+        {
+          "kind": "frame",
+          "t": 1148,
+          "what": "Ранее показан кандидат 1/x−1."
+        },
+        {
+          "kind": "frame",
+          "t": 1150,
+          "what": "Ранее показан tan(π/2(1−x))."
+        },
+        {
+          "kind": "frame",
+          "t": 1152,
+          "what": "Ранее показан Γ(x)−1."
+        },
+        {
+          "kind": "frame",
+          "t": 1423,
+          "what": "Средний loss по именам формируется."
+        },
+        {
+          "kind": "frame",
+          "t": 1455,
+          "what": "Возвращается формулировка минимума при Q=P."
+        },
+        {
+          "kind": "frame",
+          "t": 1456,
+          "what": "Требование “Minimal when Q=P” полностью читаемо."
+        }
+      ],
+      "candidates": [
+        {
+          "question": "Можно ли ответить по материалу к 1424 с?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Средний loss уже показан, но требование к его минимуму ещё не сформулировано снова."
+        },
+        {
+          "question": "Можно ли ответить по материалу к 1455 с?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Текст минимума только появляется."
+        },
+        {
+          "question": "Можно ли ответить по материалу к 1456 с?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Полностью читается требование минимума при Q=P; три прежних кандидата уже были показаны."
+        }
+      ],
+      "t_val": 1456,
+      "t_val_basis": "На кадре 1456 с снова полностью показано “Minimal when Q=P” рядом со средним cross-entropy.",
+      "answer_at_t_val": "Кандидаты: 1/x−1; tan((π/2)(1−x)); Γ(x)−1. Одной убываемости мало: она лишь штрафует малые отдельные q, но не гарантирует, что взвешенный средний loss ∑pᵢf(qᵢ) для любого P минимален ровно при Q=P.",
+      "confidence": "high"
+    }
+  ],
+  "checks": [
+    {
+      "group": "shortcuts",
+      "item": "solvable-without-video",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1456,
+          "what": "Требование “Minimal when Q=P” полностью читаемо."
+        }
+      ],
+      "findings": "Текст вопроса не содержит всех конкретных экранных элементов, требуемых в ответе.",
+      "criterion": "Полный ответ должен выводиться без догадки о содержимом будущего кадра.",
+      "steps": [
+        {
+          "question": "Можно ли дать полный ответ до просмотра?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Требуемые функции, числа, токены или символы заранее не названы."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "video-recognized",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1456,
+          "what": "Требование “Minimal when Q=P” полностью читаемо."
+        }
+      ],
+      "findings": "До просмотра не было воспоминания об этом ролике или моменте.",
+      "criterion": "Пункт срабатывает при узнавании конкретного видео и ответа по памяти.",
+      "steps": [
+        {
+          "question": "Был ли ролик узнан до просмотра?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Видео заранее не узнавалось."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

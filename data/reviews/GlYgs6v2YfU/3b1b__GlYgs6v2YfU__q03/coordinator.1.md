@@ -1,0 +1,28 @@
+# Круг 1 — решение Coordinator
+
+## Прочитано
+
+- `semiblind.1.json` — ролик заранее не узнан, честный prior полного ответа не содержит; найден `t_val=565.0`.
+- `probe_text.1.json` — Coordinator outcome: `textonly_solved=true`.
+- `probe_vision.1.json` — Coordinator outcome: `visiononly_solved=true`; положительный ответ опирается на фактически просмотренные кадры.
+- `probe_frame.1.json` — Coordinator outcome: `frozenframe_solved=true`.
+- `probe_full` не запускался: text и vision не провалились одновременно.
+- `full_sample` и `full_window` не запускались по явному указанию пользователя.
+
+Reviewer-задачи были запущены как GPT-5.6-Sol/medium. Само поле `model` в их JSON сохранено без Coordinator-подмены.
+
+## Blind solve
+
+**Не засчитан.** Prior до просмотра не содержит предметного ответа и не маскирует его предположениями; `recognized_video=false`. Принято `blind_solved=false`.
+
+## Решение по модальностям
+
+Все три probe правильно нашли равномерное P=(0.5,0.5), Q=(0.9,0.1) и среднее около 1.74 бита.
+
+Принято: `solvable=true`, `textonly_solved=true`, `visiononly_solved=true`, `frozenframe_solved=true`. Claim `audio_dependency_claim=unnecessary` не противоречит результатам: визуального канала достаточно.
+
+## Время и изменения
+
+Исходная левая граница `570.4`, подтверждённая Coordinator граница `565.0`. Левая граница и `t_ideal` перенесены на 565.0; distractor первой зеркальной конфигурации сохранён.
+
+`question_time`, temporal axis и distractor windows оставлены без изменения. Статус sample установлен в `validated`. Открытых блокеров после предусмотренного пользователем набора ролей нет.

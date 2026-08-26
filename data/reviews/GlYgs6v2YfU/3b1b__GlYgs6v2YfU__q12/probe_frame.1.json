@@ -1,0 +1,7 @@
+{
+  "schema_version":"1.2","checklist_version":"2026-08-24","sample_id":"3b1b__GlYgs6v2YfU__q12","role":"probe_frame","iteration":1,"model":"gpt-5","date":"2026-08-26","workspace":".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q12/probe_frame",
+  "budget":{"frames_viewed":1,"sparse_step":null,"dense_intervals":[],"transcript_cues":0,"screen_index_used":false},"violations":[],"notes":"",
+  "looked_at":[{"kind":"frame","t":1631.0,"what":"Для одного префикса рядом показаны два распределения: слева рядом с малым кубом верхний токен made 19.7%, справа рядом с большим кубом made 41.1%."}],
+  "steps":[{"question":"Каковы верхние токены и проценты слева и справа?","answer_bool":null,"answer_number":null,"answer_text":"Слева made — 19.7%; справа made — 41.1%.","why":"Обе верхние строки таблиц полностью читаемы."},{"question":"Как распределения соотносятся с размерами моделей?","answer_bool":null,"answer_number":null,"answer_text":"Левое принадлежит меньшей модели, правое — большей.","why":"Над левым распределением нарисован малый куб модели, над правым — заметно больший куб."}],
+  "answer":"Слева верхний токен made — 19.7%, и это распределение меньшей модели. Справа верхний токен made — 41.1%, и это распределение большей модели.","basis":"Единственный кадр на 1631-й секунде одновременно показывает обе таблицы и кубы разного размера.","confidence":"high","insufficient":false
+}

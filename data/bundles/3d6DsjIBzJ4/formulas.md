@@ -1,0 +1,76 @@
+# Строки из manim-исходника `_2017/eoc/chapter10.py`
+
+Разобрано 69 строк; ещё 26 мест вызова содержат не литерал (переменная, конкатенация, результат функции) и не извлечены.
+
+
+## _2017/eoc/chapter10.py
+
+- `   75` **ExampleApproximation** · OldTexText · `Near %s $= %d$`
+- `  437` **Pendulum** · OldTex · `\\theta`
+- `  563` **ConstructQuadraticApproximation** · OldTex · `\\cos(x)`
+- `  601` **ConstructQuadraticApproximation** · OldTexText · `Free to change`
+- `  913` **ConstructQuadraticApproximation** · OldTex · `{d^2 P \\over dx^2}`
+- `  984` **ConstructQuadraticApproximation** · OldTex · `P(`
+- `  994` **ConstructQuadraticApproximation** · OldTex · `{dP \\over dx}`
+- ` 1011` **ConstructQuadraticApproximation** · OldTex · `x = 0`
+- ` 1039` **ConstructQuadraticApproximation** · OldTex · `\\cos(x)`
+- ` 1041` **ConstructQuadraticApproximation** · OldTex · `{d(`
+- ` 1065` **ConstructQuadraticApproximation** · OldTex · `{d^2(`
+- ` 1100` **ReflectOnQuadraticApproximation** · OldTex · `\\cos(`
+- ` 1108` **ReflectOnQuadraticApproximation** · OldTex · `\\cos(`
+- ` 1170` **ReflectOnQuadraticApproximation** · OldTex · `P(0) = \\cos(0)`
+- ` 1183` **ReflectOnQuadraticApproximation** · OldTex · `\\frac{dP}{dx}(0) = \\frac{d(\\cos)}{dx}(0)`
+- ` 1199` **ReflectOnQuadraticApproximation** · OldTex · `\\frac{d^2 P}{dx^2}(0) = \\frac{d^2(\\cos)}{dx^2}(0)`
+- ` 1219` **ReflectOnQuadraticApproximation** · OldTex · `P(x) = `
+- ` 1347` **CubicAndQuarticApproximations** · OldTex · `\\cos`
+- ` 1355` **CubicAndQuarticApproximations** · OldTex · `P(x)=`
+- ` 1368` **CubicAndQuarticApproximations** · OldTex · `+\\,`
+- ` 1385` **CubicAndQuarticApproximations** · OldTex · `\\frac{d^3 P}{dx^3}(x) = `
+- ` 1475` **CubicAndQuarticApproximations** · OldTex · `+\\,`
+- ` 1501` **CubicAndQuarticApproximations** · OldTex · `{d^4 P \\over dx^4}(x)`
+- ` 1535` **CubicAndQuarticApproximations** · OldTex · `\\text{\\small $\\frac{1}{24}$}`
+- ` 1601` **CubicAndQuarticApproximations** · OldTex · `%d \\cdot`
+- ` 1604` **CubicAndQuarticApproximations** · OldTex · `x^%d`
+- ` 1643` **CubicAndQuarticApproximations** · OldTex · `{d^3(`
+- ` 1672` **CubicAndQuarticApproximations** · OldTex · `{d^4(`
+- ` 1708` **FactorialTerms** · OldTex · `{d%s`
+- ` 1726` **FactorialTerms** · OldTex · `c_8`
+- ` 1739` **FactorialTerms** · OldTexText · `Set`
+- ` 1773` **HigherTermsDontMessUpLowerTerms** · OldTex · `P(x) = `
+- ` 1794` **HigherTermsDontMessUpLowerTerms** · OldTexText · `Doesn't affect \\\\ previous terms`
+- ` 1816` **HigherTermsDontMessUpLowerTerms** · OldTex · `{d^2 P \\over dx^2}(`
+- ` 1847` **EachTermControlsOneDerivative** · OldTex · `P(x) = `
+- ` 1855` **EachTermControlsOneDerivative** · OldTexText · `Controls \\\\ $%s(0)$`
+- ` 1978` **ApproximateNearNewPoint** · OldTex · `P_{%s}(x)`
+- ` 2030` **TranslationOfInformation** · OldTexText · `Derivative \\\\ information \\\\ at a point`
+- ` 2035` **TranslationOfInformation** · OldTexText · `Output \\\\ information \\\\ near that point`
+- ` 2119` **TranslationOfInformation** · OldTex · `\\vdots`
+- ` 2181` **TranslationOfInformation** · OldTex · `\\frac{1}{4!}`
+- ` 2262` **TranslationOfInformation** · OldTex · `\\text{$%s$}`
+- ` 2449` **TranslationOfInformation** · OldTex · `P(x) = `
+- ` 2513` **ExpPolynomial** · OldTex · `e^%s`
+- ` 2532` **ExpPolynomial** · OldTex · `\\vdots`
+- ` 2551` **ExpPolynomial** · OldTex · `d/dx`
+- ` 2611` **ShowSecondTerm** · OldTex · `f(a)`
+- ` 2625` **ShowSecondTerm** · OldTexText · `Geometric view`
+- ` 2688` **SecondTermIntuition** · OldTex · `f_{\\text{area}}(x)`
+- ` 2704` **SecondTermIntuition** · OldTex · `\\frac{df_{\\text{area}}}{dx}(x)`
+- ` 2789` **SecondTermIntuition** · OldTex · `(x-a)`
+- ` 2832` **SecondTermIntuition** · OldTexText · `Base = `
+- ` 2847` **SecondTermIntuition** · OldTex · `\\text{Height} = `
+- ` 2873` **SecondTermIntuition** · OldTex · `=\\frac{1}{2}`
+- ` 2916` **SecondTermIntuition** · OldTex · `f(x) \\approx `
+- ` 2925` **SecondTermIntuition** · OldTex · `f(x) \\approx`
+- ` 2941` **SecondTermIntuition** · OldTex · `f_{\\text{area}}(a)`
+- ` 2999` **AskAboutInfiniteSum** · OldTex · `\\cos(x)`
+- ` 3010` **AskAboutInfiniteSum** · OldTexText · `Add infinitely many`
+- ` 3044` **AskAboutInfiniteSum** · OldTexText · `Infinite sum $\\Leftrightarrow$ series`
+- ` 3047` **AskAboutInfiniteSum** · OldTexText · `Taylor series`
+- ` 3097` **ConvergenceExample** · OldTexText · ```Converges'' to $\\frac{1}{2}$`
+- ` 3100` **ConvergenceExample** · OldTex · `= \\frac{1}{2}`
+- ` 3147` **ExpConvergenceExample** · OldTex · `e^%s`
+- ` 3173` **ExpConvergenceExample** · OldTex · `e^%s`
+- ` 3368` **RadiusOfConvergenceForLnX** · OldTex · `\\ln(x) \\rightarrow`
+- ` 3512` **RadiusOfConvergenceForLnX** · OldTexText · ```Diverges''`
+- ` 3558` **MoreToBeSaid** · OldTexText · `Lagrange error bounds, `
+- ` 3656` **Thumbnail** · OldTexText · `Taylor Series`

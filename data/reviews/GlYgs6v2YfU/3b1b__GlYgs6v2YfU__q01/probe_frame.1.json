@@ -1,0 +1,46 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__GlYgs6v2YfU__q01",
+  "role": "probe_frame",
+  "iteration": 1,
+  "model": "gpt-5",
+  "date": "2026-08-26",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q01/probe_frame",
+  "budget": {
+    "frames_viewed": 1,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 0,
+    "screen_index_used": false
+  },
+  "violations": [],
+  "notes": "",
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 69.0,
+      "what": "На экране показано GZIP(AB) с синим блоком A над зелёным блоком B, затем знак минус и справа GZIP(A) с одним синим блоком."
+    }
+  ],
+  "steps": [
+    {
+      "question": "Какой документ служит базой и чей фрагмент к нему дописан?",
+      "answer_bool": null,
+      "answer_number": null,
+      "answer_text": "База — документ A; к нему дописан фрагмент документа B.",
+      "why": "Левый составной объект подписан AB: сверху виден синий A, а следом под ним зелёный B; справа отдельно показан A."
+    },
+    {
+      "question": "В каком порядке на экране стоят два члена вычитания?",
+      "answer_bool": null,
+      "answer_number": null,
+      "answer_text": "Слева GZIP(AB), затем минус, справа GZIP(A).",
+      "why": "Именно эти подписи и знак вычитания различимы на единственном кадре."
+    }
+  ],
+  "answer": "Базой служит документ A, к нему дописан фрагмент документа B. На экране порядок такой: GZIP(AB) − GZIP(A), то есть сначала результат для составного документа AB, затем вычитается результат для базового A.",
+  "basis": "Единственный кадр на 69-й секунде: слева явно подписано GZIP(AB) и показаны синий A с добавленным зелёным B, справа после минуса явно подписано GZIP(A).",
+  "confidence": "high",
+  "insufficient": false
+}

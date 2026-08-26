@@ -1,0 +1,50 @@
+{
+  "sample_id": "3b1b__GlYgs6v2YfU__q15",
+  "role": "probe_vision",
+  "iteration": 1,
+  "model": "gpt-5",
+  "date": "2026-08-26",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q15/probe_vision",
+  "budget": {
+    "frames_viewed": 2,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 1968,
+        "t_end": 1973
+      }
+    ],
+    "transcript_cues": 0,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "",
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 1968,
+      "what": "Видны заголовок KL Divergence of Q relative to P и исходная разность двух сумм."
+    },
+    {
+      "kind": "frame",
+      "t": 1972,
+      "what": "Под исходной разностью видна компактная сумма с log_2(p_i/q_i)."
+    }
+  ],
+  "steps": [
+    {
+      "question": "Как раскрываются два минуса для фиксированного i?",
+      "answer_text": "p_i(-log_2 q_i) - p_i(-log_2 p_i) = p_i[-log_2 q_i + log_2 p_i].",
+      "why": "Первый минус стоит перед log q_i, а вычитание второго отрицательного слагаемого меняет его знак на плюс."
+    },
+    {
+      "question": "Почему внутри логарифма p_i/q_i?",
+      "answer_text": "log_2 p_i - log_2 q_i = log_2(p_i/q_i).",
+      "why": "Разность логарифмов равна логарифму отношения в том же порядке; кадр 1972 показывает эту форму."
+    }
+  ],
+  "answer": "Для одного i: p_i(-log_2 q_i) - p_i(-log_2 p_i) = p_i[-log_2 q_i + log_2 p_i] = p_i[log_2 p_i - log_2 q_i] = p_i log_2(p_i/q_i). Поэтому для экранного направления «KL divergence of Q relative to P» вся разность равна sum_i p_i log_2(p_i/q_i), а не сумме с q_i/p_i.",
+  "basis": "Кадр t=1968 показывает направление Q relative to P и исходную разность; t=1972 показывает результат sum_i p_i log_2(p_i/q_i). Алгебра раскрытия минусов — общие знания.",
+  "confidence": "high",
+  "insufficient": false
+}

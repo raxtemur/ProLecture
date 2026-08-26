@@ -1,0 +1,68 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "role": "probe_text",
+  "iteration": 1,
+  "model": "gpt-5.6",
+  "date": "2026-08-26",
+  "violations": [],
+  "notes": "Использован только transcript.md; кадры и индекс видеоряда не использовались.",
+  "sample_id": "3b1b__GlYgs6v2YfU__q14",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q14/probe_text",
+  "budget": {
+    "frames_viewed": 0,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 558,
+    "screen_index_used": false
+  },
+  "looked_at": [
+    {
+      "kind": "cue",
+      "t": 329.3,
+      "what": "Новое фактическое распределение: up=1/8, down=1/8, left=1/4, right=1/2."
+    },
+    {
+      "kind": "cue",
+      "t": 352.6,
+      "what": "Старый код использует длины 1, 2, 3, 3 и даёт среднее 2.625 бита."
+    },
+    {
+      "kind": "cue",
+      "t": 1922,
+      "what": "KL divergence — число бит на символ, теряемых из-за плохо оптимизированного кода."
+    },
+    {
+      "kind": "cue",
+      "t": 1930,
+      "what": "Потери равны unoptimized bits/symbol минус optimized bits/symbol."
+    }
+  ],
+  "steps": [
+    {
+      "question": "Какова средняя длина плохо оптимизированного кода?",
+      "answer_bool": null,
+      "answer_number": 2.625,
+      "answer_text": null,
+      "why": "Прямо названа в реплике 367.6–373.2."
+    },
+    {
+      "question": "Какова оптимальная средняя длина для нового распределения?",
+      "answer_bool": null,
+      "answer_number": 1.75,
+      "answer_text": null,
+      "why": "Энтропия: 2·(1/8·3)+(1/4·2)+(1/2·1)=1.75 бита на инструкцию."
+    },
+    {
+      "question": "Каковы потери между ними?",
+      "answer_bool": null,
+      "answer_number": 0.875,
+      "answer_text": null,
+      "why": "По определению из 1930.0–1941.1: 2.625−1.75=0.875 бита на инструкцию."
+    }
+  ],
+  "answer": "Poorly-optimized: 2.625 бита на инструкцию. Optimal: 1.75 бита на инструкцию. Потери между ними (KL divergence): 0.875 бита на инструкцию.",
+  "basis": "Транскрипт [329.3–337.8] даёт новое распределение, [367.6–373.2] — плохо оптимизированное среднее 2.625, а [1930.0–1941.1] — правило вычитания. Оптимум 1.75 и потеря 0.875 вычислены из этих данных.",
+  "confidence": "high",
+  "insufficient": false
+}

@@ -1,0 +1,7 @@
+{
+  "schema_version":"1.2","checklist_version":"2026-08-24","sample_id":"3b1b__GlYgs6v2YfU__q04","role":"probe_frame","iteration":1,"model":"gpt-5","date":"2026-08-26","workspace":".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q04/probe_frame",
+  "budget":{"frames_viewed":1,"sparse_step":null,"dense_intervals":[],"transcript_cues":0,"screen_index_used":false},"violations":[],"notes":"",
+  "looked_at":[{"kind":"frame","t":859.0,"what":"Виден лишь обрезанный фрагмент французской строки «…nt résolu d'exposer, dans u» и подсвеченная буква u; повторяемое слово и замены поздних вхождений не показаны полностью."}],
+  "steps":[{"question":"Какое повторяемое слово можно уверенно прочитать?","answer_bool":null,"answer_number":null,"answer_text":"На кадре читается слово «dans», но его повторяемость по этому кадру не установлена.","why":"В доступном обрезанном фрагменте «dans» встречается только один раз."},{"question":"Чем заменяются поздние вхождения?","answer_bool":null,"answer_number":null,"answer_text":"На единственном кадре это не различимо.","why":"Поздние вхождения и их итоговые замены отсутствуют в видимой части анимации."}],
+  "answer":"На кадре читается слово «dans», однако нельзя подтвердить, что именно оно повторяемое, и не видно, чем заменяются его поздние вхождения.","basis":"Единственный кадр на 859-й секунде показывает только один обрезанный текстовый фрагмент; ответ о поздних заменах потребовал бы домысла.","confidence":"low","insufficient":true
+}

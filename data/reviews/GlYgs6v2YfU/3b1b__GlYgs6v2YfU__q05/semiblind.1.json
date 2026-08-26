@@ -1,0 +1,167 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__GlYgs6v2YfU__q05",
+  "role": "semiblind",
+  "iteration": 1,
+  "model": "gpt-5",
+  "date": "2026-08-26",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q05/semiblind",
+  "budget": {
+    "frames_viewed": 40,
+    "sparse_step": 24,
+    "dense_intervals": [
+      {
+        "t_start": 940,
+        "t_end": 958
+      }
+    ],
+    "transcript_cues": 236,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "Отрезок покрыт редкой сеткой; 940–957 с просмотрены посекундно. Частичное появление до 953.5 с отброшено как приманка.",
+  "prior_answer": "По одному вопросу нельзя назвать два верхних токена и проценты: распределение следующего токена в вопросе не приведено.",
+  "prior_answer_assumptions": [],
+  "recognized_video": false,
+  "recognized_how": "До просмотра не узнавал ни этот ролик, ни описанный момент.",
+  "scans": [
+    {
+      "idx": 0,
+      "t_from": 0,
+      "t_to": 967.5,
+      "watched": [
+        {
+          "kind": "frame",
+          "t": 0,
+          "what": "Начало ролика."
+        },
+        {
+          "kind": "frame",
+          "t": 471,
+          "what": "Общая диаграмма cross-entropy."
+        },
+        {
+          "kind": "frame",
+          "t": 833,
+          "what": "Абстрактная схема GZIP."
+        },
+        {
+          "kind": "frame",
+          "t": 923,
+          "what": "Схематическая модель до требуемой токенизации."
+        },
+        {
+          "kind": "frame",
+          "t": 941,
+          "what": "Видны токены входной строки, выходного распределения нет."
+        },
+        {
+          "kind": "frame",
+          "t": 950,
+          "what": "Выходные столбики только начинают появляться."
+        },
+        {
+          "kind": "frame",
+          "t": 953,
+          "what": "Список ещё находится внутри объявленной приманки."
+        },
+        {
+          "kind": "frame",
+          "t": 954,
+          "what": "Распределение полностью читаемо; верхние строки that 13.9% и in 9.7%."
+        }
+      ],
+      "candidates": [
+        {
+          "question": "Можно ли ответить по материалу к 941 с?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Видны только токены входа и модель, без выходных значений; это объявленная приманка."
+        },
+        {
+          "question": "Можно ли ответить по материалу к 950 с?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Распределение появляется по частям и ещё не полностью читаемо."
+        },
+        {
+          "question": "Можно ли ответить по материалу к 953 с?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Момент всё ещё внутри объявленной приманки."
+        },
+        {
+          "question": "Можно ли ответить по материалу к 954 с?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Полный список стабилен и две верхние строки читаются без догадки."
+        }
+      ],
+      "t_val": 954,
+      "t_val_basis": "На кадре 954 с впервые полностью читается распределение следующего токена; две верхние строки списка — that 13.9% и in 9.7%.",
+      "answer_at_t_val": "В показанном порядке: “that” — 13.9%, затем “in” — 9.7%.",
+      "confidence": "high"
+    }
+  ],
+  "checks": [
+    {
+      "group": "shortcuts",
+      "item": "solvable-without-video",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 954,
+          "what": "Распределение полностью читаемо; верхние строки that 13.9% и in 9.7%."
+        }
+      ],
+      "findings": "До просмотра в вопросе отсутствуют конкретные величины и визуальные соответствия, необходимые для полного ответа.",
+      "criterion": "Пункт срабатывает только если полный предметный ответ выводится из текста вопроса и общих знаний без догадки о невидимом содержимом экрана.",
+      "steps": [
+        {
+          "question": "Можно ли назвать все требуемые детали до просмотра?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Конкретные экранные значения и соответствия в тексте вопроса не приведены."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "video-recognized",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 954,
+          "what": "Распределение полностью читаемо; верхние строки that 13.9% и in 9.7%."
+        }
+      ],
+      "findings": "До просмотра не было воспоминания об этом ролике или требуемом моменте.",
+      "criterion": "Пункт срабатывает, если ролик и ответ были узнаны по памяти до открытия материалов.",
+      "steps": [
+        {
+          "question": "Был ли ролик узнан до просмотра?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Не было ни узнавания ролика, ни воспоминания о требуемом ответе."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "schema_version":"1.2","checklist_version":"2026-08-24","sample_id":"3b1b__GlYgs6v2YfU__q05","role":"probe_frame","iteration":1,"model":"gpt-5","date":"2026-08-26","workspace":".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q05/probe_frame",
+  "budget":{"frames_viewed":1,"sparse_step":null,"dense_intervals":[],"transcript_cues":0,"screen_index_used":false},"violations":[],"notes":"",
+  "looked_at":[{"kind":"frame","t":956.0,"what":"Справа полностью виден упорядоченный список следующего токена; первые строки — that 13.9% и in 9.7%."}],
+  "steps":[{"question":"Какие два токена стоят первыми и каковы их проценты?","answer_bool":null,"answer_number":null,"answer_text":"that — 13.9%; in — 9.7%.","why":"Это две верхние строки читаемого распределения справа, в указанном экраном порядке."}],
+  "answer":"Два верхних токена: that — 13.9%, затем in — 9.7%.","basis":"Единственный кадр на 956-й секунде полностью показывает распределение справа от сказочной строки.","confidence":"high","insufficient":false
+}

@@ -1,0 +1,143 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__GlYgs6v2YfU__q13",
+  "role": "semiblind",
+  "iteration": 1,
+  "model": "gpt-5",
+  "date": "2026-08-26",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q13/semiblind",
+  "budget": {
+    "frames_viewed": 40,
+    "sparse_step": 45,
+    "dense_intervals": [
+      {
+        "t_start": 1770,
+        "t_end": 1791
+      }
+    ],
+    "transcript_cues": null,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "Отрезок покрыт редкой сеткой; 1770–1790 с просмотрены посекундно.",
+  "prior_answer": "По одному вопросу нельзя назвать двоичную дробь и выбранные буквы: они не приведены.",
+  "prior_answer_assumptions": [],
+  "recognized_video": false,
+  "recognized_how": "До просмотра не узнавал ни этот ролик, ни описанный момент.",
+  "scans": [
+    {
+      "idx": 0,
+      "t_from": 0,
+      "t_to": 1801.3,
+      "watched": [
+        {
+          "kind": "frame",
+          "t": 0,
+          "what": "Начало ролика."
+        },
+        {
+          "kind": "frame",
+          "t": 768,
+          "what": "График минимума."
+        },
+        {
+          "kind": "frame",
+          "t": 1412,
+          "what": "Пример имён."
+        },
+        {
+          "kind": "frame",
+          "t": 1764,
+          "what": "Переход predictor ↔ compressor."
+        },
+        {
+          "kind": "frame",
+          "t": 1785,
+          "what": "Вложенные интервалы есть, но заголовка Coming up in part 3 ещё нет."
+        },
+        {
+          "kind": "frame",
+          "t": 1786,
+          "what": "Впервые видны заголовок, дробь и выбранные буквы по уровням."
+        }
+      ],
+      "candidates": [
+        {
+          "question": "Можно ли ответить по материалу к 1785 с?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Дробь и интервалы уже видны, но требуемый заголовок ещё не появился."
+        },
+        {
+          "question": "Можно ли ответить по материалу к 1786 с?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Заголовок Coming up in part 3 полностью виден вместе с дробью и пятью выбранными буквами."
+        }
+      ],
+      "t_val": 1786,
+      "t_val_basis": "На кадре 1786 с над интервалами появляется Coming up in part 3; сверху читается 0.00110101000011, в уровнях выделены c,o,m,p,r.",
+      "answer_at_t_val": "Двоичная дробь: 0.00110101000011. Выбранные буквы сверху вниз: c, o, m, p, r.",
+      "confidence": "high"
+    }
+  ],
+  "checks": [
+    {
+      "group": "shortcuts",
+      "item": "solvable-without-video",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1786,
+          "what": "Впервые видны заголовок, дробь и выбранные буквы по уровням."
+        }
+      ],
+      "findings": "Текст вопроса не содержит всех конкретных экранных элементов, требуемых в ответе.",
+      "criterion": "Полный ответ должен выводиться без догадки о содержимом будущего кадра.",
+      "steps": [
+        {
+          "question": "Можно ли дать полный ответ до просмотра?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Требуемые функции, числа, токены или символы заранее не названы."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "video-recognized",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1786,
+          "what": "Впервые видны заголовок, дробь и выбранные буквы по уровням."
+        }
+      ],
+      "findings": "До просмотра не было воспоминания об этом ролике или моменте.",
+      "criterion": "Пункт срабатывает при узнавании конкретного видео и ответа по памяти.",
+      "steps": [
+        {
+          "question": "Был ли ролик узнан до просмотра?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Видео заранее не узнавалось."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

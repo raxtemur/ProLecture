@@ -1,0 +1,50 @@
+{
+  "sample_id": "3b1b__GlYgs6v2YfU__q14",
+  "role": "probe_vision",
+  "iteration": 1,
+  "model": "gpt-5",
+  "date": "2026-08-26",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q14/probe_vision",
+  "budget": {
+    "frames_viewed": 2,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 1936,
+        "t_end": 1938
+      }
+    ],
+    "transcript_cues": 0,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "",
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 1936,
+      "what": "Одновременно видны poorly-optimized и optimal таблицы со средними длинами."
+    },
+    {
+      "kind": "frame",
+      "t": 1937,
+      "what": "Обе таблицы остаются видимыми, снизу появляется численная KL divergence с единицами."
+    }
+  ],
+  "steps": [
+    {
+      "question": "Каковы две средние длины?",
+      "answer_text": "Poorly-optimized: 2.625 bits/instruction; Optimal: 1.75 bits/instruction.",
+      "why": "Обе подписи читаются на кадрах 1936–1937."
+    },
+    {
+      "question": "Какова показанная величина потерь между ними?",
+      "answer_text": "0.875 wasted bits/instruction.",
+      "why": "На кадре 1937 видна строка KL Divergence: 2.625 - 1.75 = 0.875 wasted bits/instruction."
+    }
+  ],
+  "answer": "Poorly-optimized: 2.625 bits/instruction. Optimal: 1.75 bits/instruction. Потери между ними (KL divergence): 0.875 wasted bits/instruction.",
+  "basis": "Кадр t=1937 содержит одновременно обе средние длины и строку разности с единицами.",
+  "confidence": "high",
+  "insufficient": false
+}

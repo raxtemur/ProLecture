@@ -1,0 +1,7 @@
+{
+  "schema_version":"1.2","checklist_version":"2026-08-24","sample_id":"3b1b__GlYgs6v2YfU__q15","role":"probe_frame","iteration":1,"model":"gpt-5","date":"2026-08-26","workspace":".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q15/probe_frame",
+  "budget":{"frames_viewed":1,"sparse_step":null,"dense_intervals":[],"transcript_cues":0,"screen_index_used":false},"violations":[],"notes":"",
+  "looked_at":[{"kind":"frame","t":1974.0,"what":"Под заголовком KL Divergence of Q relative to P видны разность cross-entropy и entropy и компактная сумма Σ_i p_i log₂(p_i/q_i)."}],
+  "steps":[{"question":"Как раскрываются два минуса для одного i?","answer_bool":null,"answer_number":null,"answer_text":"p_i(−log₂q_i)−p_i(−log₂p_i)=p_i[−log₂q_i+log₂p_i].","why":"Вычитание отрицательного второго члена меняет его знак на плюс."},{"question":"Почему получается отношение p_i/q_i?","answer_bool":null,"answer_number":null,"answer_text":"p_i[log₂p_i−log₂q_i]=p_i log₂(p_i/q_i).","why":"По правилу разности логарифмов log a−log b=log(a/b); числитель остаётся p_i, знаменатель q_i."}],
+  "answer":"Для одного i: p_i(−log₂q_i)−p_i(−log₂p_i)=p_i[−log₂q_i+log₂p_i]=p_i[log₂p_i−log₂q_i]=p_i log₂(p_i/q_i). Поэтому для направления “Q relative to P” компактная сумма равна Σ_i p_i log₂(p_i/q_i), именно с p_i/q_i.","basis":"Единственный кадр на 1974-й секунде показывает исходную разность, направление Q relative to P и итоговую компактную сумму.","confidence":"high","insufficient":false
+}

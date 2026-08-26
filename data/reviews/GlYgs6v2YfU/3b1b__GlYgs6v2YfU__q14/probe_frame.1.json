@@ -1,0 +1,7 @@
+{
+  "schema_version":"1.2","checklist_version":"2026-08-24","sample_id":"3b1b__GlYgs6v2YfU__q14","role":"probe_frame","iteration":1,"model":"gpt-5","date":"2026-08-26","workspace":".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q14/probe_frame",
+  "budget":{"frames_viewed":1,"sparse_step":null,"dense_intervals":[],"transcript_cues":0,"screen_index_used":false},"violations":[],"notes":"",
+  "looked_at":[{"kind":"frame","t":1938.0,"what":"Одновременно видны подписи Poorly-optimized: 2.625 bits/instruction, Optimal: 1.75 bits/instruction и KL Divergence: 2.625−1.75=0.875 wasted bits/instruction."}],
+  "steps":[{"question":"Каковы обе средние длины и потери между ними?","answer_bool":null,"answer_number":null,"answer_text":"2.625 bits/instruction; 1.75 bits/instruction; 0.875 wasted bits/instruction.","why":"Все три значения и единицы явно подписаны на кадре."}],
+  "answer":"Poorly-optimized: 2.625 бита/инструкцию. Optimal: 1.75 бита/инструкцию. Потери (KL divergence): 0.875 лишнего бита/инструкцию.","basis":"Единственный кадр на 1938-й секунде одновременно показывает обе таблицы и строку 2.625−1.75=0.875 wasted bits/instruction.","confidence":"high","insufficient":false
+}

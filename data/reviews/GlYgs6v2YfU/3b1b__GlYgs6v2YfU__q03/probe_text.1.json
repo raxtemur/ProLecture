@@ -1,0 +1,51 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "role": "probe_text",
+  "iteration": 1,
+  "model": "gpt-5.6",
+  "date": "2026-08-26",
+  "violations": [],
+  "notes": "Использован только transcript.md; кадры и индекс видеоряда не использовались.",
+  "sample_id": "3b1b__GlYgs6v2YfU__q03",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q03/probe_text",
+  "budget": {
+    "frames_viewed": 0,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 166,
+    "screen_index_used": false
+  },
+  "looked_at": [
+    {
+      "kind": "cue",
+      "t": 517.4,
+      "what": "Первая конфигурация: Q равномерно 50/50, P имеет разбиение 90/10."
+    },
+    {
+      "kind": "cue",
+      "t": 560.7,
+      "what": "Во второй конфигурации Q становится 90/10, а P — равномерным 50/50."
+    }
+  ],
+  "steps": [
+    {
+      "question": "Какое распределение стало равномерным во второй конфигурации?",
+      "answer_bool": null,
+      "answer_number": null,
+      "answer_text": "P стало равномерным: 50/50; Q стало перекошенным: 90/10.",
+      "why": "Это прямо сказано в репликах 562.5–569.4."
+    },
+    {
+      "question": "Какова средняя длина кода Q при фактическом P?",
+      "answer_bool": null,
+      "answer_number": 1.73697,
+      "answer_text": null,
+      "why": "По длинам −log2(q) и весам P: 0.5·(−log2 0.9)+0.5·(−log2 0.1)."
+    }
+  ],
+  "answer": "Во второй конфигурации равномерным стало P (50/50), тогда как Q — 90/10. Средняя длина кода: 0.5·[−log₂(0.9)] + 0.5·[−log₂(0.1)] ≈ 1.73697, то есть около 1.74 бита на символ.",
+  "basis": "Транскрипт [562.5–569.4] задаёт Q=90/10 и равномерное P=50/50; [262.4–269.7] даёт длину −log₂ вероятности. Итог вычислен из этих данных и общей арифметики, не по кадрам.",
+  "confidence": "high",
+  "insufficient": false
+}

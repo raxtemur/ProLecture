@@ -1,0 +1,60 @@
+{
+  "sample_id": "3b1b__GlYgs6v2YfU__q11",
+  "role": "probe_vision",
+  "iteration": 1,
+  "model": "gpt-5",
+  "date": "2026-08-26",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q11/probe_vision",
+  "budget": {
+    "frames_viewed": 3,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 1531,
+        "t_end": 1534
+      }
+    ],
+    "transcript_cues": 0,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "",
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 1531,
+      "what": "Вставка Details for the extra-curious; видны градиентное условие и первые строки цепочки."
+    },
+    {
+      "kind": "frame",
+      "t": 1532,
+      "what": "Видна полная цепочка справа, включая q_i=p_i, производную и интегрирование."
+    },
+    {
+      "kind": "frame",
+      "t": 1533,
+      "what": "Полная цепочка остаётся статично и читается целиком."
+    }
+  ],
+  "steps": [
+    {
+      "question": "Каково условие стационарности для каждого i?",
+      "answer_text": "p_i f'(q_i)=lambda для всех i.",
+      "why": "Строка явно видна на кадрах 1531–1533."
+    },
+    {
+      "question": "Что даёт подстановка оптимума q_i=p_i?",
+      "answer_text": "q_i f'(q_i)=lambda.",
+      "why": "Эта строка на экране подписана Assuming minimum iff q_i=p_i."
+    },
+    {
+      "question": "Как получается вид функции f?",
+      "answer_text": "f'(q)=lambda/q, поэтому f(q)=lambda log(q) с точностью до аддитивной константы.",
+      "why": "Последняя строка цепочки видна на кадрах 1532–1533."
+    }
+  ],
+  "answer": "Цепочка: p_i f'(q_i)=lambda (для всех i). В точке минимума q_i=p_i, поэтому p_i заменяется на q_i: q_i f'(q_i)=lambda. Отсюда f'(q_i)=lambda/q_i, то есть f'(q)=lambda/q; интегрирование даёт f(q)=lambda log(q) (с точностью до аддитивной константы).",
+  "basis": "Кадры t=1531–1533: на них последовательно и затем целиком видны все строки вывода.",
+  "confidence": "high",
+  "insufficient": false
+}

@@ -1,0 +1,55 @@
+{
+  "sample_id": "3b1b__GlYgs6v2YfU__q13",
+  "role": "probe_vision",
+  "iteration": 1,
+  "model": "gpt-5",
+  "date": "2026-08-26",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q13/probe_vision",
+  "budget": {
+    "frames_viewed": 3,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 1785,
+        "t_end": 1788
+      }
+    ],
+    "transcript_cues": 0,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "",
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 1785,
+      "what": "Перед заголовком видны вложенные интервалы и начало двоичной дроби."
+    },
+    {
+      "kind": "frame",
+      "t": 1786,
+      "what": "Впервые виден Coming up in part 3, дробь и выбранные интервалы c, o, m, p, r."
+    },
+    {
+      "kind": "frame",
+      "t": 1787,
+      "what": "Та же дробь и выбранные верхние уровни остаются видимыми; снизу появляются дальнейшие варианты."
+    }
+  ],
+  "steps": [
+    {
+      "question": "Какая двоичная дробь показана при появлении заголовка?",
+      "answer_text": "0.00110101000011",
+      "why": "Читается в верхней части кадра 1786."
+    },
+    {
+      "question": "Какие буквы уже выбраны сверху вниз?",
+      "answer_text": "c, o, m, p, r",
+      "why": "На кадре 1786 пять вложенных выбранных полос подписаны этими буквами; дальнейшие варианты не достраивались."
+    }
+  ],
+  "answer": "Двоичная дробь: `0.00110101000011`. Уже выбранные буквы по уровням сверху вниз: `c`, `o`, `m`, `p`, `r`.",
+  "basis": "Кадр t=1786, где впервые одновременно видны Coming up in part 3, дробь и пять выбранных уровней.",
+  "confidence": "high",
+  "insufficient": false
+}

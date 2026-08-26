@@ -1,0 +1,7 @@
+{
+  "schema_version":"1.2","checklist_version":"2026-08-24","sample_id":"3b1b__GlYgs6v2YfU__q09","role":"probe_frame","iteration":1,"model":"gpt-5","date":"2026-08-26","workspace":".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q09/probe_frame",
+  "budget":{"frames_viewed":1,"sparse_step":null,"dense_intervals":[],"transcript_cues":0,"screen_index_used":false},"violations":[],"notes":"",
+  "looked_at":[{"kind":"frame","t":1381.0,"what":"Справа перечислены 10 примеров: Alice 4 раза, Bob 3, Charlie 2, Dora 1; в модельных q-столбиках самым длинным является Charlie."}],
+  "steps":[{"question":"Каково эмпирическое распределение p?","answer_bool":null,"answer_number":null,"answer_text":"p(Alice)=0.4, p(Bob)=0.3, p(Charlie)=0.2, p(Dora)=0.1.","why":"Из десяти видимых примеров имена встречаются 4, 3, 2 и 1 раз соответственно."},{"question":"Где максимумы p и q?","answer_bool":null,"answer_number":null,"answer_text":"Максимум p у Alice, максимум q у Charlie.","why":"Alice чаще всего встречается в примерах, а столбик q_C визуально самый длинный."}],
+  "answer":"Эмпирически: p(Alice)=0.4, p(Bob)=0.3, p(Charlie)=0.2, p(Dora)=0.1. Максимум p — Alice, тогда как максимум модельного q — Charlie.","basis":"Единственный кадр на 1381-й секунде одновременно показывает все десять примеров и четыре q-столбика.","confidence":"high","insufficient":false
+}

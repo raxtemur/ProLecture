@@ -1,0 +1,51 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__GlYgs6v2YfU__q15",
+  "role": "semiblind",
+  "iteration": 1,
+  "model": "gpt-5",
+  "date": "2026-08-26",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q15/semiblind",
+  "budget": {"frames_viewed": 40, "sparse_step": 50, "dense_intervals": [{"t_start": 1964, "t_end": 1981}], "transcript_cues": null, "screen_index_used": true},
+  "violations": [],
+  "notes": "Отрезок покрыт редкой сеткой; 1964–1980 с просмотрены посекундно.",
+  "prior_answer": "Для одного i: p_i(-log_2 q_i) - p_i(-log_2 p_i) = p_i[-log_2 q_i + log_2 p_i] = p_i[log_2 p_i - log_2 q_i] = p_i log_2(p_i/q_i). Направление Q relative to P сохраняется: P задаёт веса и числитель, Q — сравниваемое распределение в знаменателе.",
+  "prior_answer_assumptions": [],
+  "recognized_video": false,
+  "recognized_how": "До просмотра не узнавал ни этот ролик, ни описанный момент.",
+  "scans": [{
+    "idx": 0, "t_from": 0, "t_to": 1991.2,
+    "watched": [
+      {"kind": "frame", "t": 0, "what": "Начало ролика."},
+      {"kind": "frame", "t": 1953, "what": "Объясняется асимметрия KL divergence."},
+      {"kind": "frame", "t": 1968, "what": "Видна исходная разность cross-entropy и entropy; компактная сумма ещё не появилась."},
+      {"kind": "frame", "t": 1969, "what": "Компактная формула появляется частично и ещё не читается целиком."},
+      {"kind": "frame", "t": 1970, "what": "Полностью читается сумма с log_2(p_i/q_i) и направление Q relative to P."}
+    ],
+    "candidates": [
+      {"question": "Полностью ли собрана компактная сумма на 1969 с?", "answer_bool": false, "answer_number": null, "answer_text": null, "why": "Правая часть находится в промежуточной анимации и обрезана."},
+      {"question": "Полностью ли собрана компактная сумма на 1970 с?", "answer_bool": true, "answer_number": null, "answer_text": null, "why": "Сумма, p_i и дробь p_i/q_i читаются целиком."}
+    ],
+    "t_val": 1970,
+    "t_val_basis": "На 1970 с разность впервые полностью сопровождается компактной суммой Σ_i p_i log_2(p_i/q_i).",
+    "answer_at_t_val": "Для одного i: p_i(-log_2 q_i) - p_i(-log_2 p_i) = p_i[-log_2 q_i + log_2 p_i] = p_i[log_2 p_i - log_2 q_i] = p_i log_2(p_i/q_i). Поэтому получается именно p_i/q_i: log_2 p_i - log_2 q_i = log_2(p_i/q_i). Это сохраняет экранное направление «Q relative to P»: P даёт веса/числитель, Q — сравниваемое распределение/знаменатель.",
+    "confidence": "high"
+  }],
+  "checks": [
+    {"group": "shortcuts", "item": "solvable-without-video", "target": null,
+      "looked_at": [{"kind": "frame", "t": 1970, "what": "Полная компактная сумма совпадает с преобразованием, выводимым из вопроса."}],
+      "findings": "Вопрос сам называет разность cross-entropy и entropy, требуемое направление и просит стандартное раскрытие знаков; полный алгебраический ответ получается без просмотра.",
+      "criterion": "Полный ответ не должен однозначно выводиться из одной формулировки вопроса и общеизвестных тождеств.",
+      "steps": [{"question": "Можно ли получить полный ответ до просмотра?", "answer_bool": true, "answer_number": null, "answer_text": "p_i(-log_2 q_i)-p_i(-log_2 p_i)=p_i(log_2 p_i-log_2 q_i)=p_i log_2(p_i/q_i)", "why": "Это непосредственное применение правил минусов и тождества log a - log b = log(a/b); формулировка уже задаёт направление Q relative to P."}],
+      "result": "fail", "confidence": "high",
+      "proposal": {"field": "question", "value": "Добавить требование назвать конкретный визуальный элемент или числовое значение, которое появляется вместе с компактной суммой и не следует из алгебры в тексте вопроса.", "why": "Сейчас весь требуемый ответ восстанавливается без видео стандартным преобразованием формулы."},
+      "uncovered": null},
+    {"group": "shortcuts", "item": "video-recognized", "target": null,
+      "looked_at": [{"kind": "frame", "t": 1970, "what": "Полная компактная сумма."}],
+      "findings": "До просмотра не было воспоминания об этом ролике или моменте.",
+      "criterion": "Пункт срабатывает при узнавании конкретного видео и ответа по памяти.",
+      "steps": [{"question": "Был ли ролик узнан до просмотра?", "answer_bool": false, "answer_number": null, "answer_text": null, "why": "Видео заранее не узнавалось."}],
+      "result": "ok", "confidence": "high", "proposal": null, "uncovered": null}
+  ]
+}

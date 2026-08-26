@@ -1,0 +1,49 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__GlYgs6v2YfU__q16",
+  "role": "semiblind",
+  "iteration": 1,
+  "model": "gpt-5",
+  "date": "2026-08-26",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q16/semiblind",
+  "budget": {"frames_viewed": 40, "sparse_step": 50, "dense_intervals": [{"t_start": 1980, "t_end": 1991}], "transcript_cues": null, "screen_index_used": true},
+  "violations": [],
+  "notes": "Отрезок покрыт редкой сеткой; 1980–1990 с просмотрены посекундно.",
+  "prior_answer": "Без финальной диаграммы нельзя назвать индексы цветных вкладов. В общем случае отдельные слагаемые KL могут быть отрицательными, но их сумма неотрицательна по неравенству Гиббса.",
+  "prior_answer_assumptions": [],
+  "recognized_video": false,
+  "recognized_how": "До просмотра не узнавал ни этот ролик, ни описанный момент.",
+  "scans": [{
+    "idx": 0, "t_from": 0, "t_to": 1991.2,
+    "watched": [
+      {"kind": "frame", "t": 0, "what": "Начало ролика."},
+      {"kind": "frame", "t": 1953, "what": "Объясняется KL divergence и её асимметрия."},
+      {"kind": "frame", "t": 1984, "what": "Финальная диаграмма выделена, но цветные надстройки ещё меняются."},
+      {"kind": "frame", "t": 1987, "what": "Красные вклады при i=1,2,n уже видны, зелёный при i=3 ещё мал."},
+      {"kind": "frame", "t": 1988, "what": "Полная конфигурация читаема: красные i=1,2,n и крупный зелёный i=3."}
+    ],
+    "candidates": [
+      {"question": "Уже ли полностью сформирован крупный зелёный вклад на 1987 с?", "answer_bool": false, "answer_number": null, "answer_text": null, "why": "Надстройки ещё перестраиваются; зелёная область при i=3 мала."},
+      {"question": "Читается ли требуемая конфигурация на 1988 с?", "answer_bool": true, "answer_number": null, "answer_text": null, "why": "Явно подписанные красные вклады соответствуют i=1,2,n, а крупный зелёный — i=3."}
+    ],
+    "t_val": 1988,
+    "t_val_basis": "На 1988 с впервые читается устойчивая финальная конфигурация с красными областями при p_1,p_2,p_n и крупной зелёной областью при p_3.",
+    "answer_at_t_val": "Красный положительный вклад имеют индексы i=1, i=2 и i=n; крупный зелёный отрицательный вклад — i=3. Отдельное слагаемое p_i log(p_i/q_i) может быть отрицательным, когда p_i<q_i, но KL divergence — сумма всех вкладов и по неравенству Гиббса всегда неотрицательна: положительные вклады компенсируют отрицательные; равенство нулю возможно при P=Q.",
+    "confidence": "high"
+  }],
+  "checks": [
+    {"group": "shortcuts", "item": "solvable-without-video", "target": null,
+      "looked_at": [{"kind": "frame", "t": 1988, "what": "Подписанные цветные вклады финальной диаграммы."}],
+      "findings": "Общее свойство неотрицательности известно без видео, но конкретные индексы красных и зелёного вкладов в вопросе не названы.",
+      "criterion": "Полный ответ должен выводиться без догадки о содержимом будущего кадра.",
+      "steps": [{"question": "Можно ли дать полный ответ до просмотра?", "answer_bool": false, "answer_number": null, "answer_text": null, "why": "Нельзя определить требуемые индексы без финальной диаграммы."}],
+      "result": "ok", "confidence": "high", "proposal": null, "uncovered": null},
+    {"group": "shortcuts", "item": "video-recognized", "target": null,
+      "looked_at": [{"kind": "frame", "t": 1988, "what": "Подписанные цветные вклады финальной диаграммы."}],
+      "findings": "До просмотра не было воспоминания об этом ролике или моменте.",
+      "criterion": "Пункт срабатывает при узнавании конкретного видео и ответа по памяти.",
+      "steps": [{"question": "Был ли ролик узнан до просмотра?", "answer_bool": false, "answer_number": null, "answer_text": null, "why": "Видео заранее не узнавалось."}],
+      "result": "ok", "confidence": "high", "proposal": null, "uncovered": null}
+  ]
+}

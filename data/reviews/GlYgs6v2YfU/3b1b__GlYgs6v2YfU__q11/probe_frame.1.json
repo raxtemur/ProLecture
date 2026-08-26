@@ -1,0 +1,7 @@
+{
+  "schema_version":"1.2","checklist_version":"2026-08-24","sample_id":"3b1b__GlYgs6v2YfU__q11","role":"probe_frame","iteration":1,"model":"gpt-5","date":"2026-08-26","workspace":".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q11/probe_frame",
+  "budget":{"frames_viewed":1,"sparse_step":null,"dense_intervals":[],"transcript_cues":0,"screen_index_used":false},"violations":[],"notes":"",
+  "looked_at":[{"kind":"frame","t":1533.0,"what":"Полноэкранная вставка Details for the extra-curious показывает градиентное условие, p_i f′(q_i)=λ, подстановку q_i=p_i, затем f′(q)=λ/q и f(q)=λ log(q)."}],
+  "steps":[{"question":"Какова цепочка экранных условий?","answer_bool":null,"answer_number":null,"answer_text":"∇_q(Σ_i p_i f(q_i))=λ∇_q(Σ_i q_i) ⇒ p_i f′(q_i)=λ (для всех i) ⇒ q_i f′(q_i)=λ при минимуме q_i=p_i ⇒ f′(q)=λ/q ⇒ f(q)=λ log(q).","why":"Вся цепочка последовательно выписана в центральной части кадра."}],
+  "answer":"∇_q(Σ_i p_i f(q_i))=λ∇_q(Σ_i q_i), значит p_i f′(q_i)=λ для всех i. При требовании минимума в q_i=p_i подставляем p_i=q_i и получаем q_i f′(q_i)=λ. Следовательно, f′(q)=λ/q и f(q)=λ log(q).","basis":"Единственный кадр на 1533-й секунде полностью показывает требуемую цепочку и подстановку.","confidence":"high","insufficient":false
+}

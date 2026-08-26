@@ -1,0 +1,7 @@
+{
+  "schema_version":"1.2","checklist_version":"2026-08-24","sample_id":"3b1b__GlYgs6v2YfU__q03","role":"probe_frame","iteration":1,"model":"gpt-5","date":"2026-08-26","workspace":".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q03/probe_frame",
+  "budget":{"frames_viewed":1,"sparse_step":null,"dense_intervals":[],"transcript_cues":0,"screen_index_used":false},"violations":[],"notes":"",
+  "looked_at":[{"kind":"frame","t":571.0,"what":"В конфигурации Cross Entropy of Q relative to P показаны Q=(0.90,0.10) и P=(0.50,0.50)."}],
+  "steps":[{"question":"Какое распределение стало равномерным?","answer_bool":null,"answer_number":null,"answer_text":"P стало равномерным: (0.50, 0.50).","why":"Под правым графиком зелёные значения P равны 0.50 и 0.50."},{"question":"Какова средняя длина кода в этой конфигурации?","answer_bool":null,"answer_number":1.7369656,"answer_text":null,"why":"0.5·(−log₂0.90)+0.5·(−log₂0.10) ≈ 1.7369656."}],
+  "answer":"Равномерным стало распределение P=(0.50,0.50). Средняя длина: 0.5·(−log₂0.90)+0.5·(−log₂0.10) ≈ 1.737 бита.","basis":"Единственный кадр на 571-й секунде явно подписывает Q, P, их вероятности и формулу cross-entropy.","confidence":"high","insufficient":false
+}

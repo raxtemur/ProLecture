@@ -1,0 +1,155 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__GlYgs6v2YfU__q12",
+  "role": "semiblind",
+  "iteration": 1,
+  "model": "gpt-5",
+  "date": "2026-08-26",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q12/semiblind",
+  "budget": {
+    "frames_viewed": 40,
+    "sparse_step": 42,
+    "dense_intervals": [
+      {
+        "t_start": 1614,
+        "t_end": 1626
+      }
+    ],
+    "transcript_cues": null,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "Отрезок покрыт редкой сеткой; 1614–1625 с просмотрены посекундно.",
+  "prior_answer": "По одному вопросу нельзя назвать верхние токены и проценты двух моделей: распределения в вопросе не приведены.",
+  "prior_answer_assumptions": [],
+  "recognized_video": false,
+  "recognized_how": "До просмотра не узнавал ни этот ролик, ни описанный момент.",
+  "scans": [
+    {
+      "idx": 0,
+      "t_from": 0,
+      "t_to": 1648,
+      "watched": [
+        {
+          "kind": "frame",
+          "t": 0,
+          "what": "Начало ролика."
+        },
+        {
+          "kind": "frame",
+          "t": 896,
+          "what": "Абстрактные распределения."
+        },
+        {
+          "kind": "frame",
+          "t": 1566,
+          "what": "Переход к вопросу о совпадении q и p."
+        },
+        {
+          "kind": "frame",
+          "t": 1609,
+          "what": "Префикс кода ещё строится без двух распределений."
+        },
+        {
+          "kind": "frame",
+          "t": 1617,
+          "what": "Две модели и столбики только появляются."
+        },
+        {
+          "kind": "frame",
+          "t": 1618,
+          "what": "Распределения рядом, но мелкие значения ещё недостаточно стабильны."
+        },
+        {
+          "kind": "frame",
+          "t": 1619,
+          "what": "Для префикса “It was the best” оба распределения полностью читаемы."
+        }
+      ],
+      "candidates": [
+        {
+          "question": "Можно ли ответить по материалу к 1617 с?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Префикс и две колонки только начинают появляться."
+        },
+        {
+          "question": "Можно ли ответить по материалу к 1618 с?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Столбики уже видны, но полное читаемое состояние ещё стабилизируется."
+        },
+        {
+          "question": "Можно ли ответить по материалу к 1619 с?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Обе колонки для одного префикса полностью читаемы; размеры кубов обозначают меньшую и большую модели."
+        }
+      ],
+      "t_val": 1619,
+      "t_val_basis": "На кадре 1619 с слева у малого фиолетового куба верхний токен “of” 24.5%, справа у большого куба “of” 75.5%.",
+      "answer_at_t_val": "Меньшая модель слева: “of” — 24.5%. Большая модель справа: “of” — 75.5%.",
+      "confidence": "high"
+    }
+  ],
+  "checks": [
+    {
+      "group": "shortcuts",
+      "item": "solvable-without-video",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1619,
+          "what": "Для префикса “It was the best” оба распределения полностью читаемы."
+        }
+      ],
+      "findings": "Текст вопроса не содержит всех конкретных экранных элементов, требуемых в ответе.",
+      "criterion": "Полный ответ должен выводиться без догадки о содержимом будущего кадра.",
+      "steps": [
+        {
+          "question": "Можно ли дать полный ответ до просмотра?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Требуемые функции, числа, токены или символы заранее не названы."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "video-recognized",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1619,
+          "what": "Для префикса “It was the best” оба распределения полностью читаемы."
+        }
+      ],
+      "findings": "До просмотра не было воспоминания об этом ролике или моменте.",
+      "criterion": "Пункт срабатывает при узнавании конкретного видео и ответа по памяти.",
+      "steps": [
+        {
+          "question": "Был ли ролик узнан до просмотра?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Видео заранее не узнавалось."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

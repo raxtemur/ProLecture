@@ -1,0 +1,51 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "role": "probe_text",
+  "iteration": 1,
+  "model": "gpt-5.6",
+  "date": "2026-08-26",
+  "violations": [],
+  "notes": "Использован только transcript.md; кадры и индекс видеоряда не использовались.",
+  "sample_id": "3b1b__GlYgs6v2YfU__q06",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q06/probe_text",
+  "budget": {
+    "frames_viewed": 0,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 320,
+    "screen_index_used": false
+  },
+  "looked_at": [
+    {
+      "kind": "cue",
+      "t": 1048.4,
+      "what": "Loss определяется как средняя информация на токен с точки зрения модели."
+    },
+    {
+      "kind": "cue",
+      "t": 1092.9,
+      "what": "Для loss берётся отрицательный логарифм вероятностей истинных токенов."
+    }
+  ],
+  "steps": [
+    {
+      "question": "Каковы новый и прежний экранные loss?",
+      "answer_bool": null,
+      "answer_number": null,
+      "answer_text": "Численные значения в доступном транскрипте отсутствуют.",
+      "why": "До 1125.3 с loss объясняется только концептуально."
+    },
+    {
+      "question": "Каков скачок loss при best→worst?",
+      "answer_bool": null,
+      "answer_number": null,
+      "answer_text": "Без двух экранных чисел скачок вычислить нельзя.",
+      "why": "Ни прежний, ни новый общий loss не произнесены."
+    }
+  ],
+  "answer": "Новый loss для «worst», прежний loss для «best of times» и величину скачка по транскрипту назвать нельзя: все три экранных числа отсутствуют. Из текста известно лишь, что loss — среднее значений −log(probability) истинных токенов.",
+  "basis": "Транскрипт [1048.4–1056.2] и [1092.9–1100.4] задаёт смысл loss, но не произносит запрошенные экранные числа. Кадры не использовались.",
+  "confidence": "high",
+  "insufficient": true
+}

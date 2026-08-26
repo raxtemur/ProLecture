@@ -1,0 +1,7 @@
+{
+  "schema_version":"1.2","checklist_version":"2026-08-24","sample_id":"3b1b__GlYgs6v2YfU__q06","role":"probe_frame","iteration":1,"model":"gpt-5","date":"2026-08-26","workspace":".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q06/probe_frame",
+  "budget":{"frames_viewed":1,"sparse_step":null,"dense_intervals":[],"transcript_cues":0,"screen_index_used":false},"violations":[],"notes":"",
+  "looked_at":[{"kind":"frame","t":1121.0,"what":"Полностью видна строка с “worst” и красная подпись Loss = 11.11; прежний численный loss на кадре отсутствует."}],
+  "steps":[{"question":"Каков новый loss для варианта с worst?","answer_bool":null,"answer_number":11.11,"answer_text":null,"why":"Красная подпись справа явно показывает Loss = 11.11."},{"question":"Каковы прежний loss и скачок?","answer_bool":null,"answer_number":null,"answer_text":"На единственном кадре прежний loss и разность не указаны.","why":"Кадр содержит только новый общий loss; численного значения для прежней строки “best of times” нет."}],
+  "answer":"Новый loss для варианта с “worst” равен 11.11. Прежний loss и величину скачка по этому кадру определить нельзя.","basis":"Единственный кадр на 1121-й секунде явно показывает только новый Loss = 11.11; подставлять невидимое прежнее значение запрещено.","confidence":"low","insufficient":true
+}

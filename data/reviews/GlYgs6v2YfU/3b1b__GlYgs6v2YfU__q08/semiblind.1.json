@@ -1,0 +1,155 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__GlYgs6v2YfU__q08",
+  "role": "semiblind",
+  "iteration": 1,
+  "model": "gpt-5",
+  "date": "2026-08-26",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q08/semiblind",
+  "budget": {
+    "frames_viewed": 40,
+    "sparse_step": 33,
+    "dense_intervals": [
+      {
+        "t_start": 1250,
+        "t_end": 1273
+      }
+    ],
+    "transcript_cues": null,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "Отрезок покрыт редкой сеткой; 1250–1272 с просмотрены посекундно.",
+  "prior_answer": "По одному вопросу нельзя назвать истинный токен, индекс q и one-hot-компоненту p: они не указаны.",
+  "prior_answer_assumptions": [],
+  "recognized_video": false,
+  "recognized_how": "До просмотра не узнавал ни этот ролик, ни описанный момент.",
+  "scans": [
+    {
+      "idx": 0,
+      "t_from": 0,
+      "t_to": 1294,
+      "watched": [
+        {
+          "kind": "frame",
+          "t": 0,
+          "what": "Начало ролика."
+        },
+        {
+          "kind": "frame",
+          "t": 688,
+          "what": "График cross-entropy."
+        },
+        {
+          "kind": "frame",
+          "t": 1084,
+          "what": "Токенный пример до one-hot цели."
+        },
+        {
+          "kind": "frame",
+          "t": 1248,
+          "what": "Показано модельное q и loss без one-hot цели."
+        },
+        {
+          "kind": "frame",
+          "t": 1263,
+          "what": "Справа начинает собираться целевое распределение."
+        },
+        {
+          "kind": "frame",
+          "t": 1264,
+          "what": "Целевые компоненты ещё появляются."
+        },
+        {
+          "kind": "frame",
+          "t": 1265,
+          "what": "Рядом полностью видна one-hot цель: who имеет 1, остальные 0; слева who соответствует q₁."
+        }
+      ],
+      "candidates": [
+        {
+          "question": "Можно ли ответить по материалу к 1258 с?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Есть модельное распределение и формула, но one-hot цель ещё не построена."
+        },
+        {
+          "question": "Можно ли ответить по материалу к 1263 с?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Целевая колонка появляется по частям."
+        },
+        {
+          "question": "Можно ли ответить по материалу к 1265 с?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Обе колонки читаемы одновременно: who выровнен с q₁ и p=1, прочие p равны 0."
+        }
+      ],
+      "t_val": 1265,
+      "t_val_basis": "На кадре 1265 с модельное q и one-hot p впервые полностью стоят рядом; строка who соответствует q₁ и единственной единице p.",
+      "answer_at_t_val": "Истинный токен — “who”; это компонента q₁. Напротив неё p₁=1, у всех остальных компонентов p стоит 0.",
+      "confidence": "high"
+    }
+  ],
+  "checks": [
+    {
+      "group": "shortcuts",
+      "item": "solvable-without-video",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1265,
+          "what": "Рядом полностью видна one-hot цель: who имеет 1, остальные 0; слева who соответствует q₁."
+        }
+      ],
+      "findings": "До просмотра конкретные экранные значения, индексы или равенства, нужные для полного ответа, неизвестны.",
+      "criterion": "Пункт срабатывает только если весь предметный ответ выводится из вопроса и общих знаний без достраивания экрана.",
+      "steps": [
+        {
+          "question": "Можно ли дать полный ответ до просмотра?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Текст вопроса не содержит всех конкретных экранных данных."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "video-recognized",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1265,
+          "what": "Рядом полностью видна one-hot цель: who имеет 1, остальные 0; слева who соответствует q₁."
+        }
+      ],
+      "findings": "До просмотра не было воспоминания об этом ролике или моменте.",
+      "criterion": "Пункт срабатывает, если ролик и ответ узнаны по памяти до открытия материалов.",
+      "steps": [
+        {
+          "question": "Был ли ролик узнан до просмотра?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Ролик и требуемый ответ заранее не узнавались."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

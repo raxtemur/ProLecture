@@ -1,0 +1,155 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__GlYgs6v2YfU__q07",
+  "role": "semiblind",
+  "iteration": 1,
+  "model": "gpt-5",
+  "date": "2026-08-26",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q07/semiblind",
+  "budget": {
+    "frames_viewed": 40,
+    "sparse_step": 30,
+    "dense_intervals": [
+      {
+        "t_start": 1158,
+        "t_end": 1173
+      }
+    ],
+    "transcript_cues": null,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "Отрезок покрыт редкой сеткой; 1158–1172 с просмотрены посекундно.",
+  "prior_answer": "По одному вопросу нельзя дословно переписать конкретное экранное равенство; известно лишь общее правило смены основания логарифма.",
+  "prior_answer_assumptions": [],
+  "recognized_video": false,
+  "recognized_how": "До просмотра не узнавал ни этот ролик, ни описанный момент.",
+  "scans": [
+    {
+      "idx": 0,
+      "t_from": 0,
+      "t_to": 1183,
+      "watched": [
+        {
+          "kind": "frame",
+          "t": 0,
+          "what": "Начало ролика."
+        },
+        {
+          "kind": "frame",
+          "t": 345,
+          "what": "Робот и кодирование."
+        },
+        {
+          "kind": "frame",
+          "t": 736,
+          "what": "Ключевой минимум cross-entropy."
+        },
+        {
+          "kind": "frame",
+          "t": 1144,
+          "what": "График −log₂(x) до замены основания."
+        },
+        {
+          "kind": "frame",
+          "t": 1163,
+          "what": "Появляются графики −log₂(x) и −ln(x), но равенства ещё нет."
+        },
+        {
+          "kind": "frame",
+          "t": 1166,
+          "what": "Формула смены основания дорисовывается."
+        },
+        {
+          "kind": "frame",
+          "t": 1167,
+          "what": "Впервые полностью видно −log₂(x)·ln(2)=−ln(x)."
+        }
+      ],
+      "candidates": [
+        {
+          "question": "Можно ли ответить по материалу к 1163 с?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Две функции видны, но явное равенство ещё не показано."
+        },
+        {
+          "question": "Можно ли ответить по материалу к 1166 с?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Экранная формула ещё дорисовывается."
+        },
+        {
+          "question": "Можно ли ответить по материалу к 1167 с?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Равенство полностью читаемо; множитель ln(2) положителен и постоянен."
+        }
+      ],
+      "t_val": 1167,
+      "t_val_basis": "На кадре 1167 с полностью появляется равенство −log₂(x)·ln(2)=−ln(x).",
+      "answer_at_t_val": "−log₂(x)·ln(2)=−ln(x). Это положительное постоянное масштабирование loss, поэтому порядок качества моделей и положение минимума не меняются.",
+      "confidence": "high"
+    }
+  ],
+  "checks": [
+    {
+      "group": "shortcuts",
+      "item": "solvable-without-video",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1167,
+          "what": "Впервые полностью видно −log₂(x)·ln(2)=−ln(x)."
+        }
+      ],
+      "findings": "До просмотра конкретные экранные значения, индексы или равенства, нужные для полного ответа, неизвестны.",
+      "criterion": "Пункт срабатывает только если весь предметный ответ выводится из вопроса и общих знаний без достраивания экрана.",
+      "steps": [
+        {
+          "question": "Можно ли дать полный ответ до просмотра?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Текст вопроса не содержит всех конкретных экранных данных."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "video-recognized",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1167,
+          "what": "Впервые полностью видно −log₂(x)·ln(2)=−ln(x)."
+        }
+      ],
+      "findings": "До просмотра не было воспоминания об этом ролике или моменте.",
+      "criterion": "Пункт срабатывает, если ролик и ответ узнаны по памяти до открытия материалов.",
+      "steps": [
+        {
+          "question": "Был ли ролик узнан до просмотра?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Ролик и требуемый ответ заранее не узнавались."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

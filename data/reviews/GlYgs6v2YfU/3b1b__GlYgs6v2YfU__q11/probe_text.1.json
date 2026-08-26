@@ -1,0 +1,51 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "role": "probe_text",
+  "iteration": 1,
+  "model": "gpt-5.6",
+  "date": "2026-08-26",
+  "violations": [],
+  "notes": "Использован только transcript.md; кадры и индекс видеоряда не использовались.",
+  "sample_id": "3b1b__GlYgs6v2YfU__q11",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q11/probe_text",
+  "budget": {
+    "frames_viewed": 0,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 444,
+    "screen_index_used": false
+  },
+  "looked_at": [
+    {
+      "kind": "cue",
+      "t": 1511.8,
+      "what": "Минимизируется средний loss при ограничении Σqᵢ=1 посредством касания контуров и равенства градиентов."
+    },
+    {
+      "kind": "cue",
+      "t": 1528.4,
+      "what": "Условие сводится к производной F, равной константе, делённой на q; только логарифмы имеют это свойство."
+    }
+  ],
+  "steps": [
+    {
+      "question": "Что получается после подстановки qᵢ=pᵢ?",
+      "answer_bool": null,
+      "answer_number": null,
+      "answer_text": "pᵢf′(qᵢ)=λ и qᵢ=pᵢ дают qᵢf′(qᵢ)=λ, то есть f′(qᵢ)=λ/qᵢ.",
+      "why": "Это алгебраическая подстановка в условие, названное в вопросе; транскрипт подтверждает форму constant/q."
+    },
+    {
+      "question": "Какой вид имеет f?",
+      "answer_bool": null,
+      "answer_number": null,
+      "answer_text": "Интегрирование даёт f(q)=λ ln q+C; для убывающего loss λ<0, то есть f эквивалентна −a ln q+C при a>0.",
+      "why": "Первообразная 1/q — ln q; отрицательный коэффициент обеспечивает убывание."
+    }
+  ],
+  "answer": "Цепочка: pᵢf′(qᵢ)=λ; в требуемом минимуме qᵢ=pᵢ, поэтому qᵢf′(qᵢ)=λ; отсюда f′(qᵢ)=λ/qᵢ; интегрируя, f(q)=λ ln q+C. Поскольку loss должен убывать, λ<0, то есть f(q)=−a ln q+C при a>0.",
+  "basis": "Транскрипт [1511.8–1539.5] задаёт ограничение, равенство градиентов и форму derivative=constant/q; начальное равенство дано в вопросе. Остальные переходы — прямые подстановка и интегрирование из общих знаний матанализа.",
+  "confidence": "high",
+  "insufficient": false
+}
