@@ -1,0 +1,363 @@
+% Собирать XeLaTeX'ом: TinyTeX + DejaVu Sans (кириллица), сборка — Makefile рядом.
+\documentclass[aspectratio=169,10pt]{beamer}
+
+\usepackage{polyglossia}
+\setmainlanguage{russian}
+\setotherlanguage{english}
+\usepackage{fontspec}
+\setmainfont{DejaVu Sans}
+\setsansfont{DejaVu Sans}
+\setmonofont{DejaVu Sans Mono}[Scale=0.85]
+
+\usepackage{tikz}
+\usetikzlibrary{positioning, arrows.meta, backgrounds, calc}
+\usepackage{booktabs}
+
+% --- оформление: спокойное, без украшений
+\usetheme{default}
+\usecolortheme{default}
+\setbeamertemplate{navigation symbols}{}
+\definecolor{ink}{HTML}{1F2933}
+\definecolor{accent}{HTML}{1B6B7A}
+\definecolor{warm}{HTML}{B4531A}
+\definecolor{muted}{HTML}{7B8794}
+\definecolor{soft}{HTML}{EEF2F4}
+\setbeamercolor{structure}{fg=accent}
+\setbeamercolor{normal text}{fg=ink}
+\setbeamercolor{frametitle}{fg=ink, bg=}
+\setbeamerfont{frametitle}{size=\Large, series=\bfseries}
+\setbeamerfont{framesubtitle}{size=\small, series=\mdseries}
+\setbeamercolor{framesubtitle}{fg=muted}
+\setbeamertemplate{frametitle}{%
+  \vspace{0.7em}\usebeamerfont{frametitle}\insertframetitle%
+  \ifx\insertframesubtitle\@empty\else
+    \\[0.15em]\usebeamerfont{framesubtitle}\color{muted}\insertframesubtitle
+  \fi\vspace{0.2em}}
+\setbeamertemplate{itemize item}{\color{accent}\raisebox{0.12em}{\rule{0.45em}{0.45em}}}
+\setbeamertemplate{itemize subitem}{\color{muted}--}
+\setbeamerfont{itemize/enumerate body}{size=\normalsize}
+\setbeamerfont{itemize/enumerate subbody}{size=\small}
+\setlength{\leftmargini}{1.2em}
+
+% нижний колонтитул: номер страницы и короткая метка
+\setbeamertemplate{footline}{%
+  \hbox{}\hfill\raisebox{1.2em}{\color{muted}\scriptsize
+    ProLecture\quad\insertframenumber/\inserttotalframenumber}\hspace{1.5em}}
+
+\newcommand{\lead}[1]{{\color{warm}\textbf{#1}}}
+\newcommand{\num}[1]{{\color{accent}\textbf{#1}}}
+
+\title{ProLecture}
+\subtitle{Бенчмарк проактивных задач для стриминговых VLM}
+\date{}
+
+\begin{document}
+
+% ------------------------------------------------------------------ 1
+\begin{frame}[plain]
+  \vspace{1.2cm}
+  {\Huge\bfseries ProLecture}\\[0.5em]
+  {\large\color{muted} Бенчмарк проактивности, упирающейся в рассуждение}\\[2.2em]
+
+  \begin{minipage}{0.9\textwidth}
+    \color{ink}
+    Модель смотрит лекцию в реальном времени и сама решает,\\
+    \lead{когда} ответить и \lead{что} ответить.
+  \end{minipage}
+
+  \vfill
+  {\color{muted}\small Материал — лекции 3Blue1Brown. Статус: пилот, 10 сэмплов, конвейер разметки собран.}
+  \vspace{0.8cm}
+\end{frame}
+
+% ------------------------------------------------------------------ 2
+\begin{frame}
+  \frametitle{Ниша}
+  \framesubtitle{проактивность там, где ответ требует вывода, а не считывания}
+
+  \begin{center}
+  \footnotesize
+  \begin{tabular}{@{}lll@{}}
+    \toprule
+    \textbf{Работа} & \textbf{Что меряет} & \textbf{Чего не хватает} \\
+    \midrule
+    OVO-Bench & backward / real-time / forward & MCQ, нет аудио, перцепция \\
+    ProactiveVideoQA & open-ended, метрика PAUC & простые вопросы «сообщи, когда X» \\
+    OmniPro & 6 способностей $\times$ 9 подзадач & 84\% аудио, но vision-only не отстают \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+
+  \vspace{0.8em}
+  \begin{itemize}
+    \item В лекции почти \textbf{нет перцептивной сложности}: чистый рендер, крупные формулы, чёткая речь.
+    \item Зато есть логическая структура: посылка $\rightarrow$ вывод $\rightarrow$ следствие.
+    \item Значит, ответить вовремя можно, только \lead{поняв содержание} — а не распознав объект.
+  \end{itemize}
+\end{frame}
+
+% ------------------------------------------------------------------ 3
+\begin{frame}
+  \frametitle{Почему 3Blue1Brown}
+  \framesubtitle{уникальный актив: у нас есть исходный код картинки}
+
+  \begin{columns}[T]
+    \begin{column}{0.52\textwidth}
+      Для \num{140} видео известны одновременно ссылка на YouTube \emph{и} существующий
+      путь к manim-исходнику сцены.\\[0.6em]
+      Ни у одного из существующих бенчмарков исходников видеоряда нет.
+    \end{column}
+    \begin{column}{0.44\textwidth}
+      \begin{itemize}
+        \item точная ground-truth того, что на экране (строки \texttt{Tex} с \LaTeX);
+        \item семантические границы: имена сцен, порядок анимаций;
+        \item \lead{ре-рендер с внедрённой ошибкой} — контент, которого гарантированно
+              не было в pretraining.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+
+  \vspace{1.0em}
+  {\color{muted}\small
+  Связь «урок $\leftrightarrow$ ролик $\leftrightarrow$ код» существует только во frontmatter сайта:
+  в самом репозитории \texttt{3b1b/videos} нет ни одной ссылки на YouTube.}
+\end{frame}
+
+% ------------------------------------------------------------------ 4
+\begin{frame}
+  \frametitle{Анатомия сэмпла}
+  \framesubtitle{вопрос — в одну секунду, ответ — в окне, доказательство — отдельно}
+
+  \begin{center}
+  \begin{tikzpicture}[x=1.05cm, y=1cm]
+    \draw[-{Latex[length=3mm]}, thick, muted] (0,0) -- (12.4,0);
+    \node[muted, anchor=west, font=\small] at (12.2,-0.45) {время};
+
+    % вопрос
+    \draw[warm, very thick] (2.2,-0.35) -- (2.2,0.9);
+    \node[warm, anchor=south, font=\small\bfseries] at (2.2,0.95) {question\_time};
+
+    % окно ответа
+    \fill[accent, opacity=0.16] (6.0,-0.32) rectangle (9.2,0.32);
+    \draw[accent, thick] (6.0,-0.32) rectangle (9.2,0.32);
+    \node[accent, anchor=south, font=\small\bfseries] at (7.6,0.4) {окно ответа};
+
+    % дистрактор
+    \fill[warm, opacity=0.12] (3.4,-0.32) rectangle (4.9,0.32);
+    \draw[warm, dashed] (3.4,-0.32) rectangle (4.9,0.32);
+    \node[warm, anchor=north, font=\scriptsize] at (4.15,-0.42) {дистрактор};
+
+    % доказательство
+    \draw[ink, very thick] (6.3,-1.15) -- (8.6,-1.15);
+    \draw[ink] (6.3,-1.25) -- (6.3,-1.05);
+    \draw[ink] (8.6,-1.25) -- (8.6,-1.05);
+    \node[ink, anchor=north, font=\scriptsize] at (7.45,-1.3) {evidence\_span — где ответ \emph{становится возможен}};
+
+    \node[muted, anchor=north, font=\scriptsize] at (2.2,-0.45) {вопрос задан};
+  \end{tikzpicture}
+  \end{center}
+
+  \begin{itemize}
+    \item Ось \texttt{temporal\_rel} (\texttt{pre} / \texttt{at} / \texttt{post}) \lead{выводится валидатором}
+          из положения доказательства, а не ставится руками.
+    \item \texttt{distractor\_windows} — моменты, где ответ выглядит уместным, но преждевременен.
+    \item Подтверждение эталона живёт отдельно, в \texttt{provenance}: оно может лежать позже окна и даже вне ролика.
+  \end{itemize}
+\end{frame}
+
+% ------------------------------------------------------------------ 5
+\begin{frame}
+  \frametitle{Три оси таксономии}
+  \framesubtitle{каждый сэмпл — точка в кубе (акт, отношение, уровень рассуждения)}
+
+  \begin{columns}[T]
+    \begin{column}{0.33\textwidth}
+      {\bfseries A. Тип акта}\\[0.4em]
+      {\small
+      \texttt{alert} — сигнал\\
+      \texttt{monitor} — состояние\\
+      \texttt{ground} — локализация\\
+      \texttt{narrate} — описание\\
+      \texttt{predict} — предсказание\\
+      \texttt{verify} — верификация\\
+      \texttt{counterfact} — контрфактика}
+    \end{column}
+    \begin{column}{0.33\textwidth}
+      {\bfseries B. Отношение к триггеру}\\[0.4em]
+      {\small
+      \texttt{pre} — доказательство \emph{после} вопроса: \lead{умение ждать}\\[0.3em]
+      \texttt{at} — здесь и сейчас\\[0.3em]
+      \texttt{post} — ответ по памяти\\[0.5em]
+      \color{muted} Один вопрос в двух режимах даёт контролируемую пару.}
+    \end{column}
+    \begin{column}{0.33\textwidth}
+      {\bfseries C. Уровень рассуждения}\\[0.4em]
+      {\small
+      \texttt{L1} перцепция — считывается\\[0.3em]
+      \texttt{L2} интеграция — связать два момента\\[0.3em]
+      \texttt{L3} вывод — провести рассуждение, которого в видео нет\\[0.5em]
+      \color{muted} Критерий L3: blind-бейзлайн не решает.}
+    \end{column}
+  \end{columns}
+
+  \vspace{0.9em}
+  {\color{muted}\small Ось C — то, чего нет у OmniPro: там модели не различаются именно по ней.}
+\end{frame}
+
+% ------------------------------------------------------------------ 6
+\begin{frame}
+  \frametitle{Принципы, из которых вырос дизайн}
+  \framesubtitle{каждый пункт закрывает провал, на котором погорела одна из разобранных работ}
+
+  \begin{itemize}
+    \item \lead{Метки ставятся замером, а не декларацией.} \texttt{audio\_dependency}
+          выводится из ответов зондов модальностей; мнение разметчика живёт
+          в отдельном поле и на выводы не влияет.
+    \item \lead{Генератор $\neq$ судья $\neq$ участник.} Три разные модели.
+    \item \lead{Открытые ответы с рубрикой, без MCQ.} Перекошенный ключ ответов ломает бенчмарк тихо.
+    \item \lead{Обязательные бейзлайны-пустышки:} blind, text-only, vision-only, frozen-frame,
+          «отвечать сразу», «отвечать в конце», «молчать».
+    \item \lead{Никаких квот} вида «ровно N сэмплов на задачу»: сколько прошло валидацию, столько и есть.
+    \item \lead{Контаминация измеряется, а не отрицается:} пилот на видео 2026 года,
+          контрольное видео 2017 года — чтобы разрыв blind-бейзлайна увидеть числом.
+  \end{itemize}
+\end{frame}
+
+% ------------------------------------------------------------------ 7
+\begin{frame}
+  \frametitle{Метрика}
+  \framesubtitle{PAUC плюс то, что PAUC не наказывает}
+
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \textbf{PAUC.} На каждом окне строится ломаная «время $\rightarrow$ качество
+      накопленных ответов», качество $s \in \{0,1,2\}$ ставит LLM-судья по рубрике.
+
+      \vspace{0.6em}
+      Стартовая точка $(t_{\text{start}}, 0.5)$: молчание лучше уверенного неверного ответа.
+
+      \vspace{0.6em}
+      \lead{Следствие, которое отчитываем явно:} стратегия «молчать всегда» получает
+      \num{0.25} от максимума. Это пол шкалы, а не ноль.
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \textbf{Обязательно рядом:}
+      \begin{itemize}
+        \item[] {\small
+        \textbf{False-Alarm Rate} — ответы вне окон\\[0.25em]
+        \textbf{Trap rate} — попадания в дистракторы, отдельно от FAR\\[0.25em]
+        \textbf{Latency} — от $t_{\text{start}}$, распределением\\[0.25em]
+        \textbf{Silence rate}, \textbf{Trigger Recall}\\[0.25em]
+        \textbf{Responses-per-sample} — иначе спам-стратегия невидима}
+      \end{itemize}
+      \vspace{0.4em}
+      {\color{muted}\small Агрегация по сэмплам, а не по окнам: иначе итог — заложник
+      одного самого простого сэмпла с девятью триггерами.}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ------------------------------------------------------------------ 8
+\begin{frame}
+  \frametitle{Конвейер}
+  \framesubtitle{от ролика до сэмпла, прошедшего ревью}
+
+  \begin{center}
+  \begin{tikzpicture}[
+      node distance=0.28cm,
+      box/.style={draw=accent, fill=soft, rounded corners=2pt, inner sep=4pt,
+                  align=center, font=\scriptsize, minimum height=1.05cm, text width=1.6cm},
+      lab/.style={font=\scriptsize, color=muted, align=center},
+      ar/.style={-{Latex[length=2mm]}, muted, thick}]
+    \node[box] (a) {видео\\+ исходник};
+    \node[box, right=of a] (b) {bundle:\\транскрипт,\\кадры, формулы};
+    \node[box, right=of b] (c) {пропозер\\(агент)};
+    \node[box, right=of c] (d) {валидатор\\(схема)};
+    \node[box, right=of d] (e) {ревьюеры\\и зонды};
+    \node[box, right=of e] (f) {приёмка\\человеком};
+    \draw[ar] (a) -- (b); \draw[ar] (b) -- (c); \draw[ar] (c) -- (d);
+    \draw[ar] (d) -- (e); \draw[ar] (e) -- (f);
+    \draw[ar] (e.south) .. controls +(0,-1.0) and +(0,-1.0) .. (d.south);
+    \node[lab] at ($(d.south)!0.5!(e.south)$) [below=0.95cm] {не PASS — тот же вопрос уходит свежим субагентам};
+  \end{tikzpicture}
+  \end{center}
+
+  \vspace{0.4em}
+  \begin{itemize}
+    \item \textbf{Полу-слепой ревьюер} видит ролик до конца окна, но не знает его начала —
+          и называет момент, когда ответ стал возможен. Совпало $\Rightarrow$ границы честные.
+    \item \textbf{Зонды модальностей} (text-only, vision-only, frozen-frame, полный) дают
+          метку \texttt{audio\_dependency} замером.
+    \item \textbf{Валидатор} — роль тестов: непересекающиеся окна, ссылки только назад,
+          дистрактор не совпадает с триггером, уникальность \texttt{id}.
+  \end{itemize}
+\end{frame}
+
+% ------------------------------------------------------------------ 9
+\begin{frame}
+  \frametitle{Инструменты, которых не было}
+  \framesubtitle{два места, где готовое не подошло}
+
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \textbf{Свой детектор смены сцен}\\[0.5em]
+      {\small
+      Готовые детекторы сравнивают кадр с предыдущим — а типовой переход manim
+      это плавный переезд за 2--4 секунды, где соседние кадры почти не отличаются.\\[0.5em]
+      Считаем \lead{накопленный дрейф} от последнего снятого кадра и снимаем,
+      когда анимация улеглась.\\[0.5em]
+      Один порог на домен: \num{13.5} / \num{12.9} / \num{10.1} кадра на минуту
+      на роликах 2026 и 2017 годов.\\[0.3em]
+      На контрольном участке: \num{18} состояний из 18 против \num{10} у равномерной сетки.}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \textbf{Плотное описание видеоряда}\\[0.5em]
+      {\small
+      Документ вроде субтитров, только вместо реплик — что происходит на экране.
+      Разметчик читает текст вместо просмотра десятков кадров.\\[0.5em]
+      Два кадра в секунду, окна по 5 секунд с перекрытием, строгий JSON по схеме
+      (guided decoding на стороне сервера).\\[0.5em]
+      Пилот: \num{3878} кадров, \num{485} фрагментов, \num{20} минут на двух A100,
+      \num{1939} секунд из 1939 покрыты событиями.\\[0.3em]
+      \color{muted} Транскрипт в промпт не подаётся: иначе зонд vision-only перестанет быть vision-only.}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ------------------------------------------------------------------ 10
+\begin{frame}
+  \frametitle{Где мы сейчас}
+
+  \begin{columns}[T]
+    \begin{column}{0.46\textwidth}
+      \textbf{Сделано}
+      \begin{itemize}
+        \item[] {\small
+        конвейер данных: маппинг $\rightarrow$ скачивание $\rightarrow$ bundle;\\[0.3em]
+        схема сэмпла и валидатор семантики;\\[0.3em]
+        пилот: \num{10} сэмплов, \num{24} триггера и \num{12} дистракторов,\\ ошибок валидации ноль;\\[0.3em]
+        промпты пропозера, трёх ревьюеров и четырёх зондов;\\[0.3em]
+        детектор сцен и описание видеоряда.}
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.46\textwidth}
+      \textbf{Дальше}
+      \begin{itemize}
+        \item[] {\small
+        прогнать бейзлайны-пустышки и увидеть, что они проваливаются;\\[0.3em]
+        замерить разрыв blind на контрольном видео 2017 года;\\[0.3em]
+        harness потоковой выдачи и LLM-судья по рубрике;\\[0.3em]
+        расширение разметки: доля \texttt{L3} должна вырасти;\\[0.3em]
+        опционально — ре-рендер сцен с внедрённой ошибкой.}
+      \end{itemize}
+    \end{column}
+  \end{columns}
+
+  \vspace{1.2em}
+  \begin{center}
+    {\color{muted}\small Открытые допущения записаны отдельно и в Limitations, а не заметены:
+    утечка объяснения дистрактора, высокая сложность пилота, малый объём.}
+  \end{center}
+\end{frame}
+
+\end{document}
