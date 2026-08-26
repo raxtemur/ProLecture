@@ -1,0 +1,7851 @@
+{
+ "video_id": "GlYgs6v2YfU",
+ "title": "But what is cross-entropy? | Compression is Intelligence Part 2",
+ "duration": 2031.0,
+ "upload_date": "20260716",
+ "source_code": "_2026/cross_entropy",
+ "chapters": [
+  {
+   "start": 0,
+   "end": 182,
+   "title": "Language trees and zipping"
+  },
+  {
+   "start": 182,
+   "end": 320,
+   "title": "Recap optimal codes"
+  },
+  {
+   "start": 320,
+   "end": 506,
+   "title": "Defining cross-entropy"
+  },
+  {
+   "start": 506,
+   "end": 779,
+   "title": "Intuition and examples"
+  },
+  {
+   "start": 779,
+   "end": 895,
+   "title": "Application to language trees"
+  },
+  {
+   "start": 895,
+   "end": 1238,
+   "title": "Pre-training LLMs"
+  },
+  {
+   "start": 1238,
+   "end": 1573,
+   "title": "What makes this loss function best?"
+  },
+  {
+   "start": 1573,
+   "end": 1812,
+   "title": "Distillation"
+  },
+  {
+   "start": 1812,
+   "end": 1895,
+   "title": "3b1b Talent"
+  },
+  {
+   "start": 1895,
+   "end": 2031,
+   "title": "KL Divergence"
+  }
+ ],
+ "transcript": [
+  {
+   "start": 0.0,
+   "end": 4.071,
+   "text": "There's a kind of wild paper from 2002 called Language Trees and Zipping,"
+  },
+  {
+   "start": 4.071,
+   "end": 9.035,
+   "text": "which shows how you can find structure between languages just by using very general file"
+  },
+  {
+   "start": 9.035,
+   "end": 9.76,
+   "text": "compression."
+  },
+  {
+   "start": 10.46,
+   "end": 14.622,
+   "text": "For example, let's say I give you a bunch of text documents in many different languages,"
+  },
+  {
+   "start": 14.622,
+   "end": 17.46,
+   "text": "and your goal is to automatically cluster them by language."
+  },
+  {
+   "start": 18.04,
+   "end": 19.86,
+   "text": "And actually, you can aim even higher than that."
+  },
+  {
+   "start": 20.1,
+   "end": 24.184,
+   "text": "Suppose you also want to recover which languages are most closely related to each"
+  },
+  {
+   "start": 24.184,
+   "end": 28.268,
+   "text": "other in a way that lets you rediscover the tree of shared lineage between them,"
+  },
+  {
+   "start": 28.268,
+   "end": 32.1,
+   "text": "and all you can do is write a function that processes the text in each one."
+  },
+  {
+   "start": 32.34,
+   "end": 34.26,
+   "text": "There's no pre-baked knowledge of linguistics."
+  },
+  {
+   "start": 34.92,
+   "end": 37.578,
+   "text": "Now keep in mind, this is almost a quarter century ago,"
+  },
+  {
+   "start": 37.578,
+   "end": 40.14,
+   "text": "so nothing like modern language models is available."
+  },
+  {
+   "start": 40.64,
+   "end": 44.385,
+   "text": "What's crazy is how the authors showed that you can do this just by using gzip,"
+  },
+  {
+   "start": 44.385,
+   "end": 48.413,
+   "text": "basically the same operation that you might use on your computer to make files a bit"
+  },
+  {
+   "start": 48.413,
+   "end": 48.913,
+   "text": "smaller."
+  },
+  {
+   "start": 49.44,
+   "end": 50.34,
+   "text": "Here's the basic idea."
+  },
+  {
+   "start": 50.76,
+   "end": 55.394,
+   "text": "Given two documents, A and B, append a small snippet of B to the end of A,"
+  },
+  {
+   "start": 55.394,
+   "end": 56.96,
+   "text": "and compress the result."
+  },
+  {
+   "start": 56.96,
+   "end": 62.2,
+   "text": "Now compare that file size to what you get just by compressing A on its own."
+  },
+  {
+   "start": 63.06,
+   "end": 66.96,
+   "text": "One way to think about this difference is it's telling you how well a little"
+  },
+  {
+   "start": 66.96,
+   "end": 70.86,
+   "text": "snippet of B gets compressed when the compressor is mostly optimized for A."
+  },
+  {
+   "start": 71.26,
+   "end": 74.904,
+   "text": "You'd expect that result to be small when the linguistic patterns of B"
+  },
+  {
+   "start": 74.904,
+   "end": 78.6,
+   "text": "are similar to those in A, but larger when B is more different from A."
+  },
+  {
+   "start": 79.3,
+   "end": 83.399,
+   "text": "The authors used this general idea to define a specific metric for how far"
+  },
+  {
+   "start": 83.399,
+   "end": 87.72,
+   "text": "away two documents are, based exclusively on how well they compress together."
+  },
+  {
+   "start": 88.22,
+   "end": 91.212,
+   "text": "And then, evidently, this co-compression-based distance"
+  },
+  {
+   "start": 91.212,
+   "end": 94.04,
+   "text": "was enough to recover the tree of language lineage."
+  },
+  {
+   "start": 94.52,
+   "end": 95.38,
+   "text": "And it doesn't stop there."
+  },
+  {
+   "start": 95.52,
+   "end": 98.553,
+   "text": "The same trick can be used for other natural language tasks,"
+  },
+  {
+   "start": 98.553,
+   "end": 100.98,
+   "text": "like identifying who authored a given document."
+  },
+  {
+   "start": 102.56,
+   "end": 106.597,
+   "text": "What I like about this paper is what a pure example it is of when the theory and"
+  },
+  {
+   "start": 106.597,
+   "end": 110.482,
+   "text": "the engineering behind compression can be surprisingly useful to tasks which"
+  },
+  {
+   "start": 110.482,
+   "end": 114.62,
+   "text": "would seem to fall in the domain of machine learning and artificial intelligence."
+  },
+  {
+   "start": 114.62,
+   "end": 118.7,
+   "text": "The specific concept underlying this example is something known as cross-entropy."
+  },
+  {
+   "start": 119.22,
+   "end": 122.632,
+   "text": "And what's interesting is that cross-entropy is also a very core part"
+  },
+  {
+   "start": 122.632,
+   "end": 125.995,
+   "text": "of how modern language models are trained, which gives a whisper of"
+  },
+  {
+   "start": 125.995,
+   "end": 129.16,
+   "text": "an unexpected connection between that training and compression."
+  },
+  {
+   "start": 129.8,
+   "end": 132.143,
+   "text": "Most of what I want to do with this video is provide"
+  },
+  {
+   "start": 132.143,
+   "end": 133.9,
+   "text": "a lesson that goes back to the basics."
+  },
+  {
+   "start": 134.18,
+   "end": 137.914,
+   "text": "We're going to spend the first half on the fundamentals of what cross-entropy is,"
+  },
+  {
+   "start": 137.914,
+   "end": 141.74,
+   "text": "how it naturally arises in the study of compression, and how you can visualize it."
+  },
+  {
+   "start": 141.74,
+   "end": 144.398,
+   "text": "Then after that, we're going to go through the fundamentals"
+  },
+  {
+   "start": 144.398,
+   "end": 146.56,
+   "text": "on pre-training and distilling language models."
+  },
+  {
+   "start": 146.94,
+   "end": 149.229,
+   "text": "And what's interesting is how, in that second half,"
+  },
+  {
+   "start": 149.229,
+   "end": 152.46,
+   "text": "the way that cross-entropy arises initially looks completely different."
+  },
+  {
+   "start": 152.6,
+   "end": 154.22,
+   "text": "It seems unrelated to compression."
+  },
+  {
+   "start": 154.66,
+   "end": 158.086,
+   "text": "But whenever you see the same formula pop up in two separate contexts,"
+  },
+  {
+   "start": 158.086,
+   "end": 161.56,
+   "text": "it's math's way of kind of winking at you and hinting at a connection."
+  },
+  {
+   "start": 162.18,
+   "end": 166.052,
+   "text": "So at the end, armed with an understanding of where cross-entropy really comes from,"
+  },
+  {
+   "start": 166.052,
+   "end": 168.264,
+   "text": "combined with an understanding of pre-training,"
+  },
+  {
+   "start": 168.264,
+   "end": 171.583,
+   "text": "I want to show you how you can reframe the way you think about training"
+  },
+  {
+   "start": 171.583,
+   "end": 174.395,
+   "text": "large language models to not be about next token prediction,"
+  },
+  {
+   "start": 174.395,
+   "end": 176.1,
+   "text": "but instead to be about compression."
+  },
+  {
+   "start": 182.24,
+   "end": 184.766,
+   "text": "It's easiest to motivate cross-entropy in the"
+  },
+  {
+   "start": 184.766,
+   "end": 187.74,
+   "text": "context of encoding messages into sequences of bits."
+  },
+  {
+   "start": 188.08,
+   "end": 190.467,
+   "text": "This is a topic we began discussing in part one,"
+  },
+  {
+   "start": 190.467,
+   "end": 193.898,
+   "text": "where the framing is that we treat messages as sequences of symbols,"
+  },
+  {
+   "start": 193.898,
+   "end": 198.075,
+   "text": "something like characters of text, and if you treat each new symbol like it's being"
+  },
+  {
+   "start": 198.075,
+   "end": 202.202,
+   "text": "sampled from some probability distribution, those probabilities tell you something"
+  },
+  {
+   "start": 202.202,
+   "end": 204.44,
+   "text": "about the fundamental limits on compression."
+  },
+  {
+   "start": 205.06,
+   "end": 207.858,
+   "text": "Now, the case of natural language is incredibly complicated,"
+  },
+  {
+   "start": 207.858,
+   "end": 210.516,
+   "text": "those distributions would be very difficult to describe,"
+  },
+  {
+   "start": 210.516,
+   "end": 213.92,
+   "text": "so we centered a lot of our discussion on a very simplified toy example."
+  },
+  {
+   "start": 214.26,
+   "end": 216.311,
+   "text": "And I want to pick up from that thread here, since"
+  },
+  {
+   "start": 216.311,
+   "end": 218.28,
+   "text": "that example also helps motivate cross-entropy."
+  },
+  {
+   "start": 218.66,
+   "end": 221.009,
+   "text": "The setup was that we're sending sequences of"
+  },
+  {
+   "start": 221.009,
+   "end": 223.62,
+   "text": "four possible instructions to some faraway robot."
+  },
+  {
+   "start": 223.62,
+   "end": 228.454,
+   "text": "Move up, down, left, or right, and each symbol we send is sampled from a distribution"
+  },
+  {
+   "start": 228.454,
+   "end": 233.459,
+   "text": "that gives a 50% chance to sending the instruction up, a 1 in 4 chance of sending down,"
+  },
+  {
+   "start": 233.459,
+   "end": 237.44,
+   "text": "and a 1 in 8 chance for each of the remaining symbols left and right."
+  },
+  {
+   "start": 237.84,
+   "end": 241.1,
+   "text": "It's as if we want the robot to do some specific biased random walk."
+  },
+  {
+   "start": 241.82,
+   "end": 246.087,
+   "text": "One of the conclusions we came to in part one was how the best possible"
+  },
+  {
+   "start": 246.087,
+   "end": 249.572,
+   "text": "encoding here turns the symbol up into just a single bit,"
+  },
+  {
+   "start": 249.572,
+   "end": 254.68,
+   "text": "turns that symbol down into two bits, and turns left and right each into three bits."
+  },
+  {
+   "start": 255.08,
+   "end": 258.941,
+   "text": "The whole point of this toy example is that it's a concrete illustration"
+  },
+  {
+   "start": 258.941,
+   "end": 262.373,
+   "text": "of a much more general fact, which is that for an optimal code,"
+  },
+  {
+   "start": 262.373,
+   "end": 265.913,
+   "text": "the number of bits that you allocate to a given symbol looks like"
+  },
+  {
+   "start": 265.913,
+   "end": 269.72,
+   "text": "the negative log base 2 of the probability for that symbol showing up."
+  },
+  {
+   "start": 270.12,
+   "end": 272.82,
+   "text": "This negative log expression takes a little getting used to."
+  },
+  {
+   "start": 273.08,
+   "end": 276.754,
+   "text": "I mentioned how I kind of wish that history had unfolded in such a way that we"
+  },
+  {
+   "start": 276.754,
+   "end": 279.015,
+   "text": "call it the log base 1 half of the probability,"
+  },
+  {
+   "start": 279.015,
+   "end": 282.547,
+   "text": "since it's really just asking how many times do you chop things in half to"
+  },
+  {
+   "start": 282.547,
+   "end": 283.96,
+   "text": "get down to a certain amount."
+  },
+  {
+   "start": 284.74,
+   "end": 289.16,
+   "text": "Claude Shannon defined this expression to be the information content of an event."
+  },
+  {
+   "start": 289.68,
+   "end": 292.143,
+   "text": "Now of course usually the numbers aren't so clean,"
+  },
+  {
+   "start": 292.143,
+   "end": 295.049,
+   "text": "so this information value is typically not a whole number,"
+  },
+  {
+   "start": 295.049,
+   "end": 298.596,
+   "text": "meaning your optimal codes can't look so simple as associating a symbol"
+  },
+  {
+   "start": 298.596,
+   "end": 300.32,
+   "text": "with some specific string of bits."
+  },
+  {
+   "start": 300.66,
+   "end": 304.51,
+   "text": "The more general way to think about it is that to encode a full message,"
+  },
+  {
+   "start": 304.51,
+   "end": 308.252,
+   "text": "the information content of the full message looks like the sum of the"
+  },
+  {
+   "start": 308.252,
+   "end": 311.032,
+   "text": "information contents of all the individual symbols,"
+  },
+  {
+   "start": 311.032,
+   "end": 315.203,
+   "text": "and the number of bits in an optimal encoding of the message is approximately"
+  },
+  {
+   "start": 315.203,
+   "end": 316.86,
+   "text": "that full information content."
+  },
+  {
+   "start": 317.16,
+   "end": 320.32,
+   "text": "So fractional information really does have a very real meaning here."
+  },
+  {
+   "start": 320.98,
+   "end": 325.078,
+   "text": "Now for part 2, imagine your space agency has decided to change the plan,"
+  },
+  {
+   "start": 325.078,
+   "end": 329.344,
+   "text": "effectively rotating things to encourage an overall more rightward journey,"
+  },
+  {
+   "start": 329.344,
+   "end": 333.217,
+   "text": "where from now on the symbols up and down each have a 1 in 8 chance,"
+  },
+  {
+   "start": 333.217,
+   "end": 337.82,
+   "text": "the symbol left has a 1 in 4 chance, and right is sampled fully half of the time."
+  },
+  {
+   "start": 338.3,
+   "end": 341.915,
+   "text": "Supposing all of your encoding and decoding systems are hard-coded"
+  },
+  {
+   "start": 341.915,
+   "end": 345.914,
+   "text": "to use the previous encoding scheme, optimized for the old distribution,"
+  },
+  {
+   "start": 345.914,
+   "end": 349.42,
+   "text": "this is obviously now inefficient, but how inefficient exactly?"
+  },
+  {
+   "start": 350.26,
+   "end": 351.96,
+   "text": "And this is not that hard to calculate."
+  },
+  {
+   "start": 352.56,
+   "end": 357.124,
+   "text": "Now the single bit instruction for up comes up only one eighth of the time,"
+  },
+  {
+   "start": 357.124,
+   "end": 361.018,
+   "text": "the two bits for down also come up only one eighth of the time,"
+  },
+  {
+   "start": 361.018,
+   "end": 364.426,
+   "text": "and the other two instructions each require three bits,"
+  },
+  {
+   "start": 364.426,
+   "end": 366.86,
+   "text": "which together happens 75% of the time."
+  },
+  {
+   "start": 367.64,
+   "end": 373.18,
+   "text": "Adding this up as a weighted sum, you get an average of 2.625 bits per message."
+  },
+  {
+   "start": 373.78,
+   "end": 376.881,
+   "text": "You would say that this number represents the cross entropy"
+  },
+  {
+   "start": 376.881,
+   "end": 379.72,
+   "text": "of the original distribution relative to the new one."
+  },
+  {
+   "start": 380.08,
+   "end": 383.56,
+   "text": "If you've optimized a compression scheme around one context,"
+  },
+  {
+   "start": 383.56,
+   "end": 385.88,
+   "text": "how does it perform in another context?"
+  },
+  {
+   "start": 386.76,
+   "end": 390.434,
+   "text": "Even just as I've stated things so far, perhaps this already rings a few bells"
+  },
+  {
+   "start": 390.434,
+   "end": 393.92,
+   "text": "in your mind as you think back to that zipping and language tree example."
+  },
+  {
+   "start": 394.4,
+   "end": 397.036,
+   "text": "Before spelling that out, it is worth our time to take a few"
+  },
+  {
+   "start": 397.036,
+   "end": 399.98,
+   "text": "minutes generalizing this and packaging it into a couple formulas."
+  },
+  {
+   "start": 400.58,
+   "end": 404.532,
+   "text": "Let's label all the probabilities from our new distribution with the letter P,"
+  },
+  {
+   "start": 404.532,
+   "end": 408.18,
+   "text": "and then all of those from the original distribution with the letter Q."
+  },
+  {
+   "start": 408.62,
+   "end": 411.691,
+   "text": "And instead of limiting ourselves to four robot instructions,"
+  },
+  {
+   "start": 411.691,
+   "end": 415.92,
+   "text": "let's consider the general case of messages that look like any sequence of symbols."
+  },
+  {
+   "start": 415.92,
+   "end": 418.24,
+   "text": "Those symbols could be the four robot instructions,"
+  },
+  {
+   "start": 418.24,
+   "end": 420.333,
+   "text": "they could be the characters of English text,"
+  },
+  {
+   "start": 420.333,
+   "end": 422.38,
+   "text": "or they could be anything else you dream up."
+  },
+  {
+   "start": 422.94,
+   "end": 426.378,
+   "text": "An encoding optimized for this first distribution, Q,"
+  },
+  {
+   "start": 426.378,
+   "end": 430.4,
+   "text": "allocates negative log base 2 of Q sub i bits to each symbol."
+  },
+  {
+   "start": 431.08,
+   "end": 435.22,
+   "text": "So the average bits used per instruction looks like this weighted sum."
+  },
+  {
+   "start": 435.74,
+   "end": 439.127,
+   "text": "Basically, you go through each symbol, and for each one you take the"
+  },
+  {
+   "start": 439.127,
+   "end": 442.316,
+   "text": "proportion of times that it comes up, which is its probability,"
+  },
+  {
+   "start": 442.316,
+   "end": 446.5,
+   "text": "multiplied by the information content, the negative log base 2, of its probability."
+  },
+  {
+   "start": 447.36,
+   "end": 450.739,
+   "text": "This sum was the other key term we had in the last lesson,"
+  },
+  {
+   "start": 450.739,
+   "end": 454.7,
+   "text": "the entropy of Q, and we visualized it as the area of this diagram."
+  },
+  {
+   "start": 455.22,
+   "end": 457.76,
+   "text": "Each bar represents one part of the weighted sum."
+  },
+  {
+   "start": 458.04,
+   "end": 461.92,
+   "text": "Its width is Q, and its height is the negative log base 2 of Q."
+  },
+  {
+   "start": 463.32,
+   "end": 467.375,
+   "text": "But if the distribution that arises in practice is something else, P,"
+  },
+  {
+   "start": 467.375,
+   "end": 470.137,
+   "text": "and we keep using an encoding optimized for Q,"
+  },
+  {
+   "start": 470.137,
+   "end": 475.19,
+   "text": "then the average number of bits used per instruction would still look like a weighted"
+  },
+  {
+   "start": 475.19,
+   "end": 478.54,
+   "text": "sum, but now the weights are these new probabilities, P."
+  },
+  {
+   "start": 479.8,
+   "end": 483.598,
+   "text": "So this general expression is, by definition, the cross"
+  },
+  {
+   "start": 483.598,
+   "end": 487.88,
+   "text": "entropy of the distribution Q relative to the distribution P."
+  },
+  {
+   "start": 488.7,
+   "end": 492.007,
+   "text": "The specific notation that you'll see out in the wild is a little bit of a mess,"
+  },
+  {
+   "start": 492.007,
+   "end": 493.66,
+   "text": "there's a lot of different conventions."
+  },
+  {
+   "start": 494.02,
+   "end": 499.349,
+   "text": "For you and me, we'll just think about the sum itself, visualized with this diagram,"
+  },
+  {
+   "start": 499.349,
+   "end": 504.996,
+   "text": "where the width of each bar is P sub i, while the height is the negative log base 2 of Q"
+  },
+  {
+   "start": 504.996,
+   "end": 505.496,
+   "text": "sub i."
+  },
+  {
+   "start": 506.32,
+   "end": 509.74,
+   "text": "With any new formula, it helps to build some intuition with very simple examples."
+  },
+  {
+   "start": 510.44,
+   "end": 514.506,
+   "text": "So in this case, instead of having distributions with many possible events,"
+  },
+  {
+   "start": 514.506,
+   "end": 517.0,
+   "text": "consider a distribution with only two events."
+  },
+  {
+   "start": 517.38,
+   "end": 522.887,
+   "text": "And let's say Q is an even distribution that assigns a 50% chance to each event,"
+  },
+  {
+   "start": 522.887,
+   "end": 527.5,
+   "text": "while P is more skewed, assigning 90% to one and 10% to the other."
+  },
+  {
+   "start": 527.82,
+   "end": 532.398,
+   "text": "This would mean, from Q's perspective, each event has one bit of information,"
+  },
+  {
+   "start": 532.398,
+   "end": 536.679,
+   "text": "and an optimal code for symbols following this distribution would spend"
+  },
+  {
+   "start": 536.679,
+   "end": 540.96,
+   "text": "only one bit on each such symbol, so the total entropy of Q is one bit."
+  },
+  {
+   "start": 541.5,
+   "end": 542.52,
+   "text": "And what about cross entropy?"
+  },
+  {
+   "start": 542.94,
+   "end": 546.116,
+   "text": "If this code was used when a new distribution of symbols applies,"
+  },
+  {
+   "start": 546.116,
+   "end": 549.34,
+   "text": "what would the average number of bits per symbol be in that case?"
+  },
+  {
+   "start": 549.34,
+   "end": 554.187,
+   "text": "Well, in this example, actually, because each symbol has the same amount of information,"
+  },
+  {
+   "start": 554.187,
+   "end": 558.427,
+   "text": "one bit, the weights in the weighted sum don't actually make any difference,"
+  },
+  {
+   "start": 558.427,
+   "end": 560.3,
+   "text": "so cross entropy is also one bit."
+  },
+  {
+   "start": 560.74,
+   "end": 562.22,
+   "text": "But now think about flipping this around."
+  },
+  {
+   "start": 562.46,
+   "end": 566.333,
+   "text": "Suppose that Q was the very skewed distribution with the 90-10 split,"
+  },
+  {
+   "start": 566.333,
+   "end": 569.42,
+   "text": "while P was an even distribution with the 50-50 split."
+  },
+  {
+   "start": 569.94,
+   "end": 574.735,
+   "text": "Now, from Q's perspective, that one much more likely event has very little information,"
+  },
+  {
+   "start": 574.735,
+   "end": 577.16,
+   "text": "and the other one has a lot of information."
+  },
+  {
+   "start": 577.16,
+   "end": 582.068,
+   "text": "So as far as Q is concerned, a perfect code for symbols following this distribution"
+  },
+  {
+   "start": 582.068,
+   "end": 586.325,
+   "text": "should spend much less than one bit, again, averaged over all messages,"
+  },
+  {
+   "start": 586.325,
+   "end": 591.233,
+   "text": "for that one common symbol, trading off spending multiple bits on average for that"
+  },
+  {
+   "start": 591.233,
+   "end": 592.12,
+   "text": "second symbol."
+  },
+  {
+   "start": 592.68,
+   "end": 596.48,
+   "text": "When you calculate it, the total entropy of Q is now smaller than one bit."
+  },
+  {
+   "start": 597.18,
+   "end": 598.74,
+   "text": "But now what about cross entropy?"
+  },
+  {
+   "start": 599.1,
+   "end": 602.834,
+   "text": "If a code optimized for this skewed distribution was faced against"
+  },
+  {
+   "start": 602.834,
+   "end": 605.777,
+   "text": "a new reality where both events are equally likely,"
+  },
+  {
+   "start": 605.777,
+   "end": 610.36,
+   "text": "now you really do see a disadvantage, and that weighted sum is around 1.74 bits."
+  },
+  {
+   "start": 610.78,
+   "end": 613.12,
+   "text": "So stepping back, notice how much order matters here."
+  },
+  {
+   "start": 613.42,
+   "end": 617.811,
+   "text": "When we swapped the roles of P and Q, the value of this cross entropy changed,"
+  },
+  {
+   "start": 617.811,
+   "end": 618.88,
+   "text": "which makes sense."
+  },
+  {
+   "start": 619.0,
+   "end": 621.5,
+   "text": "In the formula, the roles of P and Q are pretty different."
+  },
+  {
+   "start": 622.5,
+   "end": 625.235,
+   "text": "While we're here, by the way, just showing simple distributions"
+  },
+  {
+   "start": 625.235,
+   "end": 627.84,
+   "text": "over only two possible outcomes, we can have some more fun."
+  },
+  {
+   "start": 628.1,
+   "end": 632.896,
+   "text": "Notice how this distribution Q depends on only one free variable, little q sub 1,"
+  },
+  {
+   "start": 632.896,
+   "end": 637.16,
+   "text": "and the complementary value has to be locked at 1 minus little q sub 1."
+  },
+  {
+   "start": 637.78,
+   "end": 638.9,
+   "text": "And same deal for P."
+  },
+  {
+   "start": 639.22,
+   "end": 642.16,
+   "text": "It really depends on just one parameter, little p sub 1."
+  },
+  {
+   "start": 642.62,
+   "end": 645.761,
+   "text": "The reason we can have some fun is that with so few free parameters,"
+  },
+  {
+   "start": 645.761,
+   "end": 647.978,
+   "text": "we can build more intuition by graphing things,"
+  },
+  {
+   "start": 647.978,
+   "end": 650.38,
+   "text": "which lets me highlight one critical property here."
+  },
+  {
+   "start": 650.84,
+   "end": 654.164,
+   "text": "I want you to imagine fixing P in place and then plotting"
+  },
+  {
+   "start": 654.164,
+   "end": 657.08,
+   "text": "this cross entropy expression as a function of Q."
+  },
+  {
+   "start": 657.56,
+   "end": 662.373,
+   "text": "What you'll notice is this graph reaches a very clear minimum, and more specifically,"
+  },
+  {
+   "start": 662.373,
+   "end": 666.96,
+   "text": "the value where it achieves that minimum is the one where P and Q are identical."
+  },
+  {
+   "start": 667.86,
+   "end": 671.42,
+   "text": "And hopefully based on how we motivated it, this should make abundant sense."
+  },
+  {
+   "start": 671.8,
+   "end": 674.06,
+   "text": "Always remember that question cross entropy is asking."
+  },
+  {
+   "start": 674.5,
+   "end": 679.42,
+   "text": "How well does a code optimized for one setting, Q, perform in a different setting, P?"
+  },
+  {
+   "start": 680.18,
+   "end": 684.16,
+   "text": "That compression efficiency will obviously be at its best when both settings align."
+  },
+  {
+   "start": 684.8,
+   "end": 688.24,
+   "text": "There's something very fun we can do with this plot that helps to highlight a key point."
+  },
+  {
+   "start": 688.24,
+   "end": 690.866,
+   "text": "What I'm going to do is move around that value P,"
+  },
+  {
+   "start": 690.866,
+   "end": 693.974,
+   "text": "which changes the entire shape of the graph, and as I do,"
+  },
+  {
+   "start": 693.974,
+   "end": 697.94,
+   "text": "you'll notice I'm tracing out where that minimum value of the graph goes."
+  },
+  {
+   "start": 698.42,
+   "end": 701.181,
+   "text": "That traced out shape is a new curve that I'm drawing in green,"
+  },
+  {
+   "start": 701.181,
+   "end": 704.38,
+   "text": "and let me take a moment to ask you, what does this new curve represent?"
+  },
+  {
+   "start": 705.72,
+   "end": 709.142,
+   "text": "Well, that minimum value for cross entropy is the most efficient"
+  },
+  {
+   "start": 709.142,
+   "end": 712.457,
+   "text": "possible compression when reality follows the distribution P,"
+  },
+  {
+   "start": 712.457,
+   "end": 716.04,
+   "text": "and that's exactly what the entropy of P is supposed to represent."
+  },
+  {
+   "start": 716.04,
+   "end": 719.575,
+   "text": "And indeed, in this very simplified setting where we're dealing with"
+  },
+  {
+   "start": 719.575,
+   "end": 722.07,
+   "text": "a distribution over only two possible outcomes,"
+  },
+  {
+   "start": 722.07,
+   "end": 725.812,
+   "text": "this green curve is what the entropy of P would look like as a function"
+  },
+  {
+   "start": 725.812,
+   "end": 726.8,
+   "text": "of little p sub 1."
+  },
+  {
+   "start": 728.72,
+   "end": 732.743,
+   "text": "This graph emphasizes the one key point about cross entropy that I want"
+  },
+  {
+   "start": 732.743,
+   "end": 736.937,
+   "text": "you to remember from this video, which is that if you think of P as fixed"
+  },
+  {
+   "start": 736.937,
+   "end": 741.753,
+   "text": "and Q as the variable, it takes on its smallest possible value when Q is equal to P,"
+  },
+  {
+   "start": 741.753,
+   "end": 745.38,
+   "text": "and more specifically, that smallest value is the entropy of P."
+  },
+  {
+   "start": 745.38,
+   "end": 748.667,
+   "text": "It's a little harder to visualize in general, because usually these"
+  },
+  {
+   "start": 748.667,
+   "end": 751.904,
+   "text": "are distributions over many more than just two possible outcomes,"
+  },
+  {
+   "start": 751.904,
+   "end": 755.24,
+   "text": "but here's one way that you might hold that same fact in your head."
+  },
+  {
+   "start": 755.94,
+   "end": 759.303,
+   "text": "We'll take that core diagram that we built up, I'm going to keep P,"
+  },
+  {
+   "start": 759.303,
+   "end": 763.42,
+   "text": "the width of all the bars, fixed, and the distribution Q is going to be variable."
+  },
+  {
+   "start": 763.86,
+   "end": 766.809,
+   "text": "Remember, Q is what determines the height of all of these bars,"
+  },
+  {
+   "start": 766.809,
+   "end": 768.4,
+   "text": "those negative log base 2 values."
+  },
+  {
+   "start": 768.78,
+   "end": 773.118,
+   "text": "And again, that key fact is that this value is bound by a certain minimum,"
+  },
+  {
+   "start": 773.118,
+   "end": 776.166,
+   "text": "that it achieves that minimum when Q is equal to P,"
+  },
+  {
+   "start": 776.166,
+   "end": 778.98,
+   "text": "and that the minimal value is the entropy of P."
+  },
+  {
+   "start": 779.76,
+   "end": 784.384,
+   "text": "Before explaining why this key property makes cross entropy such a good fit for training"
+  },
+  {
+   "start": 784.384,
+   "end": 788.746,
+   "text": "large language models, I want you to take a moment to think about how that opening"
+  },
+  {
+   "start": 788.746,
+   "end": 793.16,
+   "text": "example of zipping and language trees is basically an application of cross entropy."
+  },
+  {
+   "start": 793.86,
+   "end": 797.363,
+   "text": "Remember what the key idea there was, where if you want to measure how"
+  },
+  {
+   "start": 797.363,
+   "end": 800.816,
+   "text": "different two different text documents are, we'll call them A and B,"
+  },
+  {
+   "start": 800.816,
+   "end": 804.72,
+   "text": "you take a little snippet of B, tack it onto A, and then compress the result."
+  },
+  {
+   "start": 805.32,
+   "end": 807.901,
+   "text": "You then compare the size of that compressed file to"
+  },
+  {
+   "start": 807.901,
+   "end": 810.68,
+   "text": "the size of what you get just compressing A on its own."
+  },
+  {
+   "start": 811.22,
+   "end": 814.139,
+   "text": "Again, because the zipping in that first context is mostly"
+  },
+  {
+   "start": 814.139,
+   "end": 817.007,
+   "text": "optimized for the patterns of document A, computing this"
+  },
+  {
+   "start": 817.007,
+   "end": 820.48,
+   "text": "difference is basically asking the same question cross entropy does."
+  },
+  {
+   "start": 820.82,
+   "end": 823.472,
+   "text": "How well does a compression scheme optimized for"
+  },
+  {
+   "start": 823.472,
+   "end": 826.4,
+   "text": "one context perform when faced with another context?"
+  },
+  {
+   "start": 826.4,
+   "end": 829.746,
+   "text": "I am glossing over a couple details where the specific distance metric"
+  },
+  {
+   "start": 829.746,
+   "end": 832.901,
+   "text": "that the authors defined was a little more complicated than this,"
+  },
+  {
+   "start": 832.901,
+   "end": 836.2,
+   "text": "but the core of it really is this difference that I've been showing."
+  },
+  {
+   "start": 836.7,
+   "end": 839.76,
+   "text": "Now this is not exactly cross entropy for a number of reasons."
+  },
+  {
+   "start": 840.06,
+   "end": 843.1,
+   "text": "One, it's not comparing two different probability distributions."
+  },
+  {
+   "start": 843.54,
+   "end": 846.676,
+   "text": "Instead, it's kind of like retreating a text document from one"
+  },
+  {
+   "start": 846.676,
+   "end": 849.711,
+   "text": "language as a sample from some distribution, and hence this"
+  },
+  {
+   "start": 849.711,
+   "end": 853.1,
+   "text": "difference is kind of like an empirical estimate of cross entropy."
+  },
+  {
+   "start": 853.66,
+   "end": 856.67,
+   "text": "And even then, it can't be a very good estimate because gzip"
+  },
+  {
+   "start": 856.67,
+   "end": 859.48,
+   "text": "is not perfect compression achieving the Shannon limit."
+  },
+  {
+   "start": 859.86,
+   "end": 860.58,
+   "text": "Very far from it."
+  },
+  {
+   "start": 860.76,
+   "end": 865.214,
+   "text": "The algorithm underlying it is a much more straightforward way to find repetitions of"
+  },
+  {
+   "start": 865.214,
+   "end": 869.72,
+   "text": "a given text sequence and replace later instances with pointers to earlier instances."
+  },
+  {
+   "start": 870.24,
+   "end": 874.189,
+   "text": "But the author's idea was that, insofar as this approximates cross entropy,"
+  },
+  {
+   "start": 874.189,
+   "end": 877.453,
+   "text": "you can still get a useful distance measure, letting you do a"
+  },
+  {
+   "start": 877.453,
+   "end": 880.56,
+   "text": "legitimately interesting natural language processing task."
+  },
+  {
+   "start": 881.0,
+   "end": 884.52,
+   "text": "This is a common theme for how cross entropy gets used in practice."
+  },
+  {
+   "start": 884.52,
+   "end": 888.147,
+   "text": "It comes up whenever you have a feeling of wanting to quantify how"
+  },
+  {
+   "start": 888.147,
+   "end": 891.72,
+   "text": "different the patterns in one setting are from those in another."
+  },
+  {
+   "start": 892.18,
+   "end": 895.647,
+   "text": "Here, that means the patterns of one language compared to that of another,"
+  },
+  {
+   "start": 895.647,
+   "end": 898.74,
+   "text": "but this transitions nicely to our primary application for today,"
+  },
+  {
+   "start": 898.74,
+   "end": 900.38,
+   "text": "which is training language models."
+  },
+  {
+   "start": 900.78,
+   "end": 905.13,
+   "text": "Here, what you want to quantify is how different a model's understanding of language is"
+  },
+  {
+   "start": 905.13,
+   "end": 909.58,
+   "text": "from the true patterns of language, at least as represented by a bunch of training data."
+  },
+  {
+   "start": 910.04,
+   "end": 912.023,
+   "text": "This animation I've been flashing, by the way,"
+  },
+  {
+   "start": 912.023,
+   "end": 915.86,
+   "text": "shows the underlying architecture of a transformer It's something a friend of mine made."
+  },
+  {
+   "start": 916.26,
+   "end": 919.953,
+   "text": "But moving forward, I'm going to switch to something a little bit more schematic,"
+  },
+  {
+   "start": 919.953,
+   "end": 923.92,
+   "text": "simply representing a black box controlled by some large number of tunable parameters."
+  },
+  {
+   "start": 925.04,
+   "end": 927.408,
+   "text": "I'm assuming most viewers will have some familiarity"
+  },
+  {
+   "start": 927.408,
+   "end": 929.32,
+   "text": "with language models and neural networks."
+  },
+  {
+   "start": 929.6,
+   "end": 931.72,
+   "text": "These are topics that we have hit on on the channel before."
+  },
+  {
+   "start": 932.2,
+   "end": 935.44,
+   "text": "But here's a very quick recap of the basics for what you need to know."
+  },
+  {
+   "start": 936.06,
+   "end": 938.425,
+   "text": "Modern language models divide text into tokens,"
+  },
+  {
+   "start": 938.425,
+   "end": 940.74,
+   "text": "which are typically words or pieces of words."
+  },
+  {
+   "start": 941.16,
+   "end": 943.931,
+   "text": "And you think of a language model as a function,"
+  },
+  {
+   "start": 943.931,
+   "end": 947.509,
+   "text": "a function that takes as an input any possible piece of text,"
+  },
+  {
+   "start": 947.509,
+   "end": 952.069,
+   "text": "thought of as a sequence of tokens, and it produces as an output a probability"
+  },
+  {
+   "start": 952.069,
+   "end": 954.32,
+   "text": "distribution over all possible tokens."
+  },
+  {
+   "start": 954.72,
+   "end": 957.84,
+   "text": "And you think of that output as its prediction for what might come next."
+  },
+  {
+   "start": 958.56,
+   "end": 962.017,
+   "text": "To train one of these models, what you need is a loss function,"
+  },
+  {
+   "start": 962.017,
+   "end": 966.297,
+   "text": "a way to quantify whether the predictions that it makes are generally good or"
+  },
+  {
+   "start": 966.297,
+   "end": 967.12,
+   "text": "generally bad."
+  },
+  {
+   "start": 967.54,
+   "end": 971.25,
+   "text": "A loose intuition, you might imagine, is the graph of a loss function as"
+  },
+  {
+   "start": 971.25,
+   "end": 974.96,
+   "text": "something like this, some surface where you're hunting for the minimum."
+  },
+  {
+   "start": 975.38,
+   "end": 979.937,
+   "text": "But you have to take any image like this with a heavy grain of salt because this is a"
+  },
+  {
+   "start": 979.937,
+   "end": 983.154,
+   "text": "graph of a function with two inputs, the variables x and y,"
+  },
+  {
+   "start": 983.154,
+   "end": 987.443,
+   "text": "whereas a true loss function takes as its input the many billions of parameters"
+  },
+  {
+   "start": 987.443,
+   "end": 989.32,
+   "text": "characterizing the language model."
+  },
+  {
+   "start": 989.8,
+   "end": 993.48,
+   "text": "So the real image we want to look at here would have to live in billions of dimensions."
+  },
+  {
+   "start": 994.14,
+   "end": 996.68,
+   "text": "Still, it's enough to reference the core idea,"
+  },
+  {
+   "start": 996.68,
+   "end": 1000.49,
+   "text": "which is how training looks like tweaking and tuning these models in"
+  },
+  {
+   "start": 1000.49,
+   "end": 1005.46,
+   "text": "a somewhat automatic way to take steps down this hill, decreasing the value of that loss."
+  },
+  {
+   "start": 1006.06,
+   "end": 1008.452,
+   "text": "The automatic process for this tweaking and tuning"
+  },
+  {
+   "start": 1008.452,
+   "end": 1010.94,
+   "text": "comes down to gradient descent and backpropagation."
+  },
+  {
+   "start": 1011.32,
+   "end": 1013.48,
+   "text": "I have done videos on these if you want the details."
+  },
+  {
+   "start": 1013.82,
+   "end": 1016.969,
+   "text": "But the point I want to emphasize is that for you, the engineer,"
+  },
+  {
+   "start": 1016.969,
+   "end": 1021.3,
+   "text": "trying to train a model, once you define a good loss function, you're essentially done."
+  },
+  {
+   "start": 1021.56,
+   "end": 1024.099,
+   "text": "The standard machinery of deep learning takes it from there."
+  },
+  {
+   "start": 1024.46,
+   "end": 1028.211,
+   "text": "The loss you define is with respect to some big pile of training data,"
+  },
+  {
+   "start": 1028.211,
+   "end": 1031.318,
+   "text": "which in the language model context would look like many,"
+  },
+  {
+   "start": 1031.318,
+   "end": 1034.319,
+   "text": "many samples of text typically drawn from the Internet."
+  },
+  {
+   "start": 1034.92,
+   "end": 1039.026,
+   "text": "So the key design question for you is what mathematical function can you write"
+  },
+  {
+   "start": 1039.026,
+   "end": 1042.447,
+   "text": "down describing how well the model performs on all of this data,"
+  },
+  {
+   "start": 1042.447,
+   "end": 1046.5,
+   "text": "such that the act of minimizing that function is the same thing as improving"
+  },
+  {
+   "start": 1046.5,
+   "end": 1047.5,
+   "text": "model performance."
+  },
+  {
+   "start": 1048.44,
+   "end": 1052.3,
+   "text": "A very nice way to think about the loss function we use in this case is that"
+  },
+  {
+   "start": 1052.3,
+   "end": 1056.16,
+   "text": "you measure the average information per token from the model's perspective."
+  },
+  {
+   "start": 1057.0,
+   "end": 1057.98,
+   "text": "Here's what I mean by that."
+  },
+  {
+   "start": 1057.98,
+   "end": 1060.63,
+   "text": "For a given example snippet of text in that data,"
+  },
+  {
+   "start": 1060.63,
+   "end": 1065.12,
+   "text": "you would compute the probability that the model gives to each new token in there."
+  },
+  {
+   "start": 1065.64,
+   "end": 1068.987,
+   "text": "That is, for every initial subsequence of tokens, like this one,"
+  },
+  {
+   "start": 1068.987,
+   "end": 1071.549,
+   "text": "you have the model predict what would come next,"
+  },
+  {
+   "start": 1071.549,
+   "end": 1075.419,
+   "text": "and then you look at the true next token, the one that actually showed up"
+  },
+  {
+   "start": 1075.419,
+   "end": 1079.288,
+   "text": "in this training example, and you consider what probability did the model"
+  },
+  {
+   "start": 1079.288,
+   "end": 1081.38,
+   "text": "give to that one, that true next token."
+  },
+  {
+   "start": 1081.92,
+   "end": 1084.15,
+   "text": "That probability is what I'm representing with the"
+  },
+  {
+   "start": 1084.15,
+   "end": 1086.38,
+   "text": "little pie charts below each one of these tokens."
+  },
+  {
+   "start": 1086.38,
+   "end": 1089.415,
+   "text": "The models are actually specifically designed to give"
+  },
+  {
+   "start": 1089.415,
+   "end": 1092.22,
+   "text": "you all of these probabilities on a single pass."
+  },
+  {
+   "start": 1092.92,
+   "end": 1096.868,
+   "text": "When I say the loss is the average information from the model's perspective,"
+  },
+  {
+   "start": 1096.868,
+   "end": 1100.4,
+   "text": "what I mean is we take the negative log of all these probabilities."
+  },
+  {
+   "start": 1101.04,
+   "end": 1103.528,
+   "text": "As we've discussed multiple times by now, you can"
+  },
+  {
+   "start": 1103.528,
+   "end": 1106.32,
+   "text": "think of that as measuring how surprising an event is."
+  },
+  {
+   "start": 1106.72,
+   "end": 1110.535,
+   "text": "You would expect a smarter model that's really following what's going on to"
+  },
+  {
+   "start": 1110.535,
+   "end": 1114.249,
+   "text": "generally be unsurprised by what it sees, meaning it gives the true next"
+  },
+  {
+   "start": 1114.249,
+   "end": 1118.217,
+   "text": "token's higher probabilities, so all these information values would be lower,"
+  },
+  {
+   "start": 1118.217,
+   "end": 1121.88,
+   "text": "while a randomized or poorly trained model would just be very confused."
+  },
+  {
+   "start": 1122.08,
+   "end": 1125.26,
+   "text": "It would give everything a low probability and be surprised all the time."
+  },
+  {
+   "start": 1125.92,
+   "end": 1129.403,
+   "text": "Pulling up that graph of the negative log that we were playing with last time,"
+  },
+  {
+   "start": 1129.403,
+   "end": 1132.44,
+   "text": "this is hopefully very intuitive as a choice for the loss function."
+  },
+  {
+   "start": 1132.86,
+   "end": 1136.675,
+   "text": "It's effectively telling you the model is punished, and punished very steeply,"
+  },
+  {
+   "start": 1136.675,
+   "end": 1139.658,
+   "text": "if it assigns a very low probability to the true next token,"
+  },
+  {
+   "start": 1139.658,
+   "end": 1143.668,
+   "text": "whereas if that probability is high, that prediction would contribute only a tiny"
+  },
+  {
+   "start": 1143.668,
+   "end": 1144.94,
+   "text": "amount to the total loss."
+  },
+  {
+   "start": 1145.34,
+   "end": 1149.531,
+   "text": "But the thing is, a lot of functions have this same general qualitative shape,"
+  },
+  {
+   "start": 1149.531,
+   "end": 1153.076,
+   "text": "so a question that I want to be hanging in your mind right now is"
+  },
+  {
+   "start": 1153.076,
+   "end": 1156.3,
+   "text": "why information specifically would be the best choice here."
+  },
+  {
+   "start": 1156.64,
+   "end": 1160.0,
+   "text": "What is it that makes logs special among all the functions with this shape?"
+  },
+  {
+   "start": 1161.3,
+   "end": 1163.944,
+   "text": "One small nuance is that in machine learning, you almost"
+  },
+  {
+   "start": 1163.944,
+   "end": 1166.4,
+   "text": "always use the natural log instead of a log base 2."
+  },
+  {
+   "start": 1166.84,
+   "end": 1170.152,
+   "text": "This doesn't really matter, the two expressions differ by a constant factor,"
+  },
+  {
+   "start": 1170.152,
+   "end": 1173.42,
+   "text": "so it's all getting absorbed in something called the learning rate anyway."
+  },
+  {
+   "start": 1173.42,
+   "end": 1176.872,
+   "text": "The motive is just that natural logs are a lot cleaner whenever you're"
+  },
+  {
+   "start": 1176.872,
+   "end": 1180.324,
+   "text": "taking derivatives, and derivatives are the core part of the gradient"
+  },
+  {
+   "start": 1180.324,
+   "end": 1184.22,
+   "text": "descent algorithm used to concretely decrease the value of this loss function."
+  },
+  {
+   "start": 1185.82,
+   "end": 1187.4,
+   "text": "And in some sense, that's it."
+  },
+  {
+   "start": 1187.52,
+   "end": 1189.18,
+   "text": "That's really all there is to pre-training."
+  },
+  {
+   "start": 1189.52,
+   "end": 1191.799,
+   "text": "All you're doing is looking through each token,"
+  },
+  {
+   "start": 1191.799,
+   "end": 1194.998,
+   "text": "taking the negative log of the probability the model gives to it,"
+  },
+  {
+   "start": 1194.998,
+   "end": 1197.18,
+   "text": "and averaging that over every token you see."
+  },
+  {
+   "start": 1197.58,
+   "end": 1200.127,
+   "text": "And of course, it's not every token in just one example,"
+  },
+  {
+   "start": 1200.127,
+   "end": 1203.083,
+   "text": "it's every token in the entirety of the vast, vast training set,"
+  },
+  {
+   "start": 1203.083,
+   "end": 1207.04,
+   "text": "which you hope represents a significant sample of the language you're trying to model."
+  },
+  {
+   "start": 1208.34,
+   "end": 1209.94,
+   "text": "Of course, there really is more to it."
+  },
+  {
+   "start": 1210.04,
+   "end": 1213.129,
+   "text": "I've glossed over things like batching or specific optimizers,"
+  },
+  {
+   "start": 1213.129,
+   "end": 1217.263,
+   "text": "and getting this to run at the mind-boggling scales used in practice is a complete"
+  },
+  {
+   "start": 1217.263,
+   "end": 1218.16,
+   "text": "engineering feat."
+  },
+  {
+   "start": 1218.52,
+   "end": 1221.457,
+   "text": "But at the level of abstraction of just thinking of loss functions,"
+  },
+  {
+   "start": 1221.457,
+   "end": 1222.86,
+   "text": "it really is remarkably simple."
+  },
+  {
+   "start": 1223.02,
+   "end": 1225.628,
+   "text": "It really is just the average information per token,"
+  },
+  {
+   "start": 1225.628,
+   "end": 1229.74,
+   "text": "assuming all the machinery of deep learning can do its job to minimize this loss,"
+  },
+  {
+   "start": 1229.74,
+   "end": 1233.401,
+   "text": "hopefully getting it to approach something like the entropy of language,"
+  },
+  {
+   "start": 1233.401,
+   "end": 1236.56,
+   "text": "what you'd be left with would be a powerful general predictor."
+  },
+  {
+   "start": 1238.02,
+   "end": 1242.753,
+   "text": "You might think this loss function would go by a name like information loss, or log loss,"
+  },
+  {
+   "start": 1242.753,
+   "end": 1245.306,
+   "text": "but in fact, people call it cross-entropy loss,"
+  },
+  {
+   "start": 1245.306,
+   "end": 1250.039,
+   "text": "which at first might sound really strange, given that nowhere in the explanation have we"
+  },
+  {
+   "start": 1250.039,
+   "end": 1252.22,
+   "text": "actually used the cross-entropy formula."
+  },
+  {
+   "start": 1252.96,
+   "end": 1257.019,
+   "text": "Now there is one very unsatisfying way that this is commonly described,"
+  },
+  {
+   "start": 1257.019,
+   "end": 1259.82,
+   "text": "where you say, we are calculating cross-entropy,"
+  },
+  {
+   "start": 1259.82,
+   "end": 1262.906,
+   "text": "but it's between the model's output on a given token,"
+  },
+  {
+   "start": 1262.906,
+   "end": 1267.194,
+   "text": "and a fully skewed distribution with all the probability mass concentrated"
+  },
+  {
+   "start": 1267.194,
+   "end": 1269.08,
+   "text": "on just the one true next token."
+  },
+  {
+   "start": 1269.66,
+   "end": 1273.107,
+   "text": "If you pull up the formula we had earlier, where we're taking a weighted sum,"
+  },
+  {
+   "start": 1273.107,
+   "end": 1275.435,
+   "text": "using all these quantities on the right as weights,"
+  },
+  {
+   "start": 1275.435,
+   "end": 1277.584,
+   "text": "all of the zeros cancel most of the things out,"
+  },
+  {
+   "start": 1277.584,
+   "end": 1280.628,
+   "text": "and all you're left with is the negative log of the probability the"
+  },
+  {
+   "start": 1280.628,
+   "end": 1282.24,
+   "text": "model gives to the true next token."
+  },
+  {
+   "start": 1282.56,
+   "end": 1286.08,
+   "text": "But if that's all there was to it, this would be very lame, at least in my opinion."
+  },
+  {
+   "start": 1286.38,
+   "end": 1290.121,
+   "text": "This does nothing to explain why you're using cross-entropy in the first place,"
+  },
+  {
+   "start": 1290.121,
+   "end": 1293.72,
+   "text": "and if it all just evaporates away anyway, why not just be straightforward?"
+  },
+  {
+   "start": 1294.1,
+   "end": 1296.86,
+   "text": "Why not just call it log loss, or information loss?"
+  },
+  {
+   "start": 1297.86,
+   "end": 1300.912,
+   "text": "Let me show you what I find more satisfying, which is to start by"
+  },
+  {
+   "start": 1300.912,
+   "end": 1304.48,
+   "text": "explaining why the choice of logarithms here is not really a choice at all."
+  },
+  {
+   "start": 1304.8,
+   "end": 1307.641,
+   "text": "Your hand is almost forced into it, and when you see how,"
+  },
+  {
+   "start": 1307.641,
+   "end": 1311.48,
+   "text": "the formula for cross-entropy just naturally pops right out in front of you."
+  },
+  {
+   "start": 1312.36,
+   "end": 1314.96,
+   "text": "So far we've only focused on one example at a time,"
+  },
+  {
+   "start": 1314.96,
+   "end": 1317.815,
+   "text": "one specific token prediction from one snippet of text,"
+  },
+  {
+   "start": 1317.815,
+   "end": 1321.893,
+   "text": "and in our framing we want to turn the probability that the model gives to that"
+  },
+  {
+   "start": 1321.893,
+   "end": 1325.869,
+   "text": "token into some kind of loss, some value, telling the model how bad it should"
+  },
+  {
+   "start": 1325.869,
+   "end": 1328.52,
+   "text": "feel and how aggressively it should correct itself."
+  },
+  {
+   "start": 1329.06,
+   "end": 1331.342,
+   "text": "Now at first, it looks like the only real constraint"
+  },
+  {
+   "start": 1331.342,
+   "end": 1333.36,
+   "text": "is that this should be a decreasing function."
+  },
+  {
+   "start": 1333.7,
+   "end": 1336.937,
+   "text": "You want to assign high loss to low probabilities,"
+  },
+  {
+   "start": 1336.937,
+   "end": 1339.72,
+   "text": "and low loss to probabilities closer to 1."
+  },
+  {
+   "start": 1340.14,
+   "end": 1343.032,
+   "text": "So given the infinite abundance of functions with this rough shape,"
+  },
+  {
+   "start": 1343.032,
+   "end": 1345.06,
+   "text": "what makes one of them better than the others?"
+  },
+  {
+   "start": 1345.5,
+   "end": 1348.107,
+   "text": "Let's say we don't know right now, so whatever choice we make,"
+  },
+  {
+   "start": 1348.107,
+   "end": 1350.797,
+   "text": "we're going to label it as F, and see if we can find some other"
+  },
+  {
+   "start": 1350.797,
+   "end": 1353.74,
+   "text": "property that we want F to have, something that might force our hand."
+  },
+  {
+   "start": 1354.6,
+   "end": 1357.7,
+   "text": "And for this, imagine an example like myName is blank."
+  },
+  {
+   "start": 1358.2,
+   "end": 1361.27,
+   "text": "This is a small enough and common enough pattern that you would be likely"
+  },
+  {
+   "start": 1361.27,
+   "end": 1364.34,
+   "text": "to see many different instances of it show up in your pre-training data."
+  },
+  {
+   "start": 1364.76,
+   "end": 1368.56,
+   "text": "What you might imagine is very common names show up multiple times in the data,"
+  },
+  {
+   "start": 1368.56,
+   "end": 1370.58,
+   "text": "while rare names show up less frequently."
+  },
+  {
+   "start": 1370.58,
+   "end": 1373.711,
+   "text": "When you feed in these tokens, myName is, into the model,"
+  },
+  {
+   "start": 1373.711,
+   "end": 1377.062,
+   "text": "it produces some distribution over all possible next tokens,"
+  },
+  {
+   "start": 1377.062,
+   "end": 1380.797,
+   "text": "and so let's label the probabilities in the model's distribution of"
+  },
+  {
+   "start": 1380.797,
+   "end": 1382.28,
+   "text": "outputs with the letter Q."
+  },
+  {
+   "start": 1383.0,
+   "end": 1386.94,
+   "text": "Now let me ask you, what is the total loss associated with this prediction?"
+  },
+  {
+   "start": 1387.42,
+   "end": 1390.837,
+   "text": "If you were just focused on one instance where this pattern shows up in"
+  },
+  {
+   "start": 1390.837,
+   "end": 1394.303,
+   "text": "the training data, that loss looks like F of Q for whatever your choice"
+  },
+  {
+   "start": 1394.303,
+   "end": 1397.72,
+   "text": "of the function F is, whether that's a negative log or something else."
+  },
+  {
+   "start": 1397.72,
+   "end": 1402.14,
+   "text": "But the key is that this is only one part of the total loss associated with the example."
+  },
+  {
+   "start": 1402.54,
+   "end": 1406.035,
+   "text": "Every other instance of this name also contributes that same amount,"
+  },
+  {
+   "start": 1406.035,
+   "end": 1409.942,
+   "text": "and each instance of every other name also contributes an analogous amount,"
+  },
+  {
+   "start": 1409.942,
+   "end": 1414.26,
+   "text": "except where you input the probabilities that the model gives to those other names."
+  },
+  {
+   "start": 1414.62,
+   "end": 1417.375,
+   "text": "Here, I'll use the letter P to represent the proportion"
+  },
+  {
+   "start": 1417.375,
+   "end": 1420.28,
+   "text": "of times that a given name shows up in the training data."
+  },
+  {
+   "start": 1420.82,
+   "end": 1424.849,
+   "text": "The average value for the loss of the model's output over all of the examples"
+  },
+  {
+   "start": 1424.849,
+   "end": 1429.14,
+   "text": "that have this pattern looks like a weighted average, weighted by these values P."
+  },
+  {
+   "start": 1429.86,
+   "end": 1432.68,
+   "text": "From here, maybe you can start to anticipate the role of cross entropy."
+  },
+  {
+   "start": 1433.34,
+   "end": 1436.675,
+   "text": "If you choose to make this function F the negative log of Q,"
+  },
+  {
+   "start": 1436.675,
+   "end": 1440.233,
+   "text": "then this full expression for the total average loss associated"
+  },
+  {
+   "start": 1440.233,
+   "end": 1444.18,
+   "text": "with the input text really is exactly the definition of cross entropy."
+  },
+  {
+   "start": 1444.78,
+   "end": 1448.382,
+   "text": "Specifically, it's the cross entropy of our model's output"
+  },
+  {
+   "start": 1448.382,
+   "end": 1451.86,
+   "text": "relative to the statistics represented within the data."
+  },
+  {
+   "start": 1452.22,
+   "end": 1455.58,
+   "text": "And remember the one key property of this formula I want you to remember."
+  },
+  {
+   "start": 1455.58,
+   "end": 1458.388,
+   "text": "It's something that takes on a minimum exactly when"
+  },
+  {
+   "start": 1458.388,
+   "end": 1461.14,
+   "text": "all these P and Q values are equal to each other."
+  },
+  {
+   "start": 1461.62,
+   "end": 1465.714,
+   "text": "So in this setting, that would mean it's minimized exactly when the distribution your"
+  },
+  {
+   "start": 1465.714,
+   "end": 1469.76,
+   "text": "model outputs is the same as the statistical distribution represented in your data."
+  },
+  {
+   "start": 1470.3,
+   "end": 1473.72,
+   "text": "But the real key point is that this implication goes the other way around."
+  },
+  {
+   "start": 1473.86,
+   "end": 1478.289,
+   "text": "If we switch back to writing this per example loss with some generic function F,"
+  },
+  {
+   "start": 1478.289,
+   "end": 1483.162,
+   "text": "and you say you would like it to be the case that the full average loss over all of the"
+  },
+  {
+   "start": 1483.162,
+   "end": 1487.979,
+   "text": "examples is minimized only when the model's output matches the statistics that show up"
+  },
+  {
+   "start": 1487.979,
+   "end": 1492.851,
+   "text": "in the data, there's actually a really nice mathematical argument for why F has to be a"
+  },
+  {
+   "start": 1492.851,
+   "end": 1493.46,
+   "text": "logarithm."
+  },
+  {
+   "start": 1494.04,
+   "end": 1496.898,
+   "text": "I'm hesitant to derail us too much by delving into the details,"
+  },
+  {
+   "start": 1496.898,
+   "end": 1499.394,
+   "text": "which involves something called a Lagrange multiplier,"
+  },
+  {
+   "start": 1499.394,
+   "end": 1501.98,
+   "text": "since there's a risk of losing the forest for the trees."
+  },
+  {
+   "start": 1502.42,
+   "end": 1505.759,
+   "text": "I know many of you are curious, so I will pull up the details on the screen"
+  },
+  {
+   "start": 1505.759,
+   "end": 1509.32,
+   "text": "for any multivariable calculus enthusiasts interested in pausing and pondering."
+  },
+  {
+   "start": 1509.76,
+   "end": 1511.78,
+   "text": "The high-level idea really is very pretty."
+  },
+  {
+   "start": 1511.78,
+   "end": 1515.605,
+   "text": "It's that to minimize our key expression, subject to the condition that the"
+  },
+  {
+   "start": 1515.605,
+   "end": 1519.584,
+   "text": "sum of all the q values is equal to one, you end up with a problem that looks"
+  },
+  {
+   "start": 1519.584,
+   "end": 1523.46,
+   "text": "like finding values where two different contours are tangent to each other."
+  },
+  {
+   "start": 1523.76,
+   "end": 1528.443,
+   "text": "You compute where that happens by setting a pair of gradient values equal to each other,"
+  },
+  {
+   "start": 1528.443,
+   "end": 1532.275,
+   "text": "and this, for our specific expressions, will boil down to the condition"
+  },
+  {
+   "start": 1532.275,
+   "end": 1536.16,
+   "text": "that the derivative of our function F with respect to q has to look like"
+  },
+  {
+   "start": 1536.16,
+   "end": 1539.46,
+   "text": "some constant over q, and only logarithms have that property."
+  },
+  {
+   "start": 1539.46,
+   "end": 1542.02,
+   "text": "Again, I pull this up just for the extra curious."
+  },
+  {
+   "start": 1542.44,
+   "end": 1544.08,
+   "text": "The details are not too important."
+  },
+  {
+   "start": 1544.42,
+   "end": 1547.335,
+   "text": "The main thing I want you to know is that if you want a loss"
+  },
+  {
+   "start": 1547.335,
+   "end": 1550.299,
+   "text": "function with the property that it's minimized only when the"
+  },
+  {
+   "start": 1550.299,
+   "end": 1553.36,
+   "text": "model matches the statistics of the data, your hand is forced."
+  },
+  {
+   "start": 1553.56,
+   "end": 1555.44,
+   "text": "You actually have to use the negative log."
+  },
+  {
+   "start": 1555.7,
+   "end": 1558.91,
+   "text": "And in this case, the average loss associated with any given"
+  },
+  {
+   "start": 1558.91,
+   "end": 1561.96,
+   "text": "input text looks exactly like the cross-entropy formula."
+  },
+  {
+   "start": 1562.96,
+   "end": 1565.426,
+   "text": "And while I'm here throwing up notes for the extra curious,"
+  },
+  {
+   "start": 1565.426,
+   "end": 1568.309,
+   "text": "here's another one about overfitting and how magical it is that this"
+  },
+  {
+   "start": 1568.309,
+   "end": 1571.82,
+   "text": "actually works when you stop and think about the sparsity of the data that we have."
+  },
+  {
+   "start": 1573.32,
+   "end": 1576.656,
+   "text": "The last topic I want to hit on in this section is an interesting variant on"
+  },
+  {
+   "start": 1576.656,
+   "end": 1580.3,
+   "text": "training language models where this cross-entropy formula is used more explicitly."
+  },
+  {
+   "start": 1581.1,
+   "end": 1585.428,
+   "text": "And it's a case where each training example gives a much softer tug on the model's"
+  },
+  {
+   "start": 1585.428,
+   "end": 1589.44,
+   "text": "distributions, one that is not so over-weighted to one specific next token."
+  },
+  {
+   "start": 1590.2,
+   "end": 1591.16,
+   "text": "It's something called distillation."
+  },
+  {
+   "start": 1592.32,
+   "end": 1596.646,
+   "text": "The setup here is that you might want to train a relatively small model where its"
+  },
+  {
+   "start": 1596.646,
+   "end": 1601.24,
+   "text": "goal is to approximate the performance of some larger, presumably much smarter model."
+  },
+  {
+   "start": 1601.9,
+   "end": 1605.974,
+   "text": "This comes up all the time, because very often after getting some desired performance by"
+  },
+  {
+   "start": 1605.974,
+   "end": 1610.094,
+   "text": "scaling up all of your parameters, what you would love is to be able to approximate that"
+  },
+  {
+   "start": 1610.094,
+   "end": 1614.26,
+   "text": "performance with something much smaller and much more efficient to run at inference time."
+  },
+  {
+   "start": 1614.94,
+   "end": 1618.911,
+   "text": "The idea is that with a bigger model in hand, you have the ability to do something much,"
+  },
+  {
+   "start": 1618.911,
+   "end": 1621.98,
+   "text": "much more efficient than normal pre-training with that small model."
+  },
+  {
+   "start": 1622.34,
+   "end": 1626.122,
+   "text": "What you do is look through a bunch of data, and as before, at each new token,"
+  },
+  {
+   "start": 1626.122,
+   "end": 1630.34,
+   "text": "you consider the small model's prediction of what will follow, that full distribution."
+  },
+  {
+   "start": 1631.04,
+   "end": 1634.816,
+   "text": "But now, instead of just comparing it to the true next token in the data,"
+  },
+  {
+   "start": 1634.816,
+   "end": 1637.35,
+   "text": "you compare it to the larger model's prediction,"
+  },
+  {
+   "start": 1637.35,
+   "end": 1640.66,
+   "text": "its full distribution across all the tokens at that same point."
+  },
+  {
+   "start": 1641.12,
+   "end": 1644.64,
+   "text": "You define the loss at this token to be the cross-entropy of"
+  },
+  {
+   "start": 1644.64,
+   "end": 1648.16,
+   "text": "the small model's distribution relative to the big model's."
+  },
+  {
+   "start": 1648.74,
+   "end": 1651.393,
+   "text": "When you think about it, this gives you something much,"
+  },
+  {
+   "start": 1651.393,
+   "end": 1654.625,
+   "text": "much richer than ordinary pre-training, since pre-training is just"
+  },
+  {
+   "start": 1654.625,
+   "end": 1658.58,
+   "text": "giving full weight to only one true next token, the one that happens to be there."
+  },
+  {
+   "start": 1659.04,
+   "end": 1662.634,
+   "text": "As an analogy, it's the difference between trying to learn chess just by"
+  },
+  {
+   "start": 1662.634,
+   "end": 1666.377,
+   "text": "watching a game versus having someone better than you talk through all the"
+  },
+  {
+   "start": 1666.377,
+   "end": 1670.22,
+   "text": "possible good moves and how heavily they would weight them at each new turn."
+  },
+  {
+   "start": 1671.84,
+   "end": 1674.205,
+   "text": "Looking back at that My Name is Blank example,"
+  },
+  {
+   "start": 1674.205,
+   "end": 1678.37,
+   "text": "instead of having to see many thousands or many millions of examples in the data"
+  },
+  {
+   "start": 1678.37,
+   "end": 1682.638,
+   "text": "before your loss represents the cross-entropy against a reasonable distribution of"
+  },
+  {
+   "start": 1682.638,
+   "end": 1686.289,
+   "text": "possible names, you can get that same effect just on a single example,"
+  },
+  {
+   "start": 1686.289,
+   "end": 1688.86,
+   "text": "comparing it against the good model's prediction."
+  },
+  {
+   "start": 1690.72,
+   "end": 1694.44,
+   "text": "I think now is a good time to zoom out and look over everything we've built up."
+  },
+  {
+   "start": 1694.84,
+   "end": 1697.362,
+   "text": "In the first half, in the context of compression,"
+  },
+  {
+   "start": 1697.362,
+   "end": 1701.481,
+   "text": "cross-entropy arose very naturally just by asking how well a compression scheme"
+  },
+  {
+   "start": 1701.481,
+   "end": 1703.9,
+   "text": "optimized for one setting performs in another."
+  },
+  {
+   "start": 1704.76,
+   "end": 1708.739,
+   "text": "The mild surprise is that this idea turns out to be much more generally useful,"
+  },
+  {
+   "start": 1708.739,
+   "end": 1713.02,
+   "text": "as a way to measure how different patterns in one setting are from those in another."
+  },
+  {
+   "start": 1713.42,
+   "end": 1716.9,
+   "text": "This is what makes it such a common tool for loss functions in modern machine learning."
+  },
+  {
+   "start": 1717.52,
+   "end": 1721.445,
+   "text": "All that said, as stated so far, the way that the formula showed up in the second half,"
+  },
+  {
+   "start": 1721.445,
+   "end": 1725.1,
+   "text": "for us, feels pretty different from the way that it showed up in the first half."
+  },
+  {
+   "start": 1725.4,
+   "end": 1727.36,
+   "text": "It was essentially unrelated to compression."
+  },
+  {
+   "start": 1727.66,
+   "end": 1730.546,
+   "text": "The logic actually came from a completely different part of math,"
+  },
+  {
+   "start": 1730.546,
+   "end": 1731.7,
+   "text": "constrained optimization."
+  },
+  {
+   "start": 1732.2,
+   "end": 1734.36,
+   "text": "But I wouldn't be putting these two topics in the same"
+  },
+  {
+   "start": 1734.36,
+   "end": 1736.68,
+   "text": "video if they didn't have a tighter connection than that."
+  },
+  {
+   "start": 1736.68,
+   "end": 1739.411,
+   "text": "In the same way that whenever you see pi show up in math,"
+  },
+  {
+   "start": 1739.411,
+   "end": 1743.579,
+   "text": "even when it seems unrelated to circles, there's always going to be some connection to"
+  },
+  {
+   "start": 1743.579,
+   "end": 1746.885,
+   "text": "circles hiding there, I think whenever you see cross-entropy pop up,"
+  },
+  {
+   "start": 1746.885,
+   "end": 1749.28,
+   "text": "there will be a way to connect it to compression."
+  },
+  {
+   "start": 1750.3,
+   "end": 1753.664,
+   "text": "And in the case of language models, we've already teed things up for how"
+  },
+  {
+   "start": 1753.664,
+   "end": 1756.982,
+   "text": "to make that connection a little bit more tight by describing the loss"
+  },
+  {
+   "start": 1756.982,
+   "end": 1760.58,
+   "text": "function as the average information per token, from the model's perspective."
+  },
+  {
+   "start": 1761.64,
+   "end": 1764.66,
+   "text": "The next step from here is to explain how it's possible"
+  },
+  {
+   "start": 1764.66,
+   "end": 1767.24,
+   "text": "to turn a general predictor into a compressor."
+  },
+  {
+   "start": 1767.66,
+   "end": 1770.874,
+   "text": "For instance, turning a language model, this prediction machine,"
+  },
+  {
+   "start": 1770.874,
+   "end": 1772.28,
+   "text": "into a language compressor."
+  },
+  {
+   "start": 1772.64,
+   "end": 1775.778,
+   "text": "More specifically, one where the number of bits that you use"
+  },
+  {
+   "start": 1775.778,
+   "end": 1778.812,
+   "text": "to represent a piece of text will approximately match the"
+  },
+  {
+   "start": 1778.812,
+   "end": 1782.16,
+   "text": "information content of that text, from the model's perspective."
+  },
+  {
+   "start": 1782.6,
+   "end": 1784.62,
+   "text": "It's actually very surprising this is even possible."
+  },
+  {
+   "start": 1784.98,
+   "end": 1788.395,
+   "text": "There's one very visual and very beautiful compression algorithm showing how"
+  },
+  {
+   "start": 1788.395,
+   "end": 1791.72,
+   "text": "to do exactly this that you and I are going to dig into in the next part."
+  },
+  {
+   "start": 1791.94,
+   "end": 1796.137,
+   "text": "And once you understand this, it makes clear how using cross-entropy loss is"
+  },
+  {
+   "start": 1796.137,
+   "end": 1800.72,
+   "text": "actually equivalent to training the model to be the best possible text compressor."
+  },
+  {
+   "start": 1801.32,
+   "end": 1805.776,
+   "text": "This, in turn, gives us a nice hill to stand on where we can look over the landscape"
+  },
+  {
+   "start": 1805.776,
+   "end": 1810.02,
+   "text": "and assess that thought-provoking phrase, compression is intelligence, head-on."
+  },
+  {
+   "start": 1812.1,
+   "end": 1814.558,
+   "text": "I do want to add one final footnote to this video,"
+  },
+  {
+   "start": 1814.558,
+   "end": 1818.393,
+   "text": "because it would be a shame not to at least quickly explain a related concept"
+  },
+  {
+   "start": 1818.393,
+   "end": 1822.031,
+   "text": "called KL divergence, which you also see all the time littered throughout"
+  },
+  {
+   "start": 1822.031,
+   "end": 1823.26,
+   "text": "machine learning papers."
+  },
+  {
+   "start": 1823.52,
+   "end": 1827.148,
+   "text": "Before I jump into that, I want to make a very quick plug for 3b1b talent,"
+  },
+  {
+   "start": 1827.148,
+   "end": 1831.56,
+   "text": "because there's actually a puzzle on that page that is directly related to KL divergence."
+  },
+  {
+   "start": 1832.16,
+   "end": 1836.189,
+   "text": "For context, this is something like a virtual career fair that I've put together this"
+  },
+  {
+   "start": 1836.189,
+   "end": 1840.409,
+   "text": "year, where the premise is to have a set of partnered organizations that are interesting"
+  },
+  {
+   "start": 1840.409,
+   "end": 1843.822,
+   "text": "places to work, who are also keen to hire the kinds of people like you,"
+  },
+  {
+   "start": 1843.822,
+   "end": 1847.756,
+   "text": "people who watch videos about things like the relationship between compression and"
+  },
+  {
+   "start": 1847.756,
+   "end": 1848.42,
+   "text": "intelligence."
+  },
+  {
+   "start": 1848.8,
+   "end": 1852.139,
+   "text": "One of the main features of that page is a set of interviews that I did with"
+  },
+  {
+   "start": 1852.139,
+   "end": 1855.521,
+   "text": "the various teams, which I think is just a much better way to let you get to"
+  },
+  {
+   "start": 1855.521,
+   "end": 1858.86,
+   "text": "know the culture of a company than trying to just read a generic jobs page."
+  },
+  {
+   "start": 1859.16,
+   "end": 1862.3,
+   "text": "But another thing you'll find is that many companies there have"
+  },
+  {
+   "start": 1862.3,
+   "end": 1864.892,
+   "text": "featured challenges specifically for this audience,"
+  },
+  {
+   "start": 1864.892,
+   "end": 1868.48,
+   "text": "where you are often invited to mention your solution in an application."
+  },
+  {
+   "start": 1868.88,
+   "end": 1871.53,
+   "text": "Now, this was not at all planned, but by happenstance,"
+  },
+  {
+   "start": 1871.53,
+   "end": 1874.622,
+   "text": "the challenge that one of the companies, Dopple, put up there,"
+  },
+  {
+   "start": 1874.622,
+   "end": 1876.88,
+   "text": "happens to use the formula for KL divergence."
+  },
+  {
+   "start": 1877.38,
+   "end": 1880.927,
+   "text": "They didn't know I was planning this video, so you can take this as a nice bit of"
+  },
+  {
+   "start": 1880.927,
+   "end": 1884.78,
+   "text": "evidence that the math I'm teaching you here really does show up out in the real world."
+  },
+  {
+   "start": 1885.14,
+   "end": 1889.66,
+   "text": "This is just one example, but you can find a number of other interesting places"
+  },
+  {
+   "start": 1889.66,
+   "end": 1894.18,
+   "text": "to work with nice puzzles and challenges for you to try out at 3b1b.co/talent."
+  },
+  {
+   "start": 1895.3,
+   "end": 1897.08,
+   "text": "Okay, so what is KL divergence?"
+  },
+  {
+   "start": 1897.68,
+   "end": 1901.44,
+   "text": "Remember that key property of cross entropy that I want you to come away remembering?"
+  },
+  {
+   "start": 1901.74,
+   "end": 1905.673,
+   "text": "The fact that it takes on a minimal value when p and q are the same,"
+  },
+  {
+   "start": 1905.673,
+   "end": 1908.68,
+   "text": "and that that minimum is equal to the entropy of p."
+  },
+  {
+   "start": 1909.14,
+   "end": 1911.75,
+   "text": "This makes it very natural to want to give a name to"
+  },
+  {
+   "start": 1911.75,
+   "end": 1914.26,
+   "text": "describe the difference between these two values."
+  },
+  {
+   "start": 1914.74,
+   "end": 1917.353,
+   "text": "And indeed, this difference has the special name,"
+  },
+  {
+   "start": 1917.353,
+   "end": 1921.46,
+   "text": "it is the Kolbach-Leibler divergence, commonly abbreviated to KL divergence."
+  },
+  {
+   "start": 1922.04,
+   "end": 1925.71,
+   "text": "In the language of compression, you would think of it as describing how"
+  },
+  {
+   "start": 1925.71,
+   "end": 1929.38,
+   "text": "many bits per symbol are you wasting by using a poorly optimized code."
+  },
+  {
+   "start": 1930.02,
+   "end": 1933.683,
+   "text": "For example, in our robot case, if you take the bits per symbol in the"
+  },
+  {
+   "start": 1933.683,
+   "end": 1937.136,
+   "text": "unoptimized case minus the bits per symbol in the optimized case,"
+  },
+  {
+   "start": 1937.136,
+   "end": 1941.06,
+   "text": "that difference gives you the KL divergence between the two distributions."
+  },
+  {
+   "start": 1942.0,
+   "end": 1944.26,
+   "text": "It's specifically telling you how wasteful you are."
+  },
+  {
+   "start": 1944.86,
+   "end": 1947.194,
+   "text": "In the machine learning setting, KL divergence acts"
+  },
+  {
+   "start": 1947.194,
+   "end": 1949.62,
+   "text": "as a kind of distance measure between distributions."
+  },
+  {
+   "start": 1950.06,
+   "end": 1953.58,
+   "text": "It's zero when both of them are the same, but it grows as they differ."
+  },
+  {
+   "start": 1953.94,
+   "end": 1956.94,
+   "text": "It's not exactly a difference though, because it's asymmetric."
+  },
+  {
+   "start": 1957.2,
+   "end": 1962.26,
+   "text": "The KL divergence of q relative to p is not the same as that of p relative to q."
+  },
+  {
+   "start": 1962.62,
+   "end": 1964.767,
+   "text": "To cap off today, I want to leave you with three"
+  },
+  {
+   "start": 1964.767,
+   "end": 1966.78,
+   "text": "things to ponder related to this expression."
+  },
+  {
+   "start": 1967.16,
+   "end": 1969.83,
+   "text": "The first one is easy, which is how when you see it in practice,"
+  },
+  {
+   "start": 1969.83,
+   "end": 1972.542,
+   "text": "it often comes up in this more compact form, and I just want you"
+  },
+  {
+   "start": 1972.542,
+   "end": 1975.42,
+   "text": "to convince yourself that these two expressions really are the same."
+  },
+  {
+   "start": 1975.76,
+   "end": 1978.641,
+   "text": "The compact form hides the fact that it's really just a difference"
+  },
+  {
+   "start": 1978.641,
+   "end": 1981.26,
+   "text": "between cross entropy and entropy, but it is more succinct."
+  },
+  {
+   "start": 1981.88,
+   "end": 1985.54,
+   "text": "Secondly, I've been showing this diagram, a variant on our cross entropy diagram."
+  },
+  {
+   "start": 1985.82,
+   "end": 1988.384,
+   "text": "I want to see if you can take a moment to convince yourself"
+  },
+  {
+   "start": 1988.384,
+   "end": 1990.6,
+   "text": "in what sense this is representing our expression."
+  },
+  {
+   "start": 1991.24,
+   "end": 1995.027,
+   "text": "And third, I mentioned that when you distill a large model into a smaller one,"
+  },
+  {
+   "start": 1995.027,
+   "end": 1998.62,
+   "text": "you use the cross entropy between their distributions as a loss function."
+  },
+  {
+   "start": 1999.04,
+   "end": 2002.66,
+   "text": "I want you to ask yourself, what would happen if instead you used the KL divergence?"
+  },
+  {
+   "start": 2003.2,
+   "end": 2005.941,
+   "text": "After all, if the KL divergence is like a distance measure,"
+  },
+  {
+   "start": 2005.941,
+   "end": 2007.8,
+   "text": "wouldn't this be a more natural choice?"
+  }
+ ],
+ "formulas": [
+  {
+   "file": "_2026/cross_entropy/arithmetic_coding.py",
+   "line": 390,
+   "scene": "ProbababilityOfAWord",
+   "call": "Tex",
+   "text": "P(``math\\"
+  },
+  {
+   "file": "_2026/cross_entropy/entropy.py",
+   "line": 99,
+   "scene": "CompressibilitOfText",
+   "call": "Tex",
+   "text": "\\vdots"
+  },
+  {
+   "file": "_2026/cross_entropy/entropy.py",
+   "line": 133,
+   "scene": "CompressibilitOfText",
+   "call": "Tex",
+   "text": "\\rightarrow"
+  },
+  {
+   "file": "_2026/cross_entropy/entropy.py",
+   "line": 137,
+   "scene": "CompressibilitOfText",
+   "call": "Tex",
+   "text": "\\sim 8.0 \\text{bits} / \\text{ch}"
+  },
+  {
+   "file": "_2026/cross_entropy/entropy.py",
+   "line": 146,
+   "scene": "CompressibilitOfText",
+   "call": "Text",
+   "text": "ASCII"
+  },
+  {
+   "file": "_2026/cross_entropy/entropy.py",
+   "line": 147,
+   "scene": "CompressibilitOfText",
+   "call": "Text",
+   "text": "Huffman"
+  },
+  {
+   "file": "_2026/cross_entropy/entropy.py",
+   "line": 148,
+   "scene": "CompressibilitOfText",
+   "call": "Text",
+   "text": "Neural methods"
+  },
+  {
+   "file": "_2026/cross_entropy/entropy.py",
+   "line": 251,
+   "scene": "SpaceOfCodewords",
+   "call": "Tex",
+   "text": "\\vdots"
+  },
+  {
+   "file": "_2026/cross_entropy/entropy.py",
+   "line": 292,
+   "scene": "SpaceOfCodewords",
+   "call": "TexText",
+   "text": "{n + 1} bit{"
+  },
+  {
+   "file": "_2026/cross_entropy/entropy.py",
+   "line": 515,
+   "scene": "IntroduceRandomNoise",
+   "call": "Text",
+   "text": "Random Noise"
+  },
+  {
+   "file": "_2026/cross_entropy/entropy.py",
+   "line": 528,
+   "scene": "IntroduceRandomNoise",
+   "call": "Text",
+   "text": "Random Noise is incompressible"
+  },
+  {
+   "file": "_2026/cross_entropy/entropy.py",
+   "line": 618,
+   "scene": "IntroduceRandomNoise",
+   "call": "Text",
+   "text": "0 or 1"
+  },
+  {
+   "file": "_2026/cross_entropy/entropy.py",
+   "line": 622,
+   "scene": "IntroduceRandomNoise",
+   "call": "Text",
+   "text": "50%"
+  },
+  {
+   "file": "_2026/cross_entropy/entropy.py",
+   "line": 747,
+   "scene": "RandomNoiseIsIncompressible",
+   "call": "Tex",
+   "text": "\\rightarrow m_i"
+  },
+  {
+   "file": "_2026/cross_entropy/entropy.py",
+   "line": 775,
+   "scene": "RandomNoiseIsIncompressible",
+   "call": "Tex",
+   "text": "\\vdots"
+  },
+  {
+   "file": "_2026/cross_entropy/entropy.py",
+   "line": 782,
+   "scene": "RandomNoiseIsIncompressible",
+   "call": "Tex",
+   "text": "\\rightarrow m_{n}"
+  },
+  {
+   "file": "_2026/cross_entropy/entropy.py",
+   "line": 786,
+   "scene": "RandomNoiseIsIncompressible",
+   "call": "Tex",
+   "text": "\\rightarrow m_{{2^n - {4 - n}}}"
+  },
+  {
+   "file": "_2026/cross_entropy/entropy.py",
+   "line": 820,
+   "scene": "RandomNoiseIsIncompressible",
+   "call": "Tex",
+   "text": "P(m_i) = {1 \\over 2^n}"
+  },
+  {
+   "file": "_2026/cross_entropy/entropy.py",
+   "line": 850,
+   "scene": "RandomNoiseIsIncompressible",
+   "call": "Text",
+   "text": "= “{text}”"
+  },
+  {
+   "file": "_2026/cross_entropy/entropy.py",
+   "line": 954,
+   "scene": "RandomNoiseIsIncompressible",
+   "call": "Tex",
+   "text": "m_{{{n}}}"
+  },
+  {
+   "file": "_2026/cross_entropy/entropy.py",
+   "line": 1169,
+   "scene": "InformationGraph",
+   "call": "Tex",
+   "text": "\\left({{1 \\over 2}} \\right)^{n} = {{1 \\over {2**n}}}"
+  },
+  {
+   "file": "_2026/cross_entropy/entropy.py",
+   "line": 1174,
+   "scene": "InformationGraph",
+   "call": "Tex",
+   "text": "-\\log_2(1 / {2**n}) = {n}"
+  },
+  {
+   "file": "_2026/cross_entropy/entropy.py",
+   "line": 1179,
+   "scene": "InformationGraph",
+   "call": "Tex",
+   "text": "\\Leftrightarrow"
+  },
+  {
+   "file": "_2026/cross_entropy/entropy.py",
+   "line": 1212,
+   "scene": "InformationGraph",
+   "call": "Text",
+   "text": "{n} bits"
+  },
+  {
+   "file": "_2026/cross_entropy/entropy.py",
+   "line": 1221,
+   "scene": "InformationGraph",
+   "call": "Tex",
+   "text": "-\\log_2({self.input_var})"
+  },
+  {
+   "file": "_2026/cross_entropy/entropy.py",
+   "line": 1238,
+   "scene": "InformationGraph",
+   "call": "Tex",
+   "text": "1 \\over {2**n}"
+  },
+  {
+   "file": "_2026/cross_entropy/entropy.py",
+   "line": 1330,
+   "scene": "InformationGraph",
+   "call": "Tex",
+   "text": "\\text{Information} :="
+  },
+  {
+   "file": "_2026/cross_entropy/entropy.py",
+   "line": 1331,
+   "scene": "InformationGraph",
+   "call": "Tex",
+   "text": "\\text{Loss} ="
+  },
+  {
+   "file": "_2026/cross_entropy/entropy.py",
+   "line": 1356,
+   "scene": "InformationGraph",
+   "call": "Tex",
+   "text": "-\\log_2({self.input_var})"
+  },
+  {
+   "file": "_2026/cross_entropy/entropy.py",
+   "line": 1392,
+   "scene": "InformationGraph",
+   "call": "Tex",
+   "text": "{1 \\over x} - 1"
+  },
+  {
+   "file": "_2026/cross_entropy/entropy.py",
+   "line": 1393,
+   "scene": "InformationGraph",
+   "call": "Tex",
+   "text": "\\tan\\left({\\pi \\over 2}(1 - x)\\right)"
+  },
+  {
+   "file": "_2026/cross_entropy/entropy.py",
+   "line": 1394,
+   "scene": "InformationGraph",
+   "call": "Tex",
+   "text": "\\Gamma(x) - 1"
+  },
+  {
+   "file": "_2026/cross_entropy/entropy.py",
+   "line": 1437,
+   "scene": "InformationGraph",
+   "call": "Tex",
+   "text": "-\\ln(x)"
+  },
+  {
+   "file": "_2026/cross_entropy/entropy.py",
+   "line": 1440,
+   "scene": "InformationGraph",
+   "call": "Tex",
+   "text": "-\\log_2(x) \\cdot \\ln(2) = -\\ln(x)"
+  },
+  {
+   "file": "_2026/cross_entropy/entropy.py",
+   "line": 1449,
+   "scene": "InformationGraph",
+   "call": "Tex",
+   "text": "d / dx"
+  },
+  {
+   "file": "_2026/cross_entropy/entropy.py",
+   "line": 1451,
+   "scene": "InformationGraph",
+   "call": "Tex",
+   "text": "1 / x"
+  },
+  {
+   "file": "_2026/cross_entropy/entropy.py",
+   "line": 1488,
+   "scene": "InformationGraph",
+   "call": "Tex",
+   "text": "f(x)"
+  },
+  {
+   "file": "_2026/cross_entropy/entropy.py",
+   "line": 1579,
+   "scene": "InformationOfLanguage",
+   "call": "Tex",
+   "text": "1/{denom}"
+  },
+  {
+   "file": "_2026/cross_entropy/entropy.py",
+   "line": 1701,
+   "scene": "InformationOfLanguage",
+   "call": "Tex",
+   "text": "p \\rightarrow -\\log_2(p)"
+  },
+  {
+   "file": "_2026/cross_entropy/entropy.py",
+   "line": 1730,
+   "scene": "InformationOfLanguage",
+   "call": "Text",
+   "text": "{n} bits"
+  },
+  {
+   "file": "_2026/cross_entropy/entropy.py",
+   "line": 1877,
+   "scene": "InformationOfLanguage",
+   "call": "Tex",
+   "text": "p_{{{n}}}"
+  },
+  {
+   "file": "_2026/cross_entropy/entropy.py",
+   "line": 1901,
+   "scene": "InformationOfLanguage",
+   "call": "Text",
+   "text": "“{short_text.upper()}”"
+  },
+  {
+   "file": "_2026/cross_entropy/entropy.py",
+   "line": 1920,
+   "scene": "InformationOfLanguage",
+   "call": "Tex",
+   "text": "P()"
+  },
+  {
+   "file": "_2026/cross_entropy/entropy.py",
+   "line": 1928,
+   "scene": "InformationOfLanguage",
+   "call": "Tex",
+   "text": "p_0 \\cdot p_1 \\cdot p_2 \\cdot p_3 \\cdots p_n"
+  },
+  {
+   "file": "_2026/cross_entropy/entropy.py",
+   "line": 1960,
+   "scene": "InformationOfLanguage",
+   "call": "Tex",
+   "text": "-\\log_2()"
+  },
+  {
+   "file": "_2026/cross_entropy/entropy.py",
+   "line": 1974,
+   "scene": "InformationOfLanguage",
+   "call": "Tex",
+   "text": "-\\log_2(p_0) -\\log_2(p_1) -\\log_2(p_2) - \\cdots -\\log_2(p_n)"
+  },
+  {
+   "file": "_2026/cross_entropy/entropy.py",
+   "line": 2033,
+   "scene": "InformationOfLanguage",
+   "call": "Text",
+   "text": "Optimal \\n Encoding length"
+  },
+  {
+   "file": "_2026/cross_entropy/entropy.py",
+   "line": 2035,
+   "scene": "InformationOfLanguage",
+   "call": "Text",
+   "text": "Total information"
+  },
+  {
+   "file": "_2026/cross_entropy/entropy.py",
+   "line": 2039,
+   "scene": "InformationOfLanguage",
+   "call": "Tex",
+   "text": "\\approx"
+  },
+  {
+   "file": "_2026/cross_entropy/entropy.py",
+   "line": 2148,
+   "scene": "InformationOfLanguage",
+   "call": "Text",
+   "text": "Average"
+  },
+  {
+   "file": "_2026/cross_entropy/entropy.py",
+   "line": 2240,
+   "scene": "InformationOfLanguage",
+   "call": "Text",
+   "text": "Average"
+  },
+  {
+   "file": "_2026/cross_entropy/entropy.py",
+   "line": 2254,
+   "scene": "InformationOfLanguage",
+   "call": "Text",
+   "text": "???"
+  },
+  {
+   "file": "_2026/cross_entropy/entropy.py",
+   "line": 2320,
+   "scene": "InformationOfLanguage",
+   "call": "Tex",
+   "text": "H[\\text{English}]"
+  },
+  {
+   "file": "_2026/cross_entropy/entropy.py",
+   "line": 2324,
+   "scene": "InformationOfLanguage",
+   "call": "Tex",
+   "text": "\\approx 1 \\; {\\text{bit} \\over \\text{char}}"
+  },
+  {
+   "file": "_2026/cross_entropy/entropy.py",
+   "line": 2377,
+   "scene": "GenericSymbolInformation",
+   "call": "Tex",
+   "text": "S_1"
+  },
+  {
+   "file": "_2026/cross_entropy/entropy.py",
+   "line": 2420,
+   "scene": "GenericSymbolInformation",
+   "call": "Text",
+   "text": "Average\\nInformation"
+  },
+  {
+   "file": "_2026/cross_entropy/language_models.py",
+   "line": 213,
+   "scene": "NextTokenPredictions",
+   "call": "Tex",
+   "text": "\\vdots"
+  },
+  {
+   "file": "_2026/cross_entropy/language_models.py",
+   "line": 292,
+   "scene": "NextTokenPredictions",
+   "call": "Tex",
+   "text": "p = P(\\text{true next token})"
+  },
+  {
+   "file": "_2026/cross_entropy/language_models.py",
+   "line": 331,
+   "scene": "TokensAndPredictions2",
+   "call": "Text",
+   "text": "Tokens"
+  },
+  {
+   "file": "_2026/cross_entropy/language_models.py",
+   "line": 606,
+   "scene": "AbstractGraphOfLossFunction",
+   "call": "Text",
+   "text": "Loss"
+  },
+  {
+   "file": "_2026/cross_entropy/language_models.py",
+   "line": 634,
+   "scene": "AbstractGraphOfLossFunction",
+   "call": "Text",
+   "text": "Loss(model)"
+  },
+  {
+   "file": "_2026/cross_entropy/language_models.py",
+   "line": 645,
+   "scene": "AbstractGraphOfLossFunction",
+   "call": "Text",
+   "text": "Good"
+  },
+  {
+   "file": "_2026/cross_entropy/language_models.py",
+   "line": 645,
+   "scene": "AbstractGraphOfLossFunction",
+   "call": "Text",
+   "text": "Bad"
+  },
+  {
+   "file": "_2026/cross_entropy/language_models.py",
+   "line": 953,
+   "scene": "LossFunction",
+   "call": "Text",
+   "text": "Information"
+  },
+  {
+   "file": "_2026/cross_entropy/language_models.py",
+   "line": 956,
+   "scene": "LossFunction",
+   "call": "Text",
+   "text": "from the model’s perspective"
+  },
+  {
+   "file": "_2026/cross_entropy/language_models.py",
+   "line": 962,
+   "scene": "LossFunction",
+   "call": "Text",
+   "text": "Loss"
+  },
+  {
+   "file": "_2026/cross_entropy/language_models.py",
+   "line": 983,
+   "scene": "LossFunction",
+   "call": "Tex",
+   "text": "q_{{{n}}}"
+  },
+  {
+   "file": "_2026/cross_entropy/language_models.py",
+   "line": 997,
+   "scene": "LossFunction",
+   "call": "Tex",
+   "text": "-\\log(q)"
+  },
+  {
+   "file": "_2026/cross_entropy/language_models.py",
+   "line": 1067,
+   "scene": "LossFunction",
+   "call": "Tex",
+   "text": "\\text{Loss} = 0.00"
+  },
+  {
+   "file": "_2026/cross_entropy/language_models.py",
+   "line": 1240,
+   "scene": "CrossEntropyWithOneHot",
+   "call": "Tex",
+   "text": "\\text{Loss} = -\\log(q)"
+  },
+  {
+   "file": "_2026/cross_entropy/language_models.py",
+   "line": 1264,
+   "scene": "CrossEntropyWithOneHot",
+   "call": "Text",
+   "text": "“Information loss”"
+  },
+  {
+   "file": "_2026/cross_entropy/language_models.py",
+   "line": 1265,
+   "scene": "CrossEntropyWithOneHot",
+   "call": "Text",
+   "text": "“Log loss”"
+  },
+  {
+   "file": "_2026/cross_entropy/language_models.py",
+   "line": 1266,
+   "scene": "CrossEntropyWithOneHot",
+   "call": "Text",
+   "text": "“Cross entropy loss”"
+  },
+  {
+   "file": "_2026/cross_entropy/language_models.py",
+   "line": 1293,
+   "scene": "CrossEntropyWithOneHot",
+   "call": "Tex",
+   "text": "\\sum_i p_i (-\\log q_i)"
+  },
+  {
+   "file": "_2026/cross_entropy/language_models.py",
+   "line": 1326,
+   "scene": "CrossEntropyWithOneHot",
+   "call": "Tex",
+   "text": "q_{n}"
+  },
+  {
+   "file": "_2026/cross_entropy/language_models.py",
+   "line": 1375,
+   "scene": "CrossEntropyWithOneHot",
+   "call": "Tex",
+   "text": "{p} \\cdot (-\\log q_{n})"
+  },
+  {
+   "file": "_2026/cross_entropy/language_models.py",
+   "line": 1423,
+   "scene": "CrossEntropyWithOneHot",
+   "call": "Text",
+   "text": "Why?"
+  },
+  {
+   "file": "_2026/cross_entropy/language_models.py",
+   "line": 1454,
+   "scene": "MyNameIsExample",
+   "call": "Text",
+   "text": "{in_text} {name}"
+  },
+  {
+   "file": "_2026/cross_entropy/language_models.py",
+   "line": 1530,
+   "scene": "MyNameIsExample",
+   "call": "Tex",
+   "text": "q_{{{name[0]}}}"
+  },
+  {
+   "file": "_2026/cross_entropy/language_models.py",
+   "line": 1560,
+   "scene": "MyNameIsExample",
+   "call": "Text",
+   "text": "Loss?"
+  },
+  {
+   "file": "_2026/cross_entropy/language_models.py",
+   "line": 1576,
+   "scene": "MyNameIsExample",
+   "call": "Tex",
+   "text": "\\longleftarrow"
+  },
+  {
+   "file": "_2026/cross_entropy/language_models.py",
+   "line": 1580,
+   "scene": "MyNameIsExample",
+   "call": "Tex",
+   "text": "{self.loss_func_tex}({q_tex})"
+  },
+  {
+   "file": "_2026/cross_entropy/language_models.py",
+   "line": 1643,
+   "scene": "MyNameIsExample",
+   "call": "Tex",
+   "text": "p_{{{char}}}"
+  },
+  {
+   "file": "_2026/cross_entropy/language_models.py",
+   "line": 1657,
+   "scene": "MyNameIsExample",
+   "call": "Tex",
+   "text": "\\text{{Average Loss}} = \\sum_i p_i {self.loss_func_tex_in_sum}"
+  },
+  {
+   "file": "_2026/cross_entropy/language_models.py",
+   "line": 1717,
+   "scene": "MyNameIsExample",
+   "call": "Text",
+   "text": "Cross Entropy"
+  },
+  {
+   "file": "_2026/cross_entropy/language_models.py",
+   "line": 1754,
+   "scene": "MyNameIsExample",
+   "call": "TexText",
+   "text": "Goal: This is minimized when $q_i = p_i$"
+  },
+  {
+   "file": "_2026/cross_entropy/language_models.py",
+   "line": 1784,
+   "scene": "MyNameIsExample",
+   "call": "Tex",
+   "text": "\\Rightarrow"
+  },
+  {
+   "file": "_2026/cross_entropy/language_models.py",
+   "line": 1786,
+   "scene": "MyNameIsExample",
+   "call": "Tex",
+   "text": "f(q) = -\\lambda \\log(q)"
+  },
+  {
+   "file": "_2026/cross_entropy/language_models.py",
+   "line": 1788,
+   "scene": "MyNameIsExample",
+   "call": "TexText",
+   "text": "For some constant $\\lambda$"
+  },
+  {
+   "file": "_2026/cross_entropy/language_models.py",
+   "line": 1914,
+   "scene": "DistillationTrainingIdea",
+   "call": "Tex",
+   "text": "\\text{Loss} = \\sum_i p_i (-\\log q_i)"
+  },
+  {
+   "file": "_2026/cross_entropy/language_models.py",
+   "line": 1924,
+   "scene": "DistillationTrainingIdea",
+   "call": "Tex",
+   "text": "{char}_{n}"
+  },
+  {
+   "file": "_2026/cross_entropy/language_tree_visualization/language_tree.py",
+   "line": 484,
+   "scene": "BasicIdea",
+   "call": "TexText",
+   "text": "Document A"
+  },
+  {
+   "file": "_2026/cross_entropy/language_tree_visualization/language_tree.py",
+   "line": 488,
+   "scene": "BasicIdea",
+   "call": "TexText",
+   "text": "Document B"
+  },
+  {
+   "file": "_2026/cross_entropy/language_tree_visualization/language_tree.py",
+   "line": 516,
+   "scene": "BasicIdea",
+   "call": "TexText",
+   "text": "GZIP(AB)"
+  },
+  {
+   "file": "_2026/cross_entropy/language_tree_visualization/language_tree.py",
+   "line": 528,
+   "scene": "BasicIdea",
+   "call": "TexText",
+   "text": "GZIP(A)"
+  },
+  {
+   "file": "_2026/cross_entropy/part2_supplements.py",
+   "line": 8,
+   "scene": "CrossEntropyKLDivergenceTitles",
+   "call": "Text",
+   "text": "Cross-Entropy"
+  },
+  {
+   "file": "_2026/cross_entropy/part2_supplements.py",
+   "line": 9,
+   "scene": "CrossEntropyKLDivergenceTitles",
+   "call": "Text",
+   "text": "KL Divergence"
+  },
+  {
+   "file": "_2026/cross_entropy/part2_supplements.py",
+   "line": 14,
+   "scene": "CrossEntropyKLDivergenceTitles",
+   "call": "Tex",
+   "text": "\\sum_i p_i \\big(-\\log(q_i)\\big)"
+  },
+  {
+   "file": "_2026/cross_entropy/part2_supplements.py",
+   "line": 15,
+   "scene": "CrossEntropyKLDivergenceTitles",
+   "call": "Tex",
+   "text": "\\sum_i p_i \\log\\left({p_i / q_i}\\right)"
+  },
+  {
+   "file": "_2026/cross_entropy/part2_supplements.py",
+   "line": 116,
+   "scene": "PreviousVideos",
+   "call": "Text",
+   "text": "Gradient Descent"
+  },
+  {
+   "file": "_2026/cross_entropy/part2_supplements.py",
+   "line": 116,
+   "scene": "PreviousVideos",
+   "call": "Text",
+   "text": "Backpropagation"
+  },
+  {
+   "file": "_2026/cross_entropy/part2_supplements.py",
+   "line": 157,
+   "scene": "BillionsOfInputs",
+   "call": "Tex",
+   "text": "L(x, y)"
+  },
+  {
+   "file": "_2026/cross_entropy/part2_supplements.py",
+   "line": 173,
+   "scene": "BillionsOfInputs",
+   "call": "Tex",
+   "text": "w_{0}"
+  },
+  {
+   "file": "_2026/cross_entropy/part2_supplements.py",
+   "line": 213,
+   "scene": "EntropyOfPTitle",
+   "call": "Text",
+   "text": "Entropy of P"
+  },
+  {
+   "file": "_2026/cross_entropy/part2_supplements.py",
+   "line": 214,
+   "scene": "EntropyOfPTitle",
+   "call": "Tex",
+   "text": "\\sum_i p_i (-\\log_2 p_i)"
+  },
+  {
+   "file": "_2026/cross_entropy/part2_supplements.py",
+   "line": 241,
+   "scene": "KeyFact",
+   "call": "Text",
+   "text": "Key fact about Cross-Entropy\\nof Q relative to P"
+  },
+  {
+   "file": "_2026/cross_entropy/part2_supplements.py",
+   "line": 258,
+   "scene": "KeyFact",
+   "call": "Text",
+   "text": "• Minimal when Q = P"
+  },
+  {
+   "file": "_2026/cross_entropy/part2_supplements.py",
+   "line": 259,
+   "scene": "KeyFact",
+   "call": "Text",
+   "text": "• Minimal value = H(P)"
+  },
+  {
+   "file": "_2026/cross_entropy/part2_supplements.py",
+   "line": 298,
+   "scene": "ThreeDEntropyGraph",
+   "call": "Tex",
+   "text": "p_1"
+  },
+  {
+   "file": "_2026/cross_entropy/part2_supplements.py",
+   "line": 298,
+   "scene": "ThreeDEntropyGraph",
+   "call": "Tex",
+   "text": "p_2"
+  },
+  {
+   "file": "_2026/cross_entropy/part2_supplements.py",
+   "line": 381,
+   "scene": "NeglectedFacts",
+   "call": "Text",
+   "text": "Batch size scheduling"
+  },
+  {
+   "file": "_2026/cross_entropy/part2_supplements.py",
+   "line": 382,
+   "scene": "NeglectedFacts",
+   "call": "Text",
+   "text": "Optimizer choice and tuning"
+  },
+  {
+   "file": "_2026/cross_entropy/part2_supplements.py",
+   "line": 383,
+   "scene": "NeglectedFacts",
+   "call": "Text",
+   "text": "Learning rate schedules"
+  },
+  {
+   "file": "_2026/cross_entropy/part2_supplements.py",
+   "line": 384,
+   "scene": "NeglectedFacts",
+   "call": "Text",
+   "text": "Gradient clipping"
+  },
+  {
+   "file": "_2026/cross_entropy/part2_supplements.py",
+   "line": 385,
+   "scene": "NeglectedFacts",
+   "call": "Text",
+   "text": "Compute-optimal scaling laws"
+  },
+  {
+   "file": "_2026/cross_entropy/part2_supplements.py",
+   "line": 386,
+   "scene": "NeglectedFacts",
+   "call": "Tex",
+   "text": "\\vdots"
+  },
+  {
+   "file": "_2026/cross_entropy/part2_supplements.py",
+   "line": 424,
+   "scene": "DistillationArrow",
+   "call": "Text",
+   "text": "Distillation"
+  },
+  {
+   "file": "_2026/cross_entropy/part2_supplements.py",
+   "line": 480,
+   "scene": "ShowGradientEquation",
+   "call": "Tex",
+   "text": "\\nabla_q \\left(\\sum_i p_i f(q_i) \\right) = \\lambda \\nabla_q \\left(\\sum_i q_i \\right)"
+  },
+  {
+   "file": "_2026/cross_entropy/part2_supplements.py",
+   "line": 481,
+   "scene": "ShowGradientEquation",
+   "call": "Tex",
+   "text": "p_i f'(q_i) = \\lambda"
+  },
+  {
+   "file": "_2026/cross_entropy/part2_supplements.py",
+   "line": 482,
+   "scene": "ShowGradientEquation",
+   "call": "Tex",
+   "text": "q_i f'(q_i) = \\lambda"
+  },
+  {
+   "file": "_2026/cross_entropy/part2_supplements.py",
+   "line": 483,
+   "scene": "ShowGradientEquation",
+   "call": "Tex",
+   "text": "f'(q) = {\\lambda \\over q}"
+  },
+  {
+   "file": "_2026/cross_entropy/part2_supplements.py",
+   "line": 488,
+   "scene": "ShowGradientEquation",
+   "call": "TexText",
+   "text": "for all $i$"
+  },
+  {
+   "file": "_2026/cross_entropy/part2_supplements.py",
+   "line": 489,
+   "scene": "ShowGradientEquation",
+   "call": "TexText",
+   "text": "Assuming minimum $\\Leftrightarrow q_i = p_i$"
+  },
+  {
+   "file": "_2026/cross_entropy/part2_supplements.py",
+   "line": 490,
+   "scene": "ShowGradientEquation",
+   "call": "Tex",
+   "text": "f(q) = \\lambda \\log(q)"
+  },
+  {
+   "file": "_2026/cross_entropy/part2_supplements.py",
+   "line": 526,
+   "scene": "DifferenceLine",
+   "call": "Text",
+   "text": "Difference"
+  },
+  {
+   "file": "_2026/cross_entropy/part2_supplements.py",
+   "line": 540,
+   "scene": "ArrowsToFormula",
+   "call": "Tex",
+   "text": "\\sum_i p_i (-\\log q_i)"
+  },
+  {
+   "file": "_2026/cross_entropy/part2_supplements.py",
+   "line": 571,
+   "scene": "PiAndCircleAnalogy2",
+   "call": "Tex",
+   "text": "\\sqrt{6 \\sum_{n = 1}^{100} \\frac{1}{n^2}}"
+  },
+  {
+   "file": "_2026/cross_entropy/part2_supplements.py",
+   "line": 572,
+   "scene": "PiAndCircleAnalogy2",
+   "call": "Tex",
+   "text": "= 3.1415926\\dots"
+  },
+  {
+   "file": "_2026/cross_entropy/part2_supplements.py",
+   "line": 587,
+   "scene": "PiAndCircleAnalogy2",
+   "call": "Tex",
+   "text": "\\infty"
+  },
+  {
+   "file": "_2026/cross_entropy/part2_supplements.py",
+   "line": 617,
+   "scene": "PiAndCircleAnalogy2",
+   "call": "Tex",
+   "text": "\\sum_i p_i (-\\log q_i)"
+  },
+  {
+   "file": "_2026/cross_entropy/part2_supplements.py",
+   "line": 653,
+   "scene": "PredictorCompressorTitle",
+   "call": "Text",
+   "text": "Predictor"
+  },
+  {
+   "file": "_2026/cross_entropy/part2_supplements.py",
+   "line": 654,
+   "scene": "PredictorCompressorTitle",
+   "call": "Tex",
+   "text": "\\longleftrightarrow"
+  },
+  {
+   "file": "_2026/cross_entropy/part2_supplements.py",
+   "line": 655,
+   "scene": "PredictorCompressorTitle",
+   "call": "Text",
+   "text": "Compressor"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 132,
+   "scene": "RobotOnMoon",
+   "call": "Tex",
+   "text": "\\mathbf{1/2}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 133,
+   "scene": "RobotOnMoon",
+   "call": "Tex",
+   "text": "\\mathbf{1/4}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 134,
+   "scene": "RobotOnMoon",
+   "call": "Tex",
+   "text": "\\mathbf{1/8}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 135,
+   "scene": "RobotOnMoon",
+   "call": "Tex",
+   "text": "\\mathbf{1/8}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 273,
+   "scene": "RobotOnMoonShort",
+   "call": "Tex",
+   "text": "\\mathbf{1/2}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 274,
+   "scene": "RobotOnMoonShort",
+   "call": "Tex",
+   "text": "\\mathbf{1/4}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 275,
+   "scene": "RobotOnMoonShort",
+   "call": "Tex",
+   "text": "\\mathbf{1/8}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 276,
+   "scene": "RobotOnMoonShort",
+   "call": "Tex",
+   "text": "\\mathbf{1/8}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 390,
+   "scene": "RobotOnMoon3",
+   "call": "Tex",
+   "text": "\\mathbf{1/2}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 391,
+   "scene": "RobotOnMoon3",
+   "call": "Tex",
+   "text": "\\mathbf{1/4}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 392,
+   "scene": "RobotOnMoon3",
+   "call": "Tex",
+   "text": "\\mathbf{1/8}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 393,
+   "scene": "RobotOnMoon3",
+   "call": "Tex",
+   "text": "\\mathbf{1/8}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 613,
+   "scene": "RobotEncodings",
+   "call": "Tex",
+   "text": "{i:02b}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 655,
+   "scene": "RobotEncodings",
+   "call": "Tex",
+   "text": "\\frac{1}{"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 719,
+   "scene": "RobotEncodings",
+   "call": "Tex",
+   "text": "\\frac{1}{"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 747,
+   "scene": "RobotEncodings",
+   "call": "Tex",
+   "text": "\\frac{1}{"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 868,
+   "scene": "RobotEncodings",
+   "call": "Tex",
+   "text": "\\text{code words}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 1011,
+   "scene": "RobotEncodings",
+   "call": "Tex",
+   "text": "\\frac{1}{2} \\cdot 1"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 1012,
+   "scene": "RobotEncodings",
+   "call": "Tex",
+   "text": "\\frac{1}{4} \\cdot 2"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 1013,
+   "scene": "RobotEncodings",
+   "call": "Tex",
+   "text": "\\frac{1}{8} \\cdot 3"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 1014,
+   "scene": "RobotEncodings",
+   "call": "Tex",
+   "text": "\\frac{1}{8} \\cdot 3"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 1039,
+   "scene": "RobotEncodings",
+   "call": "Tex",
+   "text": "\\frac{1}{2} \\cdot 1 + \\frac{1}{4} \\cdot 2 + \\frac{1}{8} \\cdot 3 + \\frac{1}{8} \\cdot 3 \\\\ = 1.75 \\text{ bits}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 1055,
+   "scene": "RobotEncodings",
+   "call": "Tex",
+   "text": "\\frac{1}{2} \\cdot 2 + \\frac{1}{4} \\cdot 2 + \\frac{1}{8} \\cdot 2 + \\frac{1}{8} \\cdot 2 \\\\ = 2 \\text{ bits}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 1291,
+   "scene": "RobotEncodings",
+   "call": "Tex",
+   "text": "{i:0{n}b}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 1352,
+   "scene": "RobotEncodings",
+   "call": "Tex",
+   "text": ":\\ "
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 1379,
+   "scene": "RobotEncodings",
+   "call": "Tex",
+   "text": "\\frac{1}{2}\\ \\ \\cdot\\ \\  \\frac{1}{2}\\ \\  \\cdot\\ \\  \\frac{1}{2}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 1380,
+   "scene": "RobotEncodings",
+   "call": "Tex",
+   "text": "\\frac{1}{8}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 1381,
+   "scene": "RobotEncodings",
+   "call": "Tex",
+   "text": "\\frac{1}{4}\\ \\  \\cdot\\ \\  \\frac{1}{2}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 1503,
+   "scene": "RobotEncodingsV2",
+   "call": "Tex",
+   "text": "{i:02b}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 1545,
+   "scene": "RobotEncodingsV2",
+   "call": "Tex",
+   "text": "\\frac{1}{"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 1591,
+   "scene": "RobotEncodingsV2",
+   "call": "Tex",
+   "text": "\\frac{1}{"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 1617,
+   "scene": "RobotEncodingsV2",
+   "call": "TexText",
+   "text": "Naive"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 1618,
+   "scene": "RobotEncodingsV2",
+   "call": "TexText",
+   "text": "Optimized"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 1878,
+   "scene": "RobotEncodingsV2",
+   "call": "Tex",
+   "text": "\\text{code words}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 1997,
+   "scene": "RobotEncodingsV2",
+   "call": "Tex",
+   "text": "10"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 1998,
+   "scene": "RobotEncodingsV2",
+   "call": "Tex",
+   "text": "100"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 2018,
+   "scene": "RobotEncodingsV2",
+   "call": "Tex",
+   "text": "100"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 2142,
+   "scene": "RobotEncodingsV2",
+   "call": "Tex",
+   "text": "\\frac{1}{2} \\cdot 1"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 2143,
+   "scene": "RobotEncodingsV2",
+   "call": "Tex",
+   "text": "\\frac{1}{4} \\cdot 2"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 2144,
+   "scene": "RobotEncodingsV2",
+   "call": "Tex",
+   "text": "\\frac{1}{8} \\cdot 3"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 2145,
+   "scene": "RobotEncodingsV2",
+   "call": "Tex",
+   "text": "\\frac{1}{8} \\cdot 3"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 2170,
+   "scene": "RobotEncodingsV2",
+   "call": "Tex",
+   "text": "\\frac{1}{2} \\cdot 1 + \\frac{1}{4} \\cdot 2 + \\frac{1}{8} \\cdot 3 + \\frac{1}{8} \\cdot 3 \\\\ = 1.75 \\text{ bits}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 2186,
+   "scene": "RobotEncodingsV2",
+   "call": "Tex",
+   "text": "\\frac{1}{2} \\cdot 2 + \\frac{1}{4} \\cdot 2 + \\frac{1}{8} \\cdot 2 + \\frac{1}{8} \\cdot 2 \\\\ = 2 \\text{ bits}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 2350,
+   "scene": "RobotEncodingsV2",
+   "call": "Tex",
+   "text": "\\mathbf{P}(\\text{any $n$-bit message}) = \\frac{1}{2^n}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 2363,
+   "scene": "RobotEncodingsV2",
+   "call": "Tex",
+   "text": "p = 2^{-n}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 2370,
+   "scene": "RobotEncodingsV2",
+   "call": "Tex",
+   "text": "\\log_2(p) = \\log_2(2^{-n})"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 2373,
+   "scene": "RobotEncodingsV2",
+   "call": "Tex",
+   "text": "\\log_2(p) = -n"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 2379,
+   "scene": "RobotEncodingsV2",
+   "call": "Tex",
+   "text": "\\text{Information} =  -\\log_2(p) = {n}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 2441,
+   "scene": "RobotEncodingsV2",
+   "call": "Tex",
+   "text": "p = 0.00"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 2449,
+   "scene": "RobotEncodingsV2",
+   "call": "TexText",
+   "text": "(bits)"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 2450,
+   "scene": "RobotEncodingsV2",
+   "call": "TexText",
+   "text": "Information $=$ 0.00 bits"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 2508,
+   "scene": "NaiveEncodingBitsTwoMeanings",
+   "call": "Tex",
+   "text": "\\frac{1}{"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 2522,
+   "scene": "NaiveEncodingBitsTwoMeanings",
+   "call": "TexText",
+   "text": "Naive encoding:"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 2530,
+   "scene": "NaiveEncodingBitsTwoMeanings",
+   "call": "TexText",
+   "text": "code word length (bits)"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 2531,
+   "scene": "NaiveEncodingBitsTwoMeanings",
+   "call": "Tex",
+   "text": "-\\log_2 p_i \\text{ (bits)}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 2533,
+   "scene": "NaiveEncodingBitsTwoMeanings",
+   "call": "Tex",
+   "text": "2,\\ 2,\\ 2,\\ 2,"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 2544,
+   "scene": "NaiveEncodingBitsTwoMeanings",
+   "call": "Tex",
+   "text": "1,\\ 2,\\ 3,\\ 3,"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 2564,
+   "scene": "PerfectEncodingsAndEntropyDefinition",
+   "call": "Tex",
+   "text": "\\frac{1}{"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 2679,
+   "scene": "PerfectEncodingsAndEntropyDefinition",
+   "call": "Tex",
+   "text": "\\text{Area}() = \\sum_i p_i (-\\log_2 p_i) = \\text{Avg. information}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 2763,
+   "scene": "PerfectEncodingsAndEntropyDefinition",
+   "call": "Tex",
+   "text": "\\text{Entropy} = 0.00 \\text{ bits}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 2822,
+   "scene": "PerfectEncodingsAndEntropyDefinition",
+   "call": "TexText",
+   "text": "high probability $\\Longleftrightarrow$ low information"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 2930,
+   "scene": "PerfectEncodingsAndEntropyDefinitionV2",
+   "call": "Tex",
+   "text": "\\frac{1}{"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 2953,
+   "scene": "PerfectEncodingsAndEntropyDefinitionV2",
+   "call": "Tex",
+   "text": "\\frac{1}{2} \\cdot 1"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 2954,
+   "scene": "PerfectEncodingsAndEntropyDefinitionV2",
+   "call": "Tex",
+   "text": "\\frac{1}{4} \\cdot 2"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 2955,
+   "scene": "PerfectEncodingsAndEntropyDefinitionV2",
+   "call": "Tex",
+   "text": "\\frac{1}{8} \\cdot 3"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 2956,
+   "scene": "PerfectEncodingsAndEntropyDefinitionV2",
+   "call": "Tex",
+   "text": "\\frac{1}{8} \\cdot 3"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 2969,
+   "scene": "PerfectEncodingsAndEntropyDefinitionV2",
+   "call": "Tex",
+   "text": "\\frac{1}{2} \\cdot 1 + \\frac{1}{4} \\cdot 2 + \\frac{1}{8} \\cdot 3 + \\frac{1}{8} \\cdot 3 = 1.75 \\text{ bits}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 3114,
+   "scene": "PerfectEncodingsAndEntropyDefinitionV2",
+   "call": "Tex",
+   "text": "\\text{Avg. information} = \\sum_i p_i (-\\log_2 p_i)"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 3139,
+   "scene": "PerfectEncodingsAndEntropyDefinitionV2",
+   "call": "Tex",
+   "text": "\\text{Avg. information} = \\sum_i p_i (-\\log_2 p_i) = \\text{Area}()"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 3173,
+   "scene": "PerfectEncodingsAndEntropyDefinitionV2",
+   "call": "Tex",
+   "text": "H(P) = \\sum_i p_i (-\\log_2 p_i) = \\text{Area}()"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 3180,
+   "scene": "PerfectEncodingsAndEntropyDefinitionV2",
+   "call": "TexText",
+   "text": "``Entropy''"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 3189,
+   "scene": "PerfectEncodingsAndEntropyDefinitionV2",
+   "call": "Tex",
+   "text": "= 0.00 \\text{ bits}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 3251,
+   "scene": "PerfectEncodingsAndEntropyDefinitionV2",
+   "call": "TexText",
+   "text": "high probability $\\Longleftrightarrow$ low information"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 3357,
+   "scene": "CrossEntropyDefinition",
+   "call": "Tex",
+   "text": "\\frac{1}{"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 3385,
+   "scene": "CrossEntropyDefinition",
+   "call": "Tex",
+   "text": "\\frac{1}{"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 3438,
+   "scene": "CrossEntropyDefinition",
+   "call": "Tex",
+   "text": "\\frac{1}{8} \\cdot 1"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 3439,
+   "scene": "CrossEntropyDefinition",
+   "call": "Tex",
+   "text": "\\frac{1}{8} \\cdot 2"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 3440,
+   "scene": "CrossEntropyDefinition",
+   "call": "Tex",
+   "text": "\\frac{1}{4} \\cdot 3"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 3441,
+   "scene": "CrossEntropyDefinition",
+   "call": "Tex",
+   "text": "\\frac{1}{2} \\cdot 3"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 3469,
+   "scene": "CrossEntropyDefinition",
+   "call": "Tex",
+   "text": "\\frac{1}{8} \\cdot 1 + \\frac{1}{8} \\cdot 2 + \\frac{1}{4} \\cdot 3 + \\frac{1}{2} \\cdot 3 \\\\ = 2.625 \\text{ bits}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 3488,
+   "scene": "CrossEntropyDefinition",
+   "call": "TexText",
+   "text": "Cross Entropy:"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 3510,
+   "scene": "CrossEntropyDefinition",
+   "call": "Tex",
+   "text": "p_{i + 1}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 3529,
+   "scene": "CrossEntropyDefinition",
+   "call": "Tex",
+   "text": "q_{i + 1}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 3553,
+   "scene": "CrossEntropyDefinition",
+   "call": "TexText",
+   "text": "encoding"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 3554,
+   "scene": "CrossEntropyDefinition",
+   "call": "TexText",
+   "text": "codeword length: \\\\ $-\\log_2 q_i$"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 3578,
+   "scene": "CrossEntropyDefinition",
+   "call": "TexText",
+   "text": "Avg. bits per instruction: \\\\[0.1in] $\\displaystyle\\sum_i p_i (-\\log_2 q_i)$"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 3590,
+   "scene": "CrossEntropyDefinition",
+   "call": "TexText",
+   "text": "``Cross Entropy of Q relative to P''"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 3716,
+   "scene": "KLDivergenceDefinition",
+   "call": "Tex",
+   "text": "\\frac{1}{"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 3740,
+   "scene": "KLDivergenceDefinition",
+   "call": "Tex",
+   "text": "\\frac{1}{"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 3767,
+   "scene": "KLDivergenceDefinition",
+   "call": "Tex",
+   "text": "\\frac{1}{8} \\cdot 1 + \\frac{1}{8} \\cdot 2 + \\frac{1}{4} \\cdot 3 + \\frac{1}{2} \\cdot 3 = 2.625 \\text{ bits}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 3793,
+   "scene": "KLDivergenceDefinition",
+   "call": "Tex",
+   "text": "\\frac{1}{"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 3813,
+   "scene": "KLDivergenceDefinition",
+   "call": "Tex",
+   "text": "\\frac{1}{8} \\cdot 3 + \\frac{1}{8} \\cdot 3 + \\frac{1}{4} \\cdot 2 + \\frac{1}{2} \\cdot 1 = 1.75 \\text{ bits}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 3825,
+   "scene": "KLDivergenceDefinition",
+   "call": "Tex",
+   "text": "\\left(\\displaystyle\\sum_i p_i \\cdot -\\log_2 q_i\\right) - \\left(\\displaystyle\\sum_i p_i \\cdot -\\log_2 p_i\\right)"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 3886,
+   "scene": "KLDivergenceDefinition",
+   "call": "Tex",
+   "text": "2.625 \\text{ bits} - 1.75 \\text{ bits} = 0.875 \\text{ bits}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 3897,
+   "scene": "KLDivergenceDefinition",
+   "call": "TexText",
+   "text": "Kullback-Leibler Divergence:"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 3907,
+   "scene": "KLDivergenceDefinition",
+   "call": "TexText",
+   "text": "KL Divergence:"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 3915,
+   "scene": "KLDivergenceDefinition",
+   "call": "Tex",
+   "text": "= \\displaystyle\\sum_i p_i \\cdot -\\log_2 \\frac{p_i}{q_i}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 3994,
+   "scene": "CrossEntropyDefinitionV2",
+   "call": "Tex",
+   "text": "\\frac{1}{"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 4022,
+   "scene": "CrossEntropyDefinitionV2",
+   "call": "Tex",
+   "text": "\\frac{1}{"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 4075,
+   "scene": "CrossEntropyDefinitionV2",
+   "call": "Tex",
+   "text": "\\frac{1}{8} \\cdot 1"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 4076,
+   "scene": "CrossEntropyDefinitionV2",
+   "call": "Tex",
+   "text": "\\frac{1}{8} \\cdot 2"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 4077,
+   "scene": "CrossEntropyDefinitionV2",
+   "call": "Tex",
+   "text": "\\frac{1}{4} \\cdot 3"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 4078,
+   "scene": "CrossEntropyDefinitionV2",
+   "call": "Tex",
+   "text": "\\frac{1}{2} \\cdot 3"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 4106,
+   "scene": "CrossEntropyDefinitionV2",
+   "call": "Tex",
+   "text": "\\frac{1}{8} \\cdot 1 + \\frac{1}{8} \\cdot 2 + \\frac{1}{4} \\cdot 3 + \\frac{1}{2} \\cdot 3 \\\\ = 2.625 \\text{ bits}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 4125,
+   "scene": "CrossEntropyDefinitionV2",
+   "call": "TexText",
+   "text": "Cross Entropy:"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 4147,
+   "scene": "CrossEntropyDefinitionV2",
+   "call": "Tex",
+   "text": "p_{i + 1}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 4166,
+   "scene": "CrossEntropyDefinitionV2",
+   "call": "Tex",
+   "text": "q_{i + 1}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 4389,
+   "scene": "CrossEntropyDefinitionV2",
+   "call": "TexText",
+   "text": "Avg. bits per instruction: \\\\[0.1in] $\\displaystyle\\sum_i q_i (-\\log_2 q_i)$"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 4457,
+   "scene": "CrossEntropyDefinitionV2",
+   "call": "TexText",
+   "text": "Entropy of Q"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 4561,
+   "scene": "CrossEntropyDefinitionV2",
+   "call": "TexText",
+   "text": "Avg. bits per instruction: \\\\[0.1in] $\\displaystyle\\sum_i p_i (-\\log_2 q_i)$"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 4575,
+   "scene": "CrossEntropyDefinitionV2",
+   "call": "TexText",
+   "text": "Cross Entropy of Q relative to P"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 4700,
+   "scene": "CrossEntropyDefinitionV2",
+   "call": "TexText",
+   "text": "Entropy of P"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 4708,
+   "scene": "CrossEntropyDefinitionV2",
+   "call": "Tex",
+   "text": "\\displaystyle\\sum_i p_i (-\\log_2 p_i)"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 4715,
+   "scene": "CrossEntropyDefinitionV2",
+   "call": "TexText",
+   "text": "Cross Entropy of P relative to Q"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 4723,
+   "scene": "CrossEntropyDefinitionV2",
+   "call": "Tex",
+   "text": "\\displaystyle\\sum_i q_i (-\\log_2 p_i)"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 4951,
+   "scene": "CrossEntropyDefinitionV2",
+   "call": "Tex",
+   "text": "s_"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 4972,
+   "scene": "CrossEntropyDefinitionV2",
+   "call": "Tex",
+   "text": "s_"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 4995,
+   "scene": "CrossEntropyDefinitionV2",
+   "call": "Tex",
+   "text": "s_"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 5017,
+   "scene": "CrossEntropyDefinitionV2",
+   "call": "Tex",
+   "text": "s_"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 5067,
+   "scene": "CrossEntropyDefinitionV2",
+   "call": "Tex",
+   "text": "-\\log_2 0.5 = 1"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 5070,
+   "scene": "CrossEntropyDefinitionV2",
+   "call": "Tex",
+   "text": "-\\log_2 0.5 = 1"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 5083,
+   "scene": "CrossEntropyDefinitionV2",
+   "call": "Tex",
+   "text": "-\\log_2 0.9 \\approx 0.15"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 5086,
+   "scene": "CrossEntropyDefinitionV2",
+   "call": "Tex",
+   "text": "-\\log_2 0.1 \\approx 3.32"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 5099,
+   "scene": "CrossEntropyDefinitionV2",
+   "call": "Tex",
+   "text": "0.9(-\\log_2 0.5) \\\\ +\\ 0.1(-\\log_2 0.5) \\\\ \\approx "
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 5111,
+   "scene": "CrossEntropyDefinitionV2",
+   "call": "Tex",
+   "text": "0.5(-\\log_2 0.9) \\\\ +\\ 0.5(-\\log_2 0.1) \\\\ \\approx "
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 5121,
+   "scene": "CrossEntropyDefinitionV2",
+   "call": "Tex",
+   "text": "1.0 \\neq 1.74"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 5156,
+   "scene": "CrossEntropyDefinitionV2",
+   "call": "Tex",
+   "text": "s_"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 5160,
+   "scene": "CrossEntropyDefinitionV2",
+   "call": "Tex",
+   "text": "q_{str(i + 1)}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 5176,
+   "scene": "CrossEntropyDefinitionV2",
+   "call": "Tex",
+   "text": "s_"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 5180,
+   "scene": "CrossEntropyDefinitionV2",
+   "call": "Tex",
+   "text": "p_{str(i + 1)}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 5198,
+   "scene": "CrossEntropyDefinitionV2",
+   "call": "Tex",
+   "text": "s_"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 5202,
+   "scene": "CrossEntropyDefinitionV2",
+   "call": "Tex",
+   "text": "p_{str(i + 1)}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 5219,
+   "scene": "CrossEntropyDefinitionV2",
+   "call": "Tex",
+   "text": "s_"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 5223,
+   "scene": "CrossEntropyDefinitionV2",
+   "call": "Tex",
+   "text": "q_{str(i + 1)}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 5324,
+   "scene": "CrossEntropyDefinitionV2",
+   "call": "Tex",
+   "text": "q_1"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 5363,
+   "scene": "CrossEntropyDefinitionV2",
+   "call": "Tex",
+   "text": "1 - q_1"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 5377,
+   "scene": "CrossEntropyDefinitionV2",
+   "call": "Tex",
+   "text": "1 - q_1"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 5428,
+   "scene": "CrossEntropyDefinitionV2",
+   "call": "Tex",
+   "text": "p_1"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 5441,
+   "scene": "CrossEntropyDefinitionV2",
+   "call": "Tex",
+   "text": "1 - p_1"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 5455,
+   "scene": "CrossEntropyDefinitionV2",
+   "call": "Tex",
+   "text": "1 - p_1"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 5610,
+   "scene": "CrossEntropyDefinitionV2",
+   "call": "Tex",
+   "text": "\\text{min} = \\displaystyle\\sum_i p_i (-\\log_2 p_i)"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 5723,
+   "scene": "CrossEntropyDefinitionV3",
+   "call": "Tex",
+   "text": "\\frac{1}{"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 5752,
+   "scene": "CrossEntropyDefinitionV3",
+   "call": "Tex",
+   "text": "\\frac{1}{"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 5806,
+   "scene": "CrossEntropyDefinitionV3",
+   "call": "Tex",
+   "text": "\\frac{1}{8} \\cdot 1"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 5807,
+   "scene": "CrossEntropyDefinitionV3",
+   "call": "Tex",
+   "text": "\\frac{1}{8} \\cdot 2"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 5808,
+   "scene": "CrossEntropyDefinitionV3",
+   "call": "Tex",
+   "text": "\\frac{1}{4} \\cdot 3"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 5809,
+   "scene": "CrossEntropyDefinitionV3",
+   "call": "Tex",
+   "text": "\\frac{1}{2} \\cdot 3"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 5837,
+   "scene": "CrossEntropyDefinitionV3",
+   "call": "Tex",
+   "text": "\\frac{1}{8} \\cdot 1 + \\frac{1}{8} \\cdot 2 + \\frac{1}{4} \\cdot 3 + \\frac{1}{2} \\cdot 3 \\\\ = 2.625 \\text{ bits}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 5856,
+   "scene": "CrossEntropyDefinitionV3",
+   "call": "TexText",
+   "text": "Cross Entropy:"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 5878,
+   "scene": "CrossEntropyDefinitionV3",
+   "call": "Tex",
+   "text": "p_{i + 1}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 5898,
+   "scene": "CrossEntropyDefinitionV3",
+   "call": "Tex",
+   "text": "q_{i + 1}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 6145,
+   "scene": "CrossEntropyDefinitionV3",
+   "call": "TexText",
+   "text": "Avg. bits per instruction: \\\\[0.1in] $\\displaystyle\\sum_i q_i (-\\log_2 q_i)$"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 6213,
+   "scene": "CrossEntropyDefinitionV3",
+   "call": "TexText",
+   "text": "Entropy of Q"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 6342,
+   "scene": "CrossEntropyDefinitionV3",
+   "call": "TexText",
+   "text": "Avg. bits per instruction: \\\\[0.1in] $\\displaystyle\\sum_i p_i (-\\log_2 q_i)$"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 6356,
+   "scene": "CrossEntropyDefinitionV3",
+   "call": "TexText",
+   "text": "Cross Entropy of Q relative to P"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 6493,
+   "scene": "CrossEntropyDefinitionV3",
+   "call": "Tex",
+   "text": "-\\log_2 0.50 = 1"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 6496,
+   "scene": "CrossEntropyDefinitionV3",
+   "call": "Tex",
+   "text": "-\\log_2 0.50 = 1"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 6502,
+   "scene": "CrossEntropyDefinitionV3",
+   "call": "Tex",
+   "text": "0.50 \\cdot 1 + 0.50 \\cdot 1 = 1"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 6538,
+   "scene": "CrossEntropyDefinitionV3",
+   "call": "Tex",
+   "text": "0.90 \\cdot 1 + 0.10 \\cdot 1 = 1"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 6603,
+   "scene": "CrossEntropyDefinitionV3",
+   "call": "Tex",
+   "text": "-\\log_2 0.90 = {information_1_value}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 6606,
+   "scene": "CrossEntropyDefinitionV3",
+   "call": "Tex",
+   "text": "-\\log_2 0.10 = {information_2_value}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 6614,
+   "scene": "CrossEntropyDefinitionV3",
+   "call": "Tex",
+   "text": "0.90 \\cdot {information_1_value} + 0.10 \\cdot {information_2_value} = {entropy_value}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 6677,
+   "scene": "CrossEntropyDefinitionV3",
+   "call": "Tex",
+   "text": "0.50 \\cdot {information_1_value} + 0.50 \\cdot {information_2_value} = {cross_entropy_value}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 6734,
+   "scene": "CrossEntropyDefinitionV3",
+   "call": "Tex",
+   "text": "q_{str(i + 1)}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 6752,
+   "scene": "CrossEntropyDefinitionV3",
+   "call": "Tex",
+   "text": "p_{str(i + 1)}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 6837,
+   "scene": "CrossEntropyDefinitionV3",
+   "call": "Tex",
+   "text": "q_1"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 6867,
+   "scene": "CrossEntropyDefinitionV3",
+   "call": "Tex",
+   "text": "1 - q_1"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 6909,
+   "scene": "CrossEntropyDefinitionV3",
+   "call": "Tex",
+   "text": "p_1"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 6922,
+   "scene": "CrossEntropyDefinitionV3",
+   "call": "Tex",
+   "text": "1 - p_1"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 7080,
+   "scene": "CrossEntropyDefinitionV3",
+   "call": "Tex",
+   "text": "\\text{min} = \\displaystyle\\sum_i p_i (-\\log_2 p_i)"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 7254,
+   "scene": "CrossEntropyDefinitionV3",
+   "call": "Tex",
+   "text": "p_1"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 7405,
+   "scene": "InformationOfRobotInstructions",
+   "call": "Tex",
+   "text": "\\text{Information}\\Big(\\Big) = -\\log_2\\left(\\frac{1}{"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 7423,
+   "scene": "InformationEntropyAndCrossEntropy",
+   "call": "Tex",
+   "text": "\\text{Information}(\\text{event}) = -\\log_2(p_\\text{event})"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 7427,
+   "scene": "InformationEntropyAndCrossEntropy",
+   "call": "Tex",
+   "text": "\\text{Entropy}(P) = \\displaystyle\\sum_i p_i \\cdot -\\log_2 p_i"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 7431,
+   "scene": "InformationEntropyAndCrossEntropy",
+   "call": "Tex",
+   "text": "\\text{Cross Entropy}(Q, P) = \\displaystyle\\sum_i p_i \\cdot -\\log_2 q_i"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 7463,
+   "scene": "CrossEntropyIsAsymmetric",
+   "call": "Tex",
+   "text": "q_{i + 1}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 7477,
+   "scene": "CrossEntropyIsAsymmetric",
+   "call": "Tex",
+   "text": "p_{i + 1}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 7491,
+   "scene": "CrossEntropyIsAsymmetric",
+   "call": "Tex",
+   "text": "\\displaystyle\\sum_i p_i (-\\log_2 q_i) \\approx "
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 7502,
+   "scene": "CrossEntropyIsAsymmetric",
+   "call": "Tex",
+   "text": "p_{i + 1}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 7516,
+   "scene": "CrossEntropyIsAsymmetric",
+   "call": "Tex",
+   "text": "q_{i + 1}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 7530,
+   "scene": "CrossEntropyIsAsymmetric",
+   "call": "Tex",
+   "text": "\\displaystyle\\sum_i q_i (-\\log_2 p_i) \\approx "
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 7646,
+   "scene": "EntropyChart",
+   "call": "Tex",
+   "text": "p_{i}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 7737,
+   "scene": "EntropyChartTest",
+   "call": "Tex",
+   "text": "\\frac{1}{"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 7750,
+   "scene": "WhyLogsAreNice",
+   "call": "Tex",
+   "text": "-\\log_2(p_1 \\cdot p_2) = -(\\log_2 p_1 + \\log_2 p_2)"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 7761,
+   "scene": "WhyLogsAreNice",
+   "call": "Tex",
+   "text": "p = {p:.9f}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 7764,
+   "scene": "WhyLogsAreNice",
+   "call": "Tex",
+   "text": "-\\log_2 p \\approx "
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 7935,
+   "scene": "InterpolateTest",
+   "call": "Tex",
+   "text": "010"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 8037,
+   "scene": "SamplingSymbols",
+   "call": "Tex",
+   "text": "s_"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 8073,
+   "scene": "SamplingSymbols",
+   "call": "Tex",
+   "text": "s_"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 8125,
+   "scene": "RobotDistribution",
+   "call": "Tex",
+   "text": "\\frac{1}{"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 8222,
+   "scene": "MoreComplicatedCrossEntropyExampleAndKLDivergence",
+   "call": "Tex",
+   "text": "\\sum_i p_i(-\\log_2 q_i)"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 8237,
+   "scene": "MoreComplicatedCrossEntropyExampleAndKLDivergence",
+   "call": "Tex",
+   "text": "0.00 \\text{ bits}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 8301,
+   "scene": "MoreComplicatedCrossEntropyExampleAndKLDivergence",
+   "call": "Tex",
+   "text": "\\sum_i p_i (-\\log_2 p_i)"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 8320,
+   "scene": "MoreComplicatedCrossEntropyExampleAndKLDivergence",
+   "call": "Tex",
+   "text": "\\left(\\sum_i p_i(-\\log_2 q_i)\\right) - \\left(\\sum_i p_i(-\\log_2 p_i)\\right)"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 8354,
+   "scene": "MoreComplicatedCrossEntropyExampleAndKLDivergence",
+   "call": "TexText",
+   "text": "Cross Entropy of \\\\ Q relative to P"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 8363,
+   "scene": "MoreComplicatedCrossEntropyExampleAndKLDivergence",
+   "call": "TexText",
+   "text": "Entropy of P"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 8373,
+   "scene": "MoreComplicatedCrossEntropyExampleAndKLDivergence",
+   "call": "TexText",
+   "text": "Kullback-Leibler Divergence:"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 8384,
+   "scene": "MoreComplicatedCrossEntropyExampleAndKLDivergence",
+   "call": "TexText",
+   "text": "KL Divergence:"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 8401,
+   "scene": "RobotNewOptimalCode",
+   "call": "Tex",
+   "text": "\\frac{1}{"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 8496,
+   "scene": "KLDivergenceDemo",
+   "call": "Tex",
+   "text": "\\begin{gathered}\\text{KL Divergence of Q relative to P:} \\\\ \\left(\\sum_i p_i(-\\log_2 q_i)\\right) - \\left(\\sum_i p_i(-\\log_2 p_i)\\right)\\end{gathered}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 8570,
+   "scene": "KLDivergenceDemo",
+   "call": "Tex",
+   "text": "\\begin{gathered}\\text{KL Divergence of P relative to Q:} \\\\ \\left(\\sum_i q_i(-\\log_2 p_i)\\right) - \\left(\\sum_i q_i(-\\log_2 q_i)\\right)\\end{gathered}"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 8593,
+   "scene": "KLDivergenceDemo",
+   "call": "Tex",
+   "text": "\\neq"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 8604,
+   "scene": "KLDivergenceDemo",
+   "call": "Tex",
+   "text": "= \\displaystyle\\sum_i p_i \\left(\\log_2 \\frac{p_i}{q_i}\\right)"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 8786,
+   "scene": "LogBases",
+   "call": "Tex",
+   "text": "-\\ln q"
+  },
+  {
+   "file": "_2026/cross_entropy/robot.py",
+   "line": 8790,
+   "scene": "LogBases",
+   "call": "Tex",
+   "text": "-\\log_2 q"
+  },
+  {
+   "file": "_2026/cross_entropy/supplements.py",
+   "line": 56,
+   "scene": "AmbientEncodingMachine3",
+   "call": "Tex",
+   "text": "8.0 \\text{bits} / \\text{sym}"
+  },
+  {
+   "file": "_2026/cross_entropy/supplements.py",
+   "line": 83,
+   "scene": "AmbientEncodingMachine3",
+   "call": "Text",
+   "text": "Limit?"
+  },
+  {
+   "file": "_2026/cross_entropy/supplements.py",
+   "line": 84,
+   "scene": "AmbientEncodingMachine3",
+   "call": "Tex",
+   "text": "H(P)"
+  },
+  {
+   "file": "_2026/cross_entropy/supplements.py",
+   "line": 136,
+   "scene": "AmbientEncodingMachine3",
+   "call": "Tex",
+   "text": "s_{{{n}}}"
+  },
+  {
+   "file": "_2026/cross_entropy/supplements.py",
+   "line": 265,
+   "scene": "WriteLLM",
+   "call": "Text",
+   "text": "LLM"
+  },
+  {
+   "file": "_2026/cross_entropy/supplements.py",
+   "line": 301,
+   "scene": "SimpleEquiv",
+   "call": "Tex",
+   "text": "\\Leftrightarrow"
+  },
+  {
+   "file": "_2026/cross_entropy/supplements.py",
+   "line": 307,
+   "scene": "CrossEntropyWords",
+   "call": "Text",
+   "text": "“Cross-entropy” loss"
+  },
+  {
+   "file": "_2026/cross_entropy/supplements.py",
+   "line": 344,
+   "scene": "CompressionIsIntellgenceWords",
+   "call": "Text",
+   "text": "The mathematical theory of"
+  },
+  {
+   "file": "_2026/cross_entropy/supplements.py",
+   "line": 353,
+   "scene": "CompressionIsIntellgenceWords",
+   "call": "Tex",
+   "text": "\\longrightarrow"
+  },
+  {
+   "file": "_2026/cross_entropy/supplements.py",
+   "line": 357,
+   "scene": "CompressionIsIntellgenceWords",
+   "call": "Text",
+   "text": "is useful for"
+  },
+  {
+   "file": "_2026/cross_entropy/supplements.py",
+   "line": 361,
+   "scene": "CompressionIsIntellgenceWords",
+   "call": "Text",
+   "text": "Artificial\\nIntelligence"
+  },
+  {
+   "file": "_2026/cross_entropy/supplements.py",
+   "line": 395,
+   "scene": "CompressionIsIntellgenceWords",
+   "call": "Text",
+   "text": "Compression is Intelligence"
+  },
+  {
+   "file": "_2026/cross_entropy/supplements.py",
+   "line": 433,
+   "scene": "ThreeFoldRelationship",
+   "call": "Tex",
+   "text": "\\Leftrightarrow"
+  },
+  {
+   "file": "_2026/cross_entropy/supplements.py",
+   "line": 434,
+   "scene": "ThreeFoldRelationship",
+   "call": "Tex",
+   "text": "\\longleftrightarrow"
+  },
+  {
+   "file": "_2026/cross_entropy/supplements.py",
+   "line": 435,
+   "scene": "ThreeFoldRelationship",
+   "call": "Tex",
+   "text": "\\longleftrightarrow"
+  },
+  {
+   "file": "_2026/cross_entropy/supplements.py",
+   "line": 443,
+   "scene": "ThreeFoldRelationship",
+   "call": "Text",
+   "text": "Prediction"
+  },
+  {
+   "file": "_2026/cross_entropy/supplements.py",
+   "line": 444,
+   "scene": "ThreeFoldRelationship",
+   "call": "Text",
+   "text": "Compression"
+  },
+  {
+   "file": "_2026/cross_entropy/supplements.py",
+   "line": 445,
+   "scene": "ThreeFoldRelationship",
+   "call": "Text",
+   "text": "Intelligence"
+  },
+  {
+   "file": "_2026/cross_entropy/supplements.py",
+   "line": 457,
+   "scene": "ThreeFoldRelationship",
+   "call": "Text",
+   "text": "Artificial\\nIntelligence"
+  },
+  {
+   "file": "_2026/cross_entropy/supplements.py",
+   "line": 472,
+   "scene": "KeyDefinitions",
+   "call": "Text",
+   "text": "Information"
+  },
+  {
+   "file": "_2026/cross_entropy/supplements.py",
+   "line": 473,
+   "scene": "KeyDefinitions",
+   "call": "Text",
+   "text": "Entropy"
+  },
+  {
+   "file": "_2026/cross_entropy/supplements.py",
+   "line": 592,
+   "scene": "EncodingQuestion",
+   "call": "Text",
+   "text": "Most Efficient Encoding?"
+  },
+  {
+   "file": "_2026/cross_entropy/supplements.py",
+   "line": 694,
+   "scene": "PrefixFreeCodeName",
+   "call": "Text",
+   "text": "Prefix-free code"
+  },
+  {
+   "file": "_2026/cross_entropy/supplements.py",
+   "line": 712,
+   "scene": "WeightedSum",
+   "call": "Tex",
+   "text": "\\frac{1}{2} \\cdot 1+\\frac{1}{4} \\cdot 2+\\frac{1}{8} \\cdot 3+\\frac{1}{8} \\cdot 3"
+  },
+  {
+   "file": "_2026/cross_entropy/supplements.py",
+   "line": 713,
+   "scene": "WeightedSum",
+   "call": "Tex",
+   "text": "=1.75 \\text{ bits}"
+  },
+  {
+   "file": "_2026/cross_entropy/supplements.py",
+   "line": 783,
+   "scene": "FlashLogP",
+   "call": "Tex",
+   "text": "-\\log_2(p)"
+  },
+  {
+   "file": "_2026/cross_entropy/supplements.py",
+   "line": 797,
+   "scene": "AnnotateLogP",
+   "call": "Tex",
+   "text": "-\\log_2(p) = n"
+  },
+  {
+   "file": "_2026/cross_entropy/supplements.py",
+   "line": 802,
+   "scene": "AnnotateLogP",
+   "call": "Text",
+   "text": "Information"
+  },
+  {
+   "file": "_2026/cross_entropy/supplements.py",
+   "line": 810,
+   "scene": "AnnotateLogP",
+   "call": "Text",
+   "text": "# bits"
+  },
+  {
+   "file": "_2026/cross_entropy/supplements.py",
+   "line": 823,
+   "scene": "AnnotateLogP",
+   "call": "Tex",
+   "text": "!!"
+  },
+  {
+   "file": "_2026/cross_entropy/supplements.py",
+   "line": 826,
+   "scene": "AnnotateLogP",
+   "call": "Tex",
+   "text": "\\le"
+  },
+  {
+   "file": "_2026/cross_entropy/supplements.py",
+   "line": 877,
+   "scene": "AlternateLogExpressions",
+   "call": "Tex",
+   "text": "-\\log_2(p)"
+  },
+  {
+   "file": "_2026/cross_entropy/supplements.py",
+   "line": 878,
+   "scene": "AlternateLogExpressions",
+   "call": "Tex",
+   "text": "= \\log_2(1 / p)"
+  },
+  {
+   "file": "_2026/cross_entropy/supplements.py",
+   "line": 879,
+   "scene": "AlternateLogExpressions",
+   "call": "Tex",
+   "text": "= \\log_{1/2}(p)"
+  },
+  {
+   "file": "_2026/cross_entropy/supplements.py",
+   "line": 916,
+   "scene": "TwoMeaningsOfBits",
+   "call": "Text",
+   "text": "“Bits” as"
+  },
+  {
+   "file": "_2026/cross_entropy/supplements.py",
+   "line": 917,
+   "scene": "TwoMeaningsOfBits",
+   "call": "Tex",
+   "text": "-\\log_2(p)"
+  },
+  {
+   "file": "_2026/cross_entropy/supplements.py",
+   "line": 920,
+   "scene": "TwoMeaningsOfBits",
+   "call": "Text",
+   "text": "“Bits” as"
+  },
+  {
+   "file": "_2026/cross_entropy/supplements.py",
+   "line": 921,
+   "scene": "TwoMeaningsOfBits",
+   "call": "Text",
+   "text": "# 1s and 0s"
+  },
+  {
+   "file": "_2026/cross_entropy/supplements.py",
+   "line": 951,
+   "scene": "ThoughtBubbleWithLanguageQuestions",
+   "call": "Text",
+   "text": "British vs.\\nAmerican?"
+  },
+  {
+   "file": "_2026/cross_entropy/supplements.py",
+   "line": 952,
+   "scene": "ThoughtBubbleWithLanguageQuestions",
+   "call": "Text",
+   "text": "Slang?"
+  },
+  {
+   "file": "_2026/cross_entropy/supplements.py",
+   "line": 953,
+   "scene": "ThoughtBubbleWithLanguageQuestions",
+   "call": "Text",
+   "text": "Australian?"
+  },
+  {
+   "file": "_2026/cross_entropy/supplements.py",
+   "line": 954,
+   "scene": "ThoughtBubbleWithLanguageQuestions",
+   "call": "Text",
+   "text": "Jargon?"
+  },
+  {
+   "file": "_2026/cross_entropy/supplements.py",
+   "line": 982,
+   "scene": "ShowKeyFormulas",
+   "call": "Tex",
+   "text": "I = -\\log_2(p)"
+  },
+  {
+   "file": "_2026/cross_entropy/supplements.py",
+   "line": 983,
+   "scene": "ShowKeyFormulas",
+   "call": "Tex",
+   "text": "H(p) = \\sum_i p_i\\big(-\\log_2(p_i)\\big)"
+  },
+  {
+   "file": "_2026/cross_entropy/supplements.py",
+   "line": 984,
+   "scene": "ShowKeyFormulas",
+   "call": "Tex",
+   "text": "H(p, q) = \\sum_i p_i\\big(-\\log_2(q_i)\\big)"
+  },
+  {
+   "file": "_2026/cross_entropy/supplements.py",
+   "line": 985,
+   "scene": "ShowKeyFormulas",
+   "call": "Tex",
+   "text": "D_{\\text{KL}}(p || q) = \\sum_i p_i\\big(\\log_2(p_i / q_i)\\big)"
+  },
+  {
+   "file": "_2026/cross_entropy/supplements.py",
+   "line": 1036,
+   "scene": "EntropyRate",
+   "call": "Text",
+   "text": "Entropy Rate: "
+  },
+  {
+   "file": "_2026/cross_entropy/supplements.py",
+   "line": 1037,
+   "scene": "EntropyRate",
+   "call": "Tex",
+   "text": "\\lim _{n \\rightarrow \\infty} \\frac{1}{n} H\\left(X_1, X_2, \\ldots X_n\\right)"
+  },
+  {
+   "file": "_2026/cross_entropy/supplements.py",
+   "line": 1042,
+   "scene": "EntropyRate",
+   "call": "Tex",
+   "text": "H(X)"
+  },
+  {
+   "file": "_2026/cross_entropy/supplements.py",
+   "line": 1044,
+   "scene": "EntropyRate",
+   "call": "Text",
+   "text": "Entropy:"
+  }
+ ],
+ "frames": [
+  {
+   "t": 0.0,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000000.0.jpg",
+   "reason": "first"
+  },
+  {
+   "t": 2.7,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000002.7.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 6.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000006.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 10.7,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000010.7.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 14.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000014.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 18.7,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000018.7.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 22.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000022.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 27.2,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000027.2.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 31.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000031.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 34.1,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000034.1.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 38.4,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000038.4.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 42.1,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000042.1.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 44.8,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000044.8.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 48.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000048.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 51.7,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000051.7.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 56.0,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000056.0.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 58.7,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000058.7.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 62.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000062.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 65.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000065.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 72.0,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000072.0.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 76.0,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000076.0.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 79.2,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000079.2.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 83.7,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000083.7.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 88.0,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000088.0.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 90.7,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000090.7.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 94.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000094.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 99.2,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000099.2.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 101.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000101.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 106.1,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000106.1.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 110.4,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000110.4.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 114.7,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000114.7.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 117.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000117.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 120.0,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000120.0.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 124.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000124.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 128.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000128.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 132.8,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000132.8.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 136.0,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000136.0.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 139.2,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000139.2.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 144.0,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000144.0.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 146.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000146.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 151.2,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000151.2.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 156.8,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000156.8.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 161.1,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000161.1.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 165.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000165.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 169.6,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000169.6.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 173.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000173.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 177.6,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000177.6.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 181.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000181.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 186.1,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000186.1.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 190.4,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000190.4.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 194.7,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000194.7.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 199.2,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000199.2.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 203.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000203.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 207.7,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000207.7.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 212.0,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000212.0.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 216.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000216.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 220.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000220.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 224.8,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000224.8.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 229.1,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000229.1.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 233.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000233.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 240.8,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000240.8.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 245.1,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000245.1.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 249.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000249.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 252.0,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000252.0.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 254.7,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000254.7.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 257.6,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000257.6.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 262.1,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000262.1.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 266.4,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000266.4.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 273.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000273.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 286.7,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000286.7.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 289.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000289.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 292.8,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000292.8.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 297.1,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000297.1.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 301.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000301.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 304.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000304.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 308.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000308.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 312.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000312.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 315.2,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000315.2.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 320.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000320.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 324.8,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000324.8.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 327.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000327.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 334.1,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000334.1.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 336.8,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000336.8.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 341.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000341.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 345.1,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000345.1.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 347.7,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000347.7.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 352.8,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000352.8.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 374.7,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000374.7.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 383.2,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000383.2.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 387.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000387.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 391.7,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000391.7.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 394.7,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000394.7.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 397.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000397.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 404.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000404.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 407.2,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000407.2.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 424.8,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000424.8.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 428.0,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000428.0.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 433.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000433.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 440.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000440.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 444.0,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000444.0.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 447.2,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000447.2.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 449.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000449.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 455.2,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000455.2.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 458.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000458.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 463.2,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000463.2.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 466.4,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000466.4.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 470.7,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000470.7.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 474.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000474.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 485.1,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000485.1.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 490.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000490.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 493.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000493.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 497.1,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000497.1.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 508.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000508.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 512.0,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000512.0.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 515.7,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000515.7.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 518.4,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000518.4.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 529.6,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000529.6.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 542.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000542.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 555.7,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000555.7.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 562.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000562.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 565.6,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000565.6.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 572.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000572.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 596.8,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000596.8.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 599.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000599.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 605.1,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000605.1.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 614.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000614.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 620.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000620.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 624.0,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000624.0.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 626.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000626.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 631.2,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000631.2.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 635.2,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000635.2.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 637.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000637.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 641.1,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000641.1.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 645.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000645.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 649.1,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000649.1.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 652.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000652.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 659.2,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000659.2.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 663.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000663.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 666.1,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000666.1.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 671.2,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000671.2.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 675.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000675.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 679.7,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000679.7.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 684.0,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000684.0.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 688.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000688.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 692.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000692.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 696.8,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000696.8.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 699.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000699.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 704.0,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000704.0.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 706.7,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000706.7.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 711.2,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000711.2.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 714.4,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000714.4.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 719.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000719.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 722.1,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000722.1.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 725.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000725.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 730.1,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000730.1.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 732.8,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000732.8.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 735.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000735.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 739.2,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000739.2.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 742.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000742.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 747.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000747.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 751.7,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000751.7.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 756.0,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000756.0.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 760.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000760.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 764.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000764.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 768.0,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000768.0.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 771.7,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000771.7.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 774.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000774.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 777.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000777.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 785.6,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000785.6.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 789.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000789.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 793.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000793.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 797.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000797.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 802.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000802.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 805.6,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000805.6.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 809.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000809.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 813.6,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000813.6.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 816.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000816.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 820.8,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000820.8.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 825.1,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000825.1.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 829.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000829.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 832.8,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000832.8.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 835.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000835.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 838.1,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000838.1.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 842.4,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000842.4.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 846.7,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000846.7.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 850.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000850.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 861.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000861.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 865.1,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000865.1.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 868.8,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000868.8.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 877.1,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000877.1.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 881.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000881.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 885.6,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000885.6.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 888.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000888.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 892.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000892.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 896.0,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000896.0.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 898.7,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000898.7.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 902.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000902.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 907.2,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000907.2.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 911.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000911.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 915.7,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000915.7.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 920.0,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000920.0.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 922.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000922.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 927.2,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000927.2.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 930.1,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000930.1.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 934.1,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000934.1.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 938.4,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000938.4.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 941.1,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000941.1.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 944.0,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000944.0.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 950.4,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000950.4.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 953.1,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000953.1.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 960.8,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000960.8.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 965.1,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000965.1.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 967.7,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000967.7.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 970.4,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000970.4.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 973.1,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000973.1.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 976.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000976.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 978.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000978.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 981.6,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000981.6.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 984.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000984.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 988.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000988.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 991.2,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000991.2.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 994.1,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000994.1.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 998.4,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t000998.4.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1001.1,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001001.1.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1003.7,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001003.7.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1006.7,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001006.7.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1010.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001010.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1013.6,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001013.6.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1017.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001017.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1021.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001021.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1024.8,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001024.8.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1029.1,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001029.1.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1033.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001033.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1037.6,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001037.6.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1043.7,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001043.7.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1049.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001049.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1053.6,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001053.6.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1056.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001056.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1061.1,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001061.1.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1063.7,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001063.7.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1068.0,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001068.0.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1072.8,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001072.8.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1079.7,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001079.7.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1084.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001084.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1091.7,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001091.7.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1095.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001095.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1108.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001108.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1110.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001110.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1118.4,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001118.4.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1121.1,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001121.1.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1128.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001128.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1132.8,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001132.8.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1137.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001137.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1141.6,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001141.6.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1144.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001144.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1148.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001148.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1151.2,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001151.2.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1155.2,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001155.2.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1163.2,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001163.2.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1168.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001168.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1181.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001181.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1184.0,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001184.0.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1187.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001187.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1190.1,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001190.1.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1193.1,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001193.1.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1196.0,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001196.0.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1200.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001200.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1204.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001204.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1208.8,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001208.8.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1212.8,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001212.8.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1215.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001215.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1218.1,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001218.1.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1222.4,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001222.4.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1226.7,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001226.7.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1230.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001230.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1235.2,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001235.2.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1239.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001239.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1242.1,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001242.1.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1245.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001245.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1248.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001248.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1258.1,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001258.1.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1261.1,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001261.1.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1264.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001264.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1276.0,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001276.0.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1278.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001278.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1285.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001285.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1289.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001289.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1294.4,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001294.4.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1297.1,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001297.1.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1300.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001300.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1302.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001302.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1305.6,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001305.6.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1310.1,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001310.1.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1314.4,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001314.4.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1317.1,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001317.1.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1320.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001320.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1324.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001324.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1342.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001342.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1356.8,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001356.8.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1360.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001360.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1366.4,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001366.4.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1370.1,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001370.1.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1374.4,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001374.4.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1377.1,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001377.1.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1389.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001389.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1392.8,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001392.8.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1404.8,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001404.8.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1409.1,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001409.1.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1412.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001412.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1415.2,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001415.2.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1417.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001417.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1422.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001422.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1435.2,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001435.2.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1442.7,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001442.7.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1446.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001446.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1456.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001456.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1459.7,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001459.7.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1463.2,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001463.2.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1466.7,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001466.7.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1472.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001472.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1475.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001475.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1481.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001481.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1486.7,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001486.7.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1492.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001492.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1496.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001496.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1499.2,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001499.2.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1505.6,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001505.6.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1511.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001511.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1514.7,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001514.7.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1528.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001528.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1532.0,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001532.0.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1546.7,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001546.7.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1549.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001549.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1554.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001554.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1559.7,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001559.7.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1565.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001565.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1575.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001575.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1579.7,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001579.7.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1584.0,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001584.0.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1588.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001588.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1591.7,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001591.7.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1595.2,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001595.2.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1600.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001600.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1604.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001604.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1608.8,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001608.8.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1613.1,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001613.1.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1616.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001616.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1620.8,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001620.8.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1625.1,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001625.1.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1629.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001629.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1634.7,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001634.7.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1637.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001637.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1643.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001643.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1655.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001655.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1661.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001661.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1665.6,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001665.6.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1669.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001669.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1674.1,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001674.1.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1678.4,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001678.4.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1685.6,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001685.6.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1692.8,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001692.8.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1697.1,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001697.1.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1699.7,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001699.7.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1702.4,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001702.4.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1706.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001706.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1711.2,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001711.2.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1717.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001717.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1721.6,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001721.6.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1726.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001726.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1736.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001736.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1740.8,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001740.8.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1743.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001743.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1747.2,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001747.2.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1751.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001751.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1756.0,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001756.0.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1760.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001760.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1764.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001764.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1768.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001768.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1771.2,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001771.2.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1775.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001775.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1779.7,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001779.7.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1784.0,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001784.0.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1788.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001788.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1792.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001792.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1796.8,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001796.8.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1799.7,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001799.7.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1802.4,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001802.4.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1805.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001805.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1808.8,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001808.8.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1812.0,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001812.0.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1815.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001815.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1819.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001819.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1823.7,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001823.7.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1828.0,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001828.0.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1832.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001832.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1836.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001836.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1840.8,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001840.8.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1844.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001844.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1850.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001850.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1855.2,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001855.2.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1859.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001859.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1863.7,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001863.7.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1867.2,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001867.2.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1871.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001871.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1875.7,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001875.7.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1879.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001879.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1882.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001882.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1888.8,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001888.8.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1891.7,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001891.7.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1897.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001897.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1900.8,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001900.8.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1904.0,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001904.0.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1911.2,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001911.2.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1917.1,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001917.1.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1919.7,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001919.7.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1922.4,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001922.4.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1929.6,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001929.6.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1933.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001933.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1938.1,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001938.1.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1946.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001946.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1949.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001949.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1953.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001953.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1957.6,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001957.6.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1964.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001964.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1968.0,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001968.0.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1970.7,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001970.7.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1973.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001973.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1976.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001976.3.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1978.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001978.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1983.2,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001983.2.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1985.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001985.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1988.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001988.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1991.2,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001991.2.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1995.5,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001995.5.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 1998.1,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t001998.1.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 2001.9,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t002001.9.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 2012.0,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t002012.0.jpg",
+   "reason": "scene"
+  },
+  {
+   "t": 2016.3,
+   "path": "data/bundles/GlYgs6v2YfU/frames/t002016.3.jpg",
+   "reason": "scene"
+  }
+ ]
+}
