@@ -1,61 +1,61 @@
-# Как прогнать описание видеоряда
+# How to run the description of the video track
 
-Инструмент — [`tools/describe_video.py`](../tools/describe_video.py). На выходе
-`data/bundles/<id>/description.jsonl` (машинный) и `description.md` (для чтения).
-Зачем он нужен и чему в нём верить — в [reports/2026-08-25-video-tools.md](reports/2026-08-25-video-tools.md).
+The tool is [`tools/describe_video.py`](../tools/describe_video.py). The output is
+`data/bundles/<id>/description.jsonl` (machine-readable) and `description.md` (for reading).
+What it is for and what in it can be trusted is in
+[reports/2026-08-25-video-tools.md](reports/2026-08-25-video-tools.md).
 
-Здесь только запуск, в том числе на чужой машине.
+Here it is only about launching it, including on somebody else's machine.
 
-## Что нужно
+## What is needed
 
-**Клиент** (режет кадры, шлёт запросы, собирает документ) — любой Python 3.10+
-с двумя пакетами:
+**The client** (cuts the frames, sends the requests, assembles the document) — any Python 3.10+
+with two packages:
 
 ```bash
 pip install openai pillow
-pip install opencv-python-headless   # только если берёшь кадры через --settled
+pip install opencv-python-headless   # only if you take frames via --settled
 ```
 
-Ещё нужен `ffmpeg` в `PATH`. Никакого torch на стороне клиента не требуется —
-он ходит по HTTP.
+You also need `ffmpeg` in `PATH`. No torch is required on the client side — it goes over HTTP.
 
-На этой машине подходят оба окружения: base conda
-(`/home/user/conda/bin/python3`) и `rah_manim`, куда `cv2` и `openai` доставлены.
+On this machine both environments will do: base conda (`/home/user/conda/bin/python3`) and
+`rah_manim`, where `cv2` and `openai` have been added.
 
-**Сервер** — что угодно с OpenAI-совместимым API, умеющее картинки и
-**structured outputs**. Схему ответа держит сервер, без guided decoding скрипт
-работать не будет.
+**The server** — anything with an OpenAI-compatible API that can do images and **structured
+outputs**. The response schema is held by the server; without guided decoding the script will not
+work.
 
-Если сервер надо поднять с нуля:
+If the server has to be raised from scratch:
 
 ```bash
 python -m venv /path/to/vllm027 && /path/to/vllm027/bin/python -m pip install \
     vllm==0.27.1 "transformers>=5.8.0"
 ```
 
-Архитектуру `Qwen3_5*` (это и `Qwen3.5-27B`, и `Qwen3.6-35B-A3B`, и `Qwen3.8-27B`)
-знает vLLM начиная с ветки 0.17; в 0.11 её в реестре нет и сервер откажется
-загружать модель.
+The `Qwen3_5*` architecture (this covers `Qwen3.5-27B`, `Qwen3.6-35B-A3B` and `Qwen3.8-27B`) is
+known to vLLM from branch 0.17 onwards; in 0.11 it is not in the registry and the server will
+refuse to load the model.
 
-**Снимай прокси при скачивании.** На этой машине `HTTP_PROXY` из окружения душит
-и PyPI, и HuggingFace до 0.3–1.2 МБ/с, тогда как напрямую оба дают ~64 МБ/с:
-67 ГБ весов приезжают за две минуты вместо суток.
+**Turn the proxy off while downloading.** On this machine the `HTTP_PROXY` from the environment
+throttles both PyPI and HuggingFace to 0.3–1.2 MB/s, whereas directly both give ~64 MB/s: 67 GB of
+weights arrive in two minutes instead of a day.
 
-**Материал** — `data/videos/<id>/<id>.mp4`. Длительность и чаптеры берутся из
-`data/bundles/<id>/bundle.json`, если его нет — из `ffprobe`, тогда в markdown
-не будет разбивки по главам.
+**The material** is `data/videos/<id>/<id>.mp4`. The duration and the chapters are taken from
+`data/bundles/<id>/bundle.json`; if it is absent, from `ffprobe`, and then the markdown will have
+no breakdown by chapter.
 
-## Сервер
+## The server
 
-Проверено на vLLM 0.27.1 с `Qwen/Qwen3.6-35B-A3B` (MoE, 3B активных из 35B,
-67 ГБ весов в bf16) на двух A100-80GB:
+Verified on vLLM 0.27.1 with `Qwen/Qwen3.6-35B-A3B` (MoE, 3B active out of 35B, 67 GB of weights in
+bf16) on two A100-80GB:
 
 ```bash
 ES=/workspace-SR004.nfs2/rahmatullaev/envs/vllm027/bin/python
 
 unset http_proxy https_proxy HTTP_PROXY HTTPS_PROXY
 export NO_PROXY='*' HF_HOME=/workspace-SR004.nfs2/rahmatullaev/hf_cache
-# flashinfer собирает ядра на лету и ищет nvcc по CUDA_HOME; в системе его нет
+# flashinfer builds kernels on the fly and looks for nvcc via CUDA_HOME; the system has none
 export CUDA_HOME=/workspace-SR004.nfs2/rahmatullaev/envs/vllm027/lib/python3.12/site-packages/nvidia/cu13
 export VLLM_USE_FLASHINFER_SAMPLER=0
 
@@ -67,167 +67,163 @@ $ES -m vllm.entrypoints.openai.api_server \
     --mm-processor-cache-gb 0
 ```
 
-Веса в **bf16, а не FP8**: у A100 (SM 8.0) тензорных ядер FP8 нет, vLLM разжимает
-такие веса в bf16 на лету. Экономия памяти была бы, ускорения — нет, а нагрузка
-здесь почти целиком prefill, то есть упирается ровно в те операции, которых FP8
-на Ampere не ускоряет. KV-кэш в fp8 (`--kv-cache-dtype fp8`) — другое дело,
-он работает, но у нас KV крошечный: ответы короткие, вся масса — картинки.
+The weights are in **bf16, not FP8**: the A100 (SM 8.0) has no FP8 tensor cores, and vLLM
+decompresses such weights into bf16 on the fly. There would be a saving in memory but none in
+speed, while the load here is almost entirely prefill, that is, it rests on exactly the operations
+FP8 does not accelerate on Ampere. An fp8 KV cache (`--kv-cache-dtype fp8`) is a different matter:
+it works, but our KV is tiny — the answers are short and all the mass is in the pictures.
 
-Ещё два флага окружения, без которых сервер не встаёт на этой машине:
-`CUDA_HOME` (иначе `nvcc: not found` при JIT-сборке flashinfer) и
-`VLLM_USE_FLASHINFER_SAMPLER=0` (иначе заголовки `/usr/local/cuda` от CUDA 12.3
-не мирятся с nvcc 13.3 из pip-пакета). Штатный сэмплер собирать нечего.
+Two more environment flags, without which the server will not come up on this machine: `CUDA_HOME`
+(otherwise `nvcc: not found` during the JIT build of flashinfer) and `VLLM_USE_FLASHINFER_SAMPLER=0`
+(otherwise the `/usr/local/cuda` headers from CUDA 12.3 do not get on with the nvcc 13.3 from the
+pip package). The standard sampler has nothing to build.
 
-Три флага здесь не косметические:
+Three of the flags here are not cosmetic:
 
-- **`--mm-processor-cache-gb 0`** — обязателен. Кэш препроцессора картинок vLLM
-  падает в `AssertionError: Expected a cached item for mm_hash=…` именно на
-  повторяющихся между запросами изображениях, а перекрытие окон их гарантирует.
-  После падения движок перестаёт отвечать: карты заняты, утилизация ноль,
-  клиент ждёт вечно.
-- **`--limit-mm-per-prompt '{"image": 16}'`** — по умолчанию vLLM пускает одну
-  картинку на запрос. При окне 5 с и `--settled 0.5` их 10–11; запас до 16 нужен,
-  если увеличивать окно.
-- **`--max-model-len 32768`** — при `--upscale 2` кадр 1280×720 стоит ~900
-  визуальных токенов, одиннадцать кадров ≈ 10 тысяч. С запасом хватает.
+- **`--mm-processor-cache-gb 0`** — mandatory. vLLM's image preprocessor cache falls over with
+  `AssertionError: Expected a cached item for mm_hash=…` precisely on images repeated between
+  requests, and the overlap of the windows guarantees those. After the crash the engine stops
+  answering: the cards are busy, utilisation is zero, the client waits forever.
+- **`--limit-mm-per-prompt '{"image": 16}'`** — by default vLLM allows one image per request. With
+  a 5 s window and `--settled 0.5` there are 10–11 of them; the headroom up to 16 is needed if the
+  window is enlarged.
+- **`--max-model-len 32768`** — with `--upscale 2` a 1280×720 frame costs ~900 visual tokens, and
+  eleven frames ≈ 10 thousand. Enough with room to spare.
 
-Загрузка весов с диска — около 4 минут, это разово. **Гасить сервер после прогона
-обязательно**, иначе карты остаются занятыми:
+Loading the weights from disk takes about 4 minutes; that is a one-off. **Shutting the server down
+after the run is mandatory**, otherwise the cards stay occupied:
 
 ```bash
 pkill -f 'vllm.entrypoints.openai.api_server'
-nvidia-smi --query-gpu=index,memory.used --format=csv,noheader   # должно быть 0
+nvidia-smi --query-gpu=index,memory.used --format=csv,noheader   # should be 0
 ```
 
-Другая модель тоже подойдёт — важны поддержка нескольких картинок в запросе
-и structured outputs. Имя передаётся флагом `--model`, оно должно совпадать
-с `--served-model-name`.
+Another model will do too — what matters is support for several images per request and for
+structured outputs. The name is passed with the `--model` flag and must coincide with
+`--served-model-name`.
 
-## Прогон
+## The run
 
-Сервер и модель по умолчанию — те же, что в разделе выше
-(`qwen36` на `http://localhost:8078/v1`), так что флаги нужны, только если
-сервер другой; постоянное значение удобно задать через `DESCRIBE_API_BASE`
-и `DESCRIBE_MODEL`.
+The default server and model are the same as in the section above (`qwen36` at
+`http://localhost:8078/v1`), so the flags are needed only if the server is a different one; a
+permanent value is conveniently set through `DESCRIBE_API_BASE` and `DESCRIBE_MODEL`.
 
 ```bash
 PY=/home/user/conda/bin/python3
 
-# 1. проба на минуте материала — смотреть глазами, прежде чем ждать полчаса.
-#    Свой --out-prefix обязателен: у пробы будет свой каталог кадров
+# 1. a trial on a minute of material — to be looked at by eye before waiting half an hour.
+#    A separate --out-prefix is mandatory: the trial will have its own frames directory
 $PY tools/describe_video.py <id> --range 900-960 --out-prefix _probe
 
-# 2. весь ролик
+# 2. the whole video
 $PY tools/describe_video.py <id> --workers 16
 
-# 3. добить испорченные фрагменты, не переигрывая весь ролик
+# 3. finish off the spoiled fragments without replaying the whole video
 $PY tools/describe_video.py <id> --redo-bad
 
-# то же самое с другим сервером
+# the same with a different server
 $PY tools/describe_video.py <id> --api-base http://gpu-node-3:8077/v1 --model qwen3vl
 ```
 
-### Сервер на другой машине
+### The server on another machine
 
-Кадры режутся на стороне клиента и уходят в запросе как base64, так что видео
-серверу не нужно — достаточно, чтобы клиент видел порт.
+The frames are cut on the client side and go out in the request as base64, so the server does not
+need the video — it is enough for the client to see the port.
 
 ```bash
-# на машине с картами: слушать не только петлю
+# on the machine with the cards: listen on more than the loopback
 NO_PROXY=localhost,127.0.0.1 $ES -m vllm.entrypoints.openai.api_server \
     --model Qwen/Qwen3.6-35B-A3B --served-model-name qwen36 \
     --host 0.0.0.0 --port 8078 …
 
-# на машине с данными
+# on the machine with the data
 $PY tools/describe_video.py <id> --api-base http://gpu-node-3:8078/v1 --model qwen36
 ```
 
-Две вещи, на которых это ломается:
+Two things this breaks on:
 
-- **`--host 0.0.0.0`**. По умолчанию vLLM слушает петлю, и снаружи порт закрыт,
-  хотя `curl` на самой машине работает.
-- **Прокси**. `HTTP_PROXY` в окружении перехватывает и запрос к соседнему хосту,
-  ответом будет 502. Скрипт сам добавляет хост из `--api-base` в `NO_PROXY`
-  и печатает об этом строку; если до сервера надо идти именно через прокси,
-  задай `NO_PROXY` руками.
+- **`--host 0.0.0.0`**. By default vLLM listens on the loopback and the port is closed from
+  outside, even though `curl` on the machine itself works.
+- **The proxy**. An `HTTP_PROXY` in the environment intercepts even a request to a neighbouring
+  host, and the answer will be a 502. The script itself adds the host from `--api-base` to
+  `NO_PROXY` and prints a line about it; if the server really must be reached through the proxy,
+  set `NO_PROXY` by hand.
 
-Флаги, которые действительно решают:
+The flags that actually decide things:
 
-| флаг | по умолчанию | о чём он |
+| flag | default | what it is about |
 |---|---|---|
-| `--settled СЕК` | `0.5` | кадры выбирает `detect_scenes` в режиме постоянной частоты: слот такой длины, внутри слота берётся самый спокойный кадр из середины. `0.5` = два кадра в секунду. Это источник по умолчанию, флаг нужен только чтобы сменить частоту |
-| `--interval СЕК` | — | равномерная сетка вместо детектора. Осознанный откат: сетка дублирует статику и теряет сцены |
-| `--window` / `--stride` | 5 / 4 | окно запроса и сдвиг; разница — перекрытие: по секунде (два кадра) с левым соседом и по секунде с правым, три секунды свои |
-| `--upscale` | 2 | во сколько раз растянуть кадр перед отправкой; на 360p-исходнике заметно помогает читать мелкий текст |
-| `--workers` | 12 | параллельных запросов |
-| `--max-tokens` | 2600 | бюджет ответа; при обрыве повтор идёт с ×1.8 |
-| `--redo-bad` | — | взять готовый файл, перезапросить только фрагменты с ошибкой, обрывом или вырождением. Сначала сверяет `window`, `stride`, шаг кадров и `--range` с прошлым прогоном и отказывается, если нарезка другая — до того, как тронет кадры |
-| `--range A-B` | — | ограничить участком, можно повторять |
-| `--out-prefix` | `description` | имя выходных файлов, для проб удобно `_probe` |
+| `--settled SEC` | `0.5` | the frames are chosen by `detect_scenes` in constant-rate mode: a slot of this length, and within the slot the quietest frame from the middle is taken. `0.5` = two frames per second. This is the default source; the flag is needed only to change the rate |
+| `--interval SEC` | — | a uniform grid instead of the detector. A deliberate rollback: the grid duplicates static material and loses scenes |
+| `--window` / `--stride` | 5 / 4 | the request window and the shift; the difference is the overlap: a second (two frames) with the left neighbour and a second with the right, three seconds of its own |
+| `--upscale` | 2 | by how much to stretch the frame before sending; on a 360p source it noticeably helps in reading small text |
+| `--workers` | 12 | parallel requests |
+| `--max-tokens` | 2600 | the answer budget; on a truncation the retry goes with ×1.8 |
+| `--redo-bad` | — | take a finished file and re-request only the fragments with an error, a truncation or a degeneration. It first compares `window`, `stride`, the frame step and `--range` against the previous run and refuses if the cut is different — before touching any frames |
+| `--range A-B` | — | restrict to a stretch, may be repeated |
+| `--out-prefix` | `description` | the name of the output files; for trials `_probe` is convenient |
 
-## Сколько это стоит
+## What it costs
 
-Ролик 32 минуты: 3878 кадров, 485 запросов, **20 минут** на двух A100
-(`Qwen3.6-35B-A3B`, vLLM 0.27.1). Считаются не минуты видео, а картинки:
-из-за перекрытия каждый кадр уходит на сервер в среднем 1.29 раза, это
-~4.5 млн визуальных токенов на prefill. Медиана запроса — 24 секунды
-(p90 40, максимум 61), и это почти целиком prefill.
+A 32-minute video: 3878 frames, 485 requests, **20 minutes** on two A100s (`Qwen3.6-35B-A3B`, vLLM
+0.27.1). What counts is not the minutes of video but the pictures: because of the overlap each
+frame goes to the server 1.29 times on average, which is ~4.5 million visual tokens of prefill. The
+median request takes 24 seconds (p90 40, maximum 61), and that is almost entirely prefill.
 
-Рычаги, если дорого:
+The levers, if it is expensive:
 
-- `--upscale 1` — вчетверо меньше токенов на кадр (225 вместо 900), прогон падает
-  примерно до двадцати минут. Прямой размен на читаемость мелкого текста;
-- `--stride 5` — минус пятая часть запросов ценой полного отказа от перекрытия:
-  сверять описания соседей между собой станет нечем;
-- `--settled 1.0` — вдвое меньше кадров, но посекундное описание тогда опирается
-  на один кадр в секунду.
+- `--upscale 1` — four times fewer tokens per frame (225 instead of 900), and the run falls to
+  about twenty minutes. A direct trade against the readability of small text;
+- `--stride 5` — a fifth fewer requests at the price of giving up the overlap entirely: there will
+  be nothing left to cross-check neighbouring descriptions against each other with;
+- `--settled 1.0` — half as many frames, but then the per-second description rests on one frame per
+  second.
 
-## Что в выходном файле
+## What is in the output file
 
-Первая строка `description.jsonl` — `meta` с параметрами прогона. Дальше по
-записи на фрагмент:
+The first line of `description.jsonl` is a `meta` with the run parameters. After that, one record
+per fragment:
 
 ```json
 {"chunk_index": 302, "t_start": 906.4, "t_end": 910.5,
  "frame_times": [906.4, 906.9, ...],
  "begin": "...", "end": "...",
- "events": [{"t": 909, "text": "В правой части появляется log₂(p) = log₂(2⁻ⁿ)."}],
+ "events": [{"t": 909, "text": "On the right, log₂(p) = log₂(2⁻ⁿ) appears."}],
  "screen_text": {"909": [{"text": "log₂(p) = −n", "location": "right"}]}}
 ```
 
-`location` — одно из девяти: `up-left`, `up`, `up-right`, `left`, `center`,
-`right`, `down-left`, `down`, `down-right`. Ключ `"?"` в `screen_text` означает,
-что модель приписала элементу секунду за пределами фрагмента.
+`location` is one of nine: `up-left`, `up`, `up-right`, `left`, `center`, `right`, `down-left`,
+`down`, `down-right`. The key `"?"` in `screen_text` means the model assigned the element a second
+outside the fragment.
 
-Поля, по которым видно брак: `error` (фрагмент не получен), `degenerate` (модель
-ушла в повтор даже после трёх попыток), `truncated` (ответ оборван по лимиту
-токенов и спасён частично). В markdown такие фрагменты идут с предупреждением.
+The fields that show a defect: `error` (the fragment was not obtained), `degenerate` (the model
+went into repetition even after three attempts), `truncated` (the answer was cut off by the token
+limit and partly salvaged). In the markdown such fragments carry a warning.
 
-## Когда что-то идёт не так
+## When something goes wrong
 
-**`502 Bad Gateway` на локальный сервер.** В окружении прописан `HTTP_PROXY`,
-и запрос к своему же `localhost` уходит наружу. Скрипт сам дописывает `NO_PROXY`
-для локальных адресов, но серверу это надо задать при запуске.
+**`502 Bad Gateway` against a local server.** An `HTTP_PROXY` is set in the environment, and a
+request to your own `localhost` goes outside. The script adds `NO_PROXY` for local addresses
+itself, but the server has to be told this at launch.
 
-**Клиент висит, GPU заняты, утилизация ноль.** Это упавший `mm_hash`-assert:
-поднимай сервер с `--mm-processor-cache-gb 0`.
+**The client hangs, the GPUs are busy, utilisation is zero.** This is the crashed `mm_hash` assert:
+raise the server with `--mm-processor-cache-gb 0`.
 
-**Много `вырождение ответа, переспрашиваю`.** Модель уходит в повтор на однотипных
-сценах (решётки бит, ряды стрелок). Три попытки с растущим `repetition_penalty`
-уже встроены. На `Qwen3-VL-30B-A3B` неисправимыми оставались 7% фрагментов;
-на `Qwen3.6-35B-A3B` — ни одного из 485. Если такие есть, они помечены
-`degenerate`, а не выданы за нормальные.
+**Plenty of `degenerate answer, asking again`.** The model goes into repetition on uniform scenes
+(lattices of bits, rows of arrows). Three attempts with a growing `repetition_penalty` are already
+built in. On `Qwen3-VL-30B-A3B` 7% of the fragments remained unfixable; on `Qwen3.6-35B-A3B` not
+one out of 485. If there are any, they are marked `degenerate` rather than passed off as normal.
 
-**`ответ оборван`.** Уперлись в `--max-tokens`. Повтор идёт с увеличенным
-бюджетом, а если и он не помог — из недописанного JSON спасается всё, что успело
-закрыться, и запись помечается `truncated`.
+**`answer truncated`.** We hit `--max-tokens`. The retry goes with an increased budget, and if that
+does not help either, everything that managed to close is salvaged from the unfinished JSON and the
+record is marked `truncated`.
 
-**Кадров получилось не столько, сколько ждали.** При `--settled` и `--times`
-`--range` режет список времён до нарезки, при `--interval` — режется весь ролик,
-а лишнее отбрасывается после. Каталог кадров в обоих случаях чистится
-от прошлой нарезки: смеси двух прогонов в нём не бывает.
+**The number of frames is not what was expected.** With `--settled` and `--times`, `--range` cuts
+the list of times before the cutting; with `--interval` the whole video is cut and the surplus is
+discarded afterwards. In both cases the frames directory is cleaned of the previous cut: there is
+never a mixture of two runs in it.
 
-**Два прогона по одному видео одновременно.** Каталог кадров зависит от
-`--out-prefix`: полный прогон режет в `frames_desc/`, проба с `--out-prefix _probe` —
-в `frames_desc__probe/`. Раньше они делили один каталог, и проба сносила кадры
-идущему рядом полному прогону — тот падал на `FileNotFoundError` посередине.
+**Two runs over one video at the same time.** The frames directory depends on `--out-prefix`: a
+full run cuts into `frames_desc/`, a trial with `--out-prefix _probe` into `frames_desc__probe/`.
+They used to share one directory, and the trial would wipe the frames of a full run going on
+alongside — which then died with a `FileNotFoundError` halfway through.

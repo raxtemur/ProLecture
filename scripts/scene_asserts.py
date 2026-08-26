@@ -1,25 +1,25 @@
-"""Проверки того, что анимация соответствует заявленной математике.
+"""Checks that an animation matches the mathematics it claims.
 
-layout_check.py следит за вёрсткой (границы кадра, наложения). Здесь — другой
-класс ошибок: картинка аккуратно лежит в кадре, но означает не то. Такое
-ловится сравнением того, что реально произошло с точками мобжекта, с тем, что
-предсказывает формула.
+layout_check.py watches the layout (the frame boundaries, overlaps). Here it is a
+different class of error: the picture sits tidily inside the frame but means the
+wrong thing. Such things are caught by comparing what actually happened to the
+points of a mobject with what the formula predicts.
 
-Ядро модуля — `expect_map`: «точки перешли туда, куда velit функция». Всё
-остальное построено поверх и предметно нейтрально:
+The core of the module is `expect_map`: "the points went where the function says".
+Everything else is built on top of it and is subject-neutral:
 
-    snapshot(mob)                       снимок точек до анимации
-    expect_map(coords, before, after, f)    произвольное отображение
-    expect_matrix_action(...)           линейное преобразование по матрице
-    expect_fixed(before, after)         объект не должен был сдвинуться
-    expect_uniform_scale(coord_system)  одинаковый масштаб осей
-    expect_on_graph(axes, curve, f)     кривая лежит на графике функции
-    expect_point(actual, expected)      одна точка там, где ожидалось
+    snapshot(mob)                       a snapshot of the points before the animation
+    expect_map(coords, before, after, f)    an arbitrary mapping
+    expect_matrix_action(...)           a linear transformation by a matrix
+    expect_fixed(before, after)         the object was not supposed to move
+    expect_uniform_scale(coord_system)  the same scale on both axes
+    expect_on_graph(axes, curve, f)     the curve lies on the graph of the function
+    expect_point(actual, expected)      one point where it was expected
 
-Предметные проверки (например «это собственный вектор с λ=3») строятся из них
-в самом файле сцены — универсальными они не бывают.
+Subject-specific checks (for example "this is an eigenvector with λ=3") are built
+out of these in the scene file itself — they never come out universal.
 
-MANIM_SCENE_STRICT=1 превращает предупреждения в AssertionError.
+MANIM_SCENE_STRICT=1 turns the warnings into an AssertionError.
 """
 
 from __future__ import annotations
@@ -39,12 +39,12 @@ def _report(message: str) -> bool:
 
 
 def snapshot(mob: Mobject) -> np.ndarray:
-    """Копия точек мобжекта — снимать ДО анимации, сравнивать ПОСЛЕ."""
+    """A copy of a mobject's points — take it BEFORE the animation, compare AFTER."""
     return np.array([p.copy() for p in mob.get_all_points()])
 
 
 def _to_coords(coord_system: Mobject | None, points: np.ndarray) -> np.ndarray:
-    """Переводит точки сцены в координаты системы (или оставляет как есть)."""
+    """Converts the scene's points into the coordinates of the system (or leaves them as they are)."""
     if coord_system is None:
         return np.asarray(points)[:, :2]
     return np.array([coord_system.p2c(p)[:2] for p in points])
@@ -54,20 +54,21 @@ def expect_map(
     before: np.ndarray,
     after: Mobject | np.ndarray,
     func: Callable[[np.ndarray], np.ndarray],
-    label: str = "преобразование",
+    label: str = "transformation",
     coord_system: Mobject | None = None,
     tol: float = 0.02,
 ) -> bool:
-    """Каждая точка должна была перейти в func(точка).
+    """Every point was supposed to go to func(point).
 
-    coord_system — система координат ДО анимации (снимок plane.copy(), если
-    анимация тянет саму сетку). Без неё сравнение идёт в координатах сцены.
+    coord_system — the coordinate system BEFORE the animation (a snapshot of
+    plane.copy() if the animation drags the grid itself). Without it the comparison
+    goes in scene coordinates.
     """
     after_points = snapshot(after) if isinstance(after, Mobject) else np.asarray(after)
     if len(before) != len(after_points):
-        return _report(f"{label}: было {len(before)} точек, стало {len(after_points)}")
+        return _report(f"{label}: there were {len(before)} points, now there are {len(after_points)}")
     if len(before) == 0:
-        return _report(f"{label}: у объекта нет точек")
+        return _report(f"{label}: the object has no points")
 
     src = _to_coords(coord_system, before)
     dst = _to_coords(coord_system, after_points)
@@ -77,9 +78,9 @@ def expect_map(
     worst = int(np.argmax(deltas))
     if deltas[worst] > tol:
         return _report(
-            f"{label}: точка {np.round(src[worst], 3)} должна была перейти в "
-            f"{np.round(expected[worst], 3)}, а оказалась в {np.round(dst[worst], 3)} "
-            f"(расхождение {deltas[worst]:.3f}, всего мимо {int((deltas > tol).sum())} из {len(deltas)})"
+            f"{label}: the point {np.round(src[worst], 3)} was supposed to go to "
+            f"{np.round(expected[worst], 3)} but ended up at {np.round(dst[worst], 3)} "
+            f"(discrepancy {deltas[worst]:.3f}, {int((deltas > tol).sum())} of {len(deltas)} off in total)"
         )
     return True
 
@@ -88,15 +89,16 @@ def expect_matrix_action(
     before: np.ndarray,
     after: Mobject | np.ndarray,
     matrix: list[list[float]] | np.ndarray,
-    label: str = "матрица",
+    label: str = "matrix",
     coord_system: Mobject | None = None,
     tol: float = 0.02,
 ) -> bool:
-    """Объект преобразован ровно заявленной матрицей.
+    """The object was transformed by exactly the matrix declared.
 
-    Ловит две классические ошибки manim: ApplyMatrix без about_point (когда
-    начало координат смещено относительно центра кадра) и неравный масштаб
-    осей, при котором преобразование сцены равно S·A·S⁻¹, а не A.
+    It catches two classic manim mistakes: an ApplyMatrix without about_point (when
+    the origin is displaced relative to the centre of the frame) and an unequal scale
+    of the axes, under which the transformation of the scene equals S·A·S⁻¹ rather
+    than A.
     """
     m = np.asarray(matrix, dtype=float)
     return expect_map(before, after, lambda p: m @ p, label, coord_system, tol)
@@ -105,26 +107,26 @@ def expect_matrix_action(
 def expect_fixed(
     before: np.ndarray,
     after: Mobject | np.ndarray,
-    label: str = "объект",
+    label: str = "object",
     tol: float = 0.02,
 ) -> bool:
-    """Объект обязан остаться на месте (частый инвариант: ось, начало координат)."""
+    """The object is obliged to stay put (a frequent invariant: an axis, the origin)."""
     return expect_map(before, after, lambda p: p, label, None, tol)
 
 
-def expect_uniform_scale(coord_system: Mobject, label: str = "оси", tol: float = 0.01) -> bool:
-    """Одинаковый масштаб по осям — предусловие корректности ApplyMatrix.
+def expect_uniform_scale(coord_system: Mobject, label: str = "axes", tol: float = 0.01) -> bool:
+    """The same scale on both axes — a precondition for ApplyMatrix to be correct.
 
-    При разных масштабах круг рисуется эллипсом, поворот перекашивает фигуру,
-    а собственные направления матрицы уезжают.
+    With different scales a circle is drawn as an ellipse, a rotation skews the
+    figure, and the eigendirections of a matrix drift away.
     """
     unit_x = np.linalg.norm(coord_system.c2p(1, 0) - coord_system.c2p(0, 0))
     unit_y = np.linalg.norm(coord_system.c2p(0, 1) - coord_system.c2p(0, 0))
     if abs(unit_x - unit_y) > tol * max(unit_x, unit_y):
         return _report(
-            f"{label}: масштаб по x = {unit_x:.3f} ед. сцены, по y = {unit_y:.3f} — "
-            f"расхождение {abs(unit_x - unit_y) / max(unit_x, unit_y):.1%}; "
-            f"геометрия (углы, повороты, ApplyMatrix) будет искажена"
+            f"{label}: the scale along x = {unit_x:.3f} scene units, along y = {unit_y:.3f} — "
+            f"a discrepancy of {abs(unit_x - unit_y) / max(unit_x, unit_y):.1%}; "
+            f"the geometry (angles, rotations, ApplyMatrix) will be distorted"
         )
     return True
 
@@ -133,14 +135,14 @@ def expect_on_graph(
     axes: Mobject,
     curve: Mobject,
     func: Callable[[float], float],
-    label: str = "график",
+    label: str = "graph",
     tol: float = 0.02,
     samples: int = 40,
 ) -> bool:
-    """Нарисованная кривая действительно лежит на графике y = func(x)."""
+    """The curve drawn really does lie on the graph of y = func(x)."""
     points = snapshot(curve)
     if len(points) == 0:
-        return _report(f"{label}: у кривой нет точек")
+        return _report(f"{label}: the curve has no points")
 
     step = max(1, len(points) // samples)
     worst_delta, worst_x = 0.0, 0.0
@@ -152,7 +154,7 @@ def expect_on_graph(
 
     if worst_delta > tol:
         return _report(
-            f"{label}: при x = {worst_x:.3f} кривая отходит от функции на {worst_delta:.3f}"
+            f"{label}: at x = {worst_x:.3f} the curve departs from the function by {worst_delta:.3f}"
         )
     return True
 
@@ -160,14 +162,14 @@ def expect_on_graph(
 def expect_point(
     actual: np.ndarray,
     expected: np.ndarray,
-    label: str = "точка",
+    label: str = "point",
     tol: float = 0.05,
 ) -> bool:
-    """Одна конкретная точка сцены там, где предсказывает расчёт."""
+    """One specific point of the scene is where the computation predicts."""
     delta = float(np.linalg.norm(np.asarray(actual)[:2] - np.asarray(expected)[:2]))
     if delta > tol:
         return _report(
-            f"{label}: {np.round(np.asarray(actual)[:2], 3)} вместо "
-            f"{np.round(np.asarray(expected)[:2], 3)} (расхождение {delta:.3f})"
+            f"{label}: {np.round(np.asarray(actual)[:2], 3)} instead of "
+            f"{np.round(np.asarray(expected)[:2], 3)} (discrepancy {delta:.3f})"
         )
     return True

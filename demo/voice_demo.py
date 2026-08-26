@@ -1,25 +1,26 @@
-"""Озвучка сцены через manim-voiceover: два движка TTS на одном сюжете.
+"""Voicing a scene with manim-voiceover: two TTS engines on one storyline.
 
     conda activate rah_manim
-    manim -ql voice_demo.py VoiceGTTS       # Google Translate TTS (нужен интернет)
-    manim -ql voice_demo.py VoicePyttsx3    # локальный espeak-ng, без сети
+    manim -ql voice_demo.py VoiceGTTS       # Google Translate TTS (needs the internet)
+    manim -ql voice_demo.py VoicePyttsx3    # local espeak-ng, no network
 
-Главное, ради чего нужен manim-voiceover: длительность анимации берётся из
-длительности реплики (tracker.duration), поэтому картинка не разъезжается
-с голосом. Аудио кэшируется в media/voiceovers/, рядом с видео пишется .srt.
+The main thing manim-voiceover is needed for: the duration of an animation is taken from
+the duration of the utterance (tracker.duration), so the picture does not drift apart
+from the voice. The audio is cached in media/voiceovers/, and an .srt is written next to
+the video.
 
-Два правила, без которых озвучка получается унылой:
+Two rules without which the voicing comes out dull:
 
-  * голос НЕ читает вслух то, что уже написано на экране — он даёт то, чего
-    на экране нет: смысл, интуицию, связку между шагами. Формулы остаются
-    формулами, слова добавляют понимание;
-  * субтитр задаётся явным параметром subcaption= и держится коротким.
-    Иначе manim-voiceover режет реплику механически по max_subcaption_len
-    (70 символов) и строка рвётся посреди фразы: «равен лямбда в / квадрате».
+  * the voice does NOT read aloud what is already written on the screen — it gives what
+    is not on the screen: the meaning, the intuition, the link between the steps. The
+    formulas stay formulas, the words add understanding;
+  * the subtitle is set by the explicit subcaption= parameter and is kept short.
+    Otherwise manim-voiceover cuts the utterance mechanically by max_subcaption_len
+    (70 characters) and the line breaks mid-phrase: "is equal to lambda / squared".
 
-Локальный движок работает через espeak-ng из колеса espeakng-loader:
-LD_LIBRARY_PATH и ESPEAK_DATA_PATH выставляются автоматически при
-conda activate rah_manim (см. $CONDA_PREFIX/etc/conda/activate.d/espeak.sh).
+The local engine works through espeak-ng from the espeakng-loader wheel:
+LD_LIBRARY_PATH and ESPEAK_DATA_PATH are set automatically by
+conda activate rah_manim (see $CONDA_PREFIX/etc/conda/activate.d/espeak.sh).
 """
 
 from pathlib import Path
@@ -40,13 +41,13 @@ from scene_asserts import (
 
 
 class PyTTSX3FixedService(PyTTSX3Service):
-    """Обход бага manim-voiceover 0.4.0 с локальным движком.
+    """A workaround for a manim-voiceover 0.4.0 bug with the local engine.
 
-    Штатный PyTTSX3Service зовёт engine.save_to_file(text, "....mp3"), но
-    pyttsx3 поверх espeak-ng всегда пишет WAV — просто с расширением .mp3.
-    Дальше mutagen пытается разобрать это как MPEG и падает с
+    The stock PyTTSX3Service calls engine.save_to_file(text, "....mp3"), but
+    pyttsx3 on top of espeak-ng always writes WAV — simply with an .mp3 extension.
+    mutagen then tries to parse it as MPEG and dies with
     HeaderNotFoundError: can't sync to MPEG frame.
-    Поэтому синтезируем в .wav и сами перекодируем в .mp3.
+    So we synthesise into .wav and transcode to .mp3 ourselves.
     """
 
     def generate_from_text(self, text, cache_dir=None, path=None, **kwargs):
@@ -65,7 +66,7 @@ class PyTTSX3FixedService(PyTTSX3Service):
         self.engine.save_to_file(text, str(wav_path))
         self.engine.runAndWait()
         self.engine.stop()
-        wav2mp3(wav_path, mp3_path)  # pydub → ffmpeg, wav удаляется
+        wav2mp3(wav_path, mp3_path)  # pydub → ffmpeg, the wav is deleted
 
         return {
             "input_text": text,
@@ -78,13 +79,13 @@ MATRIX = [[2, 1], [1, 2]]
 
 
 class EigenStoryMixin:
-    """Сюжет: что такое собственный вектор — на примере матрицы [[2,1],[1,2]].
+    """The storyline: what an eigenvector is — on the example of the matrix [[2,1],[1,2]].
 
-    Сервис TTS подключается наследником.
+    The TTS service is plugged in by a subclass.
     """
 
     def say(self, text: str, subcaption: str):
-        """Реплика с коротким осмысленным субтитром вместо машинной нарезки."""
+        """An utterance with a short meaningful subtitle instead of a machine cut."""
         return self.voiceover(text=text, subcaption=subcaption, max_subcaption_len=90)
 
     def construct_story(self):
@@ -96,48 +97,48 @@ class EigenStoryMixin:
             background_line_style={"stroke_opacity": 0.3},
         ).to_edge(DOWN, buff=0.3)
 
-        title = Text("Собственные векторы", font_size=36, weight=BOLD).to_edge(UP, buff=0.3)
+        title = Text("Eigenvectors", font_size=36, weight=BOLD).to_edge(UP, buff=0.3)
 
         generic = Arrow(plane.c2p(0, 0), plane.c2p(2, 0.4), buff=0, color=GREY_A)
         special = Arrow(plane.c2p(0, 0), plane.c2p(0.8, 0.8), buff=0, color=RED_B)
         other = Arrow(plane.c2p(0, 0), plane.c2p(1.2, -1.2), buff=0, color=BLUE_B)
-        # ApplyMatrix преобразует относительно ORIGIN сцены; плоскость сдвинута
-        # вниз, поэтому начало координат надо указывать явно, иначе даже
-        # собственный вектор с λ=1 «уезжает» вместо того чтобы остаться на месте
+        # ApplyMatrix transforms relative to the scene's ORIGIN; the plane is shifted
+        # down, so the origin has to be named explicitly, otherwise even an eigenvector
+        # with λ=1 "drifts away" instead of staying put
         origin = plane.c2p(0, 0)
-        expect_uniform_scale(plane, "оси плоскости")
+        expect_uniform_scale(plane, "the axes of the plane")
 
         with self.say(
-            text="Матрицу удобно понимать не как таблицу чисел, "
-            "а как способ двигать плоскость.",
-            subcaption="Матрица — это преобразование плоскости",
+            text="A matrix is conveniently understood not as a table of numbers "
+            "but as a way of moving the plane.",
+            subcaption="A matrix is a transformation of the plane",
         ) as t:
             self.play(FadeIn(title), Create(plane), run_time=t.duration)
 
         with self.say(
-            text="Возьмём произвольный вектор.",
-            subcaption="Берём произвольный вектор",
+            text="Take an arbitrary vector.",
+            subcaption="Taking an arbitrary vector",
         ) as t:
             self.play(GrowArrow(generic), run_time=t.duration)
 
         with self.say(
-            text="После умножения на матрицу он не только растянулся, но и повернулся.",
-            subcaption="Он растянулся и повернулся",
+            text="After the multiplication by the matrix it has not only stretched but also turned.",
+            subcaption="It stretched and turned",
         ) as t:
             self.play(ApplyMatrix(MATRIX, generic, about_point=origin),
                       run_time=t.duration)
 
         with self.say(
-            text="Но у преобразования есть выделенные направления.",
-            subcaption="Но есть выделенные направления",
+            text="But the transformation has distinguished directions.",
+            subcaption="But there are distinguished directions",
         ) as t:
             self.play(FadeOut(generic), GrowArrow(special), GrowArrow(other),
                       run_time=t.duration)
 
         with self.say(
-            text="Вдоль них поворота не происходит вовсе: "
-            "вектор остаётся на своей прямой и только меняет длину.",
-            subcaption="Вдоль них вектор только меняет длину",
+            text="Along them no rotation happens at all: "
+            "the vector stays on its own line and only changes length.",
+            subcaption="Along them the vector only changes length",
         ) as t:
             before_special, before_other = snapshot(special), snapshot(other)
             other_end = other.get_end().copy()
@@ -145,18 +146,18 @@ class EigenStoryMixin:
                       ApplyMatrix(MATRIX, other, about_point=origin),
                       run_time=t.duration)
 
-        expect_matrix_action(before_special, special, MATRIX, "растянутый вектор", coord_system=plane)
-        expect_matrix_action(before_other, other, MATRIX, "сохранённый вектор", coord_system=plane)
-        expect_point(other.get_end(), other_end, "λ=1: вектор должен был остаться на месте")
+        expect_matrix_action(before_special, special, MATRIX, "the stretched vector", coord_system=plane)
+        expect_matrix_action(before_other, other, MATRIX, "the preserved vector", coord_system=plane)
+        expect_point(other.get_end(), other_end, "λ=1: the vector was supposed to stay put")
 
         formula = MathTex(r"Av = \lambda v", font_size=48).next_to(title, DOWN, buff=0.25)
         with self.say(
-            text="Именно это и записано в определении.",
-            subcaption="Это и есть определение",
+            text="That is exactly what is written in the definition.",
+            subcaption="This is the definition",
         ) as t:
             self.play(Write(formula), run_time=t.duration)
 
-        audit(self, "определение")
+        audit(self, "the definition")
         self.play(FadeOut(plane, special, other), formula.animate.move_to(ORIGIN + UP * 1.2))
 
         char = MathTex(r"\det(A - \lambda I) = \lambda^2 - 4\lambda + 3 = 0", font_size=44)
@@ -165,57 +166,57 @@ class EigenStoryMixin:
         roots.next_to(char, DOWN, buff=0.7)
 
         with self.say(
-            text="Чтобы найти такие числа, требуют, "
-            "чтобы система имела ненулевое решение.",
-            subcaption="Требуем ненулевое решение системы",
+            text="To find such numbers, one demands "
+            "that the system have a non-zero solution.",
+            subcaption="We demand a non-zero solution of the system",
         ) as t:
             self.play(Write(char), run_time=t.duration)
 
         with self.say(
-            text="Условие превращается в обычное квадратное уравнение.",
-            subcaption="Получается квадратное уравнение",
+            text="The condition turns into an ordinary quadratic equation.",
+            subcaption="We get a quadratic equation",
         ) as t:
             self.play(Indicate(char, color=TEAL_B), run_time=t.duration)
 
         with self.say(
-            text="Его корни — единица и тройка.",
-            subcaption="Корни: единица и тройка",
+            text="Its roots are one and three.",
+            subcaption="The roots: one and three",
         ) as t:
             self.play(FadeIn(roots, shift=UP * 0.3), run_time=t.duration)
 
         with self.say(
-            text="Значит, вдоль первого направления матрица ничего не меняет, "
-            "а вдоль второго растягивает втрое.",
-            subcaption="Одно направление сохраняется, второе растёт втрое",
+            text="So along the first direction the matrix changes nothing, "
+            "and along the second it stretches by a factor of three.",
+            subcaption="One direction is preserved, the other grows threefold",
         ) as t:
             self.play(Circumscribe(roots, color=YELLOW), run_time=t.duration)
 
         with self.say(
-            text="А перпендикулярность этих направлений — не совпадение: "
-            "так устроена любая симметричная матрица.",
-            subcaption="Симметричность матрицы даёт перпендикулярность",
+            text="And the perpendicularity of these directions is no coincidence: "
+            "that is how any symmetric matrix is built.",
+            subcaption="The symmetry of the matrix gives the perpendicularity",
         ) as t:
             self.play(Indicate(formula, color=TEAL_B), run_time=t.duration)
 
-        audit(self, "финал")
+        audit(self, "the finale")
 
 
 class VoiceGTTS(EigenStoryMixin, VoiceoverScene):
-    """Онлайн-синтез: Google Translate TTS, русский голос."""
+    """Online synthesis: Google Translate TTS, an English voice."""
 
     def construct(self):
-        self.set_speech_service(GTTSService(lang="ru"))
+        self.set_speech_service(GTTSService(lang="en"))
         self.construct_story()
 
 
 class VoicePyttsx3(EigenStoryMixin, VoiceoverScene):
-    """Оффлайн-синтез: espeak-ng через pyttsx3, русский голос."""
+    """Offline synthesis: espeak-ng through pyttsx3, an English voice."""
 
     def construct(self):
         import pyttsx3
 
         engine = pyttsx3.init()
-        engine.setProperty("voice", "ru")   # без этого кириллица читается по буквам
+        engine.setProperty("voice", "en")   # without this espeak may fall back to a locale-dependent voice
         engine.setProperty("rate", 150)
         self.set_speech_service(PyTTSX3FixedService(engine=engine))
         self.construct_story()

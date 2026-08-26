@@ -1,112 +1,115 @@
-# Промпт: зонд по транскрипту (`text`)
+# Prompt: transcript probe (`text`)
 
-Драфт. Роль — шаг 3 конвейера [../annotation_pipeline.md](../annotation_pipeline.md),
-группа 4 чеклиста. Подставляются `<ВОПРОС>` и `<WORKSPACE>`.
+Draft. The role is step 3 of the pipeline [../annotation_pipeline.md](../annotation_pipeline.md),
+checklist group 4. `<QUESTION>` and `<WORKSPACE>` are substituted in.
 
-Тебе дают вопрос о видеолекции и часть её материала. Ответь на вопрос — это вся
-задача. Оценивать задание, предлагать правки и рассуждать о том, хороший ли это
-вопрос, не нужно: лишний текст только мешает.
+You are given a question about a video lecture and part of its material. Answer the
+question — that is the whole task. There is no need to assess the task, propose fixes or
+reason about whether this is a good question: extra text only gets in the way.
 
-## Что тебе дано
+## What you are given
 
-`<WORKSPACE>/transcript.md` — реплики лекции с таймкодами, до момента `t_end`
-включительно.
+`<WORKSPACE>/transcript.md` — the lines of the lecture with timecodes, up to and
+including the moment `t_end`.
 
-Кадров у тебя нет: ни одного изображения, ни описания того, что происходит
-на экране. Так поставлена задача: отвечай по тому, что написано. Доставать кадры
-в обход — из `data/bundles/`, из `.mp4` — запрещено: это не твой материал.
-
----
-
-## Задание
-
-`<ВОПРОС>`
-
-**Ответь на этот вопрос по существу.**
-
-Правила:
-
-- отвечай **только** по выданному материалу и общим знаниям о предмете. Материал —
-  это папка `<WORKSPACE>` и ничего больше: не доскачивай, не ищи ролик на YouTube,
-  не открывай ни `data/annotations/` (там лежит ответ), ни `data/bundles/`
-  и `data/videos/` (там весь ролик целиком — включая ту модальность, которую
-  у тебя забрали намеренно), ни файлы `*.vtt`. Заглянув туда, ты обесценишь
-  свою работу целиком;
-- **если запретный файл всё-таки был прочитан — скажи об этом.** Так бывает: путь
-  попал в вывод `grep`, файл открылся заодно с соседним. Провал не в этом, а в
-  молчании: заполни `violations` — какой путь, зачем открыл, что успел увидеть.
-  Координатор решит, годится ли ответ или зонд надо переснять;
-- отвечай **по существу**: назови величины, объекты и соотношения, о которых
-  спрашивают. «Нужно дождаться момента, когда…» — не ответ, а пересказ вопроса;
-- если материала не хватает — так и напиши, но **сначала попробуй ответить**.
-  «Недостаточно информации» слишком часто оказывается нежеланием рискнуть;
-- не предлагай правок и не рассуждай о том, хороший ли это вопрос. Это не твоя
-  работа, и лишний текст только мешает сверке.
-
-### Достраивать нечитаемое запрещено
-
-Отвечай только по тому, что **действительно различимо** в выданном материале.
-Не по тому, что обычно бывает в такой сцене; не по тому, каким «должен» оказаться
-пример; не подставляя знакомые числа из учебника вместо надписи, которую не удалось
-прочесть.
-
-Это не про честность, а про то, что именно здесь измеряется. Твой ответ решает,
-хватило ли **этой модальности**. Если ты не разглядел величину и достроил её
-из общего знания предмета, ответ выйдет верным — а измерение окажется ложным:
-запишется «модальности хватило» там, где её не хватило.
-
-Не разглядел — так и напиши: `insufficient: true` плюс попытка ответа тем,
-что удалось вытянуть. Половина ответа с честной пометкой полезнее целого
-с домыслом. Если ответ держится на догадке — скажи об этом в `basis` прямо,
-теми же словами.
+You have no frames: not one image, and no description of what is happening on screen.
+That is how the task is set: answer from what is written. Getting hold of frames by a
+detour — from `data/bundles/`, from the `.mp4` — is forbidden: that is not your material.
 
 ---
 
-## Что вернуть
+## The task
 
-Две вещи, и это разные вещи.
+`<QUESTION>`
 
-### 1. Файл ответа
+**Answer this question on the merits.**
 
-Собери объект по контракту [../../schema/review.py](../../schema/review.py),
-класс `ProbeAnswer` с `role: "probe_text"`, и сохрани его в
+Rules:
+
+- answer **only** from the material you were given and general knowledge of the subject.
+  The material is the `<WORKSPACE>` folder and nothing else: do not download anything,
+  do not look for the video on YouTube, do not open `data/annotations/` (the answer is
+  in there), `data/bundles/` or `data/videos/` (the whole video is in there — including
+  the modality that was deliberately taken away from you), or any `*.vtt` file. One look
+  in there and your whole piece of work is worthless;
+- **if a forbidden file did get read — say so.** It happens: a path turned up in `grep`
+  output, a file was opened alongside its neighbour. The failure is not in that but in
+  keeping quiet: fill in `violations` — which path, why you opened it, what you managed
+  to see. The coordinator will decide whether the answer stands or the probe has to be
+  re-run;
+- answer **on the merits**: name the quantities, objects and relations being asked about.
+  "One has to wait for the moment when…" is not an answer, it is a restatement of the
+  question;
+- if the material is not enough — say so, but **try to answer first**. "Not enough
+  information" turns out far too often to be an unwillingness to take a risk;
+- do not propose fixes and do not reason about whether this is a good question. That is
+  not your job, and extra text only gets in the way of the comparison.
+
+### Filling in what you cannot read is forbidden
+
+Answer only from what is **genuinely distinguishable** in the material you were given.
+Not from what such a scene usually contains; not from what the example "ought" to turn
+out to be; not by substituting familiar textbook numbers for a caption you failed to read.
+
+This is not about honesty but about what is being measured here. Your answer decides
+whether **this modality** was enough. If you did not make out a quantity and filled it in
+from general knowledge of the subject, the answer will come out correct — and the
+measurement will be false: "the modality was enough" gets recorded where it was not.
+
+Could not make it out — say exactly that: `insufficient: true` plus an attempt at an
+answer from whatever you could extract. Half an answer with an honest flag is more useful
+than a whole one with guesswork. If the answer rests on a guess, say so in `basis`
+outright, in those very words.
+
+---
+
+## What to return
+
+Two things, and they are different things.
+
+### 1. The answer file
+
+Assemble an object per the contract [../../schema/review.py](../../schema/review.py),
+class `ProbeAnswer` with `role: "probe_text"`, and save it to
 
 ```
-data/reviews/<VIDEO_ID>/<SAMPLE_ID>/probe_text.<КРУГ>.json
+data/reviews/<VIDEO_ID>/<SAMPLE_ID>/probe_text.<ROUND>.json
 ```
 
-Что в нём главное:
+What matters in it:
 
-- `looked_at` — на что смотрел: реплики транскрипта с таймкодами;
-- `steps` — как шёл к ответу. Для зонда это ещё и способ отличить вывод
-  из материала от воспоминания о предмете: по шагам видно, откуда взялось число;
-- `answer` — ответ по существу, своими словами. Назови величины, объекты
-  и соотношения, о которых спрашивают. «Нужно дождаться момента, когда…» —
-  не ответ, а пересказ вопроса;
-- `basis` — цитаты из транскрипта с таймкодами, или «общие знания». Это отличает ответ, выведенный из материала, от ответа,
-  всплывшего из памяти о предмете: у них одинаковый текст и разная цена. Если ты
-  узнал ролик или вспомнил ответ до того, как заглянул в материал, — напиши это
-  прямо;
-- `confidence`, `insufficient` — честно. `insufficient: true` ставится **вместе**
-  с попыткой ответа, а не вместо неё: заполни `answer` тем, что удалось вытянуть,
-  даже если сам считаешь это догадкой;
-- `budget` — сколько кадров посмотрел и сколько реплик прочитал. Без этого числа
-  твой отрицательный ответ не читается: «не хватило материала» и «показали сорок
-  картинок на полчаса» выглядят одинаково;
-- `violations` — если пришлось признаваться.
+- `looked_at` — what you looked at: the transcript lines with their timecodes;
+- `steps` — how you got to the answer. For a probe this is also the way to tell an
+  inference from the material apart from a recollection about the subject: the steps show
+  where a number came from;
+- `answer` — the answer on the merits, in your own words. Name the quantities, objects
+  and relations being asked about. "One has to wait for the moment when…" is not an
+  answer, it is a restatement of the question;
+- `basis` — quotations from the transcript with timecodes, or "general knowledge". This is what tells an answer inferred from the material apart from
+  one that surfaced from memory of the subject: they have the same text and a different
+  price. If you recognised the video or recalled the answer before you looked at the
+  material — write that down plainly;
+- `confidence`, `insufficient` — honestly. `insufficient: true` is set **together**
+  with an attempt at an answer, not instead of one: fill `answer` with whatever you
+  could extract, even if you consider it a guess yourself;
+- `budget` — how many frames you looked at and how many lines you read. Without that
+  number your negative answer cannot be read: "there was not enough material" and "they
+  showed me forty pictures for half an hour of video" look the same;
+- `violations` — if you had to confess.
 
-Проверь себя перед тем, как отчитываться:
+Check yourself before reporting:
 
 ```bash
 /home/user/conda/bin/python3 schema/review.py --check \
-    data/reviews/<VIDEO_ID>/<SAMPLE_ID>/probe_text.<КРУГ>.json
+    data/reviews/<VIDEO_ID>/<SAMPLE_ID>/probe_text.<ROUND>.json
 ```
 
-Чини и запускай снова — координатору отдавай только то, что прошло.
+Fix and run again — hand the coordinator only what passed.
 
-### 2. Текст координатору
+### 2. The text for the coordinator
 
-Коротко: ответ и на чём он основан. Не пересказывай json целиком, в конце дай путь
-к файлу.
+Briefly: the answer and what it rests on. Do not retell the whole json; give the path to
+the file at the end.
 
-Вердиктов не ставь и о качестве вопроса не рассуждай — это не твоя работа.
+Do not issue verdicts and do not reason about the quality of the question — that is not
+your job.

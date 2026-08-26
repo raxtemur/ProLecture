@@ -1,32 +1,35 @@
-# Презентация проекта
+# Project presentation
 
-`prolecture.tex` — доклад на 10 слайдов: зачем бенчмарк, чем отличается от трёх
-ближайших работ, как устроен сэмпл, из чего считается метрика, что уже сделано.
+`prolecture.tex` — a fourteen-slide talk: why the benchmark, how it differs from the
+three nearest works, how a sample is built, what the pipeline does, what has been done
+so far, and what the metric will be.
 
 ```bash
 make          # -> prolecture.pdf
-make png      # картинки страниц, чтобы посмотреть вёрстку глазами
+make png      # page images, to eyeball the layout
 make clean
 ```
 
-Сборка — **xelatex** из TinyTeX (`~/.TinyTeX/bin/x86_64-linux`), кириллица берётся
-системным DejaVu Sans через `fontspec`. Пакеты, которых в TinyTeX нет по умолчанию,
-ставятся одной командой:
+The build is **xelatex** from TinyTeX (`~/.TinyTeX/bin/x86_64-linux`), with the text set
+in the system DejaVu Sans via `fontspec`. The packages TinyTeX does not ship by default
+are installed with one command:
 
 ```bash
-tlmgr install beamer translator polyglossia babel-russian hyphen-russian booktabs
+tlmgr install beamer translator polyglossia booktabs
 ```
 
-`tlmgr` и загрузку шрифтов надо запускать **без прокси** (`unset HTTP_PROXY HTTPS_PROXY`):
-через прокси CTAN отдаёт единицы килобайт в секунду.
+`tlmgr` and font downloads must be run **without the proxy**
+(`unset HTTP_PROXY HTTPS_PROXY`): through the proxy CTAN delivers a few kilobytes per
+second.
 
-## Числа в слайдах
+## The numbers in the slides
 
-Все цифры взяты из репозитория на день сборки и при расширении разметки поедут:
+Every figure is taken from the repository as of the day of the build and will move as the
+annotation grows:
 
-| Что | Где проверить |
+| What | Where to check it |
 |---|---|
-| 10 сэмплов, 24 триггера, 12 дистракторов | `tools/validate_samples.py data/annotations/*.jsonl` |
-| 140 видео с живым путём к manim-исходнику | `data/3b1b_mapping.json` |
-| 13.5 / 12.9 / 10.1 кадра на минуту | `tools/detect_scenes.py <id>` |
-| 3878 кадров, 485 фрагментов, 20 минут | `meta` в `data/bundles/<id>/description.jsonl` |
+| 10 samples, 24 triggers, 12 distractors | `tools/validate_samples.py data/annotations/*.jsonl` |
+| 140 videos with a live path to a manim source | `data/3b1b_mapping.json` |
+| 13.5 / 12.9 / 10.1 frames per minute | `tools/detect_scenes.py <id>` |
+| 3878 frames, 485 fragments, 20 minutes | `meta` in `data/bundles/<id>/description.jsonl` |

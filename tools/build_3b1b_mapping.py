@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Строит маппинг: урок 3blue1brown.com -> YouTube video id -> файл с manim-кодом в 3b1b/videos.
+"""Builds the mapping: a 3blue1brown.com lesson -> a YouTube video id -> the file with the manim code in 3b1b/videos.
 
-Источник истины — frontmatter файлов app/pages/lessons/<year>/<slug>/index.mdx
-в репозитории https://github.com/3b1b/3Blue1Brown.com, где есть поля
-`video:` (11-символьный YouTube id) и `source:` (путь внутри 3b1b/videos).
+The source of truth is the frontmatter of the files app/pages/lessons/<year>/<slug>/index.mdx
+in the repository https://github.com/3b1b/3Blue1Brown.com, which has the fields
+`video:` (an 11-character YouTube id) and `source:` (a path inside 3b1b/videos).
 """
 
 import csv
@@ -36,7 +36,7 @@ def parse_frontmatter(text: str) -> dict:
 
 
 def repo_candidates() -> list[str]:
-    """Пути верхнего/второго уровня внутри 3b1b/videos, к которым мы фаззи-матчим source."""
+    """Top-/second-level paths inside 3b1b/videos that we fuzzy-match source against."""
     out = []
     for year in sorted(VIDEOS_REPO.glob("_2*")):
         for child in sorted(year.iterdir()):
@@ -96,11 +96,11 @@ def main() -> None:
     with_source = sum(bool(r["source"]) for r in rows)
     both = sum(bool(r["youtube_id"]) and bool(r["source"]) for r in rows)
     ok = sum(r["source_exists"] for r in rows)
-    print(f"уроков:                 {n}")
-    print(f"есть youtube_id:        {with_video}")
-    print(f"есть source:            {with_source}")
-    print(f"есть и то, и другое:    {both}")
-    print(f"source реально в репо:  {ok}")
+    print(f"lessons:                 {n}")
+    print(f"have a youtube_id:       {with_video}")
+    print(f"have a source:           {with_source}")
+    print(f"have both:               {both}")
+    print(f"source really in repo:   {ok}")
     print(f"-> {OUT_DIR/'3b1b_mapping.json'}")
 
 

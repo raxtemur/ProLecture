@@ -1,27 +1,29 @@
-"""Развёрнутое решение вузовской задачи: система линейных ОДУ x' = Ax.
+"""A worked solution of a university problem: a system of linear ODEs x' = Ax.
 
-Задача не помещается на один экран, поэтому файл заодно демонстрирует четыре
-разных способа «листать слайды» в manim:
+The problem does not fit on one screen, so the file also demonstrates four different
+ways of "turning the slides" in manim:
 
-  1. self.next_section(...)      — логическое деление ролика на части;
-                                   с флагом --save_sections каждая часть
-                                   пишется отдельным mp4 (см. media/videos/.../sections/).
+  1. self.next_section(...)      — a logical division of the video into parts;
+                                   with the --save_sections flag each part is
+                                   written as a separate mp4 (see media/videos/.../sections/).
   2. self.play(FadeOut(*self.mobjects))
-                                 — самая частая смена «слайда»: очистка экрана.
+                                 — the commonest "slide" change: clearing the screen.
   3. VGroup(...).animate.shift(UP)
-                                 — прокрутка длинной выкладки, когда строки
-                                   вывода не влезают по высоте.
+                                 — scrolling a long derivation, when the lines of the
+                                   output do not fit vertically.
   4. MovingCameraScene + self.camera.frame
-                                 — весь конспект лежит на одном большом холсте,
-                                   а «слайд» = положение камеры (сцена CanvasTour).
+                                 — the whole set of notes lies on one large canvas,
+                                   and a "slide" = the position of the camera (the
+                                   CanvasTour scene).
 
-Рендер:
+Rendering:
     conda activate rah_manim
     manim -ql demo2.py EigenLecture --save_sections
     manim -ql demo2.py CanvasTour
 
-Вёрстку сторожит layout_check.audit(): manim НЕ предупреждает ни о выходе
-объекта за кадр, ни о наложениях — молча обрезает камерой. Строгий режим:
+The layout is guarded by layout_check.audit(): manim does NOT warn either about an
+object going off-screen or about overlaps — it silently crops with the camera. Strict
+mode:
     MANIM_LAYOUT_STRICT=1 manim -ql demo2.py EigenLecture
 """
 
@@ -35,14 +37,14 @@ from scene_asserts import (
     snapshot,
 )
 
-# --- данные задачи ---------------------------------------------------------
+# --- the data of the problem -----------------------------------------------
 A_MAT = [[2, 1], [1, 2]]
 EIGEN_SLOW = np.array([1, -1, 0]) / np.sqrt(2)   # λ = 1
 EIGEN_FAST = np.array([1, 1, 0]) / np.sqrt(2)    # λ = 3
 
 
 def fit(mob: Mobject, margin: float = 1.2) -> Mobject:
-    """Ужимает объект, если он шире кадра (частая беда длинных формул)."""
+    """Shrinks an object if it is wider than the frame (a frequent trouble with long formulas)."""
     max_width = config.frame_width - margin
     if mob.width > max_width:
         mob.scale_to_fit_width(max_width)
@@ -50,7 +52,7 @@ def fit(mob: Mobject, margin: float = 1.2) -> Mobject:
 
 
 def solution(t: float) -> np.ndarray:
-    """x(t) = ½ e^t (1,-1) + ½ e^{3t} (1,1) — решение с x(0) = (1,0)."""
+    """x(t) = ½ e^t (1,-1) + ½ e^{3t} (1,1) — the solution with x(0) = (1,0)."""
     return np.array(
         [
             0.5 * (np.exp(t) + np.exp(3 * t)),
@@ -61,7 +63,7 @@ def solution(t: float) -> np.ndarray:
 
 
 class EigenLecture(Scene):
-    """Полное решение задачи, разбитое на секции-«слайды»."""
+    """The full solution of the problem, broken into section-\"slides\"."""
 
     def construct(self):
         self.slide_statement()
@@ -70,10 +72,10 @@ class EigenLecture(Scene):
         self.slide_geometry()
         self.slide_answer()
 
-    # -- служебное ----------------------------------------------------------
+    # -- service helpers ----------------------------------------------------
     def slide_title(self, number: int, text: str) -> VGroup:
-        """Шапка слайда: номер + название + линейка под ними."""
-        tag = Text(f"Шаг {number}", font_size=24, color=GREY_B)
+        """A slide heading: the number + the title + a rule beneath them."""
+        tag = Text(f"Step {number}", font_size=24, color=GREY_B)
         name = Text(text, font_size=34, weight=BOLD)
         head = VGroup(tag, name).arrange(RIGHT, buff=0.4)
         rule = Line(LEFT, RIGHT).set_width(config.frame_width - 1.5)
@@ -82,15 +84,15 @@ class EigenLecture(Scene):
         return group
 
     def wipe(self, label: str = ""):
-        """Способ №2: смена слайда через затухание всего, что на экране."""
-        audit(self, label)  # manim сам о вылезаниях не предупреждает
+        """Way no. 2: changing the slide by fading out everything on the screen."""
+        audit(self, label)  # manim itself does not warn about things sticking out
         if self.mobjects:
             self.play(FadeOut(*self.mobjects), run_time=0.6)
 
-    # -- слайды -------------------------------------------------------------
+    # -- the slides ---------------------------------------------------------
     def slide_statement(self):
-        self.next_section("Условие")  # способ №1
-        head = self.slide_title(1, "Условие")
+        self.next_section("The problem")  # way no. 1
+        head = self.slide_title(1, "The problem")
 
         task = MathTex(
             r"\dot{x}(t) = A\,x(t),\qquad "
@@ -100,10 +102,10 @@ class EigenLecture(Scene):
         )
         fit(task)
         plan = VGroup(
-            Text("1. характеристический многочлен  →  λ", font_size=28),
-            Text("2. собственные векторы  →  базис", font_size=28),
-            Text("3. геометрия действия A на плоскости", font_size=28),
-            Text("4. общее решение и константы из x(0)", font_size=28),
+            Text("1. the characteristic polynomial  →  λ", font_size=28),
+            Text("2. the eigenvectors  →  a basis", font_size=28),
+            Text("3. the geometry of the action of A on the plane", font_size=28),
+            Text("4. the general solution and the constants from x(0)", font_size=28),
         ).arrange(DOWN, aligned_edge=LEFT, buff=0.28)
         plan.next_to(task, DOWN, buff=0.8)
 
@@ -111,11 +113,11 @@ class EigenLecture(Scene):
         self.play(Write(task))
         self.play(LaggedStartMap(FadeIn, plan, shift=RIGHT * 0.3, lag_ratio=0.25))
         self.wait(0.6)
-        self.wipe("Шаг 1")
+        self.wipe("Step 1")
 
     def slide_char_poly(self):
-        self.next_section("Характеристический многочлен")
-        head = self.slide_title(2, "Характеристический многочлен")
+        self.next_section("The characteristic polynomial")
+        head = self.slide_title(2, "The characteristic polynomial")
         self.add(head)
 
         steps = VGroup(
@@ -131,8 +133,8 @@ class EigenLecture(Scene):
         ).arrange(DOWN, buff=0.45)
         steps.next_to(head, DOWN, buff=0.6)
 
-        # способ №3: строк больше, чем влезает по высоте, — держим «окно»
-        # из трёх последних, остальные уезжают вверх и гасятся
+        # way no. 3: there are more lines than fit vertically, so we keep a "window"
+        # of the last three, and the rest travel upwards and are faded out
         line_gap = abs(steps[0].get_center()[1] - steps[1].get_center()[1])
         visible: list[Mobject] = []
         for step in steps:
@@ -145,20 +147,20 @@ class EigenLecture(Scene):
                     steps.animate.shift(UP * line_gap),
                     run_time=0.6,
                 )
-                # steps.animate возвращает в сцену всю группу целиком, вместе
-                # с только что погашенной строкой — она остаётся висеть выше
-                # кадра. Поэтому выводим строку и из группы тоже.
+                # steps.animate returns the whole group to the scene, together with
+                # the line just faded out — it stays hanging above the frame. So we
+                # remove the line from the group as well.
                 steps.remove(oldest)
                 self.remove(oldest)
 
         box = SurroundingRectangle(steps[-1], color=YELLOW, buff=0.25)
         self.play(Create(box))
         self.wait(0.5)
-        self.wipe("Шаг 2")
+        self.wipe("Step 2")
 
     def slide_eigenvectors(self):
-        self.next_section("Собственные векторы")
-        head = self.slide_title(3, "Собственные векторы")
+        self.next_section("The eigenvectors")
+        head = self.slide_title(3, "The eigenvectors")
         self.add(head)
 
         left = VGroup(
@@ -183,11 +185,11 @@ class EigenLecture(Scene):
         divider = Line(UP, DOWN).set_height(columns.height).set_stroke(GREY_D, 2)
         divider.move_to(columns)
 
-        # кириллица в MathTex не компилируется (pdflatex + Unicode) —
-        # текстовые пояснения делаем через Text, формулы оставляем в MathTex
+        # non-Latin text does not compile in MathTex (pdflatex + Unicode) —
+        # textual explanations go through Text, the formulas stay in MathTex
         note = VGroup(
             MathTex(r"v_1 \perp v_2 \;\Longrightarrow\; A = A^{\top}", font_size=32, color=GREY_A),
-            Text("симметричная матрица: собственные векторы ортогональны",
+            Text("a symmetric matrix: the eigenvectors are orthogonal",
                  font_size=26, color=GREY_A),
         ).arrange(DOWN, buff=0.2)
         fit(note)
@@ -197,19 +199,19 @@ class EigenLecture(Scene):
         self.play(FadeIn(right, shift=LEFT * 0.3))
         self.play(Write(note))
         self.wait(0.5)
-        self.wipe("Шаг 3")
+        self.wipe("Step 3")
 
     def slide_geometry(self):
-        self.next_section("Геометрия")
-        head = self.slide_title(4, "Как A действует на плоскости")
+        self.next_section("The geometry")
+        head = self.slide_title(4, "How A acts on the plane")
         self.add(head)
 
         plane = NumberPlane(
             x_range=[-4, 4, 1],
             y_range=[-3, 3, 1],
             x_length=7.5,
-            y_length=5.625,  # тот же масштаб, что по x (7.5/8 = 5.625/6):
-            # иначе ApplyMatrix в координатах сцены равен S·A·S⁻¹, а не A
+            y_length=5.625,  # the same scale as along x (7.5/8 = 5.625/6):
+            # otherwise ApplyMatrix in scene coordinates equals S·A·S⁻¹ rather than A
             background_line_style={"stroke_opacity": 0.35},
         ).next_to(head, DOWN, buff=0.35)
 
@@ -220,9 +222,9 @@ class EigenLecture(Scene):
 
         caption = VGroup(
             MathTex(r"Av_1 = 1\cdot v_1", font_size=30, color=BLUE_B),
-            Text("длина сохраняется", font_size=24, color=BLUE_B),
+            Text("the length is preserved", font_size=24, color=BLUE_B),
             MathTex(r"Av_2 = 3\cdot v_2", font_size=30, color=RED_B),
-            Text("растяжение втрое", font_size=24, color=RED_B),
+            Text("a threefold stretch", font_size=24, color=RED_B),
         ).arrange(RIGHT, buff=0.35)
         fit(caption)
         caption.next_to(plane, DOWN, buff=0.25)
@@ -230,12 +232,12 @@ class EigenLecture(Scene):
         self.play(Create(plane), run_time=1.2)
         self.play(GrowArrow(v1), GrowArrow(v2), FadeIn(l1), FadeIn(l2))
         self.play(Write(caption))
-        # ApplyMatrix действует относительно ORIGIN сцены, а плоскость сдвинута
-        # вниз под заголовок — без about_point преобразование выходит неверным
+        # ApplyMatrix acts relative to the scene's ORIGIN, while the plane is shifted
+        # down under the heading — without about_point the transformation comes out wrong
         origin = plane.c2p(0, 0)
-        plane_ref = plane.copy()  # сетку сейчас перекосит, снимок нужен для проверок
-        expect_uniform_scale(plane, "оси плоскости")
-        before = {"сетка": snapshot(plane), "v1": snapshot(v1), "v2": snapshot(v2)}
+        plane_ref = plane.copy()  # the grid is about to be skewed; the snapshot is needed for the checks
+        expect_uniform_scale(plane, "the axes of the plane")
+        before = {"the grid": snapshot(plane), "v1": snapshot(v1), "v2": snapshot(v2)}
         v1_end, v2_end = v1.get_end().copy(), v2.get_end().copy()
 
         self.play(
@@ -244,14 +246,14 @@ class EigenLecture(Scene):
             ApplyMatrix(A_MAT, v2, about_point=origin),
             run_time=2.5,
         )
-        # общая проверка: всё преобразовано ровно матрицей A. Она предметно
-        # нейтральна и ловит и забытый about_point, и неравный масштаб осей
-        for name, mob in (("сетка", plane), ("v1", v1), ("v2", v2)):
+        # the general check: everything was transformed by exactly the matrix A. It is
+        # subject-neutral and catches both a forgotten about_point and an unequal axis scale
+        for name, mob in (("the grid", plane), ("v1", v1), ("v2", v2)):
             expect_matrix_action(before[name], mob, A_MAT, name, coord_system=plane_ref)
 
-        # прикладной инвариант именно этой задачи — две строки поверх общих проверок
-        expect_point(v1.get_end(), v1_end, "v1: λ=1, конец не должен был сдвинуться")
-        expect_point(v2.get_end(), origin + 3 * (v2_end - origin), "v2: λ=3, ровно втрое дальше")
+        # the applied invariant of this particular problem — two lines on top of the general checks
+        expect_point(v1.get_end(), v1_end, "v1: λ=1, the end was not supposed to move")
+        expect_point(v2.get_end(), origin + 3 * (v2_end - origin), "v2: λ=3, exactly three times further")
 
         self.wait(0.4)
         self.play(
@@ -261,11 +263,11 @@ class EigenLecture(Scene):
             run_time=1.2,
         )
         self.wait(0.3)
-        self.wipe("Шаг 4")
+        self.wipe("Step 4")
 
     def slide_answer(self):
-        self.next_section("Ответ")
-        head = self.slide_title(5, "Общее решение и ответ")
+        self.next_section("The answer")
+        head = self.slide_title(5, "The general solution and the answer")
         self.add(head)
 
         general = MathTex(
@@ -298,29 +300,29 @@ class EigenLecture(Scene):
 
 
 class CanvasTour(MovingCameraScene):
-    """Способ №4: конспект целиком лежит на большом холсте, «слайд» = кадр камеры.
+    """Way no. 4: the whole set of notes lies on a large canvas, a "slide" = the camera frame.
 
-    Такой приём удобен, когда нужно показать связь между блоками: камера
-    отъезжает и видно всю картину сразу.
+    This device is convenient when the connection between the blocks has to be shown:
+    the camera pulls back and the whole picture is visible at once.
     """
 
     def construct(self):
         self.camera.frame.save_state()
 
-        # --- блок 1: постановка (левый верх) -------------------------------
+        # --- block 1: the statement (upper left) ---------------------------
         block1 = VGroup(
-            Text("Задача", font_size=32, weight=BOLD),
+            Text("The problem", font_size=32, weight=BOLD),
             MathTex(r"\dot{x} = Ax,\quad A = \begin{bmatrix} 2 & 1 \\ 1 & 2\end{bmatrix}", font_size=34),
         ).arrange(DOWN, buff=0.35).move_to(LEFT * 11 + UP * 4)
 
-        # --- блок 2: спектр (правый верх) ----------------------------------
+        # --- block 2: the spectrum (upper right) ---------------------------
         block2 = VGroup(
-            Text("Спектр", font_size=32, weight=BOLD),
+            Text("The spectrum", font_size=32, weight=BOLD),
             MathTex(r"\lambda_1 = 1,\ v_1 = \begin{bmatrix} 1 \\ -1\end{bmatrix}", font_size=32, color=BLUE_B),
             MathTex(r"\lambda_2 = 3,\ v_2 = \begin{bmatrix} 1 \\ 1\end{bmatrix}", font_size=32, color=RED_B),
         ).arrange(DOWN, buff=0.3).move_to(RIGHT * 11 + UP * 4)
 
-        # --- блок 3: фазовый портрет (центр, крупный) ----------------------
+        # --- block 3: the phase portrait (centre, large) -------------------
         plane = NumberPlane(
             x_range=[-3, 3, 1],
             y_range=[-3, 3, 1],
@@ -346,12 +348,12 @@ class CanvasTour(MovingCameraScene):
         dot_label = MathTex(r"x(0)", font_size=28, color=YELLOW).next_to(dot, RIGHT, buff=0.15)
 
         block3 = VGroup(plane, field, traj, dot, dot_label)
-        block3_title = Text("Фазовый портрет", font_size=32, weight=BOLD)
+        block3_title = Text("The phase portrait", font_size=32, weight=BOLD)
         block3_title.next_to(plane, UP, buff=0.3)
 
-        # --- блок 4: ответ (право снизу) -----------------------------------
+        # --- block 4: the answer (lower right) -----------------------------
         block4 = VGroup(
-            Text("Ответ", font_size=32, weight=BOLD),
+            Text("The answer", font_size=32, weight=BOLD),
             MathTex(
                 r"x(t) = \tfrac{1}{2}\begin{bmatrix} e^{t} + e^{3t} \\ e^{3t} - e^{t}\end{bmatrix}",
                 font_size=34,
@@ -361,23 +363,23 @@ class CanvasTour(MovingCameraScene):
 
         self.add(block1, block2, block3_title, block3, block4)
 
-        # камера как «листалка»: наезд на каждый блок по очереди.
-        # ВАЖНО: set(width=...) задаёт только ширину, высота пересчитывается по
-        # аспекту кадра — если блок высокий, он обрежется. Поэтому берём
-        # максимум из требований по ширине и по высоте.
+        # the camera as a "slide turner": zooming in on each block in turn.
+        # IMPORTANT: set(width=...) sets only the width, the height is recomputed from
+        # the aspect of the frame — if the block is tall, it will be cropped. So we take
+        # the maximum of the requirements by width and by height.
         aspect = config.frame_width / config.frame_height
 
         def frame_width_for(target: Mobject, margin: float = 1.2) -> float:
             return max(target.width * margin, target.height * margin * aspect)
 
         self.camera.frame.move_to(block1).set(width=frame_width_for(block1, 1.5))
-        audit(self, "блок 1", [block1], check_overlaps=False)
+        audit(self, "block 1", [block1], check_overlaps=False)
         self.wait(0.4)
 
         tour = (
-            ("блок 2", block2, 1.35),
-            ("блок 3", VGroup(block3_title, block3), 1.15),
-            ("блок 4", block4, 1.4),
+            ("block 2", block2, 1.35),
+            ("block 3", VGroup(block3_title, block3), 1.15),
+            ("block 4", block4, 1.4),
         )
         for label, target, margin in tour:
             self.play(
@@ -387,11 +389,11 @@ class CanvasTour(MovingCameraScene):
             audit(self, label, [target], check_overlaps=False, check_intruders=True)
             self.wait(0.4)
 
-        # финальный отъезд: видно весь конспект целиком
+        # the final pull-back: the whole set of notes is visible at once
         everything = VGroup(block1, block2, block3_title, block3, block4)
         self.play(
             self.camera.frame.animate.move_to(everything).set(width=frame_width_for(everything, 1.08)),
             run_time=2,
         )
-        audit(self, "весь холст", [everything], check_overlaps=False)
+        audit(self, "the whole canvas", [everything], check_overlaps=False)
         self.wait(0.8)

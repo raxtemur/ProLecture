@@ -1,6 +1,6 @@
 # Taylor series | Chapter 11, Essence of calculus
 
-Длительность 1339 с. Реплик 1016. Чаптеров 5.
+Duration 1339 s. Utterances 1016. Chapters 5.
 
 
 ## [15s] Approximating cos(x)

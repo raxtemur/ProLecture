@@ -1,299 +1,301 @@
-# Бенчмарк проактивных задач для стриминговых VLM на видео 3Blue1Brown
+# A benchmark of proactive tasks for streaming VLMs on 3Blue1Brown videos
 
-Рабочее название: **ProLecture** (proactive lecture streaming benchmark).
-Статус: черновик плана, версия 0.1, 2026-08-19.
-
----
-
-## 0. Цель и позиционирование
-
-**Цель.** Бенчмарк, проверяющий способность стриминговой VLM самостоятельно решать
-*когда* ответить и *что* ответить, на материале математических лекций, где ответ
-требует рассуждения, а не считывания.
-
-**Чем отличаемся от существующего.** Три ближайших работы:
-
-| Работа | Домен | Что меряет | Чего не хватает |
-|---|---|---|---|
-| [OVO-Bench](https://arxiv.org/abs/2501.05510) | бытовые/спорт/игры | backward / real-time / forward active | MCQ, нет аудио, перцепция |
-| [ProactiveVideoQA](https://arxiv.org/abs/2507.09313) | разное | open-ended + метрика **PAUC** | простые вопросы («сообщи, когда X») |
-| [OmniPro](https://arxiv.org/abs/2605.18577) | реальные сцены | 6 способностей × 9 подзадач, аудио | перцептивные задачи, counting; 84% аудио, но vision-only модели не отстают |
-
-Наша ниша — **проактивность, упирающаяся в рассуждение**. В лекции почти нет
-перцептивной сложности (чистый рендер, крупные формулы, чёткая речь), зато есть
-логическая структура: посылка → вывод → следствие. Значит, единственный способ
-ответить вовремя — понять содержание, а не распознать объект. Это ровно та ось,
-по которой OmniPro не различает модели (см. п. 1.2).
-
-**Наш уникальный актив.** Для 140 видео 3b1b мы знаем YouTube-ссылку **и существующий в репозитории путь к
-исходному manim-коду** (159 уроков объявляют `source`, 155 — вместе с YouTube-ID, но у 15 из них путь
-битый или переименован) (`data/3b1b_mapping.json`, собран `tools/build_3b1b_mapping.py`).
-Ни у одного из существующих бенчмарков нет исходников визуального ряда. Это даёт:
-
-1. точную ground-truth того, что на экране (строки `Tex`/`MathTex` с LaTeX),
-2. семантические границы (имена сцен, порядок анимаций),
-3. возможность **ре-рендера с внедрённой ошибкой** — контент, которого гарантированно
-   нет в pretraining (см. Фазу 6).
+Working title: **ProLecture** (proactive lecture streaming benchmark).
+Status: draft plan, version 0.1, 2026-08-19.
 
 ---
 
-## 1. Риски, которые закладываем в дизайн с первого дня
+## 0. The goal and the positioning
 
-Эти пункты — прямые выводы из адверсальных разборов OmniPro, M³AV и Code2Video
-(`articles/*/review.md`). Каждый из них убил или сильно ослабил соответствующую работу.
+**The goal.** A benchmark testing the ability of a streaming VLM to decide for itself *when* to
+answer and *what* to answer, on the material of mathematical lectures, where the answer requires
+reasoning rather than reading off.
 
-### 1.1. Контаминация — риск №1 для 3b1b
+**How we differ from what exists.** The three nearest works:
 
-Видео 3b1b входят в число самых просматриваемых математических видео вообще.
-Тексты, транскрипты и пересказы «Essence of calculus» почти наверняка в pretraining
-любой фронтир-модели. Вопрос «что такое ряд Тейлора» решается вслепую.
+| Work | Domain | What it measures | What is missing |
+|---|---|---|---|
+| [OVO-Bench](https://arxiv.org/abs/2501.05510) | everyday / sports / games | backward / real-time / forward active | MCQ, no audio, perception |
+| [ProactiveVideoQA](https://arxiv.org/abs/2507.09313) | mixed | open-ended + the **PAUC** metric | simple questions ("tell me when X") |
+| [OmniPro](https://arxiv.org/abs/2605.18577) | real scenes | 6 abilities × 9 subtasks, audio | perceptual tasks, counting; 84% audio, yet vision-only models keep up |
 
-Меры:
-- **Blind-бейзлайн обязателен для каждого сэмпла.** Модель получает только вопрос,
-  без видео. Решила — сэмпл выбрасывается или помечается `contaminated: true`.
-- **Пилот строим на видео 2026 года** (`_2026/*`), которые вышли после cutoff
-  большинства моделей, и **параллельно берём контрольное видео 2017 года**, чтобы
-  *измерить* величину разрыва, а не отрицать проблему.
-- Формулировки вопросов привязываем к *этому* изложению («какой метод использует
-  автор», а не «каким методом это решается»).
+Our niche is **proactivity that runs into reasoning**. A lecture has almost no perceptual
+difficulty (clean rendering, large formulas, clear speech), but it does have a logical structure:
+premise → derivation → consequence. Which means the only way to answer in time is to understand
+the content rather than recognise an object. That is exactly the axis along which OmniPro fails to
+tell models apart (see §1.2).
 
-### 1.2. Бенчмарк обязан различать модальности
+**Our unique asset.** For 140 3b1b videos we know both the YouTube link **and a path to the
+source manim code that actually exists in the repository** (159 lessons declare a `source`, 155 of
+them together with a YouTube ID, but for 15 of those the path is broken or renamed)
+(`data/3b1b_mapping.json`, assembled by `tools/build_3b1b_mapping.py`). None of the existing
+benchmarks has the sources of the visual track. This gives:
 
-У OmniPro 84% вопросов помечены как аудиозависимые, но vision-only Qwen3-VL обходит
-три из пяти omni-моделей — то есть метка не проверялась эмпирически.
-
-Мера: `audio_dependency` — **не декларация аннотатора, а результат замера.**
-Метка выводится из ответов зондов модальностей, а не из мнения разметчика:
-пока `status == "draft"`, поле остаётся `null`, мнение живёт отдельно
-в `audio_dependency_claim`.
-
-**Оговорка, без которой это была бы та же подмена, что у OmniPro.** Зонды —
-текстовые агенты: `probe_text` читает **транскрипт**, `probe_vision` смотрит кадры.
-Значит `required` у нас означает «нужно **содержание речи**», а не «нужен звук»:
-модель с ASR-фронтендом получит это содержание из текста и метку не подтвердит.
-Настоящей проверкой будет только vision-only бейзлайн на Фазе 3 — до неё метка
-остаётся гипотезой, выведенной замером на суррогате. В релизе поле называется
-`speech_dependency`; те сэмплы, где реальный vision-only бейзлайн разойдётся
-с меткой, пересматриваются, а не подгоняются.
-
-Отдельно фиксируем: **у 3b1b нет non-speech sound** (только речь + иногда фоновая
-музыка). Ось «sound» из OmniPro у нас не работает — честно пишем это в ограничениях,
-а не подгоняем.
-
-### 1.3. Генератор ≠ судья ≠ участник
-
-В Code2Video Gemini-2.5 Pro был Critic'ом внутри метода, судьёй и «студентом»
-одновременно; в OmniPro Gemini-3-Flash — генератор данных, судья и лидер таблицы.
-
-Меры:
-- Модель-помощник при разметке **исключается из таблицы результатов** или
-  отчитывается отдельной строкой с явной пометкой.
-- Финальный GT проходит через человека. Пока конвейер калибруется — сплошь,
-  по каждому сэмплу: это единственный способ узнать, что пропускает автоматика,
-  и побочный результат (новые пункты чеклиста) важнее прямого. Дальше — выборочно,
-  плюс обязательно всё, что цикл не закрыл сам: `CRITICAL_FAIL`, вышедшее за лимит
-  итераций, осциллирующее и с непроверенными пунктами.
-
-**Как роли распределены фактически, без самообмана.** Пропозер, координатор
-и аннотатор — это одна роль, и играет её Opus 5 **вместе с человеком в диалоге**:
-решения о правках принимаются в переписке, а не автономно. Ревьюеры и зонды —
-тот же Opus 5, но **без человека**: они получают промпт, материал и отчитываются
-по контракту.
-
-Требования «судья другого семейства, чем генератор» на этом этапе **нет** —
-выполнить его нечем, и делать вид, что оно выполнено, хуже, чем признать. Что
-реально разделено: у ревьюеров и зондов нет ни эталона, ни истории правок,
-ни доступа к разметке, и это обеспечено промптом, рабочей папкой и самоотчётом
-о нарушениях. Что не разделено: судейство ответов зондов и редактирование сэмплов
-делает один и тот же участник. Компенсация — запись координатора
-(`data/reviews/<...>/coordinator.<КРУГ>.md`), где основание каждого флага
-записано словами, и человек в контуре на каждом решении.
-
-Из этого следует ограничение для статьи: при оценке моделей семейства Claude
-результат нельзя подавать наравне с остальными — разметку делал их родственник.
-
-### 1.4. Никаких MCQ и никаких перекошенных ключей
-
-В Code2Video ключ ответов был B=50.6% — константный ответ бил бейзлайн.
-У нас **открытые ответы + рубрика**, судимые LLM по явным критериям. Если где-то
-всё же понадобится MCQ — обязательна проверка на распределение ключа и на
-«majority answer» бейзлайн.
-
-### 1.5. Тривиальные стратегии должны проваливаться
-
-Обязательные бейзлайны-пустышки: «отвечать сразу», «отвечать в конце»,
-«отвечать каждые N секунд», «молчать». Если любой из них набирает прилично —
-дизайн сломан.
-
-### 1.6. Статистика
-
-С самого начала: разбивка по категориям, размер выборки в каждой ячейке,
-доверительные интервалы (bootstrap), несколько прогонов. Утверждения вида
-«модель A лучше модели B» без CI не пишем.
-
-### 1.7. Правовое
-
-Видео 3b1b — обычный копирайт (CC BY-NC-SA распространяется на код, не на видео).
-**Раздаём аннотации + YouTube-ID + таймкоды, а не mp4.** Скрипт скачивания — на
-стороне пользователя. (MMMC выложил 43 ГБ чужого видео на HF; повторять не будем.)
+1. an exact ground truth of what is on the screen (the `Tex`/`MathTex` strings with LaTeX),
+2. semantic boundaries (scene names, the order of the animations),
+3. the possibility of **re-rendering with an injected error** — content guaranteed to be absent
+   from pre-training (see Phase 6).
 
 ---
 
-## 2. Таксономия задач
+## 1. The risks we build into the design from day one
 
-Три ортогональные оси. Каждый сэмпл характеризуется тройкой (акт, темпоральное
-отношение, уровень рассуждения) — это даёт куб, по ячейкам которого мы и балансируем.
+These points are direct conclusions from the adversarial reviews of OmniPro, M³AV and Code2Video
+(`articles/*/review.md`). Each of them killed or badly weakened the work in question.
 
-### Ось A — тип проактивного акта
+### 1.1. Contamination — risk no. 1 for 3b1b
 
-Адаптация OmniPro; выброшены Cumulative/Deduplicated Counting, добавлены три
-верификационно-контрфактических типа.
+3b1b videos are among the most watched mathematical videos in existence. Texts, transcripts and
+retellings of "Essence of calculus" are almost certainly in the pre-training of any frontier model.
+The question "what is a Taylor series" is solved blind.
 
-| Код | Акт | Суть | Пример |
-|---|---|---|---|
-| `alert` | Сигнал | сообщить о наступлении условия | «скажи, когда будет предъявлен неверный аргумент» |
-| `monitor` | Мониторинг состояния | отслеживать эволюционирующую величину, сообщать при изменении | «сообщай каждый раз, когда меняется размерность рассматриваемого пространства» |
-| `ground` | Локализация | указать момент/область события | «когда появится определение энтропии, скажи это» |
-| `narrate` | Описание | объяснить происходящее в момент, когда оно происходит | «объясни каждый переход в выкладке в момент перехода» |
-| `predict` | Предсказание | назвать следующий шаг **до** того, как он показан | «когда автор поставит задачу, скажи, каким методом он её решит» |
-| `verify` | Верификация | подтвердить/опровергнуть корректность показанного | «скажи, верен ли предъявленный переход» |
-| `counterfact` | Контрфактика | «что изменится, если…» в момент появления объекта | «когда появится график, скажи, как он изменится при a → 2a» |
+Measures:
+- **A blind baseline is mandatory for every sample.** The model gets only the question, without
+  the video. If it solves it, the sample is thrown out or marked `contaminated: true`.
+- **The pilot is built on 2026 videos** (`_2026/*`), released after the cutoff of most models, and
+  **in parallel we take a control video from 2017**, so as to *measure* the size of the gap rather
+  than deny the problem.
+- Question wordings are anchored to *this* exposition ("what method does the author use", not "what
+  method is this solved by").
 
-### Ось B — темпоральное отношение вопроса и триггера
+### 1.2. A benchmark is obliged to tell modalities apart
 
-Совпадает с идеей пользователя и с трёхчастным делением OVO-Bench — хорошо, есть на
-что сослаться.
+In OmniPro 84% of the questions are marked as audio-dependent, yet the vision-only Qwen3-VL beats
+three of the five omni models — that is, the label was never checked empirically.
 
-Ось определяется положением **доказательства** относительно момента выдачи вопроса
-(`question_time`), а не положением окна ответа: у `post`-вопроса окно ответа тоже
-начинается в момент выдачи, и по окну он неотличим от `at`.
+The measure: `audio_dependency` is **not a declaration by the annotator but the result of a
+measurement.** The label is derived from the answers of the modality probes rather than from the
+annotator's opinion: while `status == "draft"` the field stays `null`, and the opinion lives
+separately in `audio_dependency_claim`.
 
-| Код | Где лежит доказательство | Что проверяет | Аналог в OVO-Bench |
-|---|---|---|---|
-| `pre` | появляется **после** `question_time` | **умение ждать**, не отвечать раньше времени | Forward Active Responding |
-| `at` | присутствует **в момент** `question_time` | восприятие «здесь и сейчас», решения «когда» нет | Real-Time Visual Perception |
-| `post` | прошло **до** `question_time` | ответ по памяти, немедленно | Backward Tracing |
+**A caveat without which this would be the same substitution as OmniPro's.** The probes are textual
+agents: `probe_text` reads the **transcript**, `probe_vision` looks at frames. So `required` for us
+means "the **content of the speech** is needed" rather than "the sound is needed": a model with an
+ASR front end will get that content from text and will not confirm the label. The only real check
+will be the vision-only baseline in Phase 3 — until then the label remains a hypothesis derived by
+a measurement on a surrogate. In the release the field is named `speech_dependency`; the samples
+where the real vision-only baseline diverges from the label are reconsidered, not fitted.
 
-Метка **выводится валидатором** из `question_time` и `evidence_span`, а не ставится
-руками: иначе она незаметно расходится с содержанием (так и случилось в первой
-итерации разметки — все восемь сэмплов были помечены по признаку «откуда берётся
-ответ», который на самом деле кодирует ось C).
+Recorded separately: **3b1b has no non-speech sound** (only speech and occasionally background
+music). The "sound" axis from OmniPro does not work for us — we write that honestly in the
+limitations rather than fitting around it.
 
-`question_time` выбирается как самый поздний момент, когда вопрос уже осмыслен, но
-окно ещё не наступило: референты в формулировке должны существовать, а дистракторы —
-оставаться позже выдачи вопроса.
+### 1.3. Generator ≠ judge ≠ participant
 
-`pre` — основной режим и главная ценность. `post` полезен как контроль: если модель
-решает `post`, но не решает тот же вопрос в `pre`, проблема именно в проактивности,
-а не в понимании. **Один и тот же вопрос стоит размечать в двух режимах —
-это даёт контролируемую пару.**
+In Code2Video, Gemini-2.5 Pro was the Critic inside the method, the judge and the "student" all at
+once; in OmniPro, Gemini-3-Flash is the data generator, the judge and the leader of the table.
 
-### Ось C — уровень рассуждения (то, чего нет у OmniPro)
+Measures:
+- The model assisting the annotation is **excluded from the table of results**, or reported on a
+  separate line with an explicit note.
+- The final GT goes through a human. While the pipeline is being calibrated — exhaustively, on
+  every sample: that is the only way to find out what the automation lets through, and the side
+  result (new checklist items) matters more than the direct one. Later — selectively, plus
+  necessarily everything the cycle did not close itself: `CRITICAL_FAIL`, whatever went over the
+  iteration limit, whatever oscillated, and whatever has unchecked items.
 
-| Код | Уровень | Как получается ответ | Доля-цель |
-|---|---|---|---|
-| `L1` | Перцепция | считывается с экрана или из речи | ≤ 20% (в пилоте 30% — см. ниже) |
-| `L2` | Интеграция | нужно связать ≥2 разнесённых во времени момента | ~40% |
-| `L3` | Вывод | нужно провести вычисление/рассуждение, которого в видео **нет** | ~40% |
+**How the roles are distributed in fact, without self-deception.** The proposer, the coordinator
+and the annotator are one role, and it is played by Opus 5 **together with a human in dialogue**:
+decisions about edits are taken in correspondence, not autonomously. The reviewers and the probes
+are the same Opus 5, but **without the human**: they get a prompt and material and report against
+the contract.
 
-В пилоте доли вышли `L3` 4, `L1` 4, `L2` 2 из десяти, то есть `L1` вдвое выше цели. (Числа пересчитываются валидатором в блоке «покрытие»; если расходятся с этой строкой — правится строка, это пункт 9.1.)
-Причина честная: два сэмпла переразмечены из `L2` в `L1` после проверки (оба факта
-ответа звучали в одной реплике). Подгонять под целевые доли на выборке в десять
-сэмплов бессмысленно, возвращаемся к этому при расширении.
+There is **no** requirement at this stage that the judge be of a different family than the
+generator — there is nothing to satisfy it with, and pretending it is satisfied is worse than
+admitting it. What really is separated: the reviewers and the probes have neither the reference
+answer, nor the history of edits, nor access to the annotation, and this is ensured by the prompt,
+the working folder and the self-report of violations. What is not separated: judging the probes'
+answers and editing the samples are done by one and the same participant. The compensation is the
+coordinator's record (`data/reviews/<...>/coordinator.<ROUND>.md`), where the grounds for every
+flag are written out in words, and a human in the loop on every decision.
 
-**Критерий качества L3:** ответ не должен выводиться из общих знаний о теме — иначе
-его решает blind-бейзлайн. Проверяется механически (п. 5.3), а не на глаз.
+A limitation for the paper follows: when evaluating models of the Claude family the result cannot
+be presented on a par with the others — the annotation was done by a relative of theirs.
 
-### 2.1. Каталог «сложных» шаблонов вопросов
+### 1.4. No MCQs and no skewed answer keys
 
-Это то, ради чего всё затевается. Восемь шаблонов, отсортированы по
-отношению ценность/стоимость.
+In Code2Video the answer key was B=50.6% — a constant answer beat the baseline. We have **open
+answers plus a rubric**, judged by an LLM against explicit criteria. If an MCQ is nevertheless
+needed somewhere, a check of the key's distribution and a "majority answer" baseline are mandatory.
 
-1. **Natural-error alert** (`alert`/`pre`/`L3`) — у 3b1b регулярно предъявляется
-   наивный или неполный ход рассуждения, который потом опровергается.
-   Триггер ставим там, где аргумент **предъявлен**, а не там, где автор его разобрал.
-   Проверяет способность заметить ошибку раньше автора. Дёшево и очень сильно.
+### 1.5. Trivial strategies must fail
 
-2. **Premature-answer trap** (`любой`/`pre`/`L2`) — вопрос, на который в видео есть
-   ранний *правдоподобный, но неполный* ответ, а полный — позже. Ответ в раннем окне
-   должен снижать балл. Прямо ломает жадную стратегию «отвечай при первом совпадении».
-   Реализуется через поле `distractor_windows`.
+Mandatory dummy baselines: "answer immediately", "answer at the end", "answer every N seconds",
+"stay silent". If any of them scores decently, the design is broken.
 
-3. **Prediction-ahead** (`predict`/`pre`/`L3`) — «когда задача поставлена, назови метод
-   решения». GT — то, что реально произошло дальше. В стриминге модель физически не
-   может подсмотреть. Чистый reasoning.
+### 1.6. Statistics
 
-4. **Counterfactual on-appearance** (`counterfact`/`at`/`L3`) — идея пользователя про
-   коэффициенты. Триггер = момент появления объекта, ответ = результат самостоятельного
-   вычисления. Ответ проверяем численно/символьно (sympy), а не только LLM-судьёй.
+From the very beginning: a breakdown by category, the sample size in each cell, confidence
+intervals (bootstrap), several runs. Claims of the form "model A is better than model B" are not
+written without CIs.
 
-5. **Step-dependency** (`monitor`/`pre`/`L2`) — «сообщи, когда будет использован
-   результат, полученный ранее». Требует держать в памяти два разнесённых момента.
+### 1.7. Legal
 
-6. **Symbol-binding / notation tracking** (`monitor`/`pre`/`L2`) — «сообщи, когда символ
-   σ будет переопределён или сменит смысл». Специфично для лекций, почти невозможно
-   без реального удержания контекста.
-
-7. **Cross-modal conflict** (`alert`/`at`/`L2`) — момент, где речь и картинка расходятся
-   (оговорка, «слева» вместо «справа», опечатка в формуле). У 3b1b такие места
-   задокументированы в errata и в видео-разъяснениях. **Единственный тип, который
-   принципиально требует обеих модальностей** — ценен для проверки `audio_dependency`.
-
-8. **Injected-error alert** (`alert`/`pre`/`L3`) — внедряем ошибку ре-рендером из manim.
-   Самый дорогой, но полностью свободный от контаминации и с точным GT-таймкодом.
-   Фаза 6.
-
-**Что реализовано в пилоте.** На `l6DKRf-fAAM` сделаны шаблоны 2, 3, 4, 5 плюс пять
-не предусмотренных планом: `state_monitor`, `assumption_probe`, `speech_only_marker`
-и два контрольных близнеца (`post_control_twin`, `at_control_twin`). Шаблон 1 `natural_error_alert` на этом видео **слаб, но не невозможен**: явных ошибок нет,
-однако есть два кандидата — плоский двухбитный код прямолинейного студента (281–292),
-объявленный хуже на 364.9, и предъявленная и тут же опровергнутая интуиция на 773–785.
-Оба слабее внедрённой ошибки: автор опровергает их сам и быстро. Шаблон 7 `cross_modal_conflict` — тоже: расхождений речи и картинки
-не нашлось. Оба требуют либо другого видео (с разбором неудачных попыток), либо Фазы 6 с
-внедрением ошибки. Выдумывать их на этом материале нельзя — получится несуществующий GT.
-
-
-Хорошее продолжение (не проактивное, но осмысленное как второй такт): после
-`alert`-вопроса про ошибку — «исправь и доведи решение сам». Держим как отдельное
-поле `followup`, оцениваем отдельно, в основную метрику не мешаем.
+3b1b videos are ordinary copyright (CC BY-NC-SA covers the code, not the videos). **We distribute
+annotations + YouTube IDs + timecodes, not mp4s.** The download script is on the user's side.
+(MMMC put 43 GB of somebody else's video on HF; we will not repeat that.)
 
 ---
 
-## 3. Формат хранения
+## 2. The taxonomy of tasks
 
-За основу берём OmniPro, расширяем. Один JSON-объект на сэмпл, файл — JSONL.
+Three orthogonal axes. Every sample is characterised by a triple (act, temporal relation, level of
+reasoning) — that gives a cube whose cells we balance across.
 
-Канонический пример вынесен в `data/annotations/README.md` §3 и берётся оттуда
-**дословно из живого файла**: любая правка схемы или разметки сразу видна в
-документации, и пример гарантированно проходит валидатор. Раньше пример был
-переписан руками и, как выяснилось при проверке, не проходил собственную схему
-и врал по фактам (неверная длительность, несуществующий путь к исходнику).
-Ниже — только перечень полей и зачем они нужны.
+### Axis A — the type of proactive act
 
-**Отличия от OmniPro и зачем они:**
+An adaptation of OmniPro's; Cumulative/Deduplicated Counting have been dropped and three
+verification-counterfactual types added.
 
-| Поле | Зачем |
+| Code | Act | Essence | Example |
+|---|---|---|---|
+| `alert` | Alert | report that a condition has occurred | "say when an incorrect argument is presented" |
+| `monitor` | State monitoring | track an evolving quantity, report on a change | "report every time the dimension of the space under consideration changes" |
+| `ground` | Grounding | point at the moment/region of an event | "when the definition of entropy appears, say so" |
+| `narrate` | Narration | explain what is happening at the moment it happens | "explain every transition in the derivation at the moment of the transition" |
+| `predict` | Prediction | name the next step **before** it is shown | "when the author poses the problem, say what method he will solve it with" |
+| `verify` | Verification | confirm/refute the correctness of what is shown | "say whether the transition presented is valid" |
+| `counterfact` | Counterfactual | "what changes if…" at the moment an object appears | "when the graph appears, say how it changes under a → 2a" |
+
+### Axis B — the temporal relation of question and trigger
+
+It coincides with the user's idea and with the three-part division of OVO-Bench — good, there is
+something to cite.
+
+The axis is determined by the position of the **evidence** relative to the moment the question is
+issued (`question_time`), not by the position of the answer window: with a `post` question the
+answer window also begins at the moment of issue, and by the window it is indistinguishable
+from `at`.
+
+| Code | Where the evidence lies | What it checks | The analogue in OVO-Bench |
+|---|---|---|---|
+| `pre` | appears **after** `question_time` | **the ability to wait**, not to answer too early | Forward Active Responding |
+| `at` | is present **at the moment of** `question_time` | perception "here and now", there is no "when" decision | Real-Time Visual Perception |
+| `post` | has passed **before** `question_time` | an answer from memory, immediately | Backward Tracing |
+
+The label is **derived by the validator** from `question_time` and `evidence_span` rather than set
+by hand: otherwise it silently diverges from the content (which is what happened in the first
+iteration of the annotation — all eight samples were labelled by the criterion "where the answer
+comes from", which in fact encodes axis C).
+
+`question_time` is chosen as the latest moment when the question already makes sense but the window
+has not yet arrived: the referents in the wording must exist, and the distractors must remain later
+than the issue of the question.
+
+`pre` is the main regime and the main value. `post` is useful as a control: if a model solves
+`post` but does not solve the same question in `pre`, the problem is precisely proactivity rather
+than understanding. **One and the same question is worth annotating in two regimes — that gives a
+controlled pair.**
+
+### Axis C — the level of reasoning (what OmniPro does not have)
+
+| Code | Level | How the answer is obtained | Target share |
+|---|---|---|---|
+| `L1` | Perception | read off the screen or off the speech | ≤ 20% (30% in the pilot — see below) |
+| `L2` | Integration | one has to connect ≥2 moments separated in time | ~40% |
+| `L3` | Derivation | one has to carry out a computation/derivation that is **not** in the video | ~40% |
+
+In the pilot the shares came out as `L3` 4, `L1` 4, `L2` 2 out of ten, that is, `L1` is twice the
+target. (The numbers are recomputed by the validator in the "coverage" block; if they diverge from
+this line, it is the line that gets fixed — that is item 9.1.) The reason is honest: two samples
+were re-annotated from `L2` to `L1` after checking (both facts of the answer were spoken in a
+single utterance). Fitting to target shares on a sample of ten is meaningless; we return to this
+when expanding.
+
+**The quality criterion for L3:** the answer must not follow from general knowledge of the topic —
+otherwise the blind baseline solves it. It is checked mechanically (§5.3), not by eye.
+
+### 2.1. A catalogue of "hard" question templates
+
+This is what the whole thing is for. Eight templates, sorted by value/cost ratio.
+
+1. **Natural-error alert** (`alert`/`pre`/`L3`) — 3b1b regularly presents a naive or incomplete
+   line of reasoning which is then refuted. We put the trigger where the argument is
+   **presented**, not where the author took it apart. It checks the ability to notice a mistake
+   before the author does. Cheap and very strong.
+
+2. **Premature-answer trap** (`any`/`pre`/`L2`) — a question to which the video has an early
+   *plausible but incomplete* answer, with the full one later. An answer in the early window must
+   lower the score. It directly breaks the greedy strategy "answer at the first match". Implemented
+   through the `distractor_windows` field.
+
+3. **Prediction-ahead** (`predict`/`pre`/`L3`) — "once the problem is posed, name the method of
+   solution". The GT is what actually happened next. In streaming the model physically cannot peek.
+   Pure reasoning.
+
+4. **Counterfactual on-appearance** (`counterfact`/`at`/`L3`) — the user's idea about the
+   coefficients. The trigger is the moment an object appears, the answer is the result of an
+   independent computation. The answer is checked numerically/symbolically (sympy), not only by an
+   LLM judge.
+
+5. **Step-dependency** (`monitor`/`pre`/`L2`) — "report when the result obtained earlier is used".
+   It requires keeping two separated moments in memory.
+
+6. **Symbol-binding / notation tracking** (`monitor`/`pre`/`L2`) — "report when the symbol σ is
+   redefined or changes meaning". Specific to lectures, almost impossible without really holding
+   the context.
+
+7. **Cross-modal conflict** (`alert`/`at`/`L2`) — a moment where speech and picture diverge (a slip
+   of the tongue, "left" instead of "right", a typo in a formula). In 3b1b such places are
+   documented in the errata and in the video clarifications. **The only type that fundamentally
+   requires both modalities** — valuable for checking `audio_dependency`.
+
+8. **Injected-error alert** (`alert`/`pre`/`L3`) — we inject an error by re-rendering from manim.
+   The most expensive, but completely free of contamination and with an exact GT timecode. Phase 6.
+
+**What is implemented in the pilot.** On `l6DKRf-fAAM`, templates 2, 3, 4, 5 are done plus five not
+foreseen by the plan: `state_monitor`, `assumption_probe`, `speech_only_marker` and two control
+twins (`post_control_twin`, `at_control_twin`). Template 1, `natural_error_alert`, is **weak but
+not impossible** on this video: there are no outright mistakes, but there are two candidates — the
+straightforward student's flat two-bit code (281–292), declared worse at 364.9, and an intuition
+presented and immediately refuted at 773–785. Both are weaker than an injected error: the author
+refutes them himself, and quickly. Template 7, `cross_modal_conflict`, likewise: no divergences of
+speech and picture were found. Both require either a different video (one that goes through failed
+attempts) or Phase 6 with an injected error. Inventing them on this material is not allowed — the
+result would be a non-existent GT.
+
+A good continuation (not proactive, but meaningful as a second beat): after an `alert` question
+about a mistake — "fix it and complete the solution yourself". We keep this as a separate
+`followup` field, score it separately, and do not mix it into the main metric.
+
+---
+
+## 3. The storage format
+
+We take OmniPro's as the basis and extend it. One JSON object per sample, the file is JSONL.
+
+The canonical example has been moved to `data/annotations/README.md` §3 and is taken from there
+**verbatim from a live file**: any edit to the schema or the annotation is immediately visible in
+the documentation, and the example is guaranteed to pass the validator. Previously the example was
+rewritten by hand and, as it turned out on checking, did not pass its own schema and lied about the
+facts (the wrong duration, a non-existent path to the source). Below is only a list of the fields
+and why they are needed.
+
+**Differences from OmniPro and what they are for:**
+
+| Field | What for |
 |---|---|
-| `t_start`/`t_end` вместо точки | GT-окно, а не момент — так устроен PAUC; точный кадр никто не угадает |
-| `t_ideal` | служебное, `t_start + 1`; ничего не значит, задержка меряется от `t_start` |
-| `distractor_windows` | штраф за преждевременный ответ (шаблон 2) |
-| `rubric` | судья оценивает по явным критериям, а не «на глаз» |
-| `act` / `temporal_rel` / `reasoning_level` / `template` | оси таксономии, по ним же считаем разбивки |
-| `audio_dependency: null` до валидации | заполняется **замером**, а не аннотатором (п. 1.2) |
-| `evidence_span` | где лежит информация для ответа; по ней выводится ось B (у `post` она расходится с окном ответа) |
-| `question_time_note` | почему вопрос выдан именно в этот момент |
-| `provenance.evidence` | обязательная ссылка на транскрипт/кадр — защита от выдуманного GT. Здесь **подтверждение**, а не доказательство: в отличие от `evidence_span` оно может лежать позже окна (`predict`) или вне ролика (`counterfact`) |
-| `validation.*` | ответы зондов модальностей (чеклист, группа 4); `status` — `draft` → `validated` либо `rejected` |
+| `t_start`/`t_end` instead of a point | a GT window rather than a moment — that is how PAUC works; nobody will guess the exact frame |
+| `t_ideal` | a service field, `t_start + 1`; it means nothing, the latency is measured from `t_start` |
+| `distractor_windows` | a penalty for a premature answer (template 2) |
+| `rubric` | the judge scores against explicit criteria rather than "by eye" |
+| `act` / `temporal_rel` / `reasoning_level` / `template` | the taxonomy axes; the breakdowns are computed over them too |
+| `audio_dependency: null` until validation | filled in by a **measurement**, not by the annotator (§1.2) |
+| `evidence_span` | where the information for the answer lies; axis B is derived from it (with `post` it diverges from the answer window) |
+| `question_time_note` | why the question was issued at exactly this moment |
+| `provenance.evidence` | a mandatory reference to the transcript/frame — protection against an invented GT. This is **confirmation**, not evidence: unlike `evidence_span` it may lie later than the window (`predict`) or outside the video (`counterfact`) |
+| `validation.*` | the answers of the modality probes (checklist, group 4); `status` is `draft` → `validated` or `rejected` |
 
-### 3.1. Многотриггерность (решено: допускаем)
+### 3.1. Multi-trigger samples (decided: allowed)
 
-`monitor` без нескольких срабатываний вырождается в `alert`, поэтому `triggers` —
-упорядоченный список окон, а не одно. Это тянет за собой четыре решения.
+A `monitor` without several firings degenerates into an `alert`, so `triggers` is an ordered list
+of windows rather than a single one. That drags four decisions along with it.
 
-**1. Обязательные и опциональные окна.** Не все моменты одинаково бесспорны: бывают
-места, где разумный аннотатор мог бы и промолчать. Такие помечаем `"required": false`
-— за них не штрафуем ни при ответе, ни при молчании, и в знаменатель recall они
-не идут. Без этого разметка `monitor` превращается в спор о вкусах.
+**1. Required and optional windows.** Not all moments are equally indisputable: there are places
+where a reasonable annotator might well have stayed silent. Such windows are marked
+`"required": false` — they are not penalised either for an answer or for silence, and they do not
+go into the recall denominator. Without this the annotation of `monitor` turns into an argument
+about taste.
 
 ```json
 "triggers": [
@@ -304,112 +306,113 @@
 ]
 ```
 
-**2. Относительность ответа.** Для `monitor` содержательный ответ ссылается на
-предыдущее состояние («размерность выросла с 2 до 3», а не «размерность 3»).
-Поле `depends_on` перечисляет окна, без знания которых ответ не может быть полным.
-Оцениваем окна **независимо** (иначе один пропуск обнуляет весь хвост и метрика
-теряет разрешающую способность), но дополнительно считаем цепочечную метрику —
-см. §4.
+**2. The relativity of the answer.** For `monitor` a substantive answer refers to the previous state
+("the dimension grew from 2 to 3", not "the dimension is 3"). The `depends_on` field lists the
+windows without knowledge of which the answer cannot be complete. We score the windows
+**independently** (otherwise a single miss zeroes out the whole tail and the metric loses its
+resolving power), but additionally compute a chain metric — see §4.
 
-**3. Спам-стратегия — главная новая угроза.** С N окнами модель может отвечать
-каждые 10 секунд и попасть во все. PAUC сам по себе это не наказывает. Поэтому:
-- `distractor_windows` обязательны для всех multi-trigger сэмплов, не только для
+**3. The spam strategy is the main new threat.** With N windows a model can answer every 10 seconds
+and hit all of them. PAUC by itself does not penalise that. Therefore:
+- `distractor_windows` are mandatory for all multi-trigger samples, not only for
   `premature_answer_trap`;
-- **False-Alarm Rate входит в основную таблицу наравне с PAUC**, а не в приложение;
-- в отчёте всегда публикуем среднее число ответов модели на сэмпл рядом с
-  `n_triggers` — если модель выдаёт 30 ответов на 3 окна, это должно быть видно.
+- **the False-Alarm Rate goes into the main table alongside PAUC**, not into an appendix;
+- in the report we always publish the average number of the model's answers per sample next to
+  `n_triggers` — if a model produces 30 answers for 3 windows, that must be visible.
 
-**4. Жёсткого лимита на число ответов не ставим.** Ограничение сверху («не более K»)
-превратило бы задачу в угадывание K. Регулируем через FAR.
+**4. We set no hard limit on the number of answers.** An upper bound ("no more than K") would turn
+the task into guessing K. We regulate through the FAR.
+
+---
+---
+
+## 4. The metric
+
+**The main one is PAUC** (from ProactiveVideoQA), since it is the only one that takes into account
+that the model produces a sequence of answers over time:
+
+- on each GT window a polyline "time → quality of the accumulated answers" is built,
+- the quality `s_p ∈ {0,1,2}` is assigned by an LLM judge against the rubric,
+- PAUC = the area under the polyline / the maximum,
+- the starting point is `(t_start, 0.5)` — silence is better than a confident wrong answer. A
+  consequence that must be reported explicitly: the strategy "always stay silent" constructively
+  gets **0.25 of the PAUC maximum** on every window. That is the floor of the scale, not a result;
+  all the numbers are read relative to it, otherwise §1.5 about the dummy baselines contradicts
+  itself,
+- the hyperparameter `ω ∈ [0,1]` regulates the importance of timeliness by shifting the abscissas
+  of the polyline's points to the left (`τ_p → τ_p − ω·(τ_p − t_start)`): at `ω = 1` a late correct
+  answer is valued on a par with an early one, at `ω = 0` time is taken fully into account. We
+  report at `ω = 0` and `ω = 0.5`.
+
+**Optional windows: we compute PAUC twice.** The main number is **without them**, over the required
+windows only. An optional window exists not in order to demand an answer there but in order **not
+to penalise** an answer in it: the rubric permits silence, and if such a window went into the
+sample's average PAUC, lawful silence would give 0.25 there and drag the result down for behaviour
+the annotation declared correct. The second number — with the optional ones — is published
+alongside: the difference shows how much the model makes use of the non-mandatory opportunities to
+answer. The first is the one taken as sufficient. In the pilot 10 windows out of 25 are optional,
+so the difference will be noticeable, and silently mixing the two quantities is not allowed.
+
+**Additionally and obligatorily:**
+
+- **False-Alarm Rate** — the share of answers outside all GT windows. PAUC by itself does not
+  penalise talkativeness outside the windows, and for us that is critical.
+- **Trap rate** — separately from the FAR: the share of `distractor_windows` the model answered in.
+  Counting the traps inside the general FAR is meaningless: "outside the windows" is 85–98 % of the
+  sample's duration, and against such a background a distractor adds no weight relative to any other
+  wrong point.
+- **Latency** — `τ − t_start` for **the first answer inside the window**, as a distribution, not a
+  mean. The count starts from `t_start` precisely: that is the moment when an instantaneously
+  reasoning model could already have answered (`S-29` keeps `t_start ≥ evidence_span[0]`). The
+  former wording counted from `t_ideal`, which is set mechanically as `t_start + 1` — that is, an
+  answer exactly on the boundary of the window would give a latency of `−1 s`. Why `t_ideal` is
+  unsuitable as a reference point is in the section "Why `t_ideal` means nothing" of the checklist.
+  Taking the model's very first answer is not allowed: with an early false firing one gets a
+  meaningless `−1700 s`, and that already measures the FAR rather than the latency.
+- **Silence rate** — the share of GT windows with not a single answer.
+- **Trigger Recall** — the share of **required** windows where there was at least one answer with
+  `s ≥ 1`. It separates "the model stays silent" from "the model answers, but badly" — PAUC mixes
+  them.
+- **Responses-per-sample** — the average number of the model's answers next to `n_triggers`.
+  Always published, otherwise the spam strategy stays invisible.
+- **Chain accuracy** (all windows with a non-empty `depends_on`, regardless of `act`) — the share
+  of windows with a non-empty `depends_on` where the answer correctly refers to the previous state.
+  Counted against a separate item of the rubric.
+- Breakdowns along all three taxonomy axes + by video.
+
+**Aggregation is over samples, not over windows.** The pilot has 25 triggers, but 9 of them belong
+to one q06 (`ground`/`L1`) and 6 to q04: averaging over windows would make the final number a
+hostage of two samples, one of which is the simplest in the set. We compute the metric inside a
+sample (the mean over its windows) and then average over samples.
 
 ---
 
----
+## 5. The plan of work by phases
 
-## 4. Метрика
+### 5.0. The results of testing the download (2026-08-19)
 
-**Основная — PAUC** (из ProactiveVideoQA), поскольку она единственная учитывает,
-что модель выдаёт последовательность ответов во времени:
+Tested empirically on `l6DKRf-fAAM`. **Cookies and a login are not needed.** But there are three
+snags:
 
-- на каждом GT-окне строится ломаная «время → качество накопленных ответов»,
-- качество `s_p ∈ {0,1,2}` ставит LLM-судья по рубрике,
-- PAUC = площадь под ломаной / максимум,
-- стартовая точка `(t_start, 0.5)` — молчание лучше, чем уверенный неверный ответ.
-  Следствие, которое надо отчитывать явно: стратегия «молчать всегда» конструктивно
-  получает **0.25 от максимума PAUC** на каждом окне. Это пол шкалы, а не результат;
-  все числа читаются относительно него, иначе §1.5 про бейзлайны-пустышки сам себе
-  противоречит,
-- гиперпараметр `ω ∈ [0,1]` регулирует важность своевременности, сдвигая абсциссы точек
-  ломаной влево (`τ_p → τ_p − ω·(τ_p − t_start)`): при `ω = 1` поздний верный ответ ценится
-  наравне с ранним, при `ω = 0` время учитывается полностью. Отчитываем при `ω = 0` и `ω = 0.5`.
+1. **The default client `android_vr` returns dead URLs** → 403 on any download. Cured by naming the
+   client explicitly: `--extractor-args "youtube:player_client=android"`. Tested: `ios`, `tv`,
+   `mweb`, `web_embedded`, `android` — they work on metadata; the real video formats without a PO
+   token are served only by **`android`**. `web_safari` without a PO token returns nothing but
+   storyboards, `tv_embedded` returns 403.
 
-**Опциональные окна: считаем PAUC дважды.** Основное число — **без них**, только
-по обязательным окнам. Опциональное окно существует не затем, чтобы требовать там
-ответа, а затем, чтобы **не наказать** за ответ в нём: рубрика молчание разрешает,
-и если бы такое окно входило в средний PAUC сэмпла, законное молчание давало бы
-там 0.25 и тянуло бы вниз результат за поведение, которое разметка объявила
-правильным. Второе число — с опциональными — публикуем рядом: по разности видно,
-насколько модель пользуется необязательными возможностями ответить. Достаточным
-считается первое. На пилоте опциональных окон 10 из 25, так что разность будет
-заметной, и молчаливо смешивать две величины нельзя.
+2. **`--download-sections` does not work**: it passes the CDN URL to an external `ffmpeg`, which
+   goes without the necessary headers and gets a 403.
+   → **we download the video whole through yt-dlp's HTTP stack and cut it locally with `ffmpeg`.**
+   48 MB in 42 s is not a bottleneck.
 
-**Дополнительно и обязательно:**
+3. **Without a PO token only format 18 is available** (640×360, progressive h264+aac, ~48 MB for
+   32 min). The DASH formats (720p/1080p) require a PO token. Readability at 360p has been checked
+   by eye: the headings of the formulas are crisp, the indices `p_0…p_n` are distinguishable, the
+   small axis labels are borderline. **Sufficient for the pilot.** The upgrade path if 1080p is
+   needed: the `bgutil-ytdlp-pot-provider` plugin (it raises a local Node service and **still
+   requires no login or cookies**).
 
-- **False-Alarm Rate** — доля ответов вне всех GT-окон. PAUC сам по себе не наказывает
-  болтливость вне окон, а нам это критично.
-- **Trap rate** — отдельно от FAR: доля `distractor_windows`, в которые модель ответила.
-  Считать ловушки внутри общего FAR бессмысленно: «вне окон» это 85–98 % времени сэмпла,
-  и на таком фоне дистрактор не добавляет никакого веса относительно любой другой
-  неверной точки.
-- **Latency** — `τ − t_start` для **первого ответа внутри окна**, распределение, не среднее.
-  Отсчёт именно от `t_start`: это момент, когда мгновенно рассуждающая модель уже
-  могла бы ответить (`S-29` держит `t_start ≥ evidence_span[0]`). Прежняя редакция
-  считала от `t_ideal`, а он выставляется механически как `t_start + 1` — то есть
-  ответ ровно на границе окна давал бы задержку `−1 с`. Почему `t_ideal` не годится
-  в точку отсчёта — раздел «Почему `t_ideal` ничего не значит» в чеклисте.
-  Брать самый первый ответ модели нельзя: при раннем ложном срабатывании выйдет
-  бессмысленное `−1700 с`, и это уже измеряет FAR, а не задержку.
-- **Silence rate** — доля GT-окон без единого ответа.
-- **Trigger Recall** — доля **обязательных** окон, где был хотя бы один ответ с `s ≥ 1`.
-  Отделяет «модель молчит» от «модель отвечает, но плохо» — PAUC их смешивает.
-- **Responses-per-sample** — среднее число ответов модели рядом с `n_triggers`.
-  Публикуется всегда, иначе спам-стратегия остаётся невидимой.
-- **Chain accuracy** (все окна с непустым `depends_on`, независимо от `act`) — доля окон с непустым `depends_on`, где ответ
-  корректно ссылается на предыдущее состояние. Считается по отдельному пункту рубрики.
-- Разбивки по всем трём осям таксономии + по видео.
-
-**Агрегация — по сэмплам, а не по окнам.** В пилоте 25 триггеров, но 9 из них принадлежат
-одному q06 (`ground`/`L1`) и 6 — q04: усреднение по окнам сделало бы итоговое число
-заложником двух сэмплов, один из которых самый простой в наборе. Считаем метрику внутри
-сэмпла (среднее по его окнам), затем усредняем по сэмплам.
-
----
-
-## 5. План работ по фазам
-
-### 5.0. Результаты проверки скачивания (2026-08-19)
-
-Проверено эмпирически на `l6DKRf-fAAM`. **Куки и логин не нужны.** Но есть три грабли:
-
-1. **Дефолтный клиент `android_vr` отдаёт нерабочие URL** → 403 на любой загрузке.
-   Лечится явным указанием клиента: `--extractor-args "youtube:player_client=android"`.
-   Проверены: `ios`, `tv`, `mweb`, `web_embedded`, `android` — работают на метаданных;
-   реальные видеоформаты без PO-токена отдаёт только **`android`**.
-   `web_safari` без PO-токена возвращает одни storyboards, `tv_embedded` — 403.
-
-2. **`--download-sections` не работает**: он передаёт CDN-URL внешнему `ffmpeg`, который
-   ходит без нужных заголовков и получает 403.
-   → **качаем видео целиком через HTTP-стек yt-dlp, режем локально `ffmpeg`-ом.**
-   48 МБ за 42 с — это не бутылочное горлышко.
-
-3. **Без PO-токена доступен только формат 18** (640×360, progressive h264+aac, ~48 МБ
-   на 32 мин). DASH-форматы (720p/1080p) требуют PO-токен.
-   Читаемость на 360p проверена глазами: заголовки формул чёткие, индексы `p_0…p_n`
-   различимы, мелкие подписи осей на грани. **Для пилота достаточно.**
-   Upgrade path, если понадобится 1080p: плагин `bgutil-ytdlp-pot-provider`
-   (поднимает локальный Node-сервис, **логина и кук по-прежнему не требует**).
-
-Рабочая команда:
+The working command:
 
 ```bash
 python -m yt_dlp \
@@ -420,118 +423,120 @@ python -m yt_dlp \
   "https://www.youtube.com/watch?v=<ID>"
 ```
 
-**Приятный сюрприз: субтитры человеческие.** У `l6DKRf-fAAM` 13 языков в `subtitles`
-(включая `en`) и **пустой `automatic_captions` для en** — то есть это загруженные
-вручную титры, а не ASR. Whisper как fallback, скорее всего, не понадобится.
-Чаптеры тоже на месте (7 штук).
+**A pleasant surprise: the subtitles are human.** `l6DKRf-fAAM` has 13 languages in `subtitles`
+(including `en`) and **an empty `automatic_captions` for en** — that is, these are manually
+uploaded captions, not ASR. Whisper as a fallback will most likely not be needed. The chapters are
+in place too (7 of them).
 
-### Фаза 0 — инфраструктура (сделано частично)
+### Phase 0 — infrastructure (partly done)
 
 - [x] `vendor/Code2Video`, `vendor/videos`, `vendor/site`
-- [x] `data/3b1b_mapping.json` — 175 уроков; 170 с YouTube-ID, 159 с объявленным `source` (155 вместе с id),
-      **140 с id и реально существующим исходником**
-- [x] `vendor/PINNED.txt` — коммиты сторонних репозиториев, иначе эти числа невоспроизводимы
-- [x] `yt-dlp` 2026.07.04 установлен в conda-окружение `rah_manim`; `ffmpeg` 8.1.2 есть
-- [x] **скачивание проверено на `l6DKRf-fAAM` — куки НЕ нужны** (см. §5.0)
-- [x] `tools/fetch_video.py <youtube_id>` → `data/videos/<id>/`:
-      mp4, `info.json` (chapters!), `.en.vtt` субтитры, `.description`
-- [x] `tools/make_bundle.py` — **annotation bundle** на видео:
-      - транскрипт с таймкодами из vtt (у 3b1b субтитры человеческие, Whisper не понадобился
-        и в коде его нет),
-      - кадры на границах чаптеров и каждые N секунд,
-      - список LaTeX-строк из manim-исходника (`Tex`, `MathTex`, `OldTex`, `TexText`)
-        с номерами строк и именами сцен,
-      - транскрипт сгруппирован по чаптерам (отдельной таблицы «чаптер → кадры» нет,
-        соответствие восстанавливается по таймкодам из `bundle.json`).
+- [x] `data/3b1b_mapping.json` — 175 lessons; 170 with a YouTube ID, 159 with a declared `source`
+      (155 together with an id), **140 with an id and a source that actually exists**
+- [x] `vendor/PINNED.txt` — the commits of the third-party repositories, without which these
+      numbers are irreproducible
+- [x] `yt-dlp` 2026.07.04 installed in the conda environment `rah_manim`; `ffmpeg` 8.1.2 is present
+- [x] **the download has been tested on `l6DKRf-fAAM` — cookies are NOT needed** (see §5.0)
+- [x] `tools/fetch_video.py <youtube_id>` → `data/videos/<id>/`: mp4, `info.json` (chapters!),
+      `.en.vtt` subtitles, `.description`
+- [x] `tools/make_bundle.py` — an **annotation bundle** per video:
+      - the transcript with timecodes from the vtt (3b1b's subtitles are human, Whisper was not
+        needed and is not in the code),
+      - frames at the chapter boundaries and every N seconds,
+      - the list of LaTeX strings from the manim source (`Tex`, `MathTex`, `OldTex`, `TexText`)
+        with line numbers and scene names,
+      - the transcript grouped by chapter (there is no separate "chapter → frames" table, the
+        correspondence is recovered from the timecodes in `bundle.json`).
 
-Bundle — это то, с чем реально работает человек-аннотатор. Без него разметка
-20 вопросов по 25-минутному видео превращается в пытку.
+The bundle is what a human annotator actually works with. Without it, annotating 20 questions on a
+25-minute video turns into torture.
 
-### Фаза 1 — фиксация таксономии и гайдлайна
+### Phase 1 — fixing the taxonomy and the guideline
 
-- [ ] `docs/taxonomy.md` — финальные оси и определения
-- [ ] `docs/annotation_guide.md` — по 2 примера и **по 2 анти-примера** на каждый из
-      8 шаблонов. Анти-примеры важнее примеров: они формулируют, что мы отвергаем
-      (решается вслепую, решается по одному кадру, ответ есть в вопросе).
+- [ ] `docs/taxonomy.md` — the final axes and definitions
+- [ ] `docs/annotation_guide.md` — 2 examples and **2 anti-examples** for each of the 8 templates.
+      The anti-examples matter more than the examples: they formulate what we reject (solvable
+      blind, solvable from a single frame, the answer is in the question).
 - [x] `schema/sample.schema.json` + `tools/validate_samples.py`
 
-### Фаза 2 — пилотная разметка
+### Phase 2 — the pilot annotation
 
-Цель фазы — **не объём, а выяснить, какие типы вообще размечаемы** на этом материале.
+The goal of the phase is **not volume but finding out which types are annotatable at all** on this
+material.
 
-Кандидаты (все с рабочим исходником в `vendor/videos`):
+The candidates (all with a working source in `vendor/videos`):
 
-| Видео | YouTube | Дата | Роль |
+| Video | YouTube | Date | Role |
 |---|---|---|---|
-| Reinventing Entropy (Compression & Intelligence Pt.1) | `l6DKRf-fAAM` | 2026-06-07 | основное, вне cutoff |
-| The Hairy Ball Theorem | `BHdbsHFs2P0` | 2026-01-31 | визуально насыщенное, топология |
-| Taylor series (Essence of calculus ch.11) | `3d6DsjIBzJ4` | 2017-05-07 | **контроль контаминации** |
+| Reinventing Entropy (Compression & Intelligence Pt.1) | `l6DKRf-fAAM` | 2026-06-07 | the main one, beyond the cutoff |
+| The Hairy Ball Theorem | `BHdbsHFs2P0` | 2026-01-31 | visually rich, topology |
+| Taylor series (Essence of calculus ch.11) | `3d6DsjIBzJ4` | 2017-05-07 | **the contamination control** |
 
-- [x] пилотные 10 сэмплов / 25 триггеров по `l6DKRf-fAAM` (см. `data/annotations/README.md`)
-- [ ] добрать до 15–25 вопросов на видео, с покрытием куба (акт × отношение × уровень)
-- [ ] минимум по 2 сэмпла на каждый из 8 шаблонов
-- [x] контрольные близнецы: q02/q02b (`pre`/`post`), q07/q07b (`pre`/`at`)
+- [x] a pilot of 10 samples / 25 triggers on `l6DKRf-fAAM` (see `data/annotations/README.md`)
+- [ ] bring it up to 15–25 questions per video, covering the cube (act × relation × level)
+- [ ] at least 2 samples for each of the 8 templates
+- [x] control twins: q02/q02b (`pre`/`post`), q07/q07b (`pre`/`at`)
 
-### Фаза 3 — валидация разметки (до всяких экспериментов с моделями)
+### Phase 3 — validating the annotation (before any experiments with models)
 
 - [ ] `tools/run_shortcut_baselines.py`: blind / text-only / vision-only / frozen-frame /
-      always-now / always-end / silent / **spam-every-N-seconds** (последний обязателен:
-      §3.1 п.3 называет спам главной угрозой многотриггерности)
-- [ ] заполнение `validation.*`, автоматическое понижение `status`
-- [ ] **замер контаминации**: сравнить долю blind-solved на видео 2026 vs 2017.
-      Это самостоятельный результат, который стоит опубликовать независимо от бенчмарка.
-- [ ] вычисление `audio_dependency` по замерам
-- [ ] второй аннотатор на 30% сэмплов + IAA (Cohen's κ по `act`, согласие по окнам)
+      always-now / always-end / silent / **spam-every-N-seconds** (the last is mandatory: §3.1
+      point 3 names spam as the main threat of multi-trigger samples)
+- [ ] filling in `validation.*`, automatic lowering of `status`
+- [ ] **measuring contamination**: compare the share of blind-solved on the 2026 video vs the 2017
+      one. This is a result in its own right, worth publishing independently of the benchmark.
+- [ ] computing `audio_dependency` from the measurements
+- [ ] a second annotator on 30% of the samples + IAA (Cohen's κ on `act`, agreement on windows)
 
-### Фаза 4 — harness
+### Phase 4 — the harness
 
-- [ ] `tools/stream_eval.py` — симулятор стриминга: подаёт видео порциями, модель
-      возвращает `(t, text)` либо молчание; поддержка Gemini Live API и локальных
-      streaming-моделей (MMDuet2, LiveStar, MiniCPM-o)
-- [ ] реализация PAUC + FAR + latency + silence rate, bootstrap-CI
-- [ ] судья на модели другого семейства, чем ассистент разметки
+- [ ] `tools/stream_eval.py` — a streaming simulator: it feeds the video in portions, the model
+      returns `(t, text)` or silence; support for the Gemini Live API and local streaming models
+      (MMDuet2, LiveStar, MiniCPM-o)
+- [ ] an implementation of PAUC + FAR + latency + silence rate, bootstrap CIs
+- [ ] a judge on a model of a different family than the annotation assistant
 
-### Фаза 5 — масштабирование
+### Phase 5 — scaling up
 
-- [ ] полуавтоматическая генерация кандидатов: LLM предлагает вопросы по bundle,
-      человек принимает/правит/отвергает. Логируем acceptance rate по шаблонам —
-      это метрика качества самой автоматики.
-- [ ] расширение на 15–20 видео с балансом по 13 категориям
-- [ ] **никаких квот** вида «ровно 300 на задачу» (ошибка OmniPro) — сколько прошло
-      валидацию, столько и есть, дисбаланс отчитываем честно
+- [ ] semi-automatic generation of candidates: an LLM proposes questions from the bundle, a human
+      accepts/edits/rejects. We log the acceptance rate by template — that is a quality metric for
+      the automation itself.
+- [ ] expansion to 15–20 videos with a balance over the 13 categories
+- [ ] **no quotas** of the form "exactly 300 per task" (OmniPro's mistake) — however many passed
+      validation is however many there are, and the imbalance is reported honestly
 
-### Фаза 6 — error injection (опционально, высокая стоимость)
+### Phase 6 — error injection (optional, high cost)
 
-- [ ] поставить `manimgl`, проверить, что `_2026/*` рендерится
-- [ ] внедрить ошибку в сцену, отрендерить, склеить с оригиналом через `ffmpeg`
-- [ ] получаем сэмплы с **точным** GT-таймкодом и гарантией отсутствия в pretraining
+- [ ] install `manimgl`, check that `_2026/*` renders
+- [ ] inject an error into a scene, render it, splice it with the original via `ffmpeg`
+- [ ] we get samples with an **exact** GT timecode and a guarantee of absence from pre-training
 
-Оценка риска: старый код (`_2017`) почти наверняка не соберётся, свежий — должен.
-Начинать только после того, как Фазы 2–4 дали работающий цикл.
+Risk assessment: the old code (`_2017`) will almost certainly not build, the fresh code should.
+Start only after Phases 2–4 have given a working cycle.
 
 ---
 
-## 6. Структура репозитория
+## 6. The structure of the repository
 
 ```
 manim_play/
 ├── docs/
-│   ├── plans/general.md          # этот файл
-│   ├── taxonomy.md               # Фаза 1
-│   ├── annotation_guide.md       # Фаза 1
-│   ├── annotation_checklist.md   # классы ошибок и кто их ловит
-│   ├── annotation_pipeline.md    # порядок работы: пропозер -> ревьюеры -> правки
-│   └── prompts/                  # драфты промптов ролей конвейера
-├── articles/                     # адверсальные разборы статей
+│   ├── plans/general.md          # this file
+│   ├── taxonomy.md               # Phase 1
+│   ├── annotation_guide.md       # Phase 1
+│   ├── annotation_checklist.md   # classes of error and who catches them
+│   ├── annotation_pipeline.md    # the working order: proposer -> reviewers -> edits
+│   └── prompts/                  # drafts of the pipeline role prompts
+├── articles/                     # adversarial reviews of papers
 ├── data/
-│   ├── annotations/README.md     # канонический пример и справочник полей
-│   ├── 3b1b_mapping.json/.csv    # готово
-│   ├── videos/<youtube_id>/      # mp4, info.json, vtt (в .gitignore)
-│   ├── bundles/<youtube_id>/     # материалы для аннотатора
-│   └── annotations/*.jsonl       # сами сэмплы
+│   ├── annotations/README.md     # the canonical example and the field reference
+│   ├── 3b1b_mapping.json/.csv    # done
+│   ├── videos/<youtube_id>/      # mp4, info.json, vtt (in .gitignore)
+│   ├── bundles/<youtube_id>/     # material for the annotator
+│   └── annotations/*.jsonl       # the samples themselves
 ├── schema/sample.schema.json
 ├── tools/
-│   ├── build_3b1b_mapping.py     # готово
+│   ├── build_3b1b_mapping.py     # done
 │   ├── fetch_video.py
 │   ├── make_bundle.py
 │   ├── run_shortcut_baselines.py
@@ -541,17 +546,17 @@ manim_play/
 
 ---
 
-## 7. Что делаем прямо сейчас
+## 7. What we are doing right now
 
-Три шага, после которых можно начинать размечать:
+Three steps, after which annotation can begin:
 
-1. Поставить `yt-dlp`, написать `tools/fetch_video.py`, скачать три пилотных видео
-   с `info.json` и субтитрами. Проверить, что у них есть чаптеры и человеческие
-   (не авто) английские субтитры.
-2. Написать `tools/make_bundle.py` и собрать bundle по `l6DKRf-fAAM`.
-3. Разметить руками 5–8 вопросов по одному видео, покрыв 3–4 разных шаблона, —
-   и посмотреть, где схема из п. 3 трещит. Схему правим по результату, до того как
-   в неё вложено 60 сэмплов.
+1. Install `yt-dlp`, write `tools/fetch_video.py`, download the three pilot videos with their
+   `info.json` and subtitles. Check that they have chapters and human (not automatic) English
+   subtitles.
+2. Write `tools/make_bundle.py` and assemble the bundle for `l6DKRf-fAAM`.
+3. Annotate 5–8 questions by hand on a single video, covering 3–4 different templates — and see
+   where the schema from §3 creaks. The schema is fixed by that result, before 60 samples have been
+   invested in it.
 
-**Решение принято: многотриггерность допускаем** (см. §3.1). `monitor` должен быть
-полноценным актом, а не переодетым `alert`.
+**The decision has been taken: multi-trigger samples are allowed** (see §3.1). `monitor` must be a
+full-fledged act rather than an `alert` in disguise.

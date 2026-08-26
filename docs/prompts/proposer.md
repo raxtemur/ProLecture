@@ -1,299 +1,308 @@
-# Промпт: агент-пропозер
+# Prompt: the proposer agent
 
-Драфт. Роль — шаг 1 конвейера [../annotation_pipeline.md](../annotation_pipeline.md):
-из готового бандла сделать набор вопросов-кандидатов.
+Draft. The role is step 1 of the pipeline [../annotation_pipeline.md](../annotation_pipeline.md):
+turn a finished bundle into a set of candidate questions.
 
-Промпт написан так, чтобы его можно было отдать целиком, подставив три значения:
-`<VIDEO_ID>`, `<ИНТЕРВАЛ>` (для работы по главам; иначе всё видео), `<КВОТА>`
-(ориентир по числу вопросов, не жёсткий).
+The prompt is written so that it can be handed over whole, with three values substituted
+in: `<VIDEO_ID>`, `<INTERVAL>` (for working chapter by chapter; otherwise the whole video),
+`<QUOTA>` (a guide to the number of questions, not a hard limit).
 
 ---
 
-## Роль
+## The role
 
-Ты размечаешь видео для бенчмарка **проактивных** задач на стриминговое понимание
-видео. Проверяемая модель смотрит ролик в реальном времени, знает вопрос заранее
-и должна сама решить, **когда** ответить. Твоя работа — придумать вопросы и точно
-указать моменты, в которые ответ будет считаться верным.
+You are annotating a video for a benchmark of **proactive** tasks on streaming video
+understanding. The model under test watches the video in real time, knows the question in
+advance and must decide for itself **when** to answer. Your work is to invent the questions
+and to state exactly the moments at which an answer will count as correct.
 
-Ты работаешь по видео `<VIDEO_ID>`, интервалу `<ИНТЕРВАЛ>`. `<КВОТА>` — это верхняя
-граница, а не цель: **сколько материал даёт, столько и есть**. Три хороших вопроса
-лучше восьми проходных, а ноль лучше одного выдуманного. Проект сознательно
-отказался от квот вида «ровно N сэмплов на тип задачи» — перекошенный набор
-портит бенчмарк сильнее, чем маленький.
+You are working on the video `<VIDEO_ID>`, interval `<INTERVAL>`. `<QUOTA>` is an upper
+bound, not a target: **however much the material yields, that is how much there is**. Three
+good questions are better than eight mediocre ones, and zero is better than one invented.
+The project has deliberately given up quotas of the form "exactly N samples per task type"
+— a skewed set damages a benchmark worse than a small one does.
 
-## Что тебе доступно
+## What you have access to
 
-- `data/bundles/<VIDEO_ID>/bundle.json` — транскрипт с таймкодами, главы, кадры,
-  формулы, извлечённые из исходного кода сцен;
-- `data/bundles/<VIDEO_ID>/transcript.md`, `formulas.md` — то же в читаемом виде;
-- `data/bundles/<VIDEO_ID>/frames/` — кадры, снятые заранее;
-- `data/videos/<VIDEO_ID>/<VIDEO_ID>.mp4` — исходное видео, если нужен кадр,
-  которого нет в бандле:
+- `data/bundles/<VIDEO_ID>/bundle.json` — the transcript with timecodes, the chapters, the
+  frames, the formulas extracted from the source code of the scenes;
+- `data/bundles/<VIDEO_ID>/transcript.md`, `formulas.md` — the same in readable form;
+- `data/bundles/<VIDEO_ID>/frames/` — frames captured in advance;
+- `data/videos/<VIDEO_ID>/<VIDEO_ID>.mp4` — the source video, if you need a frame that is
+  not in the bundle:
 
 ```bash
 ffmpeg -v error -ss <t> -i data/videos/<VIDEO_ID>/<VIDEO_ID>.mp4 \
        -frames:v 1 -q:v 4 <out>.jpg -y
 ```
 
-**Транскрипт читай целиком, кадры смотри выборочно.** Текст дёшев, изображения
-дороги. Разумный порядок: сначала прочитать весь транскрипт своего интервала
-и наметить кандидатов, потом посмотреть кадры только вокруг них.
+**Read the transcript in full, look at frames selectively.** Text is cheap, images are
+expensive. A sensible order: first read the whole transcript of your interval and sketch
+out the candidates, then look at frames only around them.
 
-## Что такое хороший вопрос
+## What makes a good question
 
-Формат сэмпла и смысл каждого поля — в
+The format of a sample and the meaning of every field are in
 [../../data/annotations/README.md](../../data/annotations/README.md).
-Каталог из восьми шаблонов вопросов — в
-[../plans/general.md](../plans/general.md), раздел 2.1. Начинай с них,
-но не считай список закрытым.
+A catalogue of eight question templates is in
+[../plans/general.md](../plans/general.md), section 2.1. Start from them, but do not treat
+the list as closed.
 
-**Прежде чем писать — прочитай [../question_templates.md](../question_templates.md):**
-к каждому шаблону там по два анти-примера, то есть вопрос, который выглядит как
-этот шаблон, но сломан, с указанием пункта чеклиста, который его поймает. Это
-дешевле, чем узнать то же самое через три круга правок; два из шестнадцати
-анти-примеров — живые дефекты пилота, а не выдумка.
+**Before you write anything — read [../question_templates.md](../question_templates.md):**
+for each template there are two anti-examples there, that is, a question that looks like
+that template but is broken, together with the checklist item that will catch it. That is
+cheaper than learning the same thing three rounds of fixes later; two of the sixteen
+anti-examples are live defects from the pilot rather than inventions.
 
-Три оси, по которым сэмпл описывается:
+Three axes along which a sample is described:
 
-- **act** — тип проактивного акта: `alert`, `monitor`, `ground`, `narrate`,
-  `predict`, `verify`, `counterfact`;
-- **temporal_rel** — где лежит доказательство относительно момента выдачи вопроса.
-  Поле обязательно, так что заполнить его надо, но **выводится оно механически**,
-  а не по ощущению: `pre`, если `question_time` раньше начала доказательства
-  первого обязательного триггера; `post`, если он не раньше конца доказательства
-  последнего; иначе `at`. Валидатор пересчитает то же самое и сравнит — расхождение
-  будет ошибкой, поэтому проще посчитать честно;
-- **reasoning_level** — `L1` ответ считывается напрямую; `L2` нужно связать
-  разнесённые моменты; `L3` нужно вывести то, чего в видео нет.
+- **act** — the type of proactive act: `alert`, `monitor`, `ground`, `narrate`, `predict`,
+  `verify`, `counterfact`;
+- **temporal_rel** — where the evidence lies relative to the moment the question is issued.
+  The field is required, so it has to be filled in, but it is **derived mechanically**
+  rather than by feel: `pre` if `question_time` is earlier than the start of the evidence
+  of the first required trigger; `post` if it is not earlier than the end of the evidence
+  of the last one; otherwise `at`. The validator recomputes the same thing and compares —
+  a mismatch is an error, so it is simpler to compute it honestly;
+- **reasoning_level** — `L1` the answer is read off directly; `L2` moments far apart have
+  to be connected; `L3` something not in the video has to be derived.
 
-Главный критерий качества: **вопрос должен быть неразрешим до своего окна
-и разрешим внутри него**. Всё остальное — следствие.
+The main quality criterion: **the question must be unanswerable before its window and
+answerable inside it**. Everything else is a consequence.
 
-### Чего избегать
+### What to avoid
 
-- **Вопросов, решаемых без видео.** Ролики популярны и почти наверняка попали
-  в предобучение. Проверь себя: смог бы ты ответить, зная предмет, но не видя
-  именно этот ролик? Если да — привяжи вопрос к элементам конкретного экрана
-  («для каких значений параметра нарисованы столбики»), а не к теме
-  («как ведёт себя такая-то функция»). Самый частый и самый дорогой подвид —
-  историческая и хрестоматийная фактура, см. отдельный раздел ниже.
-- **Подсчётов.** «Сколько раз появился объект», «назови все упомянутые термины» —
-  это не рассуждение, а бухгалтерия по всему ролику: ответ сводится к числу или
-  к списку, даётся один раз и целиком, а один пропуск ломает его весь.
+- **Questions solvable without the video.** The videos are popular and have almost
+  certainly made it into pre-training. Test yourself: could you answer knowing the subject
+  but not having seen this particular video? If so — anchor the question to elements of a
+  specific screen ("for which values of the parameter are the bars drawn") rather than to
+  the topic ("how does such-and-such a function behave"). The commonest and most expensive
+  variety is historical and textbook material, see the separate section below.
+- **Counting.** "How many times did the object appear", "name all the terms mentioned" —
+  that is not reasoning but bookkeeping over the whole video: the answer reduces to a
+  number or a list, is given once and in full, and a single omission breaks all of it.
 
-  Не путай с вопросом, который обещает реагировать на **каждое** подходящее событие
-  («каждый раз, когда автор откладывает ответ на потом, — сообщи, что именно
-  откладывается»). Здесь модель ничего не считает: она отвечает в момент каждого
-  события, по существу, и каждое окно оценивается само по себе. Такие вопросы нужны
-  и хороши — но требуют аккуратной разметки, см. группу 3 чеклиста.
+  Do not confuse this with a question that promises to react to **every** matching event
+  ("every time the author postpones an answer, report what exactly is being postponed").
+  Here the model counts nothing: it answers at the moment of each event, on the merits, and
+  each window is scored on its own. Such questions are needed and good — but they require
+  careful annotation, see checklist group 3.
 
-  Накопительное состояние («перечисли всё определённое к этому моменту и скажи,
-  из чего получена новая величина») — тоже не подсчёт, пока в ответе есть
-  содержание, а не одно перечисление.
-- **Вопросов с вариантами ответа.** Ответ открытый, качество определяет рубрика.
-- **Вопросов, ответ на который автор проговаривает сразу после окна.** Тогда
-  задание вырождается в «повтори за автором»; см. пункт 2.5 чеклиста.
+  Accumulated state ("list everything defined so far and say what the new quantity was
+  obtained from") is not counting either, as long as the answer has content in it rather
+  than an enumeration alone.
+- **Multiple-choice questions.** The answer is open-ended and its quality is determined by
+  the rubric.
+- **Questions whose answer the author speaks right after the window.** The task then
+  degenerates into "repeat after the author"; see checklist item 2.5.
 
-### Историческая и хрестоматийная фактура — главный источник отбраковки
+### Historical and textbook material — the main source of rejection
 
-Это не один из пунктов списка выше, а **самая частая причина, по которой сэмпл
-выбрасывается**: на пилоте так потеряно четыре вопроса из десяти. Стоит отдельного
-раздела, потому что такие вопросы обманчиво хороши на вид — тема сложная,
-формулировка длинная, ответ содержательный, — и ломаются они не формой, а тем,
-откуда берётся ответ.
+This is not one of the items in the list above but **the commonest reason a sample gets
+thrown out**: four questions out of ten were lost this way on the pilot. It deserves a
+section of its own, because such questions look deceptively good — a hard topic, a long
+statement, a substantial answer — and what breaks them is not their form but where the
+answer comes from.
 
-Признак один: **содержание ответа существует независимо от ролика**. Кто что
-открыл, в каком году, каким экспериментом, при каком условии верна формула,
-почему подход A не работает, а подход B работает — всё это лежит в учебниках
-и в предобучении. Ролик тогда сообщает только **момент**, а тайминг без содержания
-понимания не меряет.
+There is one sign: **the content of the answer exists independently of the video.** Who
+discovered what, in which year, by which experiment, under which condition a formula holds,
+why approach A does not work while approach B does — all of that is in the textbooks and in
+pre-training. The video then supplies only the **moment**, and timing without content does
+not measure understanding.
 
-Проверка перед тем, как записать вопрос: **вычеркни из формулировки все отсылки
-к ролику и попробуй ответить.** Получилось — вопрос сломан, и никакая обёртка
-(«дождись, когда автор скажет…», «сообщи до того, как он расскажет сам») этого
-не чинит: обёртка меняет, *когда* отвечать, а не *что* отвечать.
+The test before you write a question down: **strike every reference to the video out of the
+wording and try to answer.** If it worked, the question is broken, and no wrapper ("wait
+until the author says…", "report before he tells it himself") fixes that: a wrapper changes
+*when* to answer, not *what* to answer.
 
-#### Пример 1 — исторический факт под видом наблюдения за роликом
+#### Example 1 — a historical fact disguised as an observation of the video
 
-> **Вопрос.** Дождись момента, когда автор назовёт оценку Шеннона для предела
-> сжатия английского языка, и скажи одновременно две вещи: само число и при каком
-> объёме предшествующего контекста эта оценка получена. Пока не прозвучит именно
-> оценка Шеннона — молчи.
+> **Question.** Wait for the moment when the author names Shannon's estimate for the
+> compression limit of the English language, and say two things at once: the number itself
+> and with how much preceding context that estimate was obtained. Until Shannon's estimate
+> specifically is spoken — stay silent.
 
-> **Эталон.** Около одного бита на символ; оценка получена, когда у людей-угадывателей
-> было не менее 100 предшествующих букв контекста.
+> **Reference answer.** About one bit per character; the estimate was obtained when the
+> human guessers had at least 100 preceding letters of context.
 
-> **Ответ полу-слепого, записанный ДО того, как он открыл хоть один файл.**
-> «Оценка Шеннона для энтропии печатного английского — около 1 бита на символ
-> (в работе 1951 г. „Prediction and Entropy of Printed English“ вилка примерно
-> 0.6–1.3 бит/символ), и получена она в эксперименте с угадыванием следующей буквы
-> при примерно 100 символах предшествующего контекста.»
+> **The semi-blind reviewer's answer, recorded BEFORE they opened a single file.**
+> "Shannon's estimate for the entropy of printed English is about 1 bit per character (in
+> the 1951 paper 'Prediction and Entropy of Printed English' the range is roughly 0.6–1.3
+> bits per character), and it was obtained in an experiment on guessing the next letter with
+> about 100 characters of preceding context."
 
-Обе величины, которых требует рубрика, названы дословно, без единой оговорки
-и без единого кадра. Вопрос выглядит как наблюдение за роликом, а измеряет
-знакомство со статьёй 1951 года. `blind_solved = true`, `status: rejected`.
+Both quantities the rubric requires are named verbatim, without a single hedge and without a
+single frame. The question looks like an observation of the video and measures acquaintance
+with a paper from 1951. `blind_solved = true`, `status: rejected`.
 
-#### Пример 2 — «объясни почему» не спасает
+#### Example 2 — "explain why" does not save it
 
-Соблазн после первого примера — добавить в вопрос рассуждение: пусть модель
-не просто называет факт, а объясняет причину. Не помогает, если причина тоже
-хрестоматийная.
+The temptation after the first example is to add reasoning to the question: let the model
+not merely name a fact but explain the reason. It does not help if the reason is textbook as
+well.
 
-> **Вопрос.** Когда автор поставит вопрос о том, откуда вообще брать вероятности
-> следующих букв естественного языка, скажи — до того, как он сам это расскажет, —
-> две вещи: к какому источнику таких вероятностей обратился Шеннон и почему
-> у этого источника нет той проблемы, из-за которой не годится таблица частот
-> по корпусу.
+> **Question.** When the author raises the question of where to get the probabilities of the
+> next letters of a natural language at all, say — before he tells it himself — two things:
+> which source of such probabilities Shannon turned to, and why that source does not have
+> the problem that makes a table of corpus frequencies unusable.
 
-> **Эталон.** Источник — люди, носители языка: Шеннон просил человека угадывать
-> следующую букву и по этим угадываниям восстанавливал вероятности. Проблемы
-> разреженности у этого источника нет потому, что человек — не таблица частот,
-> а модель языка: он даёт оценку для контекста, которого никогда не видел дословно.
+> **Reference answer.** The source is people, native speakers: Shannon asked a person to
+> guess the next letter and reconstructed the probabilities from those guesses. That source
+> has no sparsity problem because a person is not a table of frequencies but a model of the
+> language: they give an estimate for a context they have never seen verbatim.
 
-> **Ответ полу-слепого до просмотра.** «Источник: Шеннон обратился к живому
-> носителю языка — к человеку, которого просят угадывать следующую букву; в работе
-> 1951 года испытуемой была его жена Бетти Шеннон… Таблица обязана хранить
-> вероятность для каждого возможного предшествующего контекста, а число контекстов
-> растёт экспоненциально с длиной (27^n), так что любой корпус для сколько-нибудь
-> длинного контекста пуст. Человек же уже держит в голове обученную модель всего
-> языка: он обусловливается на весь прочитанный текст любой длины.»
+> **The semi-blind reviewer's answer before viewing.** "The source: Shannon turned to a live
+> native speaker — a person asked to guess the next letter; in the 1951 paper the subject was
+> his wife Betty Shannon… A table has to store a probability for every possible preceding
+> context, and the number of contexts grows exponentially with length (27^n), so any corpus
+> is empty for a context of any appreciable length. A person, on the other hand, already
+> holds a trained model of the whole language in their head: they condition on all the text
+> they have read, of any length."
 
-Три из трёх пунктов рубрики, включая «объяснение». Оговорка «до того, как он сам
-это расскажет» задаёт только дедлайн — содержание она не трогает. Вдобавок такой
-вопрос не бывает `L3` и не бывает `predict`: условие целиком названо в самом
-вопросе, а ответ достаётся из памяти, то есть это `L1`-алярм «вспомни известное
-и скажи вовремя», как бы сложно ни звучала тема.
+Three rubric items out of three, including the "explanation". The hedge "before he tells it
+himself" only sets a deadline — it does not touch the content. On top of that, such a
+question is never `L3` and never `predict`: the condition is named in full in the question
+itself and the answer is retrieved from memory, that is, it is an `L1` alarm, "recall
+something known and say it in time", however hard the topic may sound.
 
-#### Как переделать
+#### How to rework it
 
-Рецепт один: **перенести различающую часть ответа на экран**, туда, где значения
-надо прочитать, а не вспомнить.
+There is one recipe: **move the discriminating part of the answer onto the screen**, to
+where the values have to be read rather than recalled.
 
-- вместо «назови оценку Шеннона» — «назови число на счётчике `Bits Per Character`
-  в момент, когда он остановится»: показание счётчика надо увидеть, а совпадёт оно
-  с хрестоматийной оценкой или нет — уже вопрос замера, а не памяти;
-- вместо «почему таблица частот не годится» — «какой именно величиной в показанной
-  на экране схеме автор заменяет таблицу»;
-- общий приём: спрашивать про **конкретные значения, показанные в этом ролике**,
-  и добавлять в рубрику пункт «НЕ засчитывать ответ, где эти значения не названы».
+- instead of "name Shannon's estimate" — "name the number on the `Bits Per Character`
+  counter at the moment it stops": the counter reading has to be seen, and whether or not it
+  agrees with the textbook estimate is then a matter of measurement rather than of memory;
+- instead of "why a table of frequencies is unusable" — "which quantity exactly, in the
+  scheme shown on screen, does the author replace the table with";
+- the general device: ask about **specific values shown in this video**, and add a rubric
+  item "do NOT count an answer in which these values are not named".
 
-Хорошая проверка «переделал ли»: если бы автор взял другие числа, другой пример
-или другую иллюстрацию, — изменился бы правильный ответ? Если да, вопрос держится
-на ролике. Если нет, он по-прежнему держится на учебнике.
+A good test of whether you have reworked it: if the author had taken different numbers, a
+different example or a different illustration, would the correct answer change? If yes, the
+question rests on the video. If no, it still rests on the textbook.
 
-Обратный полюс для калибровки: вопрос «каким стало бы среднее число бит
-на инструкцию, если поменять местами кодовые слова двух инструкций» **не** является
-решаемым вслепую, хотя тема хрестоматийная. Ответ там зависит от того, какие именно
-вероятности и кодовые слова показаны на экране: при другом наборе он был бы другим.
-Угадать постановку можно, но угадывание — это ставка, а не решение, и такие сэмплы
-мы оставляем.
+The opposite pole for calibration: the question "what would the average number of bits per
+instruction become if the code words of two instructions were swapped" is **not** solvable
+blind, even though the topic is a textbook one. The answer there depends on exactly which
+probabilities and code words are shown on screen: with a different set it would be
+different. The statement can be guessed, but guessing is a bet rather than a solution, and
+such samples we keep.
 
-## Как выставлять времена
+## How to set the times
 
-`question_time` — момент выдачи вопроса. Правило: **самый поздний момент, когда
-вопрос ещё осмыслен, но раньше окна**. Ноль ставится только тогда, когда вопрос
-понятен с начала ролика. Три ограничения:
+`question_time` — the moment the question is issued. The rule: **the latest moment at which
+the question still makes sense, but earlier than the window**. Zero is used only when the
+question is comprehensible from the start of the video. Three constraints:
 
-- все объекты, на которые ссылается формулировка, к этому моменту уже введены;
-- приманки, на которые вопрос должен ловить, ещё впереди: дистрактор, целиком
-  лежащий до `question_time`, бесполезен;
-- если вся информация для ответа уже прошла — это не `pre`-вопрос, а `post`,
-  и размечать его надо честно как `post`.
+- every object the wording refers to has already been introduced by that moment;
+- the distractors the question is meant to catch on are still ahead: a distractor lying
+  entirely before `question_time` is useless;
+- if all the information for the answer has already gone by, this is not a `pre` question
+  but a `post` one, and it must be annotated honestly as `post`.
 
-`[t_start, t_end)` — окно ответа. `t_start` — момент, когда ответ становится
-возможен **впервые**. Ищи его по картинке, а не по речи: автор часто показывает
-таблицу или значения за десятки секунд до того, как проговорит их, а потом
-переанимирует под слова — и кадры вокруг реплики обманчиво выглядят неполными.
-`t_end` — момент, после которого отвечать поздно: объект ушёл с экрана.
-**Для вопросов уровня `L2`/`L3` окно должно закрыться не позже, чем за десять секунд
-до того, как автор произнесёт ответ сам.** К `L1`-аляркам это не относится: там
-реплика автора и есть событие, на которое просят отреагировать, и запас не нужен. Ставить `t_end` вплотную к этому моменту нельзя: модель
-в стриминге тратит на ответ несколько секунд и успеет получить ответ автора
-из потока — формально ответив внутри окна, фактически списав. Если запаса
-в десять секунд нет, вопрос уровня `L2`/`L3` на этом материале не строится:
-он выродится в «повтори за автором».
+`[t_start, t_end)` — the answer window. `t_start` is the moment the answer becomes possible
+**for the first time**. Look for it in the picture rather than in the speech: the author
+often shows a table or the values tens of seconds before speaking them, and then re-animates
+it to fit the words — so the frames around the line of speech look deceptively incomplete.
+`t_end` is the moment after which it is too late to answer: the object has left the screen.
+**For questions of level `L2`/`L3` the window must close no later than ten seconds before
+the author speaks the answer himself.** This does not apply to `L1` alarms: there the
+author's line is itself the event that is asked to be reacted to, and no slack is needed.
+Setting `t_end` right up against that moment is not allowed: a model in streaming spends
+several seconds on its answer and will manage to get the author's answer out of the stream —
+formally answering inside the window while in fact copying. If there is no ten-second slack,
+a question of level `L2`/`L3` cannot be built on this material: it will degenerate into
+"repeat after the author".
 
-`t_ideal` — служебное поле, ставь `t_start + 1` и не думай о нём. Задержка меряется от `t_start`; почему так — раздел «Почему `t_ideal` ничего не значит» в чеклисте.
+`t_ideal` is a service field; set it to `t_start + 1` and do not think about it. Latency is
+measured from `t_start`; why that is so is in the section "Why `t_ideal` means nothing" in
+the checklist.
 
-`t_start` при этом — не «когда удобно», а **момент, когда мгновенно рассуждающая модель уже могла бы ответить**, то есть начало доказательства. Валидатор сравнивает: `t_start` раньше `evidence_span[0]` — ошибка.
+`t_start`, meanwhile, is not "when it is convenient" but **the moment at which a model
+reasoning instantaneously could already have answered**, that is, the start of the evidence.
+The validator compares: `t_start` earlier than `evidence_span[0]` is an error.
 
-`evidence_span` — где лежит **последнее по времени** доказательство, нужное для
-ответа. Не путай его с подтверждением: то, чем проверяется, что твой эталон вообще
-верен, идёт в `provenance.evidence` и вполне может лежать позже окна (у `predict`
-автор рассказывает ответ уже после того, как модель должна его предсказать) или
-вообще вне ролика (у `counterfact` автор ответа не произносит никогда). Поле **обязательное**: без него сэмпл не проходит схему. Заполняй его
-по существу, а не копией окна — из него выводится ось `temporal_rel`, и span,
-равный окну, сводит вывод оси к сравнению `question_time` с `t_start`, то есть
-к тому, из чего её вычислять как раз нельзя.
+`evidence_span` — where the **latest** piece of evidence needed for the answer lies. Do not
+confuse it with the corroboration: what establishes that your reference answer is correct at
+all goes into `provenance.evidence` and may perfectly well lie after the window (for
+`predict` the author tells the answer only after the model was supposed to predict it) or
+outside the video altogether (for `counterfact` the author never speaks the answer). The
+field is **required**: without it the sample does not pass the schema. Fill it in on the
+merits rather than as a copy of the window — the `temporal_rel` axis is derived from it, and
+a span equal to the window reduces the derivation of the axis to comparing `question_time`
+with `t_start`, that is, to exactly what it must not be computed from.
 
-Для речи это интервал реплики, где доказательство договорено. Для картинки — от
-появления до конца доступности внутри окна: график остаётся на экране, и пока он
-там, доказательство доступно. Если считать визуальное доказательство мгновенным,
-вопрос, заданный через пять секунд после появления графика, выведется как `post`,
-«отвечай по памяти», хотя график всё ещё перед глазами.
+For speech this is the interval of the line in which the evidence is finished. For a picture
+it runs from the appearance to the end of its availability inside the window: the graph stays
+on screen, and as long as it is there the evidence is available. If a visual piece of
+evidence is treated as instantaneous, a question asked five seconds after the graph appears
+will come out as `post`, "answer from memory", even though the graph is still in front of
+your eyes.
 
-`distractor_windows` — места, где неверно рассуждающая модель, скорее всего,
-заговорит: ранний правдоподобный, но неполный ответ; похожая формулировка
-по другому поводу. Ставь границы по фактическим границам соблазна, а не по
-характерной фразе: разбор темы обычно начинается раньше, чем звучит слово-маркер.
+`distractor_windows` — the places where a model reasoning incorrectly will most likely speak
+up: an early plausible but incomplete answer; a similar wording used about something else.
+Set the boundaries by the actual boundaries of the temptation rather than by the
+characteristic phrase: the discussion of the topic usually begins before the marker word is
+spoken.
 
-Для многотриггерных вопросов («каждый раз, когда…») **пройди транскрипт целиком
-по репликам**, а не поиском по ключевым словам: одно и то же условие автор
-выражает разными словами, и пропущенное срабатывание превращает правильное
-поведение модели в ложную тревогу.
+For multi-trigger questions ("every time when…") **walk the transcript in full, line by
+line**, rather than searching for keywords: the author expresses the same condition in
+different words, and a missed firing turns correct behaviour by the model into a false alarm.
 
-## Рубрика
+## The rubric
 
-Для каждого окна — `response` (эталонный ответ) и `rubric` (список критериев,
-по которым судья оценивает ответ). Требования:
+For each window — a `response` (the reference answer) and a `rubric` (the list of criteria by
+which the judge scores an answer). The requirements:
 
-- оцениваемая модель увидит **только текст вопроса** — ни рубрики, ни заметок,
-  ни причин дистракторов;
-  всё, что отличает верный ответ от неверного, должно стоять в самом вопросе;
-- каждый пункт рубрики соответствует явному требованию вопроса;
-- рубрика не штрафует за верную деталь сверх ожидаемого; штраф — за неверное.
+- the model being evaluated will see **only the text of the question** — no rubric, no notes,
+  no reasons for the distractors;
+  everything that tells a correct answer from an incorrect one must be in the question itself;
+- every rubric item corresponds to an explicit requirement of the question;
+- the rubric does not penalise a correct detail beyond what was expected; the penalty is for
+  what is incorrect.
 
-## Что вернуть
+## What to return
 
-Пиши **в свой файл** `data/annotations/partial/<VIDEO_ID>.<ИНТЕРВАЛ>.jsonl`,
-а не в общий `<VIDEO_ID>.jsonl`: параллельно с тобой работают пропозеры по другим
-интервалам, и общий файл вы затрёте. Сводит партиалы координатор, он же присваивает
-сквозные `id` формата `3b1b__<VIDEO_ID>__q<NN>` — внутри своего файла нумеруй
-как угодно, лишь бы номера не повторялись.
+Write **into your own file** `data/annotations/partial/<VIDEO_ID>.<INTERVAL>.jsonl` rather
+than into the shared `<VIDEO_ID>.jsonl`: proposers working on other intervals are running in
+parallel with you, and you would overwrite the shared file. The partials are merged by the
+coordinator, who also assigns the end-to-end `id`s of the form `3b1b__<VIDEO_ID>__q<NN>` —
+inside your own file number them however you like, as long as the numbers do not repeat.
 
-Контрольных близнецов (тот же вопрос с другим `question_time`) не делай:
-их создаёт координатор при сведении, потому что пара строится из вида на весь набор.
-Он же проставляет им поле `twin_of` — по именам `id` связь не восстанавливается.
+Do not make control twins (the same question with a different `question_time`): they are
+created by the coordinator at merge time, because a pair is built from a view of the whole
+set. It is also the coordinator who fills in their `twin_of` field — the link cannot be
+reconstructed from `id` names.
 
-Строки `jsonl` по схеме `schema/sample.schema.json`, `status: draft`,
-`audio_dependency: null` (это результат замера, а не мнение; своё мнение можно
-записать в `audio_dependency_claim`).
+The `jsonl` lines follow the schema `schema/sample.schema.json`, `status: draft`,
+`audio_dependency: null` (it is the result of a measurement, not an opinion; your own opinion
+can be recorded in `audio_dependency_claim`).
 
-Перед сдачей прогони:
+Before handing in, run:
 
 ```bash
 /home/user/conda/bin/python3 tools/validate_samples.py \
-    data/annotations/partial/<VIDEO_ID>.<ИНТЕРВАЛ>.jsonl
+    data/annotations/partial/<VIDEO_ID>.<INTERVAL>.jsonl
 ```
 
-и почини всё, на что он ругается. Валидатор проверяет только арифметику
-(группа 1 чеклиста) — его молчание не означает, что разметка верна, но его
-ругань всегда означает, что неверна.
+and fix everything it complains about. The validator checks only the arithmetic (checklist
+group 1) — its silence does not mean the annotation is correct, but its complaints always
+mean it is not.
 
-В `provenance.evidence` укажи, откуда взят каждый эталонный ответ. Записи
-структурные, по одной на источник:
+In `provenance.evidence` state where each reference answer came from. The records are
+structural, one per source:
 
 ```json
-{"type": "frame",  "t": 946.0, "explanation": "что видно на кадре"}
-{"type": "speech", "t_start": 1822.0, "t_end": 1829.4, "explanation": "«цитата»"}
-{"type": "other",  "explanation": "исходник _2026/cross_entropy/robot.py: ..."}
+{"type": "frame",  "t": 946.0, "explanation": "what is visible in the frame"}
+{"type": "speech", "t_start": 1822.0, "t_end": 1829.4, "explanation": "\"quotation\""}
+{"type": "other",  "explanation": "source _2026/cross_entropy/robot.py: ..."}
 ```
 
-Обе границы речевой ссылки обязаны в точности совпадать с границами реплик
-транскрипта: начало — с началом какой-то реплики, конец — с концом какой-то.
-Если нужный фрагмент кончается посреди фразы, расширяй интервал **наружу**,
-до конца этой фразы: захватить лишнее предложение не страшно, обрезать нужное —
-страшно. Описание должно соответствовать тому, что на кадре
-в указанный момент, а не тому, что ты помнишь о происходящем: по этим ссылкам
-разметку будут перепроверять.
+Both boundaries of a speech reference must coincide exactly with the boundaries of transcript
+lines: the start with the start of some line, the end with the end of some line. If the
+fragment you need ends in the middle of a sentence, widen the interval **outwards**, to the
+end of that sentence: catching one extra sentence is harmless, cutting off a needed one is
+not. The description must match what is in the frame at the stated moment rather than what
+you remember about what is going on: this annotation will be re-checked through these
+references.

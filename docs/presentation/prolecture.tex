@@ -1,9 +1,8 @@
-% Собирать XeLaTeX'ом: TinyTeX + DejaVu Sans (кириллица), сборка — Makefile рядом.
+% Build with XeLaTeX: TinyTeX + DejaVu Sans; the Makefile next door does it.
 \documentclass[aspectratio=169,10pt]{beamer}
 
 \usepackage{polyglossia}
-\setmainlanguage{russian}
-\setotherlanguage{english}
+\setmainlanguage{english}
 \usepackage{fontspec}
 \setmainfont{DejaVu Sans}
 \setsansfont{DejaVu Sans}
@@ -13,7 +12,7 @@
 \usetikzlibrary{positioning, arrows.meta, backgrounds, calc}
 \usepackage{booktabs}
 
-% --- оформление: спокойное, без украшений
+% --- the look: calm, no ornament
 \usetheme{default}
 \usecolortheme{default}
 \setbeamertemplate{navigation symbols}{}
@@ -39,7 +38,7 @@
 \setbeamerfont{itemize/enumerate subbody}{size=\small}
 \setlength{\leftmargini}{1.2em}
 
-% нижний колонтитул: номер страницы и короткая метка
+% the footer: the page number and a short label
 \setbeamertemplate{footline}{%
   \hbox{}\hfill\raisebox{1.2em}{\color{muted}\scriptsize
     ProLecture\quad\insertframenumber/\inserttotalframenumber}\hspace{1.5em}}
@@ -48,7 +47,7 @@
 \newcommand{\num}[1]{{\color{accent}\textbf{#1}}}
 
 \title{ProLecture}
-\subtitle{Бенчмарк проактивных задач для стриминговых VLM}
+\subtitle{A benchmark of proactive tasks for streaming VLMs}
 \date{}
 
 \begin{document}
@@ -57,145 +56,145 @@
 \begin{frame}[plain]
   \vspace{1.2cm}
   {\Huge\bfseries ProLecture}\\[0.5em]
-  {\large\color{muted} Бенчмарк проактивности, упирающейся в рассуждение}\\[2.2em]
+  {\large\color{muted} A benchmark of proactivity that runs into reasoning}\\[2.2em]
 
   \begin{minipage}{0.9\textwidth}
     \color{ink}
-    Модель смотрит лекцию в реальном времени и сама решает,\\
-    \lead{когда} ответить и \lead{что} ответить.
+    The model watches a lecture in real time and decides for itself\\
+    \lead{when} to answer and \lead{what} to answer.
   \end{minipage}
 
   \vfill
-  {\color{muted}\small Материал — лекции 3Blue1Brown. Статус: пилот, 10 сэмплов, конвейер разметки собран.}
+  {\color{muted}\small The material is 3Blue1Brown lectures. Status: a pilot, 10 samples, the annotation pipeline assembled.}
   \vspace{0.8cm}
 \end{frame}
 
 % ------------------------------------------------------------------ 2
 \begin{frame}
-  \frametitle{Ниша}
-  \framesubtitle{проактивность там, где ответ требует вывода, а не считывания}
+  \frametitle{The niche}
+  \framesubtitle{proactivity where the answer requires a derivation rather than a reading}
 
   \begin{center}
   \footnotesize
   \begin{tabular}{@{}lll@{}}
     \toprule
-    \textbf{Работа} & \textbf{Что меряет} & \textbf{Чего не хватает} \\
+    \textbf{Work} & \textbf{What it measures} & \textbf{What is missing} \\
     \midrule
-    OVO-Bench & backward / real-time / forward & MCQ, нет аудио, перцепция \\
-    ProactiveVideoQA & open-ended, метрика PAUC & простые вопросы «сообщи, когда X» \\
-    OmniPro & 6 способностей $\times$ 9 подзадач & 84\% аудио, но vision-only не отстают \\
+    OVO-Bench & backward / real-time / forward & MCQ, no audio, perception \\
+    ProactiveVideoQA & open-ended, the PAUC metric & simple questions ``tell me when X'' \\
+    OmniPro & 6 abilities $\times$ 9 subtasks & 84\% audio, yet vision-only keeps up \\
     \bottomrule
   \end{tabular}
   \end{center}
 
   \vspace{0.8em}
   \begin{itemize}
-    \item В лекции почти \textbf{нет перцептивной сложности}: чистый рендер, крупные формулы, чёткая речь.
-    \item Зато есть логическая структура: посылка $\rightarrow$ вывод $\rightarrow$ следствие.
-    \item Значит, ответить вовремя можно, только \lead{поняв содержание} — а не распознав объект.
+    \item A lecture has almost \textbf{no perceptual difficulty}: clean rendering, large formulas, clear speech.
+    \item What it does have is a logical structure: premise $\rightarrow$ derivation $\rightarrow$ consequence.
+    \item So the only way to answer in time is to \lead{understand the content} — not to recognise an object.
   \end{itemize}
 \end{frame}
 
 % ------------------------------------------------------------------ 3
 \begin{frame}
-  \frametitle{Почему 3Blue1Brown}
-  \framesubtitle{уникальный актив: у нас есть исходный код картинки}
+  \frametitle{Why 3Blue1Brown}
+  \framesubtitle{a unique asset: we have the source code of the picture}
 
   \begin{columns}[T]
     \begin{column}{0.52\textwidth}
-      Для \num{140} видео известны одновременно ссылка на YouTube \emph{и} существующий
-      путь к manim-исходнику сцены.\\[0.6em]
-      Ни у одного из существующих бенчмарков исходников видеоряда нет.
+      For \num{140} videos both the YouTube link \emph{and} an existing path to the
+      manim source of the scene are known.\\[0.6em]
+      None of the existing benchmarks has the sources of the video track.
     \end{column}
     \begin{column}{0.44\textwidth}
       \begin{itemize}
-        \item точная ground-truth того, что на экране (строки \texttt{Tex} с \LaTeX);
-        \item семантические границы: имена сцен, порядок анимаций;
-        \item \lead{ре-рендер с внедрённой ошибкой} — контент, которого гарантированно
-              не было в pretraining.
+        \item an exact ground truth of what is on the screen (the \texttt{Tex} strings with \LaTeX);
+        \item semantic boundaries: scene names, the order of the animations;
+        \item \lead{a re-render with an injected error} — content guaranteed not to have
+              been in pre-training.
       \end{itemize}
     \end{column}
   \end{columns}
 
   \vspace{1.0em}
   {\color{muted}\small
-  Связь «урок $\leftrightarrow$ ролик $\leftrightarrow$ код» существует только во frontmatter сайта:
-  в самом репозитории \texttt{3b1b/videos} нет ни одной ссылки на YouTube.}
+  The connection ``lesson $\leftrightarrow$ video $\leftrightarrow$ code'' exists only in the frontmatter of the site:
+  the \texttt{3b1b/videos} repository itself contains not a single link to YouTube.}
 \end{frame}
 
 % ------------------------------------------------------------------ 4
 \begin{frame}
-  \frametitle{Анатомия сэмпла}
-  \framesubtitle{вопрос — в одну секунду, ответ — в окне, доказательство — отдельно}
+  \frametitle{The anatomy of a sample}
+  \framesubtitle{the question in one second, the answer in a window, the evidence separately}
 
   \begin{center}
   \begin{tikzpicture}[x=1.05cm, y=1cm]
     \draw[-{Latex[length=3mm]}, thick, muted] (0,0) -- (12.4,0);
-    \node[muted, anchor=west, font=\small] at (12.2,-0.45) {время};
+    \node[muted, anchor=west, font=\small] at (12.2,-0.45) {time};
 
-    % вопрос
+    % the question
     \draw[warm, very thick] (2.2,-0.35) -- (2.2,0.9);
     \node[warm, anchor=south, font=\small\bfseries] at (2.2,0.95) {question\_time};
 
-    % окно ответа
+    % the answer window
     \fill[accent, opacity=0.16] (6.0,-0.32) rectangle (9.2,0.32);
     \draw[accent, thick] (6.0,-0.32) rectangle (9.2,0.32);
-    \node[accent, anchor=south, font=\small\bfseries] at (7.6,0.4) {окно ответа};
+    \node[accent, anchor=south, font=\small\bfseries] at (7.6,0.4) {answer window};
 
-    % дистрактор
+    % the distractor
     \fill[warm, opacity=0.12] (3.4,-0.32) rectangle (4.9,0.32);
     \draw[warm, dashed] (3.4,-0.32) rectangle (4.9,0.32);
-    \node[warm, anchor=north, font=\scriptsize] at (4.15,-0.42) {дистрактор};
+    \node[warm, anchor=north, font=\scriptsize] at (4.15,-0.42) {distractor};
 
-    % доказательство
+    % the evidence
     \draw[ink, very thick] (6.3,-1.15) -- (8.6,-1.15);
     \draw[ink] (6.3,-1.25) -- (6.3,-1.05);
     \draw[ink] (8.6,-1.25) -- (8.6,-1.05);
-    \node[ink, anchor=north, font=\scriptsize] at (7.45,-1.3) {evidence\_span — где ответ \emph{становится возможен}};
+    \node[ink, anchor=north, font=\scriptsize] at (7.45,-1.3) {evidence\_span — where the answer \emph{becomes possible}};
 
-    \node[muted, anchor=north, font=\scriptsize] at (2.2,-0.45) {вопрос задан};
+    \node[muted, anchor=north, font=\scriptsize] at (2.2,-0.45) {question issued};
   \end{tikzpicture}
   \end{center}
 
   \begin{itemize}
-    \item Ось \texttt{temporal\_rel} (\texttt{pre} / \texttt{at} / \texttt{post}) \lead{проверяется валидатором}:
-          он пересчитывает её из \texttt{question\_time} и \texttt{evidence\_span} и отвергает несовпадение.
-    \item \texttt{distractor\_windows} — моменты, где ответ выглядит уместным, но преждевременен.
-    \item Подтверждение эталона живёт отдельно, в \texttt{provenance}: оно может лежать позже окна и даже вне ролика.
+    \item The \texttt{temporal\_rel} axis (\texttt{pre} / \texttt{at} / \texttt{post}) is \lead{checked by the validator}:
+          it recomputes it from \texttt{question\_time} and \texttt{evidence\_span} and rejects a mismatch.
+    \item \texttt{distractor\_windows} — moments where an answer looks apt but is premature.
+    \item The confirmation of the reference answer lives separately, in \texttt{provenance}: it may lie later than the window and even outside the video.
   \end{itemize}
 \end{frame}
 
 % ------------------------------------------------------------------ 5
 \begin{frame}
-  \frametitle{Что ещё лежит в сэмпле}
-  \framesubtitle{чем судят ответ и что в разметке измерено, а не заявлено}
+  \frametitle{What else is in a sample}
+  \framesubtitle{what the answer is judged by, and what in the annotation is measured rather than declared}
 
   \begin{columns}[T]
     \begin{column}{0.47\textwidth}
-      {\bfseries В каждом окне}\\[0.4em]
+      {\bfseries In every window}\\[0.4em]
       {\small
-      \texttt{response} — эталонный ответ\\[0.2em]
-      \texttt{rubric} — по чему судья ставит балл\\[0.2em]
+      \texttt{response} — the reference answer\\[0.2em]
+      \texttt{rubric} — what the judge scores against\\[0.2em]
       \texttt{trigger\_modality} — visual / speech / sound\\[0.2em]
-      \texttt{depends\_on} — ссылка на предыдущее окно\\[0.5em]
-      Рубрика — то, что заменяет MCQ. Из \texttt{q01}:
+      \texttt{depends\_on} — a reference to a previous window\\[0.5em]
+      The rubric is what replaces the MCQ. From \texttt{q01}:
       \begin{itemize}\setlength{\itemsep}{0pt}
-        \item[] «названо число 2.5»
-        \item[] «если расчёт показан — он взвешенный, с 1/2, 1/4, 1/8, 1/8»
-        \item[] \lead{«НЕ засчитывать 1.75 — это исходный код, а не переставленный»}
+        \item[] ``the number 2.5 is named''
+        \item[] ``if a computation is shown, it is weighted, with 1/2, 1/4, 1/8, 1/8''
+        \item[] \lead{``do NOT credit 1.75 — that is the original code, not the swapped one''}
       \end{itemize}}
     \end{column}
     \begin{column}{0.47\textwidth}
-      {\bfseries \texttt{validation} — результаты замеров}\\[0.4em]
+      {\bfseries \texttt{validation} — the results of the measurements}\\[0.4em]
       {\small
-      По флагу на зонд, каждый заполняется \emph{ответом модели}, а не мнением:\\[0.3em]
-      \texttt{solvable} — решается ли вообще\\[0.2em]
-      \texttt{blind\_solved} — решается без видео\\[0.2em]
-      \texttt{textonly\_solved} — хватает транскрипта\\[0.2em]
-      \texttt{visiononly\_solved} — хватает кадров\\[0.2em]
-      \texttt{frozenframe\_solved} — хватает одного кадра\\[0.6em]
-      Отсюда выводится \texttt{audio\_dependency}; мнение разметчика живёт отдельно,
-      в \texttt{audio\_dependency\_claim}, и на выводы не влияет.\\[0.4em]
+      One flag per probe, each filled in by a \emph{model's answer} rather than by an opinion:\\[0.3em]
+      \texttt{solvable} — is it solvable at all\\[0.2em]
+      \texttt{blind\_solved} — solvable without the video\\[0.2em]
+      \texttt{textonly\_solved} — the transcript is enough\\[0.2em]
+      \texttt{visiononly\_solved} — the frames are enough\\[0.2em]
+      \texttt{frozenframe\_solved} — one frame is enough\\[0.6em]
+      \texttt{audio\_dependency} is derived from these; the annotator's opinion lives separately,
+      in \texttt{audio\_dependency\_claim}, and influences no conclusion.\\[0.4em]
       \texttt{status}: \texttt{draft} $\rightarrow$ \texttt{validated} / \texttt{rejected}.}
     \end{column}
   \end{columns}
@@ -203,104 +202,103 @@
 
 % ------------------------------------------------------------------ 6
 \begin{frame}
-  \frametitle{Три оси таксономии}
-  \framesubtitle{каждый сэмпл — точка в кубе (акт, отношение, уровень рассуждения)}
+  \frametitle{The three taxonomy axes}
+  \framesubtitle{every sample is a point in the cube (act, relation, level of reasoning)}
 
   \begin{columns}[T]
     \begin{column}{0.33\textwidth}
-      {\bfseries A. Тип акта}\\[0.4em]
+      {\bfseries A. The type of act}\\[0.4em]
       {\small
-      \texttt{alert} — сигнал\\
-      \texttt{monitor} — состояние\\
-      \texttt{ground} — локализация\\
-      \texttt{narrate} — описание\\
-      \texttt{predict} — предсказание\\
-      \texttt{verify} — верификация\\
-      \texttt{counterfact} — контрфактика}
+      \texttt{alert} — an alert\\
+      \texttt{monitor} — a state\\
+      \texttt{ground} — grounding\\
+      \texttt{narrate} — narration\\
+      \texttt{predict} — prediction\\
+      \texttt{verify} — verification\\
+      \texttt{counterfact} — a counterfactual}
     \end{column}
     \begin{column}{0.33\textwidth}
-      {\bfseries B. Отношение к триггеру}\\[0.4em]
+      {\bfseries B. The relation to the trigger}\\[0.4em]
       {\small
-      \texttt{pre} — доказательство \emph{после} вопроса: \lead{умение ждать}\\[0.3em]
-      \texttt{at} — здесь и сейчас\\[0.3em]
-      \texttt{post} — ответ по памяти\\[0.5em]
-      \color{muted} Один вопрос в двух режимах даёт контролируемую пару.}
+      \texttt{pre} — the evidence comes \emph{after} the question: \lead{the ability to wait}\\[0.3em]
+      \texttt{at} — here and now\\[0.3em]
+      \texttt{post} — an answer from memory\\[0.5em]
+      \color{muted} One question in two regimes gives a controlled pair.}
     \end{column}
     \begin{column}{0.33\textwidth}
-      {\bfseries C. Уровень рассуждения}\\[0.4em]
+      {\bfseries C. The level of reasoning}\\[0.4em]
       {\small
-      \texttt{L1} перцепция — считывается\\[0.3em]
-      \texttt{L2} интеграция — связать два момента\\[0.3em]
-      \texttt{L3} вывод — провести рассуждение, которого в видео нет\\[0.5em]
-      \color{muted} Критерий L3: blind-бейзлайн не решает.}
+      \texttt{L1} perception — read off\\[0.3em]
+      \texttt{L2} integration — connect two moments\\[0.3em]
+      \texttt{L3} derivation — carry out reasoning that is not in the video\\[0.5em]
+      \color{muted} The criterion for L3: the blind baseline does not solve it.}
     \end{column}
   \end{columns}
 
   \vspace{0.9em}
-  {\color{muted}\small Ось C — то, чего нет у OmniPro: там модели не различаются именно по ней.}
+  {\color{muted}\small Axis C is what OmniPro does not have: it is precisely along it that its models fail to differ.}
 \end{frame}
 
 % ------------------------------------------------------------------ 7
 \begin{frame}
-  \frametitle{Принципы, из которых вырос дизайн}
-  \framesubtitle{каждый пункт закрывает провал, на котором погорела одна из разобранных работ}
+  \frametitle{The principles the design grew out of}
+  \framesubtitle{each point closes a failure that sank one of the works reviewed}
 
   \begin{itemize}
-    \item \lead{Метки ставятся замером, а не декларацией.} \texttt{audio\_dependency}
-          выводится из ответов зондов модальностей; мнение разметчика живёт
-          в отдельном поле и на выводы не влияет.
-    \item \lead{Генератор $\neq$ судья $\neq$ участник} — правило \emph{на этап замеров}.
-          Сейчас пропозер, ревьюеры и координатор — одна и та же модель, а судью
-          и участника мы ещё не запускали. Судьёй при этом может быть чистая
-          текстовая LLM: она читает рубрику и ответ, а видео не смотрит.
-    \item \lead{Открытые ответы с рубрикой, без MCQ.} Перекошенный ключ ответов ломает бенчмарк тихо.
-    \item \lead{Обязательные бейзлайны-пустышки:} blind, text-only, vision-only, frozen-frame,
-          «отвечать сразу», «отвечать в конце», «молчать».
-    \item \lead{Никаких квот} вида «ровно N сэмплов на задачу»: сколько прошло валидацию, столько и есть.
-    \item \lead{Контаминация измеряется, а не отрицается:} пилот на видео 2026 года,
-          контрольное видео 2017 года — чтобы разрыв blind-бейзлайна увидеть числом.
+    \item \lead{Labels are set by measurement, not by declaration.} \texttt{audio\_dependency}
+          is derived from the modality probes; the annotator's opinion lives in a separate
+          field and influences no conclusion.
+    \item \lead{Generator $\neq$ judge $\neq$ participant} — a rule \emph{for the measurement phase}.
+          At present the proposer, the reviewers and the coordinator are one model, and no judge
+          or participant has been run yet. The judge may be a pure text LLM: it reads the rubric
+          and the answer, not the video.
+    \item \lead{Open answers with a rubric, no MCQs.} A skewed answer key breaks a benchmark quietly.
+    \item \lead{Mandatory dummy baselines:} blind, text-only, vision-only, frozen-frame,
+          ``answer immediately'', ``answer at the end'', ``stay silent''.
+    \item \lead{No quotas} of the form ``exactly N samples per task'': however many passed validation is however many there are.
+    \item \lead{Contamination is measured, not denied:} a 2026 pilot video and a 2017 control
+          one, so the blind-baseline gap becomes a number.
   \end{itemize}
 \end{frame}
 
 % ------------------------------------------------------------------ 8
 \begin{frame}
-  \frametitle{Как это работает на живых сэмплах}
-  \framesubtitle{одна и та же проверка вслепую, противоположные исходы}
+  \frametitle{How this works on live samples}
+  \framesubtitle{one and the same blind check, opposite outcomes}
 
   \begin{columns}[T]
     \begin{column}{0.47\textwidth}
-      {\color{accent}\bfseries q01 — проверку прошёл}\\[0.4em]
+      {\color{accent}\bfseries q01 — passed the check}\\[0.4em]
       {\small
-      \emph{«Как только впервые появится таблица кодовых слов разной длины
-      с вероятностями — посчитай, каким станет среднее число бит, если поменять
-      местами „вверх“ и „влево“».}\\[0.5em]
-      Вопрос на 250-й секунде, таблица — на 314-й; ответа 2.5 бита в видео нет.\\[0.5em]
-      Полу-слепой ревьюер \emph{назвал} 2.5 — и засчитан не был: его ответ начинался
-      с «точного числа назвать не могу», дальше условная догадка и ветка с 2.0.
-      \lead{Угадана постановка, а не найден ответ.}}
+      \emph{``As soon as a table of code words of different lengths with their probabilities
+      first appears, compute what the average number of bits becomes if `up' and `left'
+      are swapped.''}\\[0.5em]
+      Question at 250 s, table at 314 s; the answer of 2.5 bits is not in the video.\\[0.5em]
+      The semi-blind reviewer \emph{named} 2.5 — and was not credited: the answer opened with
+      ``I cannot name an exact number'', then a conditional guess and a branch with 2.0.
+      \lead{The problem was guessed, the answer was not found.}}
     \end{column}
     \begin{column}{0.47\textwidth}
-      {\color{warm}\bfseries q08 — отвергнут}\\[0.4em]
+      {\color{warm}\bfseries q08 — rejected}\\[0.4em]
       {\small
-      \emph{«Скажи до того, как автор расскажет сам: к какому источнику
-      вероятностей букв обратился Шеннон и почему у него нет проблемы
-      таблицы частот».}\\[0.5em]
-      До просмотра ревьюер выдал \textbf{обе} половины ответа: живой носитель языка
-      и рост числа контекстов как $27^n$. Три пункта рубрики из трёх, без единого
-      допущения о кадре.\\[0.5em]
-      \lead{\texttt{blind\_solved = true}}, \texttt{status: rejected}; заодно уровень
-      понижен \texttt{L3} $\rightarrow$ \texttt{L1}.}
+      \emph{``Say before the author tells it himself: what source of letter probabilities
+      did Shannon turn to, and why does he not have the frequency-table problem?''}\\[0.5em]
+      Before any viewing the reviewer produced \textbf{both} halves of the answer: a live
+      native speaker, and the growth of the number of contexts as $27^n$. Three rubric items
+      out of three, without a single assumption about a frame.\\[0.5em]
+      \lead{\texttt{blind\_solved = true}}, \texttt{status: rejected}; the level was lowered
+      \texttt{L3} $\rightarrow$ \texttt{L1} along the way.}
     \end{column}
   \end{columns}
 
   \vspace{0.2em}
-  {\color{muted}\footnotesize Правило: опора на общеизвестный факт — контаминация, догадка из постановки — нет.}
+  {\color{muted}\footnotesize The rule: leaning on a commonly known fact is contamination; guessing the problem is not.}
 \end{frame}
 
 % ------------------------------------------------------------------ 9
 \begin{frame}
-  \frametitle{Конвейер}
-  \framesubtitle{от ролика до сэмпла, прошедшего ревью}
+  \frametitle{The pipeline}
+  \framesubtitle{from a video to a sample that has been through review}
 
   \begin{center}
   \begin{tikzpicture}[
@@ -309,189 +307,188 @@
                   align=center, font=\scriptsize, minimum height=1.05cm, text width=1.6cm},
       lab/.style={font=\scriptsize, color=muted, align=center},
       ar/.style={-{Latex[length=2mm]}, muted, thick}]
-    \node[box] (a) {видео\\+ исходник};
-    \node[box, right=of a] (b) {bundle:\\транскрипт,\\кадры, формулы};
-    \node[box, right=of b] (c) {пропозер\\(агент)};
-    \node[box, right=of c] (d) {валидатор\\(схема)};
-    \node[box, right=of d] (e) {ревьюеры\\и зонды};
-    \node[box, right=of e] (f) {приёмка\\человеком};
+    \node[box] (a) {video\\+ source};
+    \node[box, right=of a] (b) {bundle:\\transcript,\\frames, formulas};
+    \node[box, right=of b] (c) {proposer\\(agent)};
+    \node[box, right=of c] (d) {validator\\(schema)};
+    \node[box, right=of d] (e) {reviewers\\and probes};
+    \node[box, right=of e] (f) {human\\acceptance};
     \draw[ar] (a) -- (b); \draw[ar] (b) -- (c); \draw[ar] (c) -- (d);
     \draw[ar] (d) -- (e); \draw[ar] (e) -- (f);
     \draw[ar] (e.south) .. controls +(0,-1.0) and +(0,-1.0) .. (d.south);
-    \node[lab] at ($(d.south)!0.5!(e.south)$) [below=0.95cm] {не PASS — тот же вопрос уходит свежим субагентам};
+    \node[lab] at ($(d.south)!0.5!(e.south)$) [below=0.95cm] {not PASS — the same question goes to fresh subagents};
   \end{tikzpicture}
   \end{center}
 
   \vspace{0.4em}
   \begin{itemize}
-    \item \textbf{Валидатор} играет роль тестов: непересекающиеся окна, ссылки только назад,
-          дистрактор не совпадает с триггером, \texttt{temporal\_rel} сходится с доказательством.
-          Возвращает код 1 при любой ошибке.
-    \item \textbf{Ревьюеры и зонды} — следующие два слайда: три роли проверяют разметку
-          с разных сторон, четыре зонда заполняют флаги \texttt{validation} замером.
-    \item \textbf{Круг повторяется} до тех пор, пока все вердикты не станут \texttt{PASS};
-          на повторный круг уходят свежие субагенты, не видевшие прошлых обсуждений.
+    \item \textbf{The validator} plays the role of tests: non-overlapping windows, references only backwards,
+          a distractor not coinciding with a trigger, \texttt{temporal\_rel} agreeing with the evidence.
+          It returns code 1 on any error.
+    \item \textbf{The reviewers and the probes} are the next two slides: three roles check the annotation
+          from different sides, four probes fill in the \texttt{validation} flags by measurement.
+    \item \textbf{The round repeats} until every verdict is \texttt{PASS};
+          a repeat round goes to fresh subagents that have not seen the previous discussions.
   \end{itemize}
 \end{frame}
 
 % ------------------------------------------------------------------ 10
 \begin{frame}
-  \frametitle{Три ревьюера, и каждый не знает о других}
-  \framesubtitle{запускаются параллельно; файлы не правит никто из них}
+  \frametitle{Three reviewers, blind to each other}
+  \framesubtitle{they run in parallel; none of them edits the files}
 
   \begin{itemize}
-    \item \lead{Полу-слепой.} Видит материал \emph{до} \texttt{t\_end}, но не знает
-          \texttt{t\_start} — и сам называет момент, когда ответ стал возможен.
-          Проверяющий, который знает ответ, «узнаёт» его на полукадре и раз за разом
-          двигает левую границу окна влево; этого знания у него нет.
+    \item \lead{The semi-blind one.} Sees the material \emph{up to} \texttt{t\_end} but does not know
+          \texttt{t\_start} — and names for themselves the moment the answer became possible.
+          A checker who knows the answer ``recognises'' it on a half-drawn frame and keeps moving
+          the left boundary of the window leftwards; this one does not have that knowledge.
           \begin{itemize}
-            \item[] {\small Отдельно записывает \texttt{prior\_answer} — свой ответ \textbf{до} просмотра,
-                    дословно. Из него координатор и выводит \texttt{blind\_solved}.}
+            \item[] {\small They separately record \texttt{prior\_answer} — their own answer \textbf{before} viewing,
+                    verbatim. It is what the coordinator derives \texttt{blind\_solved} from.}
           \end{itemize}
-    \item \lead{Ревьюер сэмпла.} Всё, что относится к вопросу как целому: формулировка,
-          рубрика, приманки, эталонный ответ, ссылки между окнами. Границы окон — не его работа.
-    \item \lead{Пооконный ревьюер, по одному на окно.} Роль отделена не для симметрии:
-          у одного ревьюера на вопросе с девятью окнами бюджета кадров хватало
-          на первое, а дальше он додумывал.
+    \item \lead{The sample reviewer.} Everything relating to the question as a whole: the wording,
+          the rubric, the decoys, the reference answer, the links between windows. The window boundaries are not their work.
+    \item \lead{The per-window reviewer, one per window.} The role was separated not for symmetry:
+          with a single reviewer on a question with nine windows, the frame budget was enough
+          for the first, and after that they made things up.
   \end{itemize}
 
   \vspace{0.5em}
-  {\color{muted}\small Каждый возвращает структурированное ревью по контракту
-  (\texttt{schema/review.py}), а правки применяет координатор — так видно, кто что нашёл,
-  и повторный круг уходит свежим субагентам.}
+  {\color{muted}\small Each returns a structured review against the contract
+  (\texttt{schema/review.py}); the coordinator applies the edits, so it is visible who found what.}
 \end{frame}
 
 % ------------------------------------------------------------------ 11
 \begin{frame}
-  \frametitle{Четыре зонда: метка получается замером}
-  \framesubtitle{каждому дают ровно один канал и смотрят, ответит ли}
+  \frametitle{Four probes: the label is measured}
+  \framesubtitle{each is given exactly one channel, and we see whether it answers}
 
   \begin{center}
   \small
   \begin{tabular}{@{}llll@{}}
     \toprule
-    \textbf{Зонд} & \textbf{Материал} & \textbf{Кадров} & \textbf{Заполняет} \\
+    \textbf{Probe} & \textbf{Material} & \textbf{Frames} & \textbf{Fills in} \\
     \midrule
-    \texttt{text}   & транскрипт до \texttt{t\_end} & 0        & \texttt{textonly\_solved} \\
-    \texttt{frame}  & один кадр в середине окна     & 1        & \texttt{frozenframe\_solved} \\
-    \texttt{vision} & кадры до \texttt{t\_end}      & до 40    & \texttt{visiononly\_solved} \\
-    \texttt{full}   & транскрипт и кадры            & до 40    & \texttt{solvable} \\
+    \texttt{text}   & transcript up to \texttt{t\_end} & 0        & \texttt{textonly\_solved} \\
+    \texttt{frame}  & one frame mid-window             & 1        & \texttt{frozenframe\_solved} \\
+    \texttt{vision} & frames up to \texttt{t\_end}     & up to 40 & \texttt{visiononly\_solved} \\
+    \texttt{full}   & transcript and frames            & up to 40 & \texttt{solvable} \\
     \bottomrule
   \end{tabular}
   \end{center}
 
   \vspace{0.6em}
   {\small
-  \texttt{solvable = textonly OR visiononly OR} ответ \texttt{full}; \texttt{solvable = false}
-  — \texttt{CRITICAL\_FAIL}, вопрос не решается и по полному материалу.\\[0.3em]
-  \texttt{visiononly\_solved} вместе с \texttt{solvable} дают \lead{\texttt{audio\_dependency}}
-  — руками эта метка не ставится.\\[0.3em]
-  \texttt{frozenframe\_solved = true} при уровне \texttt{L2}/\texttt{L3} значит, что уровень завышен.}
+  \texttt{solvable = textonly OR visiononly OR} the \texttt{full} answer; \texttt{solvable = false}
+  is a \texttt{CRITICAL\_FAIL} — the question is not solvable even from the full material.\\[0.3em]
+  \texttt{visiononly\_solved} together with \texttt{solvable} give \lead{\texttt{audio\_dependency}}
+  — this label is never set by hand.\\[0.3em]
+  \texttt{frozenframe\_solved = true} at level \texttt{L2}/\texttt{L3} means the level is inflated.}
 
   \vspace{0.5em}
-  {\color{muted}\small Изоляция зонда держится на трёх вещах: промпт \emph{просит} не лезть
-  в чужой канал, скрипт \emph{не даёт} смешать материал двух режимов в одной папке,
-  а сам зонд обязан признаться в поле \texttt{violations}.}
+  {\color{muted}\small A probe's isolation rests on three things: the prompt \emph{asks} it not to reach into
+  another channel, the script \emph{does not let} two modes share a folder, and the probe must
+  confess in \texttt{violations}.}
 \end{frame}
 
 % ------------------------------------------------------------------ 12
 \begin{frame}
-  \frametitle{Инструменты, которых не было}
-  \framesubtitle{два места, где готовое не подошло}
+  \frametitle{Tools that did not exist}
+  \framesubtitle{two places where what was available did not fit}
 
   \begin{columns}[T]
     \begin{column}{0.48\textwidth}
-      \textbf{Свой детектор смены сцен}\\[0.5em]
+      \textbf{Our own scene change detector}\\[0.5em]
       {\small
-      Готовые детекторы сравнивают кадр с предыдущим — а типовой переход manim
-      это плавный переезд за 2--4 секунды, где соседние кадры почти не отличаются.\\[0.5em]
-      Считаем \lead{накопленный дрейф} от последнего снятого кадра и снимаем,
-      когда анимация улеглась.\\[0.5em]
-      Один порог на домен: \num{13.5} / \num{12.9} / \num{10.1} кадра на минуту
-      на роликах 2026 и 2017 годов.\\[0.3em]
-      На контрольном участке: \num{18} состояний из 18 против \num{10} у равномерной сетки.}
+      The off-the-shelf detectors compare a frame with the previous one — while manim's typical
+      transition is a smooth travel over 2--4 seconds, where neighbouring frames barely differ.\\[0.5em]
+      We compute the \lead{accumulated drift} from the last captured frame and capture
+      once the animation has settled.\\[0.5em]
+      One threshold per domain: \num{13.5} / \num{12.9} / \num{10.1} frames per minute
+      on the videos from 2026 and 2017.\\[0.3em]
+      On the control stretch: \num{18} states out of 18 against \num{10} for the uniform grid.}
     \end{column}
     \begin{column}{0.48\textwidth}
-      \textbf{Плотное описание видеоряда}\\[0.5em]
+      \textbf{A dense description of the video track}\\[0.5em]
       {\small
-      Документ вроде субтитров, только вместо реплик — что происходит на экране.
-      Разметчик читает текст вместо просмотра десятков кадров.\\[0.5em]
-      Два кадра в секунду, окна по 5 секунд с перекрытием, строгий JSON по схеме
-      (guided decoding на стороне сервера).\\[0.5em]
-      Пилот: \num{3878} кадров, \num{485} фрагментов, \num{20} минут на двух A100,
-      \num{1939} секунд из 1939 покрыты событиями.\\[0.3em]
-      \color{muted} Субтитры описывающей модели не показывают: она описывает только кадры.
-      Иначе описание нельзя было бы отдать зонду vision-only вместо кадров.}
+      A document like subtitles, only with what is happening on the screen instead of utterances.
+      The annotator reads text instead of looking through dozens of frames.\\[0.5em]
+      Two frames per second, windows of 5 seconds with an overlap, strict JSON against a schema
+      (guided decoding on the server side).\\[0.5em]
+      The pilot: \num{3878} frames, \num{485} fragments, \num{20} minutes on two A100s,
+      \num{1939} seconds out of 1939 covered by events.\\[0.3em]
+      \color{muted} The describing model is not shown the subtitles: it describes only the frames.
+      Otherwise the description could not be given to the vision-only probe instead of frames.}
     \end{column}
   \end{columns}
 \end{frame}
 
 % ------------------------------------------------------------------ 13
 \begin{frame}
-  \frametitle{Где мы сейчас}
+  \frametitle{Where we are now}
 
   \begin{columns}[T]
     \begin{column}{0.46\textwidth}
-      \textbf{Сделано}
+      \textbf{Done}
       \begin{itemize}
         \item[] {\small
-        конвейер данных: маппинг $\rightarrow$ скачивание $\rightarrow$ bundle;\\[0.3em]
-        схема сэмпла и валидатор семантики;\\[0.3em]
-        пилот: \num{10} сэмплов, \num{24} триггера и \num{12} дистракторов,\\ ошибок валидации ноль;\\[0.3em]
-        промпты пропозера, трёх ревьюеров и четырёх зондов;\\[0.3em]
-        детектор сцен и описание видеоряда.}
+        the data pipeline: mapping $\rightarrow$ download $\rightarrow$ bundle;\\[0.3em]
+        the sample schema and the semantic validator;\\[0.3em]
+        the pilot: \num{10} samples, \num{24} triggers and \num{12} distractors,\\ zero validation errors;\\[0.3em]
+        the prompts of the proposer, three reviewers and four probes;\\[0.3em]
+        the scene detector and the description of the video track.}
       \end{itemize}
     \end{column}
     \begin{column}{0.46\textwidth}
-      \textbf{Дальше}
+      \textbf{Next}
       \begin{itemize}
         \item[] {\small
-        прогнать бейзлайны-пустышки и увидеть, что они проваливаются;\\[0.3em]
-        замерить разрыв blind на контрольном видео 2017 года;\\[0.3em]
-        harness потоковой выдачи и LLM-судья по рубрике;\\[0.3em]
-        расширение разметки: доля \texttt{L3} должна вырасти;\\[0.3em]
-        опционально — ре-рендер сцен с внедрённой ошибкой.}
+        run the dummy baselines and see that they fail;\\[0.3em]
+        measure the blind gap on the 2017 control video;\\[0.3em]
+        the streaming harness and an LLM judge against the rubric;\\[0.3em]
+        expanding the annotation: the share of \texttt{L3} must grow;\\[0.3em]
+        optionally — re-rendering scenes with an injected error.}
       \end{itemize}
     \end{column}
   \end{columns}
 
   \vspace{1.2em}
   \begin{center}
-    {\color{muted}\small Открытые допущения записаны отдельно и в Limitations, а не заметены:
-    утечка объяснения дистрактора, высокая сложность пилота, малый объём.}
+    {\color{muted}\small The open assumptions are written down separately and in Limitations rather than swept away:
+    the leak of the distractor's explanation, the high difficulty of the pilot, the small volume.}
   \end{center}
 \end{frame}
 
 % ------------------------------------------------------------------ 14
 \begin{frame}
-  \frametitle{Метрика}
-  \framesubtitle{спроектирована, но ещё не реализована: задел на фазу замеров}
+  \frametitle{The metric}
+  \framesubtitle{designed but not yet implemented: groundwork for the measurement phase}
 
   \begin{columns}[T]
     \begin{column}{0.48\textwidth}
-      \textbf{PAUC.} На каждом окне строится ломаная «время $\rightarrow$ качество
-      накопленных ответов», качество $s \in \{0,1,2\}$ ставит LLM-судья по рубрике.
+      \textbf{PAUC.} On each window a polyline ``time $\rightarrow$ quality of the accumulated
+      answers'' is built, and the quality $s \in \{0,1,2\}$ is assigned by an LLM judge against the rubric.
 
       \vspace{0.6em}
-      Стартовая точка $(t_{\text{start}}, 0.5)$: молчание лучше уверенного неверного ответа.
+      The starting point $(t_{\text{start}}, 0.5)$: silence is better than a confident wrong answer.
 
       \vspace{0.6em}
-      \lead{Следствие, которое отчитываем явно:} стратегия «молчать всегда» получает
-      \num{0.25} от максимума. Это пол шкалы, а не ноль.
+      \lead{A consequence we report explicitly:} the strategy ``always stay silent'' gets
+      \num{0.25} of the maximum. That is the floor of the scale, not a zero.
     \end{column}
     \begin{column}{0.48\textwidth}
-      \textbf{Обязательно рядом:}
+      \textbf{Mandatory alongside:}
       \begin{itemize}
         \item[] {\small
-        \textbf{False-Alarm Rate} — ответы вне окон\\[0.25em]
-        \textbf{Trap rate} — попадания в дистракторы, отдельно от FAR\\[0.25em]
-        \textbf{Latency} — от $t_{\text{start}}$, распределением\\[0.25em]
+        \textbf{False-Alarm Rate} — answers outside the windows\\[0.25em]
+        \textbf{Trap rate} — hits in the distractors, separately from the FAR\\[0.25em]
+        \textbf{Latency} — from $t_{\text{start}}$, as a distribution\\[0.25em]
         \textbf{Silence rate}, \textbf{Trigger Recall}\\[0.25em]
-        \textbf{Responses-per-sample} — иначе спам-стратегия невидима}
+        \textbf{Responses-per-sample} — otherwise the spam strategy is invisible}
       \end{itemize}
       \vspace{0.4em}
-      {\color{muted}\small Агрегация по сэмплам, а не по окнам: иначе итог — заложник
-      одного самого простого сэмпла с девятью триггерами.}
+      {\color{muted}\small Aggregation over samples, not over windows: otherwise the result is a hostage
+      of the single simplest sample, the one with nine triggers.}
     \end{column}
   \end{columns}
 \end{frame}

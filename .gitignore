@@ -3,27 +3,27 @@ __pycache__/
 .ipynb_checkpoints/
 .DS_Store
 
-# сторонние репозитории, клонируются отдельно
+# third-party repositories, cloned separately
 vendor/
 
-# тяжёлые артефакты — воспроизводятся скриптами из tools/
+# heavy artifacts — reproduced by the scripts in tools/
 data/videos/
 data/bundles/*/frames/
 data/bundles/*/frames_desc/
 data/bundles/*/frames_desc_*/
 data/bundles/*/frames_scenes/
 
-# пробные прогоны описания: имя задаётся --out-prefix и начинается с подчёркивания
+# trial description runs: the name is set by --out-prefix and starts with an underscore
 data/bundles/*/_*.jsonl
 data/bundles/*/_*.md
 demo/media/
 
-# исходники статей: держим только обзоры и иллюстрации
+# paper sources: we keep only the reviews and the figures
 articles/*/paper.pdf
 articles/*/source/
 articles/*/figures/*.pdf
 
-# рабочие папки ревьюеров, воспроизводятся tools/prepare_review_workspace.py
+# reviewer workspaces, reproduced by tools/prepare_review_workspace.py
 .review_ws/
 docs/presentation/*.aux
 docs/presentation/*.log

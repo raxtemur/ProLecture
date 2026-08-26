@@ -163,7 +163,7 @@
             "type": "array",
             "minItems": 2,
             "maxItems": 2,
-            "description": "где лежит последнее по времени доказательство, из которого ответ следует к моменту t_end; это доказательство, а не подтверждение: то, чем проверяется верность самого эталона, живёт в provenance.evidence и может лежать позже окна (predict) или вне ролика (counterfact)",
+            "description": "where the latest piece of evidence lies, the one from which the answer follows by t_end; this is the evidence, not the corroboration: what establishes that the reference answer itself is correct lives in provenance.evidence and may lie after the window (predict) or outside the video (counterfact)",
             "items": {
               "type": "number",
               "minimum": 0
@@ -246,7 +246,7 @@
         "evidence": {
           "type": "array",
           "minItems": 1,
-          "description": "откуда взят эталонный ответ; структурировано, чтобы ссылки можно было проверять автоматически, а не регулярным выражением. Здесь живёт подтверждение — то, чем проверяется, что эталон верен; в отличие от evidence_span оно может лежать позже окна ответа (predict) или вне ролика вовсе (counterfact, type: other)",
+          "description": "where the reference answer came from; structured so that the references can be checked automatically rather than by regular expression. This is where the corroboration lives — what establishes that the reference answer is correct; unlike evidence_span it may lie after the answer window (predict) or outside the video altogether (counterfact, type: other)",
           "items": {
             "oneOf": [
               {
@@ -268,7 +268,7 @@
                   "explanation": {
                     "type": "string",
                     "minLength": 5,
-                    "description": "зачем эта ссылка: что именно здесь видно или слышно"
+                    "description": "why this reference is here: what exactly can be seen or heard at this point"
                   }
                 }
               },
@@ -296,7 +296,7 @@
                   "explanation": {
                     "type": "string",
                     "minLength": 5,
-                    "description": "зачем эта ссылка: что именно здесь видно или слышно"
+                    "description": "why this reference is here: what exactly can be seen or heard at this point"
                   }
                 }
               },
@@ -314,7 +314,7 @@
                   "explanation": {
                     "type": "string",
                     "minLength": 5,
-                    "description": "зачем эта ссылка: что именно здесь видно или слышно"
+                    "description": "why this reference is here: what exactly can be seen or heard at this point"
                   }
                 }
               }

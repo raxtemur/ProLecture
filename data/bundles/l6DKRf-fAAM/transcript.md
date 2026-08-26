@@ -1,6 +1,6 @@
 # Reinventing Entropy | Compression is Intelligence Part 1
 
-Длительность 1939 с. Реплик 528. Чаптеров 7.
+Duration 1939 s. Utterances 528. Chapters 7.
 
 
 ## [0s] On “Compression is intelligence.”

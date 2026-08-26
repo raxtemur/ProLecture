@@ -1,23 +1,23 @@
 #!/usr/bin/env python3
-"""Рабочая папка для субагента-ревьюера: транскрипт и кадры, и ничего лишнего.
+"""A working folder for a reviewer subagent: the transcript and the frames, nothing more.
 
-Ревьюер не должен иметь доступа к data/annotations — там лежат эталонные ответы
-на его же вопрос и ответы соседних вопросов. Поэтому ему готовится отдельный
-каталог, куда кладётся только то, что можно видеть.
+The reviewer must not have access to data/annotations — that is where the reference
+answers to their own question and the answers of the neighbouring questions live. So a
+separate directory is prepared for them, holding only what they are allowed to see.
 
-    # слепой режим: всё, что было в ролике до момента T
+    # blind mode: everything that was in the video up to the moment T
     prepare_review_workspace.py <video_id> --until 957 --out /tmp/rev_q07_blind
 
-    # досемплировать участок частой сеткой в ту же папку
+    # re-sample a stretch with a dense grid into the same folder
     prepare_review_workspace.py <video_id> --dense 930 960 --step 2 --out /tmp/rev_q07_blind
 
-    # папки зондов: одна модальность вместо двух
+    # the probe folders: one modality instead of two
     prepare_review_workspace.py <video_id> --until 992 --only transcript --out /tmp/probe_text
     prepare_review_workspace.py <video_id> --until 992 --only frames    --out /tmp/probe_vision
     prepare_review_workspace.py <video_id> --frame 946                  --out /tmp/probe_frame
 
-Кадры именуются по таймкоду (t000946.jpg), так что агент видит время прямо
-в имени файла и не должен ничего пересчитывать.
+The frames are named by timecode (t000946.jpg), so the agent sees the time right in the
+file name and has nothing to recompute.
 """
 
 from __future__ import annotations
@@ -30,7 +30,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from describe_video import strip_bits  # noqa: E402  (лента бит режется на входе)
+from describe_video import strip_bits  # noqa: E402  (the ribbon of bits is cleaned on the way in)
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -42,35 +42,35 @@ def frame_name(t: float) -> str:
 def load_bundle(vid: str) -> dict:
     path = ROOT / "data" / "bundles" / vid / "bundle.json"
     if not path.exists():
-        sys.exit(f"нет бандла {path}; сначала tools/make_bundle.py {vid}")
+        sys.exit(f"no bundle {path}; run tools/make_bundle.py {vid} first")
     return json.loads(path.read_text(encoding="utf-8"))
 
 
 def write_transcript(bundle: dict, out: Path, t0: float, t1: float) -> tuple[int, float]:
-    """Реплики, целиком лежащие внутри [t0, t1).
+    """The utterances lying entirely inside [t0, t1).
 
-    Пересекающую границу реплику приходится выбрасывать целиком: пословных
-    таймингов у нас нет, и обрезать её по t1 нечем. Иначе слепому ревьюеру
-    достаётся до нескольких секунд речи из-за его границы — а там, как правило,
-    и лежит ответ: 19 из 25 значений t_start пилота попадают внутрь реплики.
-    Ошибаться тут можно только в одну сторону: пусть слепой увидит меньше,
-    чем мог бы, чем на секунду больше, чем должен.
+    An utterance crossing the boundary has to be discarded whole: we have no
+    word-level timings and nothing to trim it by at t1. Otherwise the blind reviewer
+    gets up to several seconds of speech from beyond their boundary — and that is
+    usually where the answer lies: 19 of the pilot's 25 t_start values fall inside an
+    utterance. One may only err in one direction here: better that the blind reviewer
+    sees less than they could than a second more than they should.
     """
     cues = [c for c in bundle["transcript"] if c["start"] >= t0 and c["end"] <= t1]
     actual = cues[-1]["end"] if cues else t0
-    lines = [f"# Транскрипт {bundle['video_id']}: {t0:.0f}–{t1:.0f} с",
-             f"# последняя реплика кончается на {actual:.1f} с; всё, что пересекает "
-             f"границу {t1:.0f} с, выброшено целиком", ""]
+    lines = [f"# Transcript {bundle['video_id']}: {t0:.0f}–{t1:.0f} s",
+             f"# the last utterance ends at {actual:.1f} s; everything crossing "
+             f"the boundary of {t1:.0f} s has been discarded whole", ""]
     lines += [f"[{c['start']:.1f}–{c['end']:.1f}] {c['text']}" for c in cues]
     (out / "transcript.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
     return len(cues), actual
 
 
 def load_description(vid: str) -> list[dict] | None:
-    """Описание видеоряда, если оно построено (tools/describe_video.py).
+    """The description of the video track, if it has been built (tools/describe_video.py).
 
-    Первая строка файла — метаданные прогона, дальше по строке на чанк.
-    Отсутствие файла не ошибка: бандл без описания остаётся рабочим.
+    The first line of the file is the run metadata, then one line per chunk.
+    The absence of the file is not an error: a bundle without a description still works.
     """
     path = ROOT / "data" / "bundles" / vid / "description.jsonl"
     if not path.exists():
@@ -80,55 +80,56 @@ def load_description(vid: str) -> list[dict] | None:
 
 
 def write_screen(desc: list[dict], out: Path, t0: float, t1: float) -> tuple[int, int]:
-    """Текстовый индекс видеоряда: чем искать, а не чем доказывать.
+    """A text index of the video track: something to search with, not to prove with.
 
-    Кладём два файла разного назначения:
+    We put in two files of different purpose:
 
-    * `screen.jsonl` — чанки целиком (описание начала и конца, посекундные события,
-      распознанный экранный текст). Он большой и читать его целиком не надо —
-      он для `grep`;
-    * `screen_text.md` — таймлайн распознанного текста, дедуплицированный: строка
-      попадает в него один раз, в момент первого появления. Это и есть индекс:
-      «где на экране 1.75» становится одним `grep` вместо часа просмотра кадров.
+    * `screen.jsonl` — the chunks in full (a description of the beginning and the end,
+      per-second events, the recognised on-screen text). It is large and there is no
+      need to read it whole — it is there for `grep`;
+    * `screen_text.md` — a timeline of the recognised text, deduplicated: a line gets
+      into it once, at the moment it first appears. That is the index proper: "where on
+      the screen is 1.75" becomes a single `grep` instead of an hour of looking at
+      frames.
 
-    Режется по тем же границам, что транскрипт, и по той же причине: чанк,
-    пересекающий `t1`, выбрасывается целиком. Иначе полу-слепой получил бы
-    описание будущего — то есть ровно то, слепоту к чему проверяет его работа.
+    It is cut at the same boundaries as the transcript, and for the same reason: a chunk
+    crossing `t1` is discarded whole. Otherwise the semi-blind reviewer would get a
+    description of the future — that is, exactly what their work checks blindness to.
 
-    **Это описание сделано моделью, а не человеком.** Оно годится, чтобы найти
-    момент, и не годится, чтобы что-то утверждать: прежде чем поставить таймкод
-    в ревью, момент надо увидеть на настоящем кадре. Об этом сказано и в шапке
-    каждого файла — читающий их субагент шапку увидит, а этот докстринг нет.
+    **This description was made by a model, not by a human.** It is fit for finding a
+    moment and unfit for asserting anything: before putting a timecode into a review,
+    the moment must be seen on a real frame. This is said in the header of each file
+    too — the subagent reading them will see the header, and this docstring it will not.
     """
     chunks = [c for c in desc if c["t_start"] >= t0 and c["t_end"] <= t1]
 
-    # Не глобальный ключ: строка, которая пропала и вернулась через минуту, —
-    # обычно и есть интересное появление, а с глобальным ключом она молча
-    # схлопывалась в самое первое. Гасим только то, что висит на экране подряд.
+    # Not a global key: a line that disappeared and came back a minute later is
+    # usually the interesting appearance, and with a global key it silently collapsed
+    # into the very first one. We damp only what hangs on the screen continuously.
     REAPPEAR_GAP = 10.0
 
-    head = (f"# Экранный текст {out.name}: {t0:.0f}-{t1:.0f} с\n"
-            f"# Распознан МОДЕЛЬЮ по кадрам, не человеком: годится, чтобы НАЙТИ момент,\n"
-            f"# не годится, чтобы его УТВЕРЖДАТЬ. Нашли строку — посмотрите кадр.\n"
-            f"# Строка попадает сюда при появлении; если она пропала больше чем\n"
-            f"# на {REAPPEAR_GAP:.0f} с и вернулась — это отдельная строка ленты.\n"
-            f"# Ищите grep-ом, а не чтением целиком.\n\n")
+    head = (f"# On-screen text {out.name}: {t0:.0f}-{t1:.0f} s\n"
+            f"# Recognised BY A MODEL from frames, not by a human: fit for FINDING a moment,\n"
+            f"# not for ASSERTING it. Found a line — go and look at the frame.\n"
+            f"# A line gets in here when it appears; if it disappeared for more than\n"
+            f"# {REAPPEAR_GAP:.0f} s and came back, that is a separate line of the timeline.\n"
+            f"# Search it with grep rather than reading it whole.\n\n")
     last_at: dict[tuple[str, str], float] = {}
     rows: list[tuple[float, str, str]] = []
     for c in chunks:
-        # Ключи screen_text и events[].t — АБСОЛЮТНЫЕ секунды ролика, а не смещения
-        # внутри чанка и не индексы кадров. Проверяется тем, что максимальный ключ
-        # по файлу (1935) совпадает с длительностью ролика, а у чанка [6.8, 11.2]
-        # ключи идут 6..11.
-        # ключ "?" ставится, когда модель приписала элементу секунду за
-        # пределами своего фрагмента: времени у него нет, в ленту по времени
-        # он не встаёт
+        # The keys of screen_text and events[].t are ABSOLUTE seconds of the video, not
+        # offsets inside the chunk and not frame indices. This is confirmed by the fact
+        # that the maximum key in the file (1935) coincides with the duration of the
+        # video, and that the chunk [6.8, 11.2] has keys running 6..11.
+        # the key "?" is set when the model assigned an element a second outside its own
+        # fragment: it has no time, and it does not take its place in the timeline
         keys = [k for k in (c.get("screen_text") or {}) if str(k).isdigit()]
         for k in sorted(keys, key=int):
             t = float(int(k))
             for item in (c["screen_text"][k] or []):
-                # лента случайных бит в .jsonl лежит дословно (там дословность
-                # и нужна), а в индексе она — мусор: чистим на входе
+                # the ribbon of random bits sits verbatim in the .jsonl (that is where
+                # verbatimness is needed), but in the index it is rubbish: we clean it
+                # on the way in
                 txt = strip_bits((item.get("text") or "").strip())
                 if not txt or txt.strip("… ") == "":
                     continue
@@ -144,9 +145,9 @@ def write_screen(desc: list[dict], out: Path, t0: float, t1: float) -> tuple[int
         encoding="utf-8")
 
     with (out / "screen.jsonl").open("w", encoding="utf-8") as f:
-        f.write(json.dumps({"_note": "описание видеоряда, сделанное моделью; "
-                                     "для поиска момента, не для доказательства. "
-                                     "Читать grep-ом, а не целиком.",
+        f.write(json.dumps({"_note": "a description of the video track made by a model; "
+                                     "for finding a moment, not for proving one. "
+                                     "Read it with grep rather than whole.",
                             "from": t0, "until": t1, "chunks": len(chunks)},
                            ensure_ascii=False) + "\n")
         for c in chunks:
@@ -157,19 +158,20 @@ def write_screen(desc: list[dict], out: Path, t0: float, t1: float) -> tuple[int
 
 
 def write_frame_index(bundle: dict, out: Path, t0: float, t1: float) -> int:
-    """Манифест кадров вместо копий: список таймкодов и путь, где их смотреть.
+    """A manifest of frames instead of copies: a list of timecodes and a path to view them at.
 
-    Копирование существует ровно ради одного — не дать слепому увидеть будущее.
-    Там, где слепоты не требуется (`full_sample`, `full_window` — они и так знают
-    эталон), копия бессмысленна: она стоит диска и времени, а бюджет всё равно
-    считается по числу открытых кадров, а не по числу лежащих в папке.
+    Copying exists for exactly one reason — not to let the blind reviewer see the
+    future. Where blindness is not required (`full_sample`, `full_window` — they know
+    the reference answer anyway), a copy is pointless: it costs disk and time, while the
+    budget is counted by the number of frames opened, not by the number lying in the
+    folder.
     """
     picked = [fr for fr in bundle["frames"] if t0 <= fr["t"] < t1]
     src_dir = (ROOT / "data" / "bundles" / bundle["video_id"] / "frames").resolve()
-    lines = [f"# Кадры {bundle['video_id']}: {t0:.0f}-{t1:.0f} с — ИНДЕКС, не копии",
-             f"# Смотреть прямо здесь: {src_dir}/<имя>",
-             f"# Нарезка по сменам сцен; между соседними строками экран не менялся",
-             f"# скачком. Нужно плотнее — tools/prepare_review_workspace.py --dense.",
+    lines = [f"# Frames {bundle['video_id']}: {t0:.0f}-{t1:.0f} s — an INDEX, not copies",
+             f"# Look at them right here: {src_dir}/<name>",
+             f"# The cut is by scene changes; between neighbouring lines the screen did not",
+             f"# change abruptly. Need it denser — tools/prepare_review_workspace.py --dense.",
              ""]
     lines += [f"{fr['t']:8.1f}  {Path(fr['path']).name}" for fr in picked]
     (out / "frames.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
@@ -180,10 +182,10 @@ def copy_sparse(bundle: dict, out: Path, t0: float, t1: float, cap: int) -> int:
     dst = out / "frames"
     dst.mkdir(exist_ok=True)
     picked = [fr for fr in bundle["frames"] if t0 <= fr["t"] < t1]
-    # нарезка бандла — детекция сцен, около 13 кадров на минуту: на получасовом
-    # участке это несколько сотен файлов, и «дешёвая» обзорная операция съела бы
-    # весь бюджет просмотра. Прореживаем равномерно по списку, то есть теряем
-    # часть сцен — ревьюер добирает нужное точечно через --dense
+    # the bundle's cut is scene detection, about 13 frames per minute: over a half-hour
+    # stretch that is several hundred files, and a "cheap" overview operation would eat
+    # the whole viewing budget. We thin the list uniformly, that is, we lose some scenes
+    # — the reviewer picks up what is needed pointwise via --dense
     if len(picked) > cap:
         step = len(picked) / cap
         picked = [picked[int(i * step)] for i in range(cap)]
@@ -197,14 +199,15 @@ def copy_sparse(bundle: dict, out: Path, t0: float, t1: float, cap: int) -> int:
 
 
 def check_mode(out: Path, mode: str, force: bool) -> None:
-    """Не дать смешать материал двух режимов в одной папке.
+    """Do not let the material of two modes be mixed in one folder.
 
-    Иначе изоляция зондов держится только на аккуратности координатора: два вызова
-    подряд с --only frames и --only transcript в один каталог оставляют там и кадры,
-    и транскрипт, причём второй вызов бодро печатает «кадры не кладутся намеренно»
-    про папку, где сорок кадров уже лежат. Зонд vision получает текст речи, его
-    ответ перестаёт что-либо мерить, а из этого ответа выводится метка зависимости
-    от звука — то есть ломается ровно то, ради честности чего всё построено.
+    Otherwise the isolation of the probes rests only on the coordinator's care: two
+    consecutive calls with --only frames and --only transcript into one directory leave
+    both frames and a transcript there, and the second call cheerfully prints "frames
+    are deliberately not placed" about a folder where forty frames already lie. The
+    vision probe gets the text of the speech, its answer stops measuring anything, and
+    from that answer the label of dependence on sound is derived — that is, the very
+    thing whose honesty the whole design exists to protect is what breaks.
     """
     if not out.exists() or not any(out.iterdir()):
         return
@@ -213,58 +216,58 @@ def check_mode(out: Path, mode: str, force: bool) -> None:
     if was == mode:
         return
     if force:
-        print(f"каталог был режима {was!r}, перезаписывается под {mode!r} (--force)")
+        print(f"the directory was of mode {was!r}, being overwritten as {mode!r} (--force)")
         for name in ("transcript.md", "limits.json", "mode.json"):
             (out / name).unlink(missing_ok=True)
         shutil.rmtree(out / "frames", ignore_errors=True)
         return
-    sys.exit(f"каталог {out} непуст и собран режимом {was!r}, а сейчас запрошен {mode!r}. "
-             f"Разные зонды обязаны получать разные папки — иначе изоляция по модальностям "
-             f"не работает. Возьмите другой --out или, если это осознанная пересборка, "
-             f"добавьте --force")
+    sys.exit(f"the directory {out} is non-empty and was assembled by mode {was!r}, while {mode!r} is now requested. "
+             f"Different probes are obliged to get different folders — otherwise the isolation by modality "
+             f"does not work. Take a different --out or, if this is a deliberate rebuild, "
+             f"add --force")
 
 
 def check_dense_allowed(out: Path, force: bool) -> None:
-    """Не дать `--dense` пронести кадры в папку, куда кадры класть запрещено.
+    """Do not let `--dense` smuggle frames into a folder where frames are forbidden.
 
-    `check_mode` вызывался только для `--until` и `--frame`: у `--dense` режима нет,
-    поэтому проверка пропускалась, а `extract_dense` создавал `frames/` сам. Итог —
-    два вызова подряд, `--until --only transcript` и `--dense`, оставляли в папке
-    текстового зонда пятнадцать кадров, причём `mode.json` продолжал утверждать
-    `"transcript"`. Зонд text получал картинку, `textonly_solved` переставал
-    что-либо мерить, а из него выводится `solvable` и метка зависимости от речи.
+    `check_mode` was called only for `--until` and `--frame`: `--dense` has no mode, so
+    the check was skipped while `extract_dense` created `frames/` itself. The result:
+    two consecutive calls, `--until --only transcript` and `--dense`, left fifteen
+    frames in the text probe's folder, with `mode.json` still claiming `"transcript"`.
+    The text probe got a picture, `textonly_solved` stopped measuring anything, and from
+    it `solvable` and the label of dependence on speech are derived.
 
-    Та же дыра закрывала и `frame`: у frozen-frame-папки нет `limits.json`,
-    поэтому `clamp_to_workspace` пропускал любой участок, и зонд «один кадр без
-    истории» получал десяток кадров из другого места лекции.
+    The same hole also covered `frame`: a frozen-frame folder has no `limits.json`, so
+    `clamp_to_workspace` let any stretch through, and the "one frame with no history"
+    probe got a dozen frames from a different part of the lecture.
     """
     if not out.exists() or not any(out.iterdir()):
         return
     stamp = out / "mode.json"
     if not stamp.exists():
         if force:
-            print(f"каталог {out} непуст и без mode.json, досемплирование по --force")
+            print(f"the directory {out} is non-empty and has no mode.json, re-sampling by --force")
             return
-        sys.exit(f"каталог {out} непуст, но собран не этим скриптом (нет mode.json). "
-                 f"--dense досемплирует чужую папку вслепую; возьмите другой --out "
-                 f"или добавьте --force")
+        sys.exit(f"the directory {out} is non-empty but was not assembled by this script (no mode.json). "
+                 f"--dense would re-sample somebody else's folder blindly; take a different --out "
+                 f"or add --force")
     was = json.loads(stamp.read_text(encoding="utf-8"))["mode"]
     if was in ("frames", "both", "both-index"):
         return
     reason = {
-        "transcript": "это папка текстового зонда — кадры в ней отменяют весь смысл "
-                      "замера textonly_solved",
-        "frame": "это папка зонда frozen-frame — он обязан видеть ровно один кадр "
-                 "и ничего вокруг",
+        "transcript": "this is the text probe's folder — frames in it cancel the whole point "
+                      "of measuring textonly_solved",
+        "frame": "this is the frozen-frame probe's folder — it is obliged to see exactly one frame "
+                 "and nothing around it",
     }[was]
-    sys.exit(f"каталог {out} собран режимом {was!r}: {reason}. Возьмите другой --out")
+    sys.exit(f"the directory {out} was assembled by mode {was!r}: {reason}. Take a different --out")
 
 
 def clamp_to_workspace(out: Path, t0: float, t1: float) -> tuple[float, float]:
-    """Не выпускать досемплирование за границы, с которыми папка была создана.
+    """Do not let re-sampling escape the boundaries the folder was created with.
 
-    Иначе слепой ревьюер, попросив участок «с запасом», увидит кадры после своей
-    верхней границы — то есть ровно то, что от него скрыто.
+    Otherwise a blind reviewer who asks for a stretch "with some slack" will see frames
+    beyond their upper boundary — that is, exactly what is hidden from them.
     """
     limits = out / "limits.json"
     if not limits.exists():
@@ -272,16 +275,16 @@ def clamp_to_workspace(out: Path, t0: float, t1: float) -> tuple[float, float]:
     lim = json.loads(limits.read_text(encoding="utf-8"))
     a, b = max(t0, lim["from"]), min(t1, lim["until"])
     if (a, b) != (t0, t1):
-        print(f"участок обрезан по границам рабочей папки: {a:.0f}-{b:.0f} с")
+        print(f"the stretch has been clipped to the boundaries of the working folder: {a:.0f}-{b:.0f} s")
     if a >= b:
-        sys.exit("запрошенный участок целиком вне рабочей папки")
+        sys.exit("the stretch requested lies entirely outside the working folder")
     return a, b
 
 
 def extract_dense(vid: str, out: Path, t0: float, t1: float, step: float, cap: int) -> int:
     mp4 = ROOT / "data" / "videos" / vid / f"{vid}.mp4"
     if not mp4.exists():
-        sys.exit(f"нет видео {mp4}")
+        sys.exit(f"no video {mp4}")
     dst = out / "frames"
     dst.mkdir(parents=True, exist_ok=True)
 
@@ -291,8 +294,8 @@ def extract_dense(vid: str, out: Path, t0: float, t1: float, step: float, cap: i
         t += step
     if len(times) > cap:
         sys.exit(
-            f"запрошено {len(times)} кадров при потолке {cap}: сузьте участок "
-            f"или увеличьте --step (сейчас {step} с)"
+            f"{len(times)} frames requested against a ceiling of {cap}: narrow the stretch "
+            f"or increase --step (currently {step} s)"
         )
 
     n = 0
@@ -313,92 +316,92 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("video_id")
-    ap.add_argument("--out", required=True, help="каталог рабочей папки ревьюера")
-    ap.add_argument("--until", type=float, help="подготовить всё от начала до этого момента")
+    ap.add_argument("--out", required=True, help="the directory of the reviewer's working folder")
+    ap.add_argument("--until", type=float, help="prepare everything from the beginning up to this moment")
     ap.add_argument("--from", dest="t_from", type=float, default=0.0,
-                    help="левая граница для --until (по умолчанию 0)")
+                    help="the left boundary for --until (0 by default)")
     ap.add_argument("--dense", nargs=2, type=float, metavar=("A", "B"),
-                    help="досемплировать участок частой сеткой")
+                    help="re-sample a stretch with a dense grid")
     ap.add_argument("--step", type=float, default=2.0,
-                    help="шаг --dense, с (по умолчанию 2; меньше 1 не бывает — имена "
-                         "кадров округляются до секунды, и половина сетки склеилась бы молча)")
+                    help="the --dense step, s (2 by default; less than 1 does not happen — the names "
+                         "of the frames are rounded to the second, and half the grid would silently merge)")
     ap.add_argument("--force", action="store_true",
-                    help="пересобрать непустой каталог под другой режим")
+                    help="rebuild a non-empty directory under a different mode")
     ap.add_argument("--max-frames", type=int, default=60,
-                    help="потолок кадров на один вызов --dense")
+                    help="the ceiling of frames per --dense call")
     ap.add_argument("--max-sparse", type=int, default=40,
-                    help="потолок обзорных кадров при --until; нарезка бандла "
-                         "плотнее, лишнее прореживается равномерно")
+                    help="the ceiling of overview frames with --until; the bundle's cut is "
+                         "denser, and the surplus is thinned uniformly")
     ap.add_argument("--frame", type=float, metavar="T",
-                    help="папка ровно из одного кадра (зонд frozen-frame)")
+                    help="a folder of exactly one frame (the frozen-frame probe)")
     ap.add_argument("--only", choices=("both", "transcript", "frames"), default="both",
-                    help="что класть в папку при --until: обе модальности "
-                         "(по умолчанию), только транскрипт (зонд text) или "
-                         "только кадры (зонд vision)")
+                    help="what to put in the folder with --until: both modalities "
+                         "(the default), the transcript only (the text probe) or "
+                         "the frames only (the vision probe)")
     ap.add_argument("--screen", action="store_true",
-                    help="положить текстовый индекс видеоряда (screen_text.md "
-                         "и screen.jsonl) из description.jsonl. Только для ревьюеров: "
-                         "зондам он ломает замер модальности")
+                    help="put in the text index of the video track (screen_text.md "
+                         "and screen.jsonl) from description.jsonl. For reviewers only: "
+                         "for probes it breaks the measurement of the modality")
     ap.add_argument("--index-only", action="store_true", dest="index_only",
-                    help="не копировать кадры, а положить манифест frames.md "
-                         "с таймкодами и путём. ТОЛЬКО для full_sample и "
-                         "full_window: манифест называет каталог бандла и границу "
-                         "папки не удерживает, поэтому полу-слепому и зондам "
-                         "кадры кладутся копиями")
+                    help="do not copy the frames but put in a manifest frames.md "
+                         "with the timecodes and the path. ONLY for full_sample and "
+                         "full_window: the manifest names the bundle's directory and does "
+                         "not hold the folder's boundary, so the semi-blind reviewer and the "
+                         "probes get the frames as copies")
     args = ap.parse_args()
 
     modes = [args.until is not None, args.dense is not None, args.frame is not None]
     if sum(modes) != 1:
-        sys.exit("укажите ровно одно из --until, --dense или --frame")
+        sys.exit("name exactly one of --until, --dense or --frame")
     if args.only != "both" and args.until is None:
-        sys.exit("--only имеет смысл только вместе с --until")
-    # Экранный индекс построен ТОЛЬКО по кадрам (в meta прогона описания стоит
-    # with_transcript: false), то есть он — функция визуального канала и ничего
-    # больше. Отсюда граница проходит не «ревьюеры против зондов», а по тому,
-    # какой канал зонду положен:
+        sys.exit("--only only makes sense together with --until")
+    # The screen index is built from frames ONLY (the description run's meta says
+    # with_transcript: false), that is, it is a function of the visual channel and
+    # nothing more. Hence the boundary does not run "reviewers against probes" but by
+    # which channel the probe is entitled to:
     #
-    #   text  — запрещён: индекс дал бы ему визуальный канал словами, и
-    #           textonly_solved перестал бы что-либо мерить;
-    #   frame — запрещён: индекс это таймлайн, а frozen-frame обязан видеть один
-    #           кадр и ничего вокруг, в том числе никакой истории;
-    #   vision, full, ревьюеры — разрешён.
+    #   text  — forbidden: the index would give it the visual channel in words, and
+    #           textonly_solved would stop measuring anything;
+    #   frame — forbidden: the index is a timeline, while frozen-frame is obliged to see
+    #           one frame and nothing around it, including no history;
+    #   vision, full, the reviewers — allowed.
     #
-    # Для vision он не просто безвреден, а лечит известный перекос: при одной
-    # редкой сетке зонд получает сорок кадров на полчаса, и visiononly_solved
-    # систематически уезжает в false, а метка audio_dependency — в required.
-    # Индекс построен по 0.5-секундной сетке, то есть плотнее любого бюджета,
-    # который зонду можно выдать кадрами.
+    # For vision it is not merely harmless but cures a known bias: with a single sparse
+    # grid the probe gets forty frames for half an hour, visiononly_solved drifts
+    # systematically to false, and the audio_dependency label to required. The index is
+    # built on a 0.5-second grid, that is, denser than any budget that can be issued to
+    # the probe in frames.
     if args.screen and (args.only == "transcript" or args.frame is not None):
         who = "text" if args.only == "transcript" else "frozen-frame"
-        why = ("индекс дал бы ему визуальный канал словами, и textonly_solved "
-               "перестал бы что-либо мерить"
+        why = ("the index would give it the visual channel in words, and textonly_solved "
+               "would stop measuring anything"
                if args.only == "transcript" else
-               "индекс — это таймлайн, а зонд обязан видеть один кадр и ничего "
-               "вокруг, в том числе никакой истории")
-        sys.exit(f"--screen несовместим с папкой зонда {who}: {why}")
-    # Манифест не удерживает границу: в нём написан путь к бандлу, где лежит
-    # весь ролик. Роли, которым слепота обязательна, обязаны получать копии.
+               "the index is a timeline, while the probe is obliged to see one frame and nothing "
+               "around it, including no history")
+        sys.exit(f"--screen is incompatible with the {who} probe's folder: {why}")
+    # The manifest does not hold the boundary: it names a path to the bundle, where the
+    # whole video lies. The roles for which blindness is mandatory are obliged to get copies.
     if args.index_only and (args.only != "both" or args.frame is not None):
-        sys.exit("--index-only несовместим с папкой зонда: манифест называет каталог "
-                 "бандла, где лежит весь ролик, и границу папки не удерживает. "
-                 "Зондам и полу-слепому кадры кладутся копиями")
-    # `--dense` досемплирует уже готовую папку кадрами и ни индекс, ни копию
-    # экранного текста не пишет: молча проглоченный флаг выглядел бы так,
-    # будто индекс заказан и не нужен
+        sys.exit("--index-only is incompatible with a probe's folder: the manifest names the "
+                 "bundle's directory, where the whole video lies, and does not hold the folder's boundary. "
+                 "The probes and the semi-blind reviewer get the frames as copies")
+    # `--dense` re-samples an already prepared folder with frames and writes neither the
+    # index nor a copy of the on-screen text: a silently swallowed flag would look as
+    # though the index had been ordered and was not needed
     if args.dense is not None and (args.screen or args.index_only):
-        which = " и ".join(n for n, v in (("--screen", args.screen),
+        which = " and ".join(n for n, v in (("--screen", args.screen),
                                           ("--index-only", args.index_only)) if v)
-        sys.exit(f"{which} не работает вместе с --dense: этот режим только "
-                 f"досыпает кадры в готовую папку. Индекс кладётся при --until")
+        sys.exit(f"{which} does not work together with --dense: this mode only "
+                 f"adds frames to a ready folder. The index is placed with --until")
     if args.step < 1.0:
-        sys.exit(f"--step {args.step}: имена кадров округляются до целой секунды, "
-                 f"поэтому сетка мельче секунды молча склеится и вернёт вдвое меньше "
-                 f"кадров, чем покажет счётчик")
+        sys.exit(f"--step {args.step}: the names of the frames are rounded to a whole second, "
+                 f"so a grid finer than a second will silently merge and return half as many "
+                 f"frames as the counter shows")
 
     out = Path(args.out)
-    # Папка с манифестом и папка с копиями — разные режимы, а не вариант одной.
-    # Иначе повторный вызов без --index-only оставил бы рядом манифест на весь
-    # бандл и «изолированные» копии, и граница держалась бы только на честности.
+    # A folder with a manifest and a folder with copies are different modes, not variants
+    # of one. Otherwise a repeat call without --index-only would leave a manifest for the
+    # whole bundle next to "isolated" copies, and the boundary would rest on honesty alone.
     mode = "frame" if args.frame is not None else (args.only if args.until is not None else None)
     if mode == "both" and args.index_only:
         mode = "both-index"
@@ -410,18 +413,18 @@ def main() -> None:
     bundle = load_bundle(args.video_id)
 
     if args.frame is not None:
-        # Зонду frozen-frame нельзя дать даже границы: limits.json сам по себе
-        # сообщает, до какого момента идёт материал, а он должен видеть один кадр
-        # и ничего вокруг.
+        # The frozen-frame probe must not even be given the boundaries: limits.json by
+        # itself says up to what moment the material runs, and it must see one frame and
+        # nothing around it.
         n = extract_dense(args.video_id, out, args.frame, args.frame + 0.01,
                           1.0, 1)
-        print(f"рабочая папка : {out}")
-        print(f"  кадр        : {n} шт. на {args.frame:.0f} с")
-        print("  ни транскрипта, ни соседних кадров, ни limits.json")
+        print(f"working folder : {out}")
+        print(f"  frame        : {n} of them at {args.frame:.0f} s")
+        print("  no transcript, no neighbouring frames, no limits.json")
     elif args.until is not None:
-        # Пересборка той же папки обязана быть идемпотентной (9.3): copy_sparse
-        # только добавляет, поэтому повторный вызов с меньшим --until оставлял
-        # кадры за новой границей, а limits.json переписывался и начинал врать.
+        # Rebuilding the same folder is obliged to be idempotent (9.3): copy_sparse only
+        # adds, so a repeat call with a smaller --until left frames beyond the new
+        # boundary while limits.json was rewritten and started to lie.
         if args.only in ("both", "frames"):
             shutil.rmtree(out / "frames", ignore_errors=True)
         if args.only in ("both", "transcript"):
@@ -443,29 +446,29 @@ def main() -> None:
         if args.screen:
             desc = load_description(args.video_id)
             if desc is None:
-                sys.exit(f"нет data/bundles/{args.video_id}/description.jsonl; "
-                         f"сначала tools/describe_video.py {args.video_id}")
+                sys.exit(f"no data/bundles/{args.video_id}/description.jsonl; "
+                         f"run tools/describe_video.py {args.video_id} first")
             screen = write_screen(desc, out, args.t_from, args.until)
-        print(f"рабочая папка : {out}  (--only {args.only})")
+        print(f"working folder : {out}  (--only {args.only})")
         if args.only in ("both", "transcript"):
-            print(f"  транскрипт  : {cues} реплик, {args.t_from:.0f}–{actual:.0f} с "
-                  f"(запрошено до {args.until:.0f})")
+            print(f"  transcript   : {cues} utterances, {args.t_from:.0f}–{actual:.0f} s "
+                  f"(requested up to {args.until:.0f})")
         else:
-            print("  транскрипт  : не кладётся намеренно")
+            print("  transcript   : deliberately not placed")
         if args.only in ("both", "frames"):
-            how = "манифест frames.md, копий нет" if args.index_only else "копии, редкая сетка из бандла"
-            print(f"  кадры       : {frames} шт. ({how})")
+            how = "a frames.md manifest, no copies" if args.index_only else "copies, the sparse grid from the bundle"
+            print(f"  frames       : {frames} of them ({how})")
         else:
-            print("  кадры       : не кладутся намеренно")
+            print("  frames       : deliberately not placed")
         if screen is not None:
-            print(f"  экран       : {screen[0]} чанков, {screen[1]} строк текста "
-                  f"(индекс для поиска, не доказательство)")
-        print("  разметки в папке нет и быть не должно")
+            print(f"  screen       : {screen[0]} chunks, {screen[1]} lines of text "
+                  f"(an index for searching, not evidence)")
+        print("  there is no annotation in the folder and there must not be")
     else:
         check_dense_allowed(out, args.force)
         a, b = clamp_to_workspace(out, *args.dense)
         n = extract_dense(args.video_id, out, a, b, args.step, args.max_frames)
-        print(f"добавлено кадров: {n} ({a:.0f}–{b:.0f} с, шаг {args.step} с) -> {out}/frames")
+        print(f"frames added: {n} ({a:.0f}–{b:.0f} s, step {args.step} s) -> {out}/frames")
 
 
 if __name__ == "__main__":

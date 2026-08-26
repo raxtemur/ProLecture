@@ -1,145 +1,150 @@
-# Промпт: зонд по полному материалу (`full`)
+# Prompt: full-material probe (`full`)
 
-Драфт. Роль — шаг 3 конвейера [../annotation_pipeline.md](../annotation_pipeline.md),
-группа 4 чеклиста. Подставляются `<ВОПРОС>` и `<WORKSPACE>`.
+Draft. The role is step 3 of the pipeline [../annotation_pipeline.md](../annotation_pipeline.md),
+checklist group 4. `<QUESTION>` and `<WORKSPACE>` are substituted in.
 
-Тебе дают вопрос о видеолекции и часть её материала. Ответь на вопрос — это вся
-задача. Оценивать задание, предлагать правки и рассуждать о том, хороший ли это
-вопрос, не нужно: лишний текст только мешает.
+You are given a question about a video lecture and part of its material. Answer the
+question — that is the whole task. There is no need to assess the task, propose fixes or
+reason about whether this is a good question: extra text only gets in the way.
 
-## Что тебе дано
+## What you are given
 
-Полный материал лекции до момента `t_end`:
+The full material of the lecture up to the moment `t_end`:
 
-- `<WORKSPACE>/transcript.md` — реплики с таймкодами;
-- `<WORKSPACE>/frames/` — кадры, таймкод в имени файла (`t000946.jpg` — момент 946 с);
-- `<WORKSPACE>/screen_text.md` и `<WORKSPACE>/screen.jsonl` — текстовый индекс
-  видеоряда, построенный по кадрам. Как им пользоваться — ниже, отдельным разделом.
+- `<WORKSPACE>/transcript.md` — the lines of speech with timecodes;
+- `<WORKSPACE>/frames/` — the frames, timecode in the file name (`t000946.jpg` — the
+  moment 946 s);
+- `<WORKSPACE>/screen_text.md` and `<WORKSPACE>/screen.jsonl` — a text index of the video
+  track, built from the frames. How to use it is below, in a section of its own.
 
-Кадров смотри столько, сколько нужно, но не более сорока; транскрипт бесплатен.
+Look at as many frames as you need, but no more than forty; the transcript is free.
 
-Материал полный, поэтому и требования к добросовестности выше: прежде чем
-сказать «не хватает», посмотри окрестности момента, о котором спрашивают,
-а не только его сам. Но и выдумывать ответ, которого в материале нет, не надо —
-оба перекоса одинаково бесполезны.
+The material is complete, so the standard of diligence is higher too: before you say
+"there is not enough", look around the moment being asked about, not only at the moment
+itself. But do not invent an answer that is not in the material either — both skews are
+equally useless.
 
 ---
 
-## Задание
+## The task
 
-`<ВОПРОС>`
+`<QUESTION>`
 
-**Ответь на этот вопрос по существу.**
+**Answer this question on the merits.**
 
-Правила:
+Rules:
 
-- отвечай **только** по выданному материалу и общим знаниям о предмете. Материал —
-  это папка `<WORKSPACE>` и ничего больше: не доскачивай, не ищи ролик на YouTube,
-  не открывай ни `data/annotations/` (там лежит ответ), ни `data/bundles/`
-  и `data/videos/` (там весь ролик целиком — включая ту модальность, которую
-  у тебя забрали намеренно), ни файлы `*.vtt`. Заглянув туда, ты обесценишь
-  свою работу целиком;
-- **если запретный файл всё-таки был прочитан — скажи об этом.** Так бывает: путь
-  попал в вывод `grep`, файл открылся заодно с соседним. Провал не в этом, а в
-  молчании: заполни `violations` — какой путь, зачем открыл, что успел увидеть.
-  Координатор решит, годится ли ответ или зонд надо переснять;
-- отвечай **по существу**: назови величины, объекты и соотношения, о которых
-  спрашивают. «Нужно дождаться момента, когда…» — не ответ, а пересказ вопроса;
-- если материала не хватает — так и напиши, но **сначала попробуй ответить**.
-  «Недостаточно информации» слишком часто оказывается нежеланием рискнуть;
-- не предлагай правок и не рассуждай о том, хороший ли это вопрос. Это не твоя
-  работа, и лишний текст только мешает сверке.
+- answer **only** from the material you were given and general knowledge of the subject.
+  The material is the `<WORKSPACE>` folder and nothing else: do not download anything,
+  do not look for the video on YouTube, do not open `data/annotations/` (the answer is
+  in there), `data/bundles/` or `data/videos/` (the whole video is in there — including
+  the modality that was deliberately taken away from you), or any `*.vtt` file. One look
+  in there and your whole piece of work is worthless;
+- **if a forbidden file did get read — say so.** It happens: a path turned up in `grep`
+  output, a file was opened alongside its neighbour. The failure is not in that but in
+  keeping quiet: fill in `violations` — which path, why you opened it, what you managed
+  to see. The coordinator will decide whether the answer stands or the probe has to be
+  re-run;
+- answer **on the merits**: name the quantities, objects and relations being asked about.
+  "One has to wait for the moment when…" is not an answer, it is a restatement of the
+  question;
+- if the material is not enough — say so, but **try to answer first**. "Not enough
+  information" turns out far too often to be an unwillingness to take a risk;
+- do not propose fixes and do not reason about whether this is a good question. That is
+  not your job, and extra text only gets in the way of the comparison.
 
-### Индекс экрана: чем искать, а не чем отвечать
+### The screen index: something to search with, not to answer with
 
-Кроме кадров у тебя есть текстовый индекс того же видеоряда — он построен
-**по этим же кадрам** и ничего сверх них не знает:
+Besides the frames you have a text index of the same video track — it is built **from
+those same frames** and knows nothing beyond them:
 
-- `screen_text.md` — что распознано на экране и с какой секунды; строка попадает
-  туда один раз, в момент первого появления;
-- `screen.jsonl` — подробнее: описания и посекундные события. Файл большой,
-  читать целиком не надо, он для `grep`.
+- `screen_text.md` — what was recognised on screen and from which second; a line gets in
+  there once, at the moment it first appears;
+- `screen.jsonl` — in more detail: descriptions and per-second events. The file is large,
+  there is no need to read it whole, it is there for `grep`.
 
-Пользуйся им свободно: это способ не листать полчаса ролика ради одной надписи.
-Нашёл по индексу нужный участок — **посмотри там настоящие кадры**, и отвечай
-по ним.
+Use it freely: it is the way to avoid paging through half an hour of video for the sake
+of one caption. Once the index has found you the right stretch — **look at the real
+frames there**, and answer from them.
 
-Два правила, и оба важны для того, что здесь измеряется:
+Two rules, and both matter for what is being measured here:
 
-1. **Ответ «да» обязан стоять на кадре, а не на строке индекса.** Распознавание
-   ошибается: путает похожие цифры, договаривает то, чего нет. Если ты называешь
-   величину, ты её видел — на кадре, который назван в `looked_at`. Мало кадров
-   на нужном участке — досемплируй себе сам:
+1. **A "yes" answer must rest on a frame, not on a line of the index.** Recognition makes
+   mistakes: it confuses similar digits, it finishes off things that are not there. If
+   you name a quantity, you saw it — in a frame that is named in `looked_at`. Too few
+   frames over the stretch you need — sample more for yourself:
    `tools/prepare_review_workspace.py --dense A B --step S --out <WORKSPACE>`.
-2. **В `budget` поставь `screen_index_used: true`.** Замер с индексом и без него
-   несравним, и различать их надо по отметке, а не по памяти.
+2. **Set `screen_index_used: true` in `budget`.** A measurement with the index and one
+   without it are not comparable, and they must be told apart by a mark rather than from
+   memory.
 
-Индекс не заменяет просмотр — он говорит, куда смотреть.
+The index does not replace looking — it tells you where to look.
 
-### Достраивать нечитаемое запрещено
+### Filling in what you cannot read is forbidden
 
-Отвечай только по тому, что **действительно различимо** в выданном материале.
-Не по тому, что обычно бывает в такой сцене; не по тому, каким «должен» оказаться
-пример; не подставляя знакомые числа из учебника вместо надписи, которую не удалось
-прочесть.
+Answer only from what is **genuinely distinguishable** in the material you were given.
+Not from what such a scene usually contains; not from what the example "ought" to turn
+out to be; not by substituting familiar textbook numbers for a caption you failed to read.
 
-Это не про честность, а про то, что именно здесь измеряется. Твой ответ решает,
-хватило ли **этой модальности**. Если ты не разглядел величину и достроил её
-из общего знания предмета, ответ выйдет верным — а измерение окажется ложным:
-запишется «модальности хватило» там, где её не хватило.
+This is not about honesty but about what is being measured here. Your answer decides
+whether **this modality** was enough. If you did not make out a quantity and filled it in
+from general knowledge of the subject, the answer will come out correct — and the
+measurement will be false: "the modality was enough" gets recorded where it was not.
 
-Не разглядел — так и напиши: `insufficient: true` плюс попытка ответа тем,
-что удалось вытянуть. Половина ответа с честной пометкой полезнее целого
-с домыслом. Если ответ держится на догадке — скажи об этом в `basis` прямо,
-теми же словами.
+Could not make it out — say exactly that: `insufficient: true` plus an attempt at an
+answer from whatever you could extract. Half an answer with an honest flag is more useful
+than a whole one with guesswork. If the answer rests on a guess, say so in `basis`
+outright, in those very words.
 
 ---
 
-## Что вернуть
+## What to return
 
-Две вещи, и это разные вещи.
+Two things, and they are different things.
 
-### 1. Файл ответа
+### 1. The answer file
 
-Собери объект по контракту [../../schema/review.py](../../schema/review.py),
-класс `ProbeAnswer` с `role: "probe_full"`, и сохрани его в
+Assemble an object per the contract [../../schema/review.py](../../schema/review.py),
+class `ProbeAnswer` with `role: "probe_full"`, and save it to
 
 ```
-data/reviews/<VIDEO_ID>/<SAMPLE_ID>/probe_full.<КРУГ>.json
+data/reviews/<VIDEO_ID>/<SAMPLE_ID>/probe_full.<ROUND>.json
 ```
 
-Что в нём главное:
+What matters in it:
 
-- `looked_at` — на что смотрел: кадры и реплики с таймкодами;
-- `steps` — как шёл к ответу. Для зонда это ещё и способ отличить вывод
-  из материала от воспоминания о предмете: по шагам видно, откуда взялось число;
-- `answer` — ответ по существу, своими словами. Назови величины, объекты
-  и соотношения, о которых спрашивают. «Нужно дождаться момента, когда…» —
-  не ответ, а пересказ вопроса;
-- `basis` — таймкоды кадров и цитаты из транскрипта, или «общие знания». Это отличает ответ, выведенный из материала, от ответа,
-  всплывшего из памяти о предмете: у них одинаковый текст и разная цена. Если ты
-  узнал ролик или вспомнил ответ до того, как заглянул в материал, — напиши это
-  прямо;
-- `confidence`, `insufficient` — честно. `insufficient: true` ставится **вместе**
-  с попыткой ответа, а не вместо неё: заполни `answer` тем, что удалось вытянуть,
-  даже если сам считаешь это догадкой;
-- `budget` — сколько кадров посмотрел и сколько реплик прочитал. Без этого числа
-  твой отрицательный ответ не читается: «не хватило материала» и «показали сорок
-  картинок на полчаса» выглядят одинаково;
-- `violations` — если пришлось признаваться.
+- `looked_at` — what you looked at: the frames and lines of speech with their timecodes;
+- `steps` — how you got to the answer. For a probe this is also the way to tell an
+  inference from the material apart from a recollection about the subject: the steps show
+  where a number came from;
+- `answer` — the answer on the merits, in your own words. Name the quantities, objects
+  and relations being asked about. "One has to wait for the moment when…" is not an
+  answer, it is a restatement of the question;
+- `basis` — the timecodes of frames and quotations from the transcript, or "general knowledge". This is what tells an answer inferred from the material apart from
+  one that surfaced from memory of the subject: they have the same text and a different
+  price. If you recognised the video or recalled the answer before you looked at the
+  material — write that down plainly;
+- `confidence`, `insufficient` — honestly. `insufficient: true` is set **together**
+  with an attempt at an answer, not instead of one: fill `answer` with whatever you
+  could extract, even if you consider it a guess yourself;
+- `budget` — how many frames you looked at and how many lines you read. Without that
+  number your negative answer cannot be read: "there was not enough material" and "they
+  showed me forty pictures for half an hour of video" look the same;
+- `violations` — if you had to confess.
 
-Проверь себя перед тем, как отчитываться:
+Check yourself before reporting:
 
 ```bash
 /home/user/conda/bin/python3 schema/review.py --check \
-    data/reviews/<VIDEO_ID>/<SAMPLE_ID>/probe_full.<КРУГ>.json
+    data/reviews/<VIDEO_ID>/<SAMPLE_ID>/probe_full.<ROUND>.json
 ```
 
-Чини и запускай снова — координатору отдавай только то, что прошло.
+Fix and run again — hand the coordinator only what passed.
 
-### 2. Текст координатору
+### 2. The text for the coordinator
 
-Коротко: ответ и на чём он основан. Не пересказывай json целиком, в конце дай путь
-к файлу.
+Briefly: the answer and what it rests on. Do not retell the whole json; give the path to
+the file at the end.
 
-Вердиктов не ставь и о качестве вопроса не рассуждай — это не твоя работа.
+Do not issue verdicts and do not reason about the quality of the question — that is not
+your job.

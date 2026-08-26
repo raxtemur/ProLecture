@@ -1,6 +1,6 @@
 # But what is cross-entropy? | Compression is Intelligence Part 2
 
-Длительность 2031 с. Реплик 576. Чаптеров 10.
+Duration 2031 s. Utterances 576. Chapters 10.
 
 
 ## [0s] Language trees and zipping

@@ -1,1661 +1,1660 @@
-# Чеклист верификации разметки
+# Annotation verification checklist
 
-Живой документ: пополняется каждый раз, когда обнаруживается новый класс ошибки.
+A living document: it grows every time a new class of error is discovered.
 
-**Нумерация заморожена.** Новые пункты добавляются в конец своей группы,
-существующие не перенумеровываются. Пункт, который приходится убрать, помечается
-как снятый, но номер и слаг остаются занятыми — иначе сохранённые ревью начнут
-читаться как ревью других пунктов. Подробности — раздел «Как адресуются пункты».
+**The numbering is frozen.** New items are added at the end of their group; existing ones
+are not renumbered. An item that has to be removed is marked as withdrawn, but its number
+and slug stay taken — otherwise saved reviews will start reading as reviews of other
+items. The details are in "How items are addressed".
 
-## Зачем он нужен
+## Why it exists
 
-Сэмпл бенчмарка — это стоящая инструкция (вопрос), выданная в момент `question_time`,
-и одно или несколько **окон ответа** `[t_start, t_end)`. Модель обязана заговорить
-внутри окна и молчать вне его. Всё остальное в разметке существует, чтобы это
-требование было выполнимым и однозначным.
+A benchmark sample is a standing instruction (the question) issued at the moment
+`question_time`, plus one or more **answer windows** `[t_start, t_end)`. The model must
+speak inside a window and stay silent outside it. Everything else in the annotation exists
+so that this requirement is satisfiable and unambiguous.
 
-Отсюда главный принцип проверки:
+Hence the main principle of the checking:
 
-> Ошибка разметки — это любая ситуация, в которой **правильно рассуждающая модель
-> наказывается**, а неправильно рассуждающая — вознаграждается.
+> An annotation error is any situation in which **a model reasoning correctly is
+> punished** and one reasoning incorrectly is rewarded.
 
-Такие ситуации почти никогда не выглядят как ошибка в JSON. Файл проходит схему,
-цифры непротиворечивы, а сэмпл при этом сломан. Поэтому проверок три уровня.
+Such situations almost never look like an error in the JSON. The file passes the schema,
+the numbers are consistent, and the sample is broken all the same. So there are three
+levels of checking.
 
-## Три уровня проверки
+## The three levels of checking
 
-| Метка | Кто проверяет | Что может поймать |
+| Tag | Who checks | What it can catch |
 |---|---|---|
-| `[A]` | `tools/validate_samples.py` | всё, что выводится из чисел в самом файле |
-| `[M]` | модель-верификатор: VLM по кадрам, LLM по транскрипту | соответствие разметки содержимому видео |
-| `[H]` | человек | то, что цикл правок не закрыл сам |
+| `[A]` | `tools/validate_samples.py` | everything derivable from the numbers in the file itself |
+| `[M]` | a verifier model: a VLM over frames, an LLM over the transcript | whether the annotation matches the content of the video |
+| `[H]` | a human | what the fix cycle did not close by itself |
 
-**«`[H]` пуст» и «сплошная приёмка человеком» — не противоречие: это два разных
-входа человека.**
+**"`[H]` is empty" and "every sample is accepted by a human" are not a contradiction:
+these are two different ways a human enters.**
 
-- *По пункту чеклиста* — сейчас ни одного. Все пункты, которые раньше требовали
-  человека, сведены либо к арифметике, либо к вопросу, на который субагент
-  отвечает по тексту сэмпла. Значит, ни один пункт не блокирует автоматический
-  прогон в ожидании человека.
-- *По исчерпанию цикла* — эскалация: `CRITICAL_FAIL`, выход за лимит итераций,
-  осцилляция, устойчивое расхождение ревьюеров. Это и есть содержимое `[H]`
-  как уровня.
-- *Приёмка* — шаг 6 конвейера, сплошной, пока конвейер калибруется. Он не привязан
-  к пунктам вовсе: человек смотрит сэмпл целиком и тем самым проверяет **сам
-  чеклист**, а не сэмпл по чеклисту. Его побочный результат — новые пункты.
+- *By checklist item* — none at the moment. Every item that used to require a human has
+  been reduced either to arithmetic or to a question a subagent answers from the text of
+  the sample. So no item blocks an automatic run while waiting for a human.
+- *By exhaustion of the cycle* — escalation: `CRITICAL_FAIL`, running past the iteration
+  limit, oscillation, a persistent disagreement between reviewers. That is what `[H]` as a
+  level actually contains.
+- *Acceptance* — step 6 of the pipeline, applied to everything while the pipeline is being
+  calibrated. It is not tied to items at all: the human looks at the whole sample and
+  thereby checks **the checklist itself** rather than the sample against the checklist. Its
+  by-product is new items.
 
-Первое со временем может пополниться, второе останется всегда, третье сжимается
-до выборочного. Подробности — «Порядок применения» и
-[docs/annotation_pipeline.md](annotation_pipeline.md), шаг 6.
+The first may grow over time, the second will always remain, the third shrinks to spot
+checks. The details are in "The order of application" and in
+[docs/annotation_pipeline.md](annotation_pipeline.md), step 6.
 
-Пункты `[M]` — это техническое задание на верификатор; пока он не написан, они
-проверяются вручную, и именно на них уходит основное время разметки.
+The `[M]` items are the specification for the verifier; until it is written they are
+checked by hand, and it is they that take most of the annotation time.
 
-Внутри каждой группы пункты идут в порядке `[A]` → `[M]` → `[H]`: сначала дешёвые
-и автоматические, в конце — требующие человека.
+Within each group the items run in the order `[A]` → `[M]` → `[H]`: the cheap and
+automatic ones first, the ones needing a human at the end.
 
-## Почему `t_ideal` ничего не значит
+## Why `t_ideal` means nothing
 
-Поле есть в схеме, но опираться на него не надо, и это осознанное решение,
-а не недоделка.
+The field is in the schema, but it should not be relied on, and that is a deliberate
+decision rather than something left unfinished.
 
-`t_ideal` задумывался как вершина метрики — момент, ответ в который награждается
-максимально. Чтобы его выставить, надо знать, **сколько времени займёт у модели
-требуемая работа**: считать четыре столбика с графика дольше, чем услышать фразу.
-Мы этого не знаем и узнать заранее не можем, а гадать — значит вписывать в разметку
-предположение о скорости конкретной модели. Хуже того, вершина, поставленная рано,
-награждает того, кто выпалил догадку, а поставленная поздно — штрафует того,
-кто ответил сразу, хотя быстрее всегда лучше.
+`t_ideal` was conceived as the peak of the metric — the moment an answer at which is
+rewarded most. To set it, one has to know **how long the required work will take the
+model**: reading four bars off a graph takes longer than hearing a phrase. We do not know
+that and cannot know it in advance, and guessing would mean writing an assumption about
+the speed of one particular model into the annotation. Worse, a peak placed early rewards
+whoever blurted out a guess, and one placed late penalises whoever answered straight away,
+even though sooner is always better.
 
-Поэтому: **задержка меряется от `t_start`**, а `t_start` определён как момент,
-когда мгновенно рассуждающая модель уже могла бы ответить. Отсюда правило
-`t_start ≥ evidence_span[0]` (1.1) — левая граница обязана совпадать с появлением
-доказательства, иначе точка отсчёта смещена.
+Hence: **latency is measured from `t_start`**, and `t_start` is defined as the moment at
+which a model reasoning instantaneously could already have answered. From that follows the
+rule `t_start ≥ evidence_span[0]` (1.1) — the left boundary must coincide with the
+appearance of the evidence, otherwise the origin of the measurement is shifted.
 
-`t_ideal` остаётся в схеме как `t_start + 1` и заполняется механически. Если он
-понадобится по-настоящему — после того, как задержка генерации будет измерена
-на реальных моделях, — определение придётся написать заново.
+`t_ideal` remains in the schema as `t_start + 1` and is filled in mechanically. If it is
+ever genuinely needed — after generation latency has been measured on real models — the
+definition will have to be written afresh.
 
-## Как адресуются пункты
+## How items are addressed
 
-У каждого пункта два имени: **номер** (`2.2`) и **слаг** (`answer-possible-before-start`).
-Номер — для людей, слаг — для машин, и это не вкусовщина.
+Every item has two names: a **number** (`2.2`) and a **slug**
+(`answer-possible-before-start`). The number is for humans, the slug is for machines, and
+that is not a matter of taste.
 
-Нумерация меняется: за одну сессию группа 4 переехала целиком — прежний 4.7 стал 4.3,
-прежний 4.3 стал 4.6. Ревью, сохранённое ключом `"4.6"`, после такой перестановки
-читается как ревью **другого** пункта, молча и необратимо. Поэтому в контракте
-ревью ([../schema/review.py](../schema/review.py)) живут слаги, а номера остаются
-здесь.
+The numbering changes: in a single session group 4 moved wholesale — the former 4.7 became
+4.3 and the former 4.3 became 4.6. A review saved under the key `"4.6"` reads, after such a
+reshuffle, as a review of **a different** item, silently and irreversibly. So the review
+contract ([../schema/review.py](../schema/review.py)) holds the slugs, while the numbers
+stay here.
 
-Отсюда два правила. Добавлять пункты можно куда угодно — сохранённые ревью
-это переживут. Удалять — нельзя: слаг удалённого пункта остаётся в `Item`
-с пометкой, иначе старые ревью перестанут читаться.
+Two rules follow. Items may be added anywhere — saved reviews will survive it. They must
+not be deleted: the slug of a deleted item stays in `Item` with a note, otherwise old
+reviews stop being readable.
 
-Совпадение чеклиста и контракта проверяется автоматически, в обе стороны:
+The agreement between the checklist and the contract is checked automatically, in both
+directions:
 
 ```bash
 /home/user/conda/bin/python3 schema/review.py
 ```
 
-Пункт, который есть в контракте и которого нет здесь, — это требование
-к ревьюеру, которого он нигде не прочитает; обратное — пункт, по которому
-никто не отчитается.
+An item that is in the contract and not here is a requirement on the reviewer that they
+will never read anywhere; the converse is an item nobody will report on.
 
-Строка *Частота* показывает, срабатывал ли пункт на реальной разметке. Пункты,
-не срабатывавшие ни разу, добавлены по рассуждению и могут оказаться ненужными —
-на них не стоит тратить время в первую очередь.
+The *Frequency* line shows whether an item ever fired on real annotation. Items that have
+never fired were added by reasoning and may turn out to be unnecessary — they are not the
+ones to spend time on first.
 
-## Обозначения
+## Notation
 
-| Поле | Смысл |
+| Field | Meaning |
 |---|---|
-| `question_time` | момент выдачи вопроса; до него модель вопроса не знает |
-| `[t_start, t_end)` | окно ответа: ответ засчитывается только внутри него |
-| `t_ideal` | служебное поле, `t_start + 1`; задержка меряется от `t_start`, см. «Почему `t_ideal` ничего не значит» |
-| `evidence_span` | где в видео лежит **последнее по времени** доказательство, нужное для ответа; не подтверждение — оно в `provenance.evidence` (1.9) |
-| `distractor_window` | окно-приманка: ответ там — ложное срабатывание, наказывается |
-| `trigger_modality` | из какой модальности берётся сигнал: `visual` / `sound` / `speech` |
+| `question_time` | the moment the question is issued; before it the model does not know the question |
+| `[t_start, t_end)` | the answer window: an answer counts only inside it |
+| `t_ideal` | a service field, `t_start + 1`; latency is measured from `t_start`, see "Why `t_ideal` means nothing" |
+| `evidence_span` | where in the video the **latest** piece of evidence needed for the answer lies; not the corroboration — that is in `provenance.evidence` (1.9) |
+| `distractor_window` | a decoy window: an answer there is a false positive and is penalised |
+| `trigger_modality` | which modality the signal comes from: `visual` / `sound` / `speech` |
 
 
-## Операции просмотра
+## Viewing operations
 
-Пункты `[M]` выполняет субагент, у которого есть бюджет: **не более ~50 изображений
-на один проверяемый вопрос**. Поэтому алгоритмы ниже формулируются через три
-именованные операции, а не через «посмотреть видео».
+The `[M]` items are carried out by a subagent with a budget: **no more than ~50 images per
+question checked**. So the algorithms below are stated in terms of three named operations
+rather than in terms of "watch the video".
 
-| Операция | Что это | Стоимость |
+| Operation | What it is | Cost |
 |---|---|---|
-| **чтение транскрипта `[a, b]`** | все реплики с таймкодами из `bundle.json` | дёшево, берётся целиком в любом объёме |
-| **sparse-просмотр `[a, b]`** | кадры бандла плюс кадры смены сцены, шаг `max(15 с, (b−a)/40)`, не более 40 штук | средне |
-| **dense-просмотр `[a, b]`** | кадры с шагом 1–2 с | дорого: 50 кадров = участок не длиннее 100 с |
+| **reading the transcript `[a, b]`** | every line with its timecode from `bundle.json` | cheap, taken in full in any quantity |
+| **sparse viewing `[a, b]`** | the bundle's frames plus the scene-change frames, step `max(15 s, (b−a)/40)`, no more than 40 of them | moderate |
+| **dense viewing `[a, b]`** | frames with a step of 1–2 s | expensive: 50 frames = a stretch no longer than 100 s |
 
-Отсюда рабочее правило: **транскрипт читается всегда и целиком, кадры — по бюджету.**
-Если участок длиннее ста секунд, сначала идут транскрипт и sparse-просмотр, и только
-затем dense-просмотр того подучастка, где они дали подозрение.
+Hence the working rule: **the transcript is always read in full, frames go by budget.** If
+a stretch is longer than a hundred seconds, the transcript and sparse viewing come first,
+and only then dense viewing of the sub-stretch they raised a suspicion about.
 
-Шаг sparse-просмотра растёт вместе с интервалом: на получасовом участке это кадр
-раз в 45 секунд, а не раз в 15. Иначе «дешёвая» операция съедает бюджет целиком —
-на пилотном видео интервал `[question_time, t_start]` доходит до 1820 секунд,
-и равномерная сетка в 15 секунд дала бы 121 кадр при бюджете 50.
+The step of sparse viewing grows with the interval: over a half-hour stretch that is one
+frame every 45 seconds, not every 15. Otherwise the "cheap" operation eats the whole
+budget — on the pilot video the interval `[question_time, t_start]` reaches 1820 seconds,
+and a uniform 15-second grid would have given 121 frames against a budget of 50.
 
-⚠ Автоматическая детекция смены сцены не заменяет равномерную сетку. На пилотном
-видео порог `scene > 0.15` дал 88 кадров на 32 минуты, но между двумя из них
-оказался разрыв в 348 секунд — плавные анимации не порождают «смены сцены»,
-и именно в этот разрыв попали два момента, вокруг которых строятся вопросы.
-Sparse-выборка обязана быть объединением сцен и равномерной сетки.
+⚠ Automatic scene-change detection does not replace a uniform grid. On the pilot video the
+threshold `scene > 0.15` gave 88 frames for 32 minutes, but between two of them there was a
+gap of 348 seconds — smooth animations do not produce "scene changes", and it was into that
+gap that the two moments the questions are built around fell. A sparse sample must be the
+union of the scenes and a uniform grid.
 
 ---
+## 1. Formal integrity of the file
 
-## 1. Формальная целостность файла
+The group is entirely automatic and entirely implemented. It is also the specification of
+`tools/validate_samples.py`: every check in the code must have an item here, and vice
+versa (see 9.4).
 
-Группа целиком автоматическая и целиком реализована. Она же — спецификация
-`tools/validate_samples.py`: у каждой проверки в коде должен быть пункт здесь,
-и наоборот (см. 9.4).
+- `[A]` **1.1. Answer window geometry.** · `window-geometry`
 
-- `[A]` **1.1. Геометрия окон ответа.** · `window-geometry`
+  *Statement.* The window is not inverted (`t_start < t_end`), does not run past the
+  duration of the video, does not overlap a neighbouring window of the same sample,
+  `t_ideal` lies inside its own window, and `t_start` is not earlier than `question_time`
+  — otherwise the start of the window is unreachable: the model does not know the question
+  yet. Separately for `evidence_span`: non-empty, inside the video, beginning before
+  `t_end` (otherwise the evidence appears after the window closes and a correct answer is
+  unreachable in principle).
 
-  *Формулировка.* Окно не вывернуто (`t_start < t_end`), не выходит за длительность
-  видео, не пересекается с соседним окном того же сэмпла, `t_ideal` лежит внутри
-  своего окна, а `t_start` не раньше `question_time` — иначе начало окна недостижимо:
-  модель ещё не знает вопроса. Отдельно `evidence_span`: непуст, внутри видео,
-  начинается раньше `t_end` (иначе доказательство появляется после закрытия окна
-  и правильный ответ недостижим в принципе).
+  **The window does not open before the evidence: `t_start ≥ evidence_span[0]`.** Between
+  the opening of the window and the appearance of the evidence there would be a zone where
+  an answer counts while there is nothing yet to answer from — that is, guessing would
+  count. A separate rule is needed because its neighbours cannot see this: 2.2 catches the
+  converse (the answer became possible **earlier** than `t_start`), and
+  `evidence_span[0] < t_end` guards the right edge.
 
-  **Окно не открывается раньше доказательства: `t_start ≥ evidence_span[0]`.**
-  Между открытием окна и появлением доказательства лежала бы зона, где ответ
-  засчитывается, а отвечать ещё не из чего, — то есть засчитывалось бы угадывание.
-  Отдельное правило нужно потому, что соседние сторожа этого не видят: 2.2 ловит
-  обратное (ответ стал возможен **раньше** `t_start`), а `evidence_span[0] < t_end`
-  сторожит правый край.
+  The right edge is guarded by `S-35`: `evidence_span[1] ≤ t_end`. By the definition of the
+  field (1.9) what lies there is the **last** piece of evidence needed for the answer; were
+  it to appear after the window closes, the reference answer would be unreachable inside
+  the window.
 
-  Правый край сторожит `S-35`: `evidence_span[1] ≤ t_end`. По определению поля (1.9)
-  там лежит **последнее** доказательство, нужное для ответа; появись оно после
-  закрытия окна — эталон внутри окна недостижим.
+  On the pilot the left rule fired straight away on 13 triggers out of 25: the windows had
+  been set on round numbers while the line carrying the evidence began a second or three
+  later. All of them were aligned to the evidence.
 
-  На пилоте левое правило сработало сразу у 13 триггеров из 25: окна ставились
-  на круглых числах, а реплика с доказательством начиналась на секунду-три позже.
-  Все выровнены по доказательству.
+  **What this pair of rules does not do.** Together they mean "the evidence began to appear
+  no later than the opening of the window and finished no later than its closing", and not
+  at all "the evidence lies inside the window": containment would require the opposite
+  inequality on the left. As soon as the evidence moves entirely to the left of the window
+  — which is legitimate both for `post` (the material went by before the question was
+  issued) and wherever the information was accumulated before the formal condition in the
+  text of the question fired — both inequalities hold trivially and check nothing.
 
-  **Чего эта пара правил не делает.** Вместе они означают «доказательство начало
-  появляться не позже открытия окна и закончило — не позже закрытия», а вовсе не
-  «доказательство лежит внутри окна»: вложение требовало бы обратного неравенства
-  слева. Как только доказательство целиком уходит левее окна — а это законно и у
-  `post` (материал прошёл до выдачи вопроса), и там, где информация накоплена
-  раньше, чем сработало формальное условие из текста вопроса, — оба неравенства
-  выполняются тривиально и не проверяют ничего.
+  So **whether the `t_start` boundary itself is right is not checked by the machine and
+  cannot be**: that would require the moment the formal condition fires, and the annotation
+  does not store it. That is the reviewer's work — items 2.4 ("the window can be tightened")
+  and 3.3 ("the event does not begin earlier than its window"). Introducing a separate
+  field for a machine check was tried and abandoned: it would almost always coincide with
+  `t_start`, that is, the rule would degenerate into "the window opens when it opens", while
+  the annotator would gain one more thing to get wrong.
 
-  Поэтому **правильность самой границы `t_start` машина не проверяет и не может**:
-  для этого нужен момент срабатывания формального условия, а он в разметке не
-  хранится. Это работа ревьюера — пункты 2.4 («окно можно ужать») и 3.3 («событие
-  не начинается раньше своего окна»). Заводить под машинную проверку отдельное
-  поле пробовали и отказались: оно почти всегда совпадало бы с `t_start`, то есть
-  правило выродилось бы в «окно открывается тогда, когда открывается», а разметчик
-  получил бы ещё одну возможность ошибиться.
+  **Exact coincidence is not required — a little slack is better than flush.** The rule is
+  one-sided: `t_start` is not earlier than the evidence. Keeping it to the second is
+  unnecessary and harmful: annotating boundaries from frames is itself accurate to about a
+  second, an animation "arrives" smoothly, and too early a left boundary catches the moment
+  when the object is still being drawn. Slack of one to three seconds is normal; it is
+  checked by eye (2.2 and 2.4), not by arithmetic. Symmetrically for `t_end`: better to let
+  the model finish the phrase than to cut the window off exactly on the last word.
 
-  **Точного совпадения не требуется — небольшой запас лучше, чем впритык.**
-  Правило одностороннее: `t_start` не раньше доказательства. Держать его секунда
-  в секунду не нужно и вредно: разметка границ по кадрам сама имеет точность около
-  секунды, а анимация «доезжает» плавно, и слишком ранняя левая граница ловит
-  момент, когда объект ещё дорисовывается. Запас в одну-три секунды — норма;
-  проверяется он глазами (2.2 и 2.4), а не арифметикой. Симметрично по `t_end`:
-  лучше дать модели дожить фразу, чем обрезать окно ровно на последнем слове.
+  *Checking algorithm.* Arithmetic over the fields of the sample.
 
-  *Алгоритм проверки.* Арифметика по полям сэмпла.
+  *Status.* Implemented; the left boundary against the evidence is `S-29`, the right one is
+  `S-35`.
 
-  *Статус.* Реализовано; левая граница против доказательства — `S-29`,
-  правая — `S-35`.
+  *Frequency.* Regularly, mostly as overlapping windows after a boundary was moved by hand.
 
-  *Частота.* Регулярно, в основном как пересечение окон после ручного сдвига границ.
+- `[A]` **1.2. Distractor geometry.** · `distractor-geometry`
 
-- `[A]` **1.2. Геометрия дистракторов.** · `distractor-geometry`
+  *Statement.* A distractor is not inverted, lies inside the duration of the video, does
+  not overlap any trigger (otherwise one and the same answer is both correct and false) and
+  does not lie entirely before `question_time` — there is nothing to catch there, the
+  question has not been issued yet.
 
-  *Формулировка.* Дистрактор не вывернут, лежит внутри длительности видео, не
-  пересекается ни с одним триггером (иначе один и тот же ответ одновременно верен
-  и ложен) и не лежит целиком до `question_time` — там ловить нечего, вопрос ещё
-  не выдан.
+  *Checking algorithm.* Arithmetic over the fields of the sample.
 
-  *Алгоритм проверки.* Арифметика по полям сэмпла.
+  *Status.* Implemented.
 
-  *Статус.* Реализовано.
+  *Frequency.* Caught; a distractor overlapping a trigger arises when the right boundary of
+  a window is moved forward.
 
-  *Частота.* Ловилось; пересечение дистрактора с триггером возникает при сдвиге
-  правой границы окна вперёд.
+- `[A]` **1.3. Basic integrity of the sample.** · `sample-integrity`
 
-- `[A]` **1.3. Базовая целостность сэмпла.** · `sample-integrity`
+  *Statement.* There is at least one required trigger; the `idx` values of the triggers run
+  consecutively from zero (otherwise `depends_on` refers somewhere other than it appears
+  to); the order of `idx` matches the chronological one, that is, `t_start` is
+  non-decreasing; `question_time` is not greater than the duration; `id` values are unique
+  across the whole set.
 
-  *Формулировка.* Есть хотя бы один обязательный триггер; `idx` триггеров идут
-  подряд с нуля (иначе `depends_on` ссылается не туда, куда кажется);
-  порядок `idx` совпадает с хронологическим, то есть `t_start` не убывает;
-  `question_time` не больше длительности; `id` уникальны в пределах всего набора.
+  The requirement of chronological order is not cosmetic. The `temporal_rel` axis is
+  derived from the evidence of the **first and last** required triggers, and they are taken
+  by their place in the list. Reordered triggers give an axis derived from the wrong
+  windows.
 
-  Требование хронологического порядка — не косметика. Ось `temporal_rel` выводится
-  из доказательств **первого и последнего** обязательных триггеров, а берутся они
-  по месту в списке. Переставленные триггеры дают ось, выведенную не из тех окон.
+  *Checking algorithm.* Arithmetic and sets over the fields.
 
-  *Алгоритм проверки.* Арифметика и множества по полям.
+  *Status.* Implemented.
 
-  *Статус.* Реализовано.
+  *Frequency.* Caught: inserting a new trigger in the middle of the list without
+  renumbering. A violation of the order used to be diagnosed as "the window overlaps the
+  previous one" — a message correct as a matter of fact but misleading.
 
-  *Частота.* Ловилось: вставка нового триггера в середину списка без перенумерации.
-  Нарушение порядка до сих пор диагностировалось как «окно пересекается
-  с предыдущим» — сообщение верное по факту, но уводящее в сторону.
+- `[A]` **1.4. `depends_on` points strictly backwards.** · `depends-on-backwards`
 
-- `[A]` **1.4. `depends_on` указывает строго назад.** · `depends-on-backwards`
+  *Statement.* A dependency may refer only to a trigger with a smaller `idx`. A forward
+  reference or a self-reference makes the chain uncomputable.
 
-  *Формулировка.* Зависимость может ссылаться только на триггер с меньшим `idx`.
-  Ссылка вперёд или на себя делает цепочку невычислимой.
+  *Checking algorithm.* Comparison of indices.
 
-  *Алгоритм проверки.* Сравнение индексов.
+  *Status.* Implemented. The substantive side of the field is in 7.4.
 
-  *Статус.* Реализовано. Содержательная сторона поля — в 7.4.
+  *Frequency.* Never.
 
-  *Частота.* Ни разу.
+- `[A]` **1.5. A multi-trigger sample has at least one distractor.** · `multitrigger-has-distractor`
 
-- `[A]` **1.5. У многотриггерного сэмпла есть хотя бы один дистрактор.** · `multitrigger-has-distractor`
+  *Statement.* Distractors give what the overall false-positive statistic does not: a
+  penalty for a **specific** premature error at the place where it is easiest to fall for.
+  Without them a multi-trigger sample cannot tell a model that caught the condition from a
+  model that guessed the rhythm.
 
-  *Формулировка.* Дистракторы дают то, чего не даёт общая статистика ложных
-  срабатываний: наказание за **конкретную** преждевременную ошибку в том месте,
-  где на неё легче всего попасться. Без них многотриггерный сэмпл не отличает
-  модель, поймавшую условие, от модели, угадавшей ритм.
+  Talking non-stop is punished not by this item but by the false-positive metric and the
+  number of answers per sample — those are always counted.
 
-  Постоянную речь наказывает не этот пункт, а метрика ложных срабатываний
-  и число ответов на сэмпл — они считаются всегда.
+  *Checking algorithm.* `len(triggers) > 1` requires a non-empty `distractor_windows`.
 
-  *Алгоритм проверки.* `len(triggers) > 1` требует непустого `distractor_windows`.
+  *Status.* Implemented.
 
-  *Статус.* Реализовано.
+  *Frequency.* Caught when triggers were added to a sample that started out single-shot.
 
-  *Частота.* Ловилось при добавлении триггеров в изначально одноразовый сэмпл.
+- `[A]` **1.6. `video.duration` is cross-checked against `bundle.json`.** · `duration-matches-bundle`
 
-- `[A]` **1.6. `video.duration` сверена с `bundle.json`.** · `duration-matches-bundle`
+  *Statement.* The duration is duplicated in the annotation for the sake of the file being
+  self-contained, and therefore diverges from the truth if the video is re-downloaded.
+  Every boundary check rests on it, so a divergence makes them all meaningless.
 
-  *Формулировка.* Длительность продублирована в разметке ради самодостаточности
-  файла и потому расходится с истиной при переcкачивании видео. Все проверки границ
-  опираются на неё, так что расхождение делает их бессмысленными.
+  *Checking algorithm.* Comparison against `bundle.json` with a tolerance of a second.
 
-  *Алгоритм проверки.* Сравнение с `bundle.json` с допуском в секунду.
+  *Status.* Implemented.
 
-  *Статус.* Реализовано.
+  *Frequency.* Never — the check was added as insurance before the second video.
 
-  *Частота.* Ни разу — проверка добавлена как страховка перед вторым видео.
+- `[A]` **1.7. `audio_dependency_claim` does not contradict the trigger modalities.** · `claim-matches-modalities`
 
-- `[A]` **1.7. `audio_dependency_claim` не противоречит модальностям триггеров.** · `claim-matches-modalities`
+  *Statement.* The annotator's opinion about the role of the audio cannot be "the audio is
+  unnecessary" if every trigger is spoken, and cannot be "the audio is required" if there is
+  neither speech nor sound among the modalities. This is a check of the internal
+  consistency of an opinion, not a measurement (the measurement is in 4.5).
 
-  *Формулировка.* Мнение разметчика о роли звука не может быть «звук не нужен»,
-  если все триггеры речевые, и не может быть «звук обязателен», если среди
-  модальностей нет ни речи, ни звука. Это проверка внутренней связности мнения,
-  а не замер (замер — в 4.5).
-
-  *Алгоритм проверки.* Сопоставление `audio_dependency_claim` с объединением
+  *Checking algorithm.* Comparing `audio_dependency_claim` against the union of
   `trigger_modality`.
 
-  *Статус.* Реализовано.
+  *Status.* Implemented.
 
-  *Частота.* Ни разу.
+  *Frequency.* Never.
 
-- `[A]` **1.8. Файл соответствует JSON-схеме.** · `json-schema`
+- `[A]` **1.8. The file conforms to the JSON schema.** · `json-schema`
 
-  *Формулировка.* `schema/sample.schema.json`, `additionalProperties: false`
-  на всех уровнях: опечатка в имени поля должна быть ошибкой, а не молча
-  проигнорированным ключом.
+  *Statement.* `schema/sample.schema.json`, `additionalProperties: false` at every level: a
+  typo in a field name must be an error rather than a silently ignored key.
 
-  *Алгоритм проверки.* Валидация схемой до всех семантических проверок.
+  *Checking algorithm.* Schema validation before all the semantic checks.
 
-  *Статус.* Реализовано.
+  *Status.* Implemented.
 
-  *Частота.* Регулярно, как опечатки в именах полей.
+  *Frequency.* Regularly, as typos in field names.
 
-- `[A]` **1.9. У каждого триггера есть `evidence_span`.** · `evidence-span-present`
+- `[A]` **1.9. Every trigger has an `evidence_span`.** · `evidence-span-present`
 
-  *Формулировка.* Поле указывает, где лежит последнее по времени доказательство,
-  нужное для ответа, и из него выводится ось `temporal_rel` (7.1). Сейчас поле
-  необязательно, а при его отсутствии подставляется само окно ответа — и вывод
-  оси вырождается в сравнение `question_time` с `t_start`, то есть измеряет ровно
-  то, что запрещено измерять.
+  *Statement.* The field states where the latest piece of evidence needed for the answer
+  lies, and the `temporal_rel` axis is derived from it (7.1). If the field were optional and
+  the answer window were substituted for it when absent, the derivation of the axis would
+  degenerate into comparing `question_time` with `t_start`, that is, it would measure
+  exactly what must not be measured.
 
-  Практическое следствие подстановки было уже: незаполненное поле давало верную
-  ось для `pre` и `at` (там доказательство и окно почти совпадают) и **неверную**
-  для `post` — там доказательство лежит раньше окна, и без поля `post` неотличим
-  от `at`. То есть подстановка работала ровно до первого `post`-вопроса.
+  The practical consequence of such a substitution had already appeared: an unfilled field
+  gave the right axis for `pre` and `at` (where the evidence and the window nearly coincide)
+  and **the wrong one** for `post` — there the evidence lies before the window, and without
+  the field `post` is indistinguishable from `at`. That is, the substitution worked exactly
+  up to the first `post` question.
 
-  *Алгоритм проверки.* Поле в `required` схемы триггера; подстановки в валидаторе
-  нет — при отсутствии поля падает схема.
+  *Checking algorithm.* The field is in the trigger schema's `required`; there is no
+  substitution in the validator — if the field is absent, the schema fails.
 
-  **Как размечать span у разных модальностей.** Для речи это интервал реплики,
-  в которой доказательство договорено: «I will share one at the end» —
-  `[37.2, 40.5]`. Для картинки — от появления до конца доступности внутри окна:
-  график остаётся на экране, и пока он там, доказательство доступно. Разница
-  существенна для вывода оси (7.1): если считать визуальное доказательство
-  мгновенным, вопрос, заданный через пять секунд после появления графика,
-  выведется как `post` — «отвечай по памяти», — хотя график всё ещё перед глазами
-  и модель просто смотрит на него.
+  **How to annotate the span for different modalities.** For speech it is the interval of
+  the line in which the evidence is finished: "I will share one at the end" — `[37.2, 40.5]`.
+  For a picture it runs from its appearance to the end of its availability inside the
+  window: the graph stays on screen, and as long as it is there the evidence is available.
+  The difference matters for deriving the axis (7.1): if visual evidence is treated as
+  instantaneous, a question asked five seconds after the graph appears comes out as `post` —
+  "answer from memory" — even though the graph is still in front of the model's eyes and it
+  is simply looking at it.
 
-  **Доказательство — не подтверждение.** В `evidence_span` лежит материал, из
-  которого ответ **следует к моменту `t_end`**; то, чем мы проверяем, что эталон
-  вообще верен, живёт отдельно — в `provenance.evidence`, где ссылка может указать
-  и на кусок ролика позже окна, и вовсе на внешний расчёт (`type: other`).
-  Различие видно на двух видах задач. У `predict` подтверждение по построению
-  приходит позже окна: у `q08` окно `[1259, 1283)`, а Бетти и «мозг как модель
-  языка» — на 1336.6 и 1444.1, и в `provenance` они есть. У `counterfact`
-  подтверждения в ролике нет вовсе: автор никогда не произносит ответ на «что
-  было бы, если», иначе это не контрфакт. Класть подтверждение в `evidence_span`
-  нельзя — там его сторожит `S-35`, и оно бы его ломало.
+  **Evidence is not corroboration.** `evidence_span` holds the material from which the
+  answer **follows by the moment `t_end`**; what we use to establish that the reference
+  answer is correct at all lives separately, in `provenance.evidence`, where a reference may
+  point at a part of the video after the window or at an external computation entirely
+  (`type: other`). The distinction shows on two kinds of task. For `predict` the
+  corroboration arrives after the window by construction: in `q08` the window is
+  `[1259, 1283)`, while Betty and "the brain as a model of language" are at 1336.6 and
+  1444.1, and they are in `provenance`. For `counterfact` there is no corroboration in the
+  video at all: the author never speaks the answer to "what would happen if", otherwise it
+  would not be a counterfactual. Putting the corroboration into `evidence_span` is not
+  allowed — `S-35` guards it there, and the corroboration would break it.
 
-  *Статус.* Реализовано. Пилот **дозаполнен по-настоящему**: у 24 триггеров из 25
-  span указывает на конкретную реплику или на интервал видимости картинки.
-  Исключение — `q07`, триггер 1: там доказательство появляется в начале окна
-  и остаётся видимым до его конца, поэтому span совпал с окном не по лени,
-  а по существу. Раньше у 24 из 25 он был копией окна, из-за чего вывод оси
-  вырождался в сравнение `question_time` с `t_start`.
+  *Status.* Implemented. The pilot has been **filled in for real**: for 24 triggers out of
+  25 the span points at a specific line or at the interval a picture is visible for. The
+  exception is `q07`, trigger 1: there the evidence appears at the start of the window and
+  remains visible to its end, so the span coincided with the window on the merits rather
+  than out of laziness. Previously 24 out of 25 were copies of the window, which made the
+  derivation of the axis degenerate into comparing `question_time` with `t_start`.
 
-  Побочный результат дозаполнения: у 13 триггеров из 25 обнаружилось, что окно
-  открывается на секунду-три раньше доказательства, — выровнено по `S-29`.
+  A by-product of filling it in: on 13 triggers out of 25 it turned out that the window
+  opened a second or three before the evidence — aligned under `S-29`.
 
-  *Частота.* Обнаружено на пилоте сразу у 24 триггеров из 25; закрыто.
+  *Frequency.* Discovered on the pilot on 24 triggers out of 25 at once; closed.
 
-- `[A]` **1.10. Триггер не держится на одном `sound`.** · `sound-only-trigger`
+- `[A]` **1.10. A trigger does not rest on `sound` alone.** · `sound-only-trigger`
 
-  *Формулировка.* В `trigger_modality` есть значение `sound`, но проверить его
-  нечем: `probe_text` читает **транскрипт**, то есть текст речи, а не звук;
-  `probe_vision` смотрит кадры. Триггер, у которого `sound` — единственная
-  модальность, не проверяет ни один зонд, и его `visiononly_solved = false`
-  ничего не значит: метка `audio_dependency` выведется из замера, которого
-  не было.
+  *Statement.* `trigger_modality` has the value `sound`, but there is nothing to check it
+  with: `probe_text` reads the **transcript**, that is, the text of the speech rather than
+  the sound; `probe_vision` looks at frames. A trigger for which `sound` is the only
+  modality is checked by no probe, and its `visiononly_solved = false` means nothing: the
+  `audio_dependency` label would be derived from a measurement that never happened.
 
-  Значение из схемы не убрано намеренно: звуковые триггеры бывают осмысленными
-  (смена музыкальной темы, характерный щелчок), и когда появится звуковой зонд,
-  запрет снимется одной строкой. До тех пор такой триггер обязан опираться
-  ещё на что-то.
+  The value was deliberately not removed from the schema: sound triggers can be meaningful
+  (a change of musical theme, a characteristic click), and when a sound probe appears the
+  ban will be lifted in one line. Until then such a trigger must rest on something else as
+  well.
 
-  *Алгоритм проверки.* `trigger_modality == ["sound"]` — ошибка. Сочетания
-  `sound` с `speech` или `visual` законны.
+  *Checking algorithm.* `trigger_modality == ["sound"]` is an error. Combinations of `sound`
+  with `speech` or `visual` are legitimate.
 
-  *Статус.* Реализовано, `S-28`.
+  *Status.* Implemented, `S-28`.
 
-  *Частота.* На пилоте ни разу — `sound` не использовался.
+  *Frequency.* Never on the pilot — `sound` was not used.
 
-- `[A]` **1.11. Окно ответа не короче пяти секунд.** · `window-not-too-narrow`
+- `[A]` **1.11. The answer window is no shorter than five seconds.** · `window-not-too-narrow`
 
-  *Формулировка.* Ширину окна задаёт содержание ролика, а у содержания нет причин
-  совпадать с тем, сколько модель тратит на ответ. Модель в стриминге думает
-  и генерирует **секунды**; на девятисекундном окне при `ω = 0` пятисекундная
-  задержка съедает больше половины площади под ломаной, а на пятисекундном
-  верный ответ просто не успевает. Тогда PAUC меряет скорость генерации,
-  а не понимание, — то есть ровно тот подлог, ради запрета которого написан
-  критерий всей разметки.
+  *Statement.* The width of a window is set by the content of the video, and the content has
+  no reason to coincide with how long a model spends on its answer. A model in streaming
+  thinks and generates for **seconds**; on a nine-second window with `ω = 0` a five-second
+  latency eats more than half the area under the curve, and on a five-second one a correct
+  answer simply does not make it in time. PAUC then measures generation speed rather than
+  understanding — that is, exactly the substitution the criterion of the whole annotation is
+  written to forbid.
 
-  Пять секунд — не измеренная величина, а первое осознанное ограничение. Точное
-  значение выведется из замера сквозной задержки одной модели (Фаза 4); до тех
-  пор пол нужен, чтобы узкие окна не появлялись молча.
+  Five seconds is not a measured quantity but the first deliberate constraint. The exact
+  value will be derived from measuring the end-to-end latency of one model (Phase 4); until
+  then the floor exists so that narrow windows do not appear silently.
 
-  *Алгоритм проверки.* `t_end - t_start >= 5.0` у каждого триггера,
-  и обязательного, и опционального.
+  *Checking algorithm.* `t_end - t_start >= 5.0` on every trigger, required and optional
+  alike.
 
-  *Статус.* Реализовано, `S-36`.
+  *Status.* Implemented, `S-36`.
 
-  *Частота.* На пилоте не ловилось: самое узкое окно — 9.0 с (`q06`, idx 3).
-  Девять окон из 25 короче 13 с, так что запас невелик.
+  *Frequency.* Not caught on the pilot: the narrowest window is 9.0 s (`q06`, idx 3). Nine
+  of the 25 windows are shorter than 13 s, so there is not much room.
 
 ---
+## 2. Answer window boundaries
 
-## 2. Границы окон ответа
-
-Самая дорогая группа. Полезно держать в голове, какая именно граница поехала
-и в какую сторону:
+The most expensive group. It helps to keep in mind which boundary exactly has moved, and in
+which direction:
 
 ```
-        0                question_time            t_start        t_end   +10 с
+        0                question_time            t_start        t_end   +10 s
         |                      |                      |            |       |
         |<------- 2.3 -------->|<------- 2.2 -------->|<-- 2.4 --->|<-2.5->|
-        |  ответ был доступен  |  ответ уже возможен  |  окно можно |  ответ
-        |  ещё до вопроса →    |  здесь → окно        |  ужать      |  звучит
-        |  это не pre-вопрос   |  открылось поздно    |             |  вслух
+        | the answer was       | the answer is        | the window | the   |
+        | available before     | already possible     | can be     | answer|
+        | the question →       | here → the window    | tightened  | is    |
+        | this is not a pre    | opened late          |            | spoken|
 ```
 
-У большинства ошибок здесь одна общая причина: **окно ставится по речи, а информация
-появляется на экране раньше.** Автор регулярно показывает таблицу или значения за
-десятки секунд до того, как проговорит их вслух, а потом ещё раз переанимирует под
-слова. Проверка кадров вокруг реплики этого не видит — там как раз идёт повторная
-анимация, и картинка выглядит неполной.
+Most of the errors here have one common cause: **the window is set by the speech while the
+information appears on screen earlier.** The author regularly shows a table or the values
+tens of seconds before speaking them aloud, and then re-animates them to fit the words.
+Checking the frames around the line does not see this — that is precisely where the repeat
+animation is running, and the picture looks incomplete.
 
-- `[A]` **2.1. Общая граница двух соседних окон не режет реплику пополам.** · `shared-boundary-not-mid-cue`
+- `[A]` **2.1. A boundary shared by two neighbouring windows does not cut a line in half.** · `shared-boundary-not-mid-cue`
 
-  *Формулировка.* Пункт узкий, и его границы важны. Речь идёт **только** о моменте,
-  который одновременно закрывает одно окно сэмпла и открывает следующее. Ответ,
-  данный на первой секунде фразы, попадающей на такой стык, засчитывается
-  в предыдущее окно и судится по чужой рубрике.
+  *Statement.* The item is narrow and its limits matter. It is **only** about a moment that
+  simultaneously closes one window of a sample and opens the next. An answer given in the
+  first second of a phrase that falls on such a join is counted into the previous window
+  and judged against the wrong rubric.
 
-  К одиночным границам это не относится: снаружи окна ответ и так не засчитывается,
-  и «чужой рубрики» там нет.
+  It does not apply to single boundaries: outside a window an answer does not count anyway,
+  and there is no "wrong rubric" there.
 
-  *Алгоритм проверки.* Собрать моменты, где `t_end` одного триггера равен `t_start`
-  следующего. Для каждого проверить, лежит ли он строго внутри реплики транскрипта.
-  При попадании — предложить ближайшую границу реплики, но **не** требовать сдвига
-  автоматически: сдвиг конкурирует с 2.2 и 2.4, и решает человек.
+  *Checking algorithm.* Collect the moments where the `t_end` of one trigger equals the
+  `t_start` of the next. For each, check whether it lies strictly inside a transcript line.
+  On a hit, propose the nearest line boundary, but do **not** require the move
+  automatically: the move competes with 2.2 and 2.4, and a human decides.
 
-  ⚠ *Предостережение против наивной реализации.* Соблазнительно сформулировать
-  правило шире — «границы окон должны попадать в паузы между репликами» — и это
-  ловушка. Субтитры образовательных роликов почти непрерывны: на пилотном видео
-  медианный зазор между соседними репликами равен **нулю**, пауза длиннее 0.3 с
-  есть лишь у 193 стыков из 527. Широкое правило дало бы 38 срабатываний из 50
-  границ, включая заведомо верные, и заставило бы двигать окна в прямое нарушение
-  2.2. Общая граница на пилоте сейчас одна — у `q06` в 1851.0, и она реплику
-  не режет.
+  ⚠ *A warning against a naive implementation.* It is tempting to state the rule more
+  broadly — "window boundaries must fall into the pauses between lines" — and that is a
+  trap. The subtitles of educational videos are nearly continuous: on the pilot video the
+  median gap between neighbouring lines is **zero**, and only 193 of the 527 joins have a
+  pause longer than 0.3 s. A broad rule would have fired on 38 of the 50 boundaries,
+  including the obviously correct ones, and would have forced windows to be moved in direct
+  violation of 2.2. There is currently one shared boundary on the pilot — in `q06` at
+  1851.0 — and it does not cut a line.
 
-  *Статус.* Реализовано, `S-33`: правило узкое — проверяются только **общие**
-  границы соседних окон, где ответ действительно может уехать в чужую рубрику.
+  *Status.* Implemented, `S-33`: the rule is narrow — only the **shared** boundaries of
+  neighbouring windows are checked, where an answer really can drift into the wrong rubric.
 
-  *Частота.* Ловилось однажды, на общей границе соседних окон; второй раз —
-  у `q07`, где граница 957.0 лежала внутри реплики. Вылечено разрывом между
-  окнами вместо общей границы.
+  *Frequency.* Caught once, on a shared boundary of neighbouring windows; a second time in
+  `q07`, where the boundary 957.0 lay inside a line. Cured with a gap between the windows
+  instead of a shared boundary.
 
-- `[M]` **2.2. Ответ становится возможен раньше `t_start`.** · `answer-possible-before-start`
+- `[M]` **2.2. The answer becomes possible earlier than `t_start`.** · `answer-possible-before-start`
 
-  *Формулировка.* Ключевая проверка всего чеклиста. К моменту `t_start` информации
-  для ответа должно хватать **впервые**. Если она была доступна раньше, то модель,
-  ответившая сразу, как только смогла, получает штраф за ложное срабатывание —
-  то есть разметка наказывает ровно то поведение, которое бенчмарк должен поощрять.
+  *Statement.* The key check of the whole checklist. By the moment `t_start` the information
+  for the answer must suffice **for the first time**. If it was available earlier, then a
+  model that answered as soon as it could gets a false-positive penalty — that is, the
+  annotation punishes exactly the behaviour the benchmark is supposed to reward.
 
-  Достаточность считается по всему, что модель видела и слышала с начала видео,
-  а не только по текущему кадру: если нужные числа показали десять минут назад
-  и сейчас показывают лишь напоминание, отсчёт ведётся от первого показа.
+  Sufficiency is judged from everything the model has seen and heard since the start of the
+  video, not from the current frame alone: if the numbers needed were shown ten minutes ago
+  and what is on screen now is only a reminder, the count runs from the first showing.
 
-  Самый частый и самый неочевидный подвид — **та же информация в другой форме**.
-  Вопрос сформулирован через визуальное условие («когда появится график …»),
-  условие честно не наступило, а данные, из которых считается ответ, уже на экране
-  в другом представлении: таблицей, диаграммой, подписями к предыдущей анимации.
-  Проверяющий, который ищет выполнение условия, ничего не найдёт; проверяющий,
-  который пробует ответить, ответит.
+  The commonest and least obvious variety is **the same information in another form**. The
+  question is phrased through a visual condition ("when the graph appears …"), the condition
+  honestly has not occurred, and the data the answer is computed from are already on screen
+  in another representation: as a table, a diagram, the captions of a previous animation. A
+  checker looking for the condition to be met will find nothing; a checker who tries to
+  answer will answer.
 
-  *Алгоритм проверки.* Проверку выполняет **полу-слепой ревьюер**, и он не отвечает
-  на вопрос «мог бы ты ответить?». Для сэмпла с несколькими окнами такой вопрос
-  бессмыслен — ответ «да, много раз, в этом и смысл». Он отвечает на вопрос
-  «**с какого момента** можно ответить?», и это одно число `t_val`.
+  *Checking algorithm.* The check is carried out by the **semi-blind reviewer**, and they do
+  not answer the question "could you answer?". For a sample with several windows that
+  question is meaningless — the answer is "yes, many times, that is the whole point". They
+  answer the question "**from which moment** can one answer?", and that is a single number
+  `t_val`.
 
-  Ролик разбивается на отрезки, по одному на **каждое** окно — и обязательное,
-  и опциональное: отрезок `k` идёт от `t_end` предыдущего окна до `t_end` своего.
-  Ревьюер получает материал только до верхней границы своего отрезка и ищет внутри
-  него самую раннюю точку `t_val`, начиная с которой на вопрос можно ответить
-  по существу. Сравнение делает координатор: `t_val[k] < t_start[k]` — срабатывание.
+  The video is split into stretches, one per **every** window, required and optional alike:
+  stretch `k` runs from the `t_end` of the previous window to the `t_end` of its own. The
+  reviewer receives material only up to the upper bound of their stretch and looks inside it
+  for the earliest point `t_val` from which the question can be answered on the merits. The
+  comparison is done by the coordinator: `t_val[k] < t_start[k]` is a hit.
 
-  **Приманки ревьюеру передаются**, с окнами и причинами. Иначе проверка ломается
-  о собственные ловушки сэмпла: ревьюер, не знающий, что момент помечен приманкой,
-  честно поставит туда `t_val`, координатор выведет 2.2 и сдвинет границу влево —
-  и ловушка исчезнет. На пилоте так устроены 8 сегментов из 15. Проверка от этого
-  не слабеет: что приманка действительно приманка, отвечает 6.2, и это работа
-  ревьюера сэмпла, у которого есть эталон. Полу-слепой ищет моменты **помимо**
-  объявленных.
+  **The distractors are handed to the reviewer**, with their windows and reasons. Otherwise
+  the check breaks against the sample's own traps: a reviewer who does not know a moment is
+  marked as a distractor will honestly put `t_val` there, the coordinator will derive 2.2
+  and move the boundary left — and the trap will disappear. On the pilot 8 of the 15
+  segments are built this way. The check is not weakened by this: whether a distractor
+  really is a distractor is answered by 6.2, and that is the work of the sample reviewer,
+  who has the reference answer. The semi-blind reviewer looks for moments **other than** the
+  declared ones.
 
-  Границы окон ревьюеру не называются: верхняя граница отрезка — это поле `until`
-  в `limits.json` его рабочей папки, а `t_start`, который он и проверяет, ему
-  не показан вовсе. Отсюда и «полу-»: конец отрезка он знает по устройству задачи,
-  проверяемую величину — нет.
+  The window boundaries are not named to the reviewer: the upper bound of the stretch is the
+  `until` field in the `limits.json` of their workspace, and `t_start`, which is exactly what
+  they are checking, is not shown to them at all. Hence the "semi-": they know the end of the
+  stretch from the structure of the task, and not the quantity under test.
 
-  Разбиение на отрезки нужно ради покрытия. Один префикс до `t_start` первого окна
-  проверяет левую границу только этого окна; у девятиоконного `q06` восемь остальных
-  не проверяет никто, потому что ревьюеру сэмпла 2.2 и 2.3 запрещены.
+  The split into stretches is there for coverage. A single prefix up to the `t_start` of the
+  first window checks the left boundary of that window only; on the nine-window `q06` the
+  other eight are checked by nobody, because 2.2 and 2.3 are forbidden to the sample
+  reviewer.
 
-  «По существу» здесь — качественное суждение проверяющего, а не балл: числовая
-  шкала нужна метрике, которой оценивают модели, а на этапе разметки она только
-  создала бы видимость точности.
+  "On the merits" here is a qualitative judgement by the checker rather than a score: a
+  numeric scale is needed by the metric that evaluates models, and at the annotation stage it
+  would only create an appearance of precision.
 
-  По бюджету: транскрипт целиком (бесплатно), затем sparse-просмотр отрезка, затем
-  бинарный поиск между последним «нет» и первым «да» — два-три dense-шага вместо
-  частой сетки по всему отрезку. На пилоте отрезки доходят до тридцати минут,
-  так что это обычный случай, а не исключение.
+  On budget: the transcript in full (free), then sparse viewing of the stretch, then a binary
+  search between the last "no" and the first "yes" — two or three dense steps instead of a
+  fine grid over the whole stretch. On the pilot the stretches run up to thirty minutes, so
+  this is the ordinary case rather than the exception.
 
-  *Что делать при срабатывании.* Два способа на выбор. Сдвинуть `t_start` к раннему
-  моменту — годится, когда визуальное условие в вопросе было просто якорем.
-  Либо оставить окно и добавить **опциональный** триггер на ранний показ — тогда
-  верны и ранний ответ, и молчание до основного окна; годится, когда условие
-  содержательно и составляет часть задачи.
+  *What to do on a hit.* Two options. Move `t_start` to the early moment — appropriate when
+  the visual condition in the question was merely an anchor. Or keep the window and add an
+  **optional** trigger for the early showing — then both an early answer and silence until
+  the main window are correct; appropriate when the condition is substantive and forms part
+  of the task.
 
-  *Статус.* Не реализовано. В конвейере — полу-слепой ревьюер, поле `t_val`
-  в `scans`; вердикт выводит координатор, потому что у ревьюера нет `t_start`.
+  *Status.* Not implemented. In the pipeline it is the semi-blind reviewer and the `t_val`
+  field in `scans`; the verdict is derived by the coordinator, because the reviewer has no
+  `t_start`.
 
-  *Частота.* Ловилось неоднократно, в обоих подвидах. Самая частая содержательная
-  ошибка разметки.
+  *Frequency.* Caught repeatedly, in both varieties. The commonest substantive annotation
+  error.
 
-- `[M]` **2.3. Ответ был доступен ещё до `question_time`.** · `answer-available-before-question`
+- `[M]` **2.3. The answer was available even before `question_time`.** · `answer-available-before-question`
 
-  *Формулировка.* Продолжение 2.2 влево от момента выдачи вопроса, но последствие
-  другое, поэтому пункт отдельный. Если вся нужная информация прошла **до** того,
-  как вопрос был задан, то это не «pre»-вопрос с ожиданием: модель вправе ответить
-  сразу, а разметка ждёт ответа позже и штрафует за своевременность.
+  *Statement.* A continuation of 2.2 to the left of the moment the question is issued, but
+  the consequence is different, hence a separate item. If all the information needed went by
+  **before** the question was asked, then this is not a "pre" question with waiting: the
+  model is entitled to answer straight away, while the annotation expects the answer later
+  and penalises timeliness.
 
-  По оси `temporal_rel` такой сэмпл фактически относится к `post` (ответ из памяти),
-  и правка здесь — не сдвиг окна, а исправление замысла: либо `question_time`
-  переносится в место, где информация ещё не прошла, либо сэмпл честно
-  переразмечается как `post` с соответствующим `evidence_span`.
+  On the `temporal_rel` axis such a sample in fact belongs to `post` (an answer from memory),
+  and the fix here is not a move of the window but a correction of the design: either
+  `question_time` moves to a place where the information has not yet gone by, or the sample
+  is honestly re-annotated as `post` with the corresponding `evidence_span`.
 
-  *Алгоритм проверки.* Отдельной работы не требует: это то же число `t_val`,
-  что и в 2.2, только сравненное с другой величиной. Нулевой отрезок полу-слепого
-  начинается **с нуля**, а не с `question_time`, — иначе материал до выдачи вопроса
-  ревьюеру просто не попадёт, и проверять будет нечем. Дальше арифметика:
+  *Checking algorithm.* It requires no separate work: it is the same number `t_val` as in
+  2.2, only compared against a different quantity. The semi-blind reviewer's zeroth stretch
+  begins **at zero** rather than at `question_time` — otherwise the material before the
+  question was issued simply never reaches the reviewer and there is nothing to check with.
+  After that it is arithmetic:
 
-  | Условие | Вывод |
+  | Condition | Conclusion |
   |---|---|
-  | `t_val[0] < question_time` | срабатывание 2.3 |
-  | `question_time ≤ t_val[0] < t_start[0]` | срабатывание 2.2 |
-  | `t_val[0] ≥ t_start[0]` | оба пункта пройдены |
+  | `t_val[0] < question_time` | 2.3 fires |
+  | `question_time ≤ t_val[0] < t_start[0]` | 2.2 fires |
+  | `t_val[0] ≥ t_start[0]` | both items pass |
 
-  *Статус.* Не реализовано. Выводится из `scans[0].t_val` полу-слепого ревьюера.
+  *Status.* Not implemented. Derived from the semi-blind reviewer's `scans[0].t_val`.
 
-  *Частота.* Ни разу не проверялось систематически.
+  *Frequency.* Never checked systematically.
 
-- `[M]` **2.4. Окно можно ужать.** · `window-can-be-tightened`
+- `[M]` **2.4. The window can be tightened.** · `window-can-be-tightened`
 
-  *Формулировка.* Мягкий пункт: внутри окна ответ должен быть возможен на всём
-  его протяжении. Слева окно бывает открыто, пока объект ещё дорисовывается
-  (анимации manim длятся 1–3 с, и промежуточный кадр выглядит правдоподобно,
-  но неполон); справа — уже после того, как объект ушёл с экрана, и подтвердить
-  ответ нечем.
+  *Statement.* A soft item: inside the window an answer must be possible throughout. On the
+  left the window is sometimes open while the object is still being drawn (manim animations
+  last 1–3 s, and an intermediate frame looks plausible but is incomplete); on the right,
+  after the object has left the screen and there is nothing left to confirm the answer with.
 
-  Люфт в одну-две секунды картину не ломает и правки не стоит. Ошибка — когда
-  пустая часть окна велика: тогда сэмпл незаметно меняет предмет проверки,
-  например с восприятия на память.
+  Slack of one or two seconds does not break the picture and is not worth a fix. It is an
+  error when the empty part of the window is large: the sample then quietly changes what it
+  tests, for example from perception to memory.
 
-  *Алгоритм проверки.* Dense-просмотр и транскрипт `[t_start, t_end]`. Определить
-  подынтервал, на котором ответ действительно выводится, и предложить ужать окно
-  до него.
+  *Checking algorithm.* Dense viewing and the transcript of `[t_start, t_end]`. Determine the
+  sub-interval over which the answer really does follow, and propose tightening the window to
+  it.
 
-  *Статус.* Работа пооконного ревьюера. Вердикт `FIX_INTERVALS`, и только если пустая
-  часть велика.
+  *Status.* The work of the per-window reviewer. Verdict `FIX_INTERVALS`, and only if the
+  empty part is large.
 
-  *Частота.* Ловилось с обеих сторон. Приоритет ниже, чем у 2.2, 2.3 и 2.5.
+  *Frequency.* Caught on both sides. Lower priority than 2.2, 2.3 and 2.5.
 
-- `[M]` **2.5. Автор произносит ответ внутри окна или сразу после него.** · `author-says-answer-in-window`
+- `[M]` **2.5. The author speaks the answer inside the window or right after it.** · `author-says-answer-in-window`
 
-  *Формулировка.* Если ответ звучит из ролика вскоре после начала окна, задание
-  вырождается: модели незачем рассуждать, достаточно повторить услышанное.
-  Уровень `L2`/`L3` при этом фактически падает до `L1`-алярма, и сэмпл перестаёт
-  измерять то, ради чего создан.
+  *Statement.* If the answer is spoken by the video soon after the window opens, the task
+  degenerates: the model has no need to reason, repeating what it heard is enough. A level of
+  `L2`/`L3` then effectively drops to an `L1` alarm, and the sample stops measuring what it
+  was created for.
 
-  Простым сдвигом `t_end` назад это не лечится. Модель в стриминге тратит на ответ
-  несколько секунд, и за это время следующий чанк потока принесёт ей ответ автора:
-  формально она ответила внутри окна, фактически — списала. Поэтому проверяется
-  не окно, а окно плюс запас, и результат бинарный.
+  Simply moving `t_end` back does not cure this. A model in streaming spends several seconds
+  on its answer, and in that time the next chunk of the stream will bring it the author's
+  answer: formally it answered inside the window, in fact it copied. So what is checked is
+  not the window but the window plus slack, and the result is binary.
 
-  **Оговоркой в тексте вопроса это не лечится тоже.** Соблазн велик: дописать
-  «успей до того, как автор расскажет это сам» — и объявить, что модель
-  предупреждена. Но предупреждение не меняет того, что измеряется. Между
-  «ответ стал возможен» и «автор произнёс ответ» лежит фиксированный отрезок
-  ролика; если он короткий, победа достаётся тому, кто быстрее генерирует,
-  а не тому, кто лучше рассуждает. Модель, думавшая десять секунд и ответившая
-  верно, проигрывает модели, выпалившей догадку сразу, — то есть ровно тот
-  переворот, который чеклист существует, чтобы не допускать.
+  **A hedge in the text of the question does not cure it either.** The temptation is great:
+  add "be in time before the author tells it himself" and declare the model warned. But a
+  warning does not change what is being measured. Between "the answer became possible" and
+  "the author spoke the answer" lies a fixed stretch of video; if it is short, victory goes to
+  whoever generates faster rather than to whoever reasons better. A model that thought for ten
+  seconds and answered correctly loses to a model that blurted out a guess at once — that is,
+  exactly the inversion the checklist exists to prevent.
 
-  Что лечит на самом деле, по убыванию предпочтительности:
+  What actually cures it, in decreasing order of preference:
 
-  1. перенести вопрос в место ролика, где между появлением доказательства
-     и объяснением автора есть минуты, а не секунды;
-  2. спросить о том, чего автор не говорит вовсе, — следствие, направление
-     ошибки, применение к другому случаю;
-  3. честно признать сэмпл `L1`-алярмом: «сообщи, когда автор назовёт X».
-     Тогда совпадение окна с речью автора не дефект, а замысел, и 2.5
-     не применяется. Это ослабление, а не починка: сэмпл начинает мерить
-     своевременность вместо рассуждения.
+  1. move the question to a place in the video where there are minutes rather than seconds
+     between the appearance of the evidence and the author's explanation;
+  2. ask about something the author does not say at all — a consequence, the direction of an
+     error, an application to another case;
+  3. honestly accept the sample as an `L1` alarm: "report when the author names X". Then the
+     window coinciding with the author's speech is a design decision rather than a defect,
+     and 2.5 does not apply. That is a weakening rather than a repair: the sample starts
+     measuring timeliness instead of reasoning.
 
-  *Алгоритм проверки.* Транскрипт и dense-просмотр (шаг 1 с) интервала
-  `[t_start, t_end + 10]`. Вопрос: произносится ли или показывается ли здесь
-  явный ответ на вопрос сэмпла?
+  *Checking algorithm.* The transcript and dense viewing (step 1 s) of the interval
+  `[t_start, t_end + 10]`. The question: is an explicit answer to the sample's question spoken
+  or shown here?
 
-  При «да» для сэмпла уровня `L2`/`L3` сэмпл помечается скомпрометированным
-  целиком — это вердикт уровня «переформулировать вопрос или удалить»,
-  а не «поправить интервалы». Для `L1`-сэмпла, который и задумывался как алярм,
-  это нормально и правкой не считается.
+  On a "yes", for a sample of level `L2`/`L3` the sample is marked as compromised in its
+  entirety — that is a verdict of the "reword the question or delete it" kind rather than
+  "adjust the intervals". For an `L1` sample, which was designed as an alarm in the first
+  place, this is normal and does not count as something to fix.
 
-  *Статус.* Не реализовано, проверяется вручную.
+  *Status.* Not implemented, checked by hand.
 
-  *Частота.* Ловилось — в варианте «ответ внутри окна». На пилоте по этому пункту
-  разобран `q03`: между появлением формулы (1585) и объяснением автора (1621.8)
-  было 36 секунд, а окно закрывалось за 0.8 с до его реплики. Переведён в `L1`
-  по третьему способу; прежнее окно стало дистрактором.
+  *Frequency.* Caught — in the "the answer is inside the window" variety. On the pilot `q03`
+  was taken apart under this item: between the appearance of the formula (1585) and the
+  author's explanation (1621.8) there were 36 seconds, while the window closed 0.8 s before
+  his line. Converted to `L1` by the third route; the former window became a distractor.
 
 ---
+## 3. The trigger set against the criterion of the question
 
-## 3. Соответствие набора триггеров критерию вопроса
+The group answers one question: does the actual set of windows match what the wording
+promises? A divergence in either direction punishes a model that reasons correctly.
 
-Группа отвечает на вопрос: совпадает ли фактический набор окон с тем, что обещает
-формулировка? Расхождение в любую сторону наказывает правильно рассуждающую модель.
+Three checks: 3.1 is completeness (was a moment meeting the criterion missed), 3.2 is
+precision (did anything superfluous get into the triggers), 3.3 is the start of the window
+coinciding with the start of the event.
 
-Три проверки: 3.1 — полнота (не пропущен ли момент, подпадающий под критерий),
-3.2 — точность (не попало ли в триггеры лишнее), 3.3 — совпадение начала окна
-с началом события.
+**Applicability.** The whole group applies to any sample, not only to a multi-trigger or an
+exhaustive one:
 
-**Применимость.** Вся группа относится к любому сэмплу, а не только к
-многотриггерному или исчерпывающему:
+- 3.2 and 3.3 work on each trigger separately, and a lone trigger is checked by them exactly
+  as a ninth one is;
+- 3.1 is always needed: a moment that a model will in good faith take for a firing but that
+  is marked as neither a trigger nor a distractor turns a correct answer into a false alarm
+  — regardless of how many windows the sample has.
 
-- 3.2 и 3.3 работают на каждом триггере по отдельности, и единственный триггер
-  проверяется ими так же, как девятый;
-- 3.1 нужен всегда: момент, который модель добросовестно сочтёт срабатыванием,
-  но который не помечен ни триггером, ни дистрактором, превращает правильный ответ
-  в ложную тревогу — независимо от того, сколько окон у сэмпла.
+**Exhaustiveness** — questions of the form "every time when …", "keep track of which
+quantities the author defines formally" — changes not the applicability of 3.1 but the
+**cure**:
 
-**Исчерпывающесть** — вопросы вида «каждый раз, когда …», «следи за тем, какие
-величины автор определяет формально» — меняет не применимость 3.1, а **лечение**:
-
-| Вопрос | Найден непокрытый кандидат |
+| Question | An uncovered candidate is found |
 |---|---|
-| исчерпывающий | добавить триггер: он обещал реагировать на все такие моменты |
-| неисчерпывающий («когда впервые …») | добавить дистрактор с причиной исключения либо уточнить формулировку так, чтобы кандидат из неё выпадал |
+| exhaustive | add a trigger: it promised to react to every such moment |
+| not exhaustive ("when for the first time …") | add a distractor with the reason for the exclusion, or refine the wording so the candidate falls out of it |
 
-⚠ Формального признака исчерпывающести в разметке нет: на пилоте исчерпывающи два
-сэмпла, и у них разный `act` (`monitor` и `ground`), а многотриггерность с
-исчерпывающестью не совпадает. Проверяющий читает формулировку и предлагает лечение
-по ней; выбор между «триггер» и «дистрактор» делает координатор. Заводить ли явный
-флаг — см. «Открытые вопросы»; на работу группы это больше не влияет.
+⚠ There is no formal marker of exhaustiveness in the annotation: two samples on the pilot
+are exhaustive, and they have different `act` (`monitor` and `ground`), while being
+multi-trigger does not coincide with being exhaustive. The checker reads the wording and
+proposes a cure based on it; the choice between "trigger" and "distractor" is made by the
+coordinator. Whether to introduce an explicit flag — see "Open questions"; it no longer
+affects how the group works.
 
-- `[M]` **3.1. Ни одно срабатывание не пропущено.** · `no-missed-trigger`
+- `[M]` **3.1. No firing was missed.** · `no-missed-trigger`
 
-  *Формулировка.* Набор триггеров должен покрывать все моменты видео, подпадающие
-  под условие вопроса. Поиск по ключевым словам для этого недостаточен: условие
-  формулируется по смыслу, а автор выражает один и тот же смысл разными словами.
+  *Statement.* The set of triggers must cover every moment of the video that falls under the
+  condition of the question. A keyword search is not enough for that: the condition is
+  stated in terms of meaning, and the author expresses one and the same meaning in different
+  words.
 
-  *Алгоритм проверки.* Чтение транскрипта `[0, длительность]` **по каждой реплике
-  подряд** с вопросом «подпадает ли эта реплика под условие вопроса?». Не по найденным
-  вхождениям слов, а по всем репликам: транскрипт дёшев, и читать его целиком дешевле,
-  чем потом искать пропуск.
+  *Checking algorithm.* Reading the transcript `[0, duration]` **line by line, in sequence**
+  asking "does this line fall under the condition of the question?". Not by the occurrences
+  of words found, but over every line: the transcript is cheap, and reading it whole is
+  cheaper than hunting for a gap afterwards.
 
-  Для визуальных условий — sparse-просмотр всего видео. Если находится участок,
-  не покрытый ни триггером, ни дистрактором, и при этом похожий на срабатывание, —
-  dense-просмотр его окрестности, чтобы подтвердить и уточнить момент начала.
+  For visual conditions — sparse viewing of the whole video. If a stretch is found that is
+  covered by neither a trigger nor a distractor and that looks like a firing, dense viewing
+  of its surroundings follows, to confirm it and pin down the moment it begins.
 
-  Результат сверяется с набором триггеров: всё найденное обязано быть либо триггером,
-  либо дистрактором с указанной причиной исключения. Третьего состояния —
-  «момент подходит под критерий, но в разметке его нет» — быть не должно: именно
-  оно и наказывает модель за правильный ответ.
+  The result is checked against the trigger set: everything found must be either a trigger or
+  a distractor with the reason for the exclusion stated. There must be no third state — "the
+  moment meets the criterion but is not in the annotation" — for it is exactly that which
+  punishes the model for a correct answer.
 
-  Чем лечится найденный кандидат, зависит от того, исчерпывающий вопрос или нет
-  (таблица в шапке группы). Проверяющий предлагает вариант, исходя из формулировки,
-  и не решает за координатора.
+  What cures a candidate that has been found depends on whether the question is exhaustive
+  (the table in the group's preamble). The checker proposes an option based on the wording
+  and does not decide for the coordinator.
 
-  *Статус.* Не реализовано, проверяется вручную.
+  *Status.* Not implemented, checked by hand.
 
-  *Частота.* Ловилось многократно, причём один и тот же сэмпл дополнялся
-  несколькими независимыми заходами — ручная проверка здесь ненадёжна
-  систематически. Первый кандидат на автоматизацию.
+  *Frequency.* Caught many times, and the same sample was topped up by several independent
+  passes — manual checking here is systematically unreliable. The first candidate for
+  automation.
 
-- `[M]` **3.2. Каждый триггер удовлетворяет критерию из вопроса.** · `trigger-matches-criterion`
+- `[M]` **3.2. Every trigger satisfies the criterion from the question.** · `trigger-matches-criterion`
 
-  *Формулировка.* Обратная сторона 3.1. Там проверялось, что ничего подходящего
-  не пропущено; здесь — что ничего лишнего не включено. Разметчик, набирая
-  срабатывания, незаметно расширяет критерий: вопрос просит отмечать одно,
-  а в триггеры попадает похожее, но другое.
+  *Statement.* The reverse side of 3.1. There it was checked that nothing suitable was
+  missed; here, that nothing superfluous was included. An annotator collecting firings
+  imperceptibly widens the criterion: the question asks for one thing to be marked, and what
+  gets into the triggers is something similar but different.
 
-  Ошибка стоит дорого в обе стороны. Лишний триггер требует от модели ответа там,
-  где по тексту вопроса отвечать не следует, — молчание штрафуется как пропуск.
-  А заодно ломается сам вопрос: если фактический набор шире заявленного критерия,
-  никакая модель не сможет вывести правило из формулировки, потому что правило
-  в формулировке другое.
+  The error is expensive in both directions. A superfluous trigger demands an answer from the
+  model where the text of the question says none should be given — and silence is penalised
+  as a miss. On top of that the question itself breaks: if the actual set is wider than the
+  declared criterion, no model will be able to derive the rule from the wording, because the
+  rule in the wording is a different one.
 
-  *Алгоритм проверки.* Для каждого триггера отдельно: подпадает ли этот момент
-  под критерий **буквально так, как он записан в вопросе**? Не «похоже ли на
-  остальные триггеры» — сравнение с соседями как раз и протаскивает расширенный
-  критерий.
+  *Checking algorithm.* For every trigger separately: does this moment fall under the
+  criterion **literally as it is written in the question**? Not "does it look like the other
+  triggers" — comparison with neighbours is exactly how a widened criterion gets smuggled in.
 
-  Если несколько триггеров не проходят проверку одинаковым образом, это обычно
-  значит не «убрать их», а «вопрос сформулирован уже, чем задумано»: тогда правится
-  формулировка, и после этого заново прогоняется 3.1.
+  If several triggers fail the check in the same way, that usually means not "remove them"
+  but "the question is worded more narrowly than intended": the wording is then fixed, and
+  3.1 is run again afterwards.
 
-  *Статус.* Не реализовано, проверяется вручную.
+  *Status.* Not implemented, checked by hand.
 
-  *Частота.* Ловилось.
+  *Frequency.* Caught.
 
-- `[M]` **3.3. Событие не начинается раньше своего окна.** · `event-not-earlier-than-window`
+- `[M]` **3.3. The event does not begin earlier than its window.** · `event-not-earlier-than-window`
 
-  *Формулировка.* То же, что 2.2, но для событий: если условием срабатывания служит
-  само событие (типичный случай — `monitor`, но не только), окно обязано открываться
-  в момент его начала, а не тогда, когда о нём удобно говорить.
+  *Statement.* The same as 2.2 but for events: if the trigger condition is the event itself
+  (the typical case is `monitor`, but not only), the window must open at the moment it
+  begins, not when it is convenient to talk about it.
 
-  Отличие от 2.2 — в задаваемом вопросе: не «каков ответ», а «когда началось
-  событие». Оба вопроса имеет смысл задавать на одном и том же просмотре.
+  The difference from 2.2 is in the question being asked: not "what is the answer" but "when
+  did the event begin". Both questions are worth asking during one and the same viewing.
 
-  *Алгоритм проверки.* Для каждого триггера найти в транскрипте первую реплику,
-  где событие уже началось, и сравнить с `t_start`. Для визуальных событий —
-  dense-просмотр `[t_start - 15, t_start]`.
+  *Checking algorithm.* For every trigger, find in the transcript the first line where the
+  event has already begun, and compare it with `t_start`. For visual events — dense viewing
+  of `[t_start - 15, t_start]`.
 
-  *Статус.* Не реализовано, проверяется вручную.
+  *Status.* Not implemented, checked by hand.
 
-  *Частота.* Ловилось.
+  *Frequency.* Caught.
+
+---
+## 4. Solvability that bypasses the video
+
+The main risk of a benchmark built on popular educational videos: they are famous, and their
+content has most likely made it into pre-training. A sample that can be answered without
+watching the video measures none of what it was created for.
+
+The group answers one question: **what is the minimum needed in order to answer?** The answer
+is recorded in `validation.*` and in the derived label `audio_dependency`.
+
+There are no runs of the models being evaluated here, no scoring judge and no "k of n"
+protocol. All of that belongs to the measurement phase; at the annotation stage we ask
+**direct questions of subagents** and read their answers. That is cheaper, more reproducible
+and, above all, more honest: a shortcut run on one particular model measures its knowledge
+rather than a property of the sample, and carrying that result into the dataset as a property
+of the sample was a substitution.
+
+The numbering of the group has been rewritten. The former 4.6 (a priori solvability) was
+merged into 4.2; the former 4.7 (recognising the video) became 4.3; the former 4.3
+(frozen-frame) became 4.6; 4.7 is now a new solvability check.
+
+- `[M]` **4.1. The probe protocol.** · `probe-protocol`
+
+  *Statement.* The requirements common to 4.2–4.7. A **probe** is a subagent that is given
+  the question and the material of the video in one modality and asked **to answer**. It
+  checks nothing and does not know it is taking part in a check: its answer is raw material.
+  The answer is compared against the reference answer under the rubric by the coordinator,
+  because only they have the reference answer.
+
+  There are several probes per question, and they must be **different subagents** rather than
+  stages of one. The reason is technical: context is one-directional. An agent that has read
+  the transcript cannot "unsee" it and give an independent answer from frames alone. A series
+  of answers inside one agent is legitimate only when the information increases — which is
+  exactly what the semi-blind reviewer does in 2.2.
+
+  The launch order is by increasing cost: first the free ones (4.2, 4.3), then the text one
+  (4.4), then the frame ones (4.5, 4.6). Probe 4.7 is launched **only** if 4.4 and 4.5 both
+  answered negatively: if one modality was already enough, solvability is proved and there is
+  no reason to pay for another viewing.
+
+  *Aggregation over windows.* A sample can have nine windows. A modality counts as sufficient
+  if the probe answered correctly on **at least one required** window: a sample one of whose
+  windows can be taken by a short cut is no longer measuring what it was created for.
+
+  *Repeats.* A single answer is not a sentence, but there is no "k of n" protocol here
+  either: every probe is presented once. If the probe answers diverge between iterations of
+  the cycle, the disputed flag is asked again once or twice **pointwise**, and if the
+  disagreement persists the sample goes to a human or is thrown out. A disagreement between
+  probes is itself a signal that the question is worded vaguely.
+
+  *Status.* Not implemented. The prompts are `docs/prompts/probe_text.md`, `probe_vision.md`,
+  `probe_frame.md`, `probe_full.md`: each probe has its own, so that it does not learn from
+  the prompt about material it was not given.
+
+  *Frequency.* —
+
+- `[M]` **4.2. The question is solvable without the video at all.** · `solvable-without-video`
+
+  *Statement.* The answer follows from general knowledge of the subject, without a single
+  frame and without the transcript. Such a sample measures neither perception nor streaming —
+  it measures how well the model knows the topic.
+
+  What has to be checked is the **substantive part** of the answer, not whether the question
+  contains a requirement to wait for a moment. "I will answer, but I do not know when" is a
+  question solved blind: timing without content does not measure understanding, and a
+  benchmark of proactivity cannot be built on timing alone.
+
+  The former check of a priori solvability is merged in here: if the answer follows from a
+  priori knowledge, that is blind solving, and no separate item is needed.
+
+  *Checking algorithm.* The first question to the **semi-blind reviewer**, before any viewing
+  (their step 0): "answer this question on the merits, relying only on general knowledge". The
+  answer goes into the review verbatim, and the coordinator compares it against the rubric and
+  writes `validation.blind_solved`.
+
+  No separate probe is needed for this: at step 0 the semi-blind reviewer is in exactly the
+  state of a probe — they have not opened the material yet.
+
+  **The verdict is set by the coordinator, not by the reviewer, and that is not a
+  formality.** The semi-blind reviewer does write a line in `checks`, but it is preliminary:
+  they have no reference answer, and they judge "it matched" by eye against their own answer.
+  The item stands in both `ROLE_ITEMS[SEMIBLIND]` and `COORDINATOR_ITEMS` of the contract —
+  the overlap is deliberate and means exactly this division.
+
+  An answer counts as blind solving when it satisfies **two** conditions at once:
+
+  - **correct** — it agrees with the rubric;
+  - **honest** — it does not stand on assumptions about material that was not seen. An answer
+    of the form "probably the screen shows the canonical example 1/2, 1/4, 1/8, 1/8, in which
+    case you get 2.5" is not a solution: the statement of the problem was guessed, the answer
+    was not found. That is what the `prior_answer_assumptions` field in the contract exists
+    for; a non-empty list is almost always a sign that the agreement was bought with guessing.
+
+  **A hedged answer ("X, and if not, then Y") counts only when the wrong branch would have
+  cost the participant a point.** A model that named two numbers is penalised in the
+  measurement for the wrong one; a reviewer who named two numbers must not be credited with
+  the better of them — otherwise it is enough to list the plausible options to declare any
+  sample solved blind.
+
+  *The pilot example the rule was written for.* The semi-blind reviewer on `q01` (the
+  counterfactual "swap the code words") honestly wrote: "I cannot name an exact number, I was
+  given neither the code words nor the probabilities" — and then offered a conditional guess
+  of 2.5 with 2.0 as an alternative. They gave themselves a `fail`. Under both rules above
+  this is **not** blind solving: the statement of the problem was guessed, there are two
+  branches, and all that was taken blind was the arithmetic. The sample stayed.
+
+  *What to do on a hit.* `status: rejected` — the sample does not go into the measurement: if
+  the answer is known in advance there is nothing to wait for, and what is tested is the
+  reaction to a command rather than understanding of the video. It is cured not by storage but
+  by rewording under 4.8, that is, by a new sample.
+
+  **But it is not deleted from the file, and the probe answers are kept along with it.** The
+  reason is not sentimental: the plan (Phase 3) requires comparing the share of blind-solvable
+  samples on the 2026 video against the 2017 control — that is a measurable result of its own
+  about contamination. If such samples were discarded silently during annotation, there would
+  be nothing to measure: the share would become identically zero on both videos, and the
+  composition of the dataset would turn into a function of the annotator model's memory that
+  nobody would ever learn about. Discarded samples are measurement data, not rubbish.
+
+  *Status.* Not implemented.
+
+  *Frequency.* Caught at the wording stage: the first revision of one of the questions turned
+  out to be a pure textbook exercise, solvable without any video.
+
+- `[M]` **4.3. Recognising the specific video.** · `video-recognized`
+
+  *Statement.* A stronger form of 4.2: the model does not derive the answer from knowledge of
+  the subject but remembers this particular video.
+
+  It is separated from 4.2 because it is cured differently. Solvability from the subject is
+  fixed by rewording the question; recognising the video is not fixed by rewording — it raises
+  the question of whether the video is usable at all and of the need for a control video with
+  a different release date.
+
+  *Checking algorithm.* The second question to the semi-blind reviewer at step 0, together
+  with the title of the video: "do you recognise this video and this moment; could you name
+  the answer from memory of the video?" The answer is a flag in the review, not a field of the
+  sample.
+
+  *What to do on a hit.* Count it over the whole set. One recognised video is noise; a share
+  of recognised ones comparable to a half is a decision about the video being unusable in its
+  entirety.
+
+  *Status.* Not implemented.
+
+  *Frequency.* —
+
+- `[M]` **4.4. Is the transcript alone enough.** · `transcript-enough`
+
+  *Statement.* Whether the visual part is needed at all. A positive answer is not a flaw:
+  spoken samples are legitimate, with `trigger_modality: ["speech"]`. This is an attribute
+  rather than a rejection.
+
+  *Checking algorithm.* A probe with the material "`transcript.md` up to `t_end`, not a single
+  frame". The result is `validation.textonly_solved`.
+
+  *Status.* Not implemented.
+
+  *Frequency.* —
+
+- `[M]` **4.5. Are the frames alone enough, and deriving `audio_dependency`.** · `frames-enough`
+
+  *Statement.* The mirror image of the 4.4 probe; it is also the one legitimate source of the
+  `audio_dependency` label.
+
+  **A caveat to keep in mind and to carry into the limitations of the work.** Both probes read
+  **text**: `probe_text` reads the human subtitles, `probe_vision` reads frames. Neither hears
+  sound. So `required` means "the content of the speech is needed" rather than "the sound is
+  needed", and it can be worked around with an ASR front end. The label is honest exactly
+  within those limits, and we are not going to rename it yet — but it must not be presented as
+  a measured dependence on audio. A related case where the same reasoning is taken as far as a
+  ban is 1.10: a trigger whose only modality is `sound` is checked by nothing at all.
+
+  *Checking algorithm.* A probe with the material "frames up to `t_end`, not a line of the
+  transcript". The result is `validation.visiononly_solved`.
+
+  **This probe's frame grid is specified separately, and that is not a detail.** The `text`
+  probe gets the whole transcript — it is free; the `vision` probe on a sparse grid would get
+  forty frames for half an hour, that is, one frame every forty-five seconds. Then
+  `visiononly_solved = false` mixes "vision was not enough" with "vision was shown forty
+  pictures", while the `audio_dependency` label is derived straight from that flag — and
+  drifts systematically to `required`.
+
+  So `vision` gets a **dense cut** of two stretches: the answer window `[t_start, t_end]` and
+  the `evidence_span`. The second is mandatory and was added for more than symmetry: visual
+  evidence often lies outside the window — the table was drawn in the fifth minute and the
+  answer comes in the twenty-fifth — and a dense scan of the window alone will not see it. The
+  sparse grid stays on top of that, for context.
+
+  The actual grid is recorded in the `budget` of the review file. Without that number a
+  negative answer cannot be interpreted, and when the viewing regime changes there will be
+  nothing left to tell old measurements from new.
+
+  The label is derived from the flag:
+
+  ```
+  visiononly_solved == true                        ->  unnecessary
+  visiononly_solved == false and solvable == true  ->  required
+  otherwise                                        ->  null
+  ```
+
+  The intermediate grade `helpful` was removed from the label: two bits cannot tell it apart,
+  and we now have no numeric scale and will not have one at this stage. The annotator's opinion
+  still lives in `audio_dependency_claim`, where `helpful` remains permitted — but that is an
+  opinion and does not affect any conclusion.
+
+  Note that `textonly_solved` and `visiononly_solved` can both be true **at once**. That is not
+  a contradiction but the ordinary case — one and the same thing was both said and shown.
+
+  *Status.* The probe is not implemented. **Comparing the label against the flag is
+  automatic**, see 7.6: deriving the label is arithmetic, and keeping it under an `[M]` item
+  was a violation of 9.4.
+
+  *Frequency.* —
+
+- `[M]` **4.6. Is a single frame enough.** · `single-frame-enough`
+
+  *Statement.* The probe is given a single frame at the **middle of the window**,
+  `(t_start + t_end) / 2`, with no history.
+
+  The middle rather than `t_ideal`: the latter is set mechanically as `t_start + 1` and means
+  nothing, while a frame in the first second of the window is a frame where the animation is
+  often still arriving. The measurement would then answer the question "is the answer visible
+  in the first second" rather than "is a single frame enough", and would be biased towards
+  `false` everywhere the discriminating detail appears a little later. The middle is the most
+  neutral point: by then the window has substantively opened and has not yet closed.
+
+  A positive answer **does not reject the sample**. It says the task reduces to recognising a
+  moment — and that is a legitimate class and one we need: an `alert` question is precisely
+  about noticing an event in the frame. The item works as a check of **consistency** with 7.3
+  and `act`:
+
+  - `L1`, `act` = `alert` or `monitor` — a positive answer is expected, all is well;
+  - `L2`/`L3` — a contradiction: connecting moments far apart, or a derivation, was declared,
+    and yet a single frame sufficed. The level is inflated, and that is `FIX_QUESTION` under
+    7.3.
+
+  *Checking algorithm.* A probe with one frame per required trigger, the frame taken at
+  `(t_start + t_end) / 2`. The result is `validation.frozenframe_solved`.
+
+  *Status.* Not implemented.
+
+  *Frequency.* —
+
+- `[M]` **4.7. The question is solvable at all.** · `solvable-at-all`
+
+  *Statement.* The other side of the whole group, without which it is lopsided: we carefully
+  check that a question is **not** solvable by a short cut, and never check that it is solvable
+  by the long one. A sample that cannot be answered even from the full material punishes every
+  model equally and is useless in a benchmark.
+
+  A full reviewer cannot check this: they know the reference answer and will therefore solve
+  anything. What is needed is a probe that has not seen the reference answer.
+
+  *Checking algorithm.* A probe with the full material up to `t_end` — the transcript and the
+  frames together. It is launched only if 4.4 and 4.5 are both negative: a positive answer from
+  either already proves solvability. The result is `validation.solvable`.
+
+  Hence the filling rule, without which the field stays empty in the commonest case (the probe
+  was not launched because there was no reason to):
+
+  ```
+  solvable = textonly_solved OR visiononly_solved OR <the answer of probe 4.7>
+  ```
+
+  That is, the flag is set by the coordinator and not only by the probe: success of any
+  single-modality probe is already proof of solvability, and `solvable = true` is derived from
+  it arithmetically. The converse does not hold: `solvable = false` is set **only** after a
+  negative answer from probe 4.7, because "it was not solved from one modality" does not mean
+  "it is not solvable at all". Consistency is guarded by `S-27`.
+
+  *What to do on a hit.* `solvable == false` is a `CRITICAL_FAIL`: either the question demands
+  something that is not in the video, or the rubric demands something other than what is in the
+  video. It is not cured by iterating on boundaries.
+
+  *Status.* Not implemented.
+
+  *Frequency.* Never — the check did not exist until now.
+
+- `[M]` **4.8. The wording of the question is anchored to the screen, not to general knowledge.** · `question-anchored-to-screen`
+
+  *Statement.* Prevention instead of cure. A question worded through the properties of a
+  specific image ("for which values of the parameter are the bars drawn") cannot be solved from
+  memory of the subject, even if the subject is familiar. A question worded through the topic
+  ("how does such-and-such a function behave") is solved blind as a textbook exercise, and no
+  hedge in the rubric fixes that.
+
+  *Checking algorithm.* Structural rather than substantive: name the words in the text of the
+  question that point at a specific screen — objects, their position, captions, values on the
+  axes. If not one is found and the question rests on the topic alone, that is a hit.
+
+  The check does not require solving the question and is therefore not spoiled by knowing the
+  reference answer: it is about the wording, not about the answer. That is what distinguishes
+  it from 4.2, which catches the same defect empirically and is therefore given to the
+  semi-blind reviewer.
+
+  *Status.* Step 0 of the sample reviewer, no frames needed. Verdict `FIX_QUESTION`. It is
+  cheapest to do this while the question is being written — after 4.2 fires the sample has to
+  be thrown out whole rather than reworded.
+
+  *Frequency.* Caught.
+
+---
+## 5. Consistency of question, answer and rubric
+
+This group is about the **participating model** — the one the benchmark will evaluate at
+measurement time (the plan, §1.3: generator ≠ judge ≠ participant). It will be given **only
+the `question` string**. Neither `response`, nor `rubric`, nor `question_time_note`, nor
+`distractor.why`, nor `validation.notes` will be shown to it: the rubric is an instruction to
+the judge, not part of the problem.
+
+The checker, by contrast, sees the whole sample, and that is the entire point of the group: to
+compare the criterion available to them against what the participant will get. A discrepancy
+is exactly the situation the checklist was written for: the participant reasons correctly but
+is penalised for a distinction they were never told about.
+
+Items 5.2–5.4 are checked against the text of the question and the rubric, no frames needed,
+so they are done by the **full** reviewer (not the semi-blind one: they have neither `response`
+nor `rubric`) at step 0, before a single frame is spent. The check is cheap, and the meaning of
+the expensive ones depends on it: if the rubric demands something other than what the question
+asks, there is no point arguing about window boundaries.
+
+- `[A]` **5.1. Control twins share the criteria of the rubric.** · `twins-share-rubric`
+
+  *Statement.* Twins are two samples with the same question and a different `question_time`;
+  the difference between their metrics is meant to be the price of timing. If the criteria have
+  diverged, the difference measures a change in the judge's requirements.
+
+  What must be compared is the criteria, not the bytes: the wording of the expected answer
+  legitimately differs between twins.
+
+  *Checking algorithm.* Collect the twin groups by the `twin_of` field and compare the `rubric`
+  lists of the **required** triggers. An optional window that one twin has and the other lacks
+  is excluded from the comparison: with `at`/`post` the answer window starts at the moment the
+  question is issued, and there simply is no preceding optional window there. Along the way
+  `act`, `reasoning_level` and the video are compared, and `question_time` is required to
+  differ — otherwise the pair measures nothing.
+
+  The `twin_of` link is undirected: it is enough to set it on one of the pair, the validator
+  joins the group itself. A group may be larger than two.
+
+  *Status.* Implemented: `S-23` (integrity of the link) and `S-24` (agreement of the criteria)
+  in `tools/validate_samples.py`. These are the only checks for which a single sample is not
+  enough, so they live in `cross_sample_checks` rather than `semantic_checks` and require the
+  twins to land in the same validator run.
+
+  *Frequency.* Caught: the twins' rubrics diverged immediately after the pair was created.
+
+  *Additionally.* Even with matching criteria the twins differ in window width — an
+  irremovable confound, to be kept in mind when reading the result.
+
+- `[M]` **5.2. The rubric does not demand what the question did not ask for.** · `rubric-within-question`
+
+  *Statement.* The classic desynchronisation: the question asks to name one object, the rubric
+  awards points for listing two. A model that answered exactly the question asked loses a point.
+
+  *Checking algorithm.* Go **through the items of the rubric**, not through the question: for
+  each item find in the text of the question the requirement it follows from. The direction
+  matters — reading from the question, a superfluous rubric item simply never catches the eye.
+  Do not accept "but it is obvious from the context": the context belongs to the annotator, and
+  the participating model has one line of question.
+
+  An item with no corresponding requirement in the question is cured in one of two ways: remove
+  the item or add the requirement to the question. Which one is the coordinator's decision; the
+  reviewer names the item and the missing requirement.
+
+  *Status.* Step 0 of the sample reviewer, no frames needed. Verdict `FIX_QUESTION`.
+
+  *Frequency.* Caught.
+
+- `[M]` **5.3. Everything that separates a right answer from a wrong one is in the question itself.** · `discriminator-in-question`
+
+  *Statement.* The condition by which a trigger differs from a decoy is often formulated for
+  the first time in a service note — and stays there. The model does not see it and is caught
+  on a distinction it was never warned about.
+
+  *Checking algorithm.* Take each `distractor.why` and show which word or phrase of the
+  question cuts the decoy off. If there is no such word, the model is penalised for a
+  distinction it was not told about.
+
+  Ask the same question of the excluding items of the rubric ("do NOT credit X"): if answer X
+  counts as wrong, the question is obliged to give grounds for rejecting it.
+
+  Look especially carefully at decoys where **the value of the answer itself** coincides and
+  the distinction rests only on its origin or on an accompanying condition. Such decoys are
+  legitimate, but only provided the origin is named in the question.
+
+  *Status.* Step 0 of the sample reviewer, no frames needed. Verdict `FIX_QUESTION`.
+
+  *Frequency.* Caught.
+
+- `[M]` **5.4. The rubric does not penalise a correct detail beyond what was expected.** · `rubric-not-punishing-extra`
+
+  *Statement.* Items of the form "the list contains exactly one element" penalise the model for
+  mentioning something correct that the annotator did not foresee. The penalty must be for the
+  wrong, not for the superfluous.
+
+  *Checking algorithm.* In two passes, because the item is half textual and half needs a frame.
+
+  At step 0 write out all the **restrictive** items of the rubric — those containing "exactly",
+  "only", "the single", "at most" or a closed enumeration. Items of the form "X is named" are
+  not restrictive and are not considered further.
+
+  At the window-viewing step (frames are taken there anyway for 2.4 and 2.5) ask, for each item
+  written out: is there anything else in the frames of the window that falls under the wording
+  of the question? If so, either soften the item or narrow the question; the latter is usually
+  better, because it also removes the ambiguity for the participating model.
+
+  *Status.* Steps 0 and 2 of the sample reviewer. Verdict `FIX_QUESTION`.
+
+  *Frequency.* Caught.
 
 ---
 
-## 4. Разрешимость в обход видео
-
-Главный риск бенчмарка на популярных образовательных роликах: они знамениты,
-их содержание с высокой вероятностью попало в предобучение. Сэмпл, на который можно
-ответить не смотря видео, не измеряет ничего из того, ради чего создан.
-
-Группа отвечает на один вопрос: **что минимально нужно, чтобы ответить?** Ответ
-записывается в `validation.*` и в выводимую метку `audio_dependency`.
-
-Здесь нет прогонов оцениваемых моделей, судьи по баллам и протокола «k из n».
-Всё это относится к фазе замера; на этапе разметки мы задаём **прямые вопросы
-субагентам** и читаем их ответы. Так дешевле, воспроизводимее и, главное, честнее:
-шорткат-прогон на конкретной модели меряет её знания, а не свойство сэмпла,
-и переносить его результат в датасет как свойство сэмпла было подменой.
-
-Нумерация группы переписана. Прежний 4.6 (априорная разрешимость) слит с 4.2;
-прежний 4.7 (узнавание ролика) стал 4.3; прежний 4.3 (frozen-frame) стал 4.6;
-4.7 теперь — новая проверка решаемости.
-
-- `[M]` **4.1. Протокол зондов.** · `probe-protocol`
-
-  *Формулировка.* Требования, общие для 4.2–4.7. **Зонд** — субагент, которому дают
-  вопрос и материал ролика в одной модальности и просят **ответить**. Он ничего
-  не проверяет и не знает, что участвует в проверке: его ответ — сырьё. Сверяет
-  ответ с эталоном по рубрике координатор, потому что только у него есть эталон.
-
-  Зондов на вопрос несколько, и они обязаны быть **разными субагентами**, а не
-  этапами одного. Причина техническая: контекст однонаправлен. Агент, прочитавший
-  транскрипт, не может «развидеть» его и дать независимый ответ по одним кадрам.
-  Серия ответов внутри одного агента законна только при возрастании информации —
-  это ровно то, что делает полу-слепой ревьюер в 2.2.
-
-  Порядок запуска — по возрастанию стоимости: сначала бесплатные (4.2, 4.3), затем
-  текстовый (4.4), затем кадровые (4.5, 4.6). Зонд 4.7 запускается **только** если
-  4.4 и 4.5 оба дали отрицательный ответ: если одной модальности уже хватило,
-  решаемость доказана и платить за ещё один просмотр незачем.
-
-  *Агрегация по окнам.* У сэмпла бывает девять окон. Модальность считается
-  достаточной, если зонд верно ответил **хотя бы по одному обязательному** окну:
-  сэмпл, у которого одно из окон берётся коротким путём, уже не измеряет того,
-  ради чего создан.
-
-  *Повторы.* Одиночный ответ — не приговор, но и протокола «k из n» здесь нет:
-  каждый зонд предъявляется один раз. Если ответы зондов расходятся между
-  итерациями цикла, спорный флаг переспрашивается ещё раз-два **точечно**, и при
-  сохранившемся разногласии сэмпл уходит человеку или выбрасывается. Разногласие
-  зондов — это само по себе сигнал, что вопрос сформулирован расплывчато.
-
-  *Статус.* Не реализовано. Промпты — `docs/prompts/probe_text.md`,
-  `probe_vision.md`, `probe_frame.md`, `probe_full.md`: у каждого зонда свой,
-  чтобы он не узнал из промпта о материале, которого ему не дали.
-
-  *Частота.* —
-
-- `[M]` **4.2. Вопрос решается без видео вообще.** · `solvable-without-video`
+## 6. Distractors
 
-  *Формулировка.* Ответ выводится из общих знаний о предмете, без единого кадра
-  и без транскрипта. Такой сэмпл не измеряет ни восприятия, ни стриминга — он
-  измеряет, насколько модель знает тему.
+A distractor is the place where a wrongly reasoning model will most likely speak up. It must
+catch misunderstanding, not nitpick the wording. The formal constraints on its boundaries are
+in 1.2.
 
-  Проверять надо **содержательную часть** ответа, а не наличие в вопросе требования
-  дождаться момента. «Отвечу, но не знаю когда» — это решённый вслепую вопрос:
-  тайминг без содержания не меряет понимания, а на одном тайминге бенчмарк
-  проактивности не строится.
+- `[M]` **6.1. The decoy is covered by the window in full.** · `distractor-fully-covered`
 
-  Сюда же слита прежняя проверка априорной разрешимости: если ответ выводится
-  из априорных знаний, это и есть решение вслепую, отдельного пункта тут не нужно.
+  *Statement.* The real temptation is almost always wider than the window the annotator sets:
+  discussion of the topic begins before the characteristic phrase is spoken, and the caption on
+  screen disappears somewhere other than where it seems. A model tempted five seconds before
+  the edge of the window will not be penalised.
 
-  *Алгоритм проверки.* Первый вопрос **полу-слепому ревьюеру**, до всякого просмотра
-  (его шаг 0): «ответь на этот вопрос по существу, опираясь только на общие знания».
-  Ответ дословно попадает в ревью, координатор сверяет его с рубрикой и пишет
-  `validation.blind_solved`.
+  *Checking algorithm.* Take the reason for the distractor from `distractor.why`, find the
+  actual boundaries of that fragment in the transcript and the frames, and extend the window to
+  them.
 
-  Отдельный зонд для этого не нужен: полу-слепой ревьюер на своём шаге 0 находится ровно
-  в состоянии зонда — материала он ещё не открывал.
+  *Status.* Not implemented, checked by hand.
 
-  **Вердикт ставит координатор, а не ревьюер, и это не формальность.** Строку
-  в `checks` полу-слепой пишет, но она предварительная: эталона у него нет, и
-  «совпало» он определяет на глаз по собственному ответу. Пункт стоит одновременно
-  в `ROLE_ITEMS[SEMIBLIND]` и в `COORDINATOR_ITEMS` контракта — пересечение
-  намеренное и означает ровно это разделение.
-
-  Засчитывается решением вслепую ответ, удовлетворяющий **двум** условиям сразу:
-
-  - **правильный** — совпадает с рубрикой;
-  - **честный** — не стоит на допущениях о невиденном материале. Ответ вида
-    «вероятно, на экране канонический пример 1/2, 1/4, 1/8, 1/8, тогда получится
-    2.5» решением не является: угадана постановка, а не найден ответ. Для этого
-    в контракте заведено поле `prior_answer_assumptions`; непустой список — почти
-    всегда признак того, что совпадение куплено угадыванием.
-
-  **Хеджированный ответ («X, а если не так, то Y») засчитывается только тогда,
-  когда неверная ветка стоила бы участнику балла.** Модель, назвавшая два числа,
-  в замере получает штраф за неверное; ревьюеру, назвавшему два числа, нельзя
-  засчитывать лучшее из них — иначе достаточно перечислить правдоподобные варианты,
-  чтобы объявить решённым вслепую любой сэмпл.
-
-  *Пример из пилота, ради которого правило записано.* Полу-слепой по `q01`
-  (контрфактика «поменять местами кодовые слова») честно написал: «точного числа
-  назвать не могу, ни кодовые слова, ни вероятности мне не даны», — и дальше выдал
-  условную догадку 2.5 с альтернативой 2.0. Сам себе поставил `fail`. По обоим
-  правилам выше это **не** решение вслепую: угадана постановка задачи, ветки две,
-  и вслепую взялась только арифметика. Сэмпл остался.
+  *Frequency.* Caught.
 
-  *Что делать при срабатывании.* `status: rejected` — в замер сэмпл не идёт: если
-  ответ известен заранее, ждать нечего, и проверяется реакция на команду, а не
-  понимание видео. Лечится он не хранением, а переформулировкой по 4.8, то есть
-  новым сэмплом.
+- `[M]` **6.2. The distractor is not a correct answer under the wording of the question.** · `distractor-not-correct-answer`
 
-  **Но из файла он не удаляется, и ответы зондов сохраняются вместе с ним.** Причина
-  не сентиментальная: план (Фаза 3) требует сравнить долю решаемых вслепую сэмплов
-  на видео 2026 года и на контрольном 2017-го — это отдельный измеримый результат
-  про контаминацию. Если отбраковывать такие сэмплы молча при разметке, измерять
-  будет нечего: доля станет тождественно нулевой на обоих видео, а состав датасета
-  превратится в функцию от памяти модели-разметчика, о которой никто не узнает.
-  Отброшенные сэмплы — это данные измерения, а не мусор.
+  *Statement.* If the distinction between trigger and decoy rests on a single word in the
+  question, there is a risk that the distractor is in fact a second correct answer and the
+  annotation penalises it out of pedantry. The item is adjacent to 5.4 but is checked from the
+  other side: there we look at the rubric, here at the decoy.
 
-  *Статус.* Не реализовано.
+  *Checking algorithm.* Read the question, forgetting `distractor.why`, and decide: could this
+  moment be considered a firing in good faith? If it could, either sharpen the question or turn
+  the distractor into an optional trigger.
 
-  *Частота.* Ловилось на этапе формулировки: первая редакция одного из вопросов
-  оказалась чистой учебной задачей, решаемой без всякого видео.
+  *Status.* Step 0 of the sample reviewer, no frames needed. Verdict `FIX_QUESTION`.
 
-- `[M]` **4.3. Узнавание конкретного ролика.** · `video-recognized`
+  *Frequency.* Caught.
 
-  *Формулировка.* Более сильная форма 4.2: модель не выводит ответ из знаний
-  о предмете, а помнит именно это видео.
+- `[A]` **6.3. The twins have not lost a decoy they could both have had.** · `twins-keep-legal-distractor`
 
-  Отделено от 4.2, потому что лечится иначе. Разрешимость по предмету чинится
-  переформулировкой вопроса; узнавание ролика переформулировкой не чинится — оно
-  ставит вопрос о пригодности самого видео и о необходимости контрольного ролика
-  с другой датой выхода.
+  *Statement.* The item follows from 5.1. If one twin has a distractor and the other does not,
+  the trap-hit rates are incomparable and the pair's trap column becomes meaningless.
 
-  *Алгоритм проверки.* Второй вопрос полу-слепому ревьюеру на шаге 0, вместе с названием
-  ролика: «узнаёшь ли ты это видео и этот момент; можешь ли назвать ответ по памяти
-  о ролике?» Ответ — флаг в ревью, не поле сэмпла.
+  Full coincidence cannot be demanded, and that is not annotation sloppiness but geometry: for
+  the twin with the later `question_time` some decoys physically fall before the question is
+  issued and are forbidden by item 1.2. Such a decoy is obliged to be absent.
 
-  *Что делать при срабатывании.* Считать по всему набору. Один узнанный ролик — шум;
-  доля узнанных, сравнимая с половиной, — решение о непригодности видео целиком.
+  Hence the checkable form of the requirement: **a decoy that is legal for both is obliged to
+  be present in both**. A decoy is legal for a sample if it does not lie entirely before that
+  sample's `question_time`. Decoys dropped by that boundary are not an error.
 
-  *Статус.* Не реализовано.
+  A consequence to remember when reading the results: an `at`/`post` twin usually has no decoys
+  at all. The false-alarm metric is not compared across such a pair — `PAUC` is. That is a
+  limitation of the pair, not a defect of the sample.
 
-  *Частота.* —
+  *Checking algorithm.* For each pair: collect the decoys of both, discard those lying entirely
+  earlier than the `question_time` of the twin that lacks them, compare the remainder.
 
-- `[M]` **4.4. Хватает ли одного транскрипта.** · `transcript-enough`
+  *Status.* Implemented: `S-26` in `cross_sample_checks`, the same place as 5.1.
 
-  *Формулировка.* Нужна ли визуальная часть вообще. Положительный ответ — не порок:
-  речевые сэмплы законны, у них `trigger_modality: ["speech"]`. Это признак, а не
-  отбраковка.
+  *Frequency.* Never: in the pilot, both `at`/`post` twins lost their decoys legally at the
+  `question_time` boundary.
 
-  *Алгоритм проверки.* Зонд с материалом «`transcript.md` до `t_end`, ни одного
-  кадра». Результат — `validation.textonly_solved`.
+- `[M]` **6.4. `distractor.why` does not name the correct answer.** · `distractor-why-hides-answer`
 
-  *Статус.* Не реализовано.
+  *Statement.* The reason for a decoy is passed to the semi-blind reviewer (2.2): without it
+  they will fall into the sample's own trap, and the coordinator will erase it by "fixing" the
+  window boundary. But the text of `why` is written by an annotator who knows the answer, and
+  the answer easily finds its way in — and then passing the decoys turns into passing the
+  reference answer, and the semi-blind reviewer stops being blind.
 
-  *Частота.* —
+  An example of the defect from the pilot, now removed: the former `q03` had in its `why` the
+  words "from 1621.8 the author himself states the assumption ('only … identical
+  distribution')" — that is, the answer to the question, verbatim, in quotation marks.
 
-- `[M]` **4.5. Хватает ли одних кадров, и вывод `audio_dependency`.** · `frames-enough`
+  How it should be: `why` explains **what makes the moment tempting and what it lacks**. "The
+  bubble shows the naive code, but the code words are of equal length and there are no
+  probabilities beside them — the condition of the question is not met" will do: the temptation
+  is named, the answer is not.
 
-  *Формулировка.* Зеркальный к 4.4 зонд; он же — единственный законный источник
-  метки `audio_dependency`.
+  *Checking algorithm.* Textual: read the `why` of each decoy and ask whether `response`, or at
+  least one item of the rubric, can be reconstructed from it. No frames needed.
 
-  **Оговорка, которую надо держать в голове и вынести в ограничения работы.** Оба
-  зонда читают **текст**: `probe_text` — человеческие субтитры, `probe_vision` —
-  кадры. Звука не слышит ни один. Значит `required` означает «нужно содержание
-  речи», а не «нужен звук», и обходится ASR-фронтендом. Метка честна ровно в этих
-  пределах, и переименовывать её мы пока не будем — но заявлять её как измеренную
-  зависимость от аудио нельзя. Родственный случай, где то же рассуждение доведено
-  до запрета, — 1.10: триггер, у которого `sound` единственная модальность,
-  не проверяет вообще ничто.
+  *What to do on a hit.* A text-level `FIX_QUESTION`: rewrite `why`. The sample itself is
+  healthy — only the transmission channel is spoiled.
 
-  *Алгоритм проверки.* Зонд с материалом «кадры до `t_end`, ни строчки транскрипта».
-  Результат — `validation.visiononly_solved`.
+  *Status.* Not implemented. Step 0 of the sample reviewer: they have both the `why` and the
+  reference answer, that is, exactly what the comparison needs.
 
-  **Сетка кадров у этого зонда задана отдельно, и это не мелочь.** Зонд `text`
-  получает транскрипт целиком — он бесплатен; зонд `vision` при редкой сетке
-  получил бы сорок кадров на полчаса, то есть кадр в сорок пять секунд. Тогда
-  `visiononly_solved = false` смешивает «зрения не хватило» и «зрению показали
-  сорок картинок», а метка `audio_dependency` выводится прямо из этого флага —
-  и systematically смещается в `required`.
-
-  Поэтому `vision` получает **плотную нарезку** двух участков: окна ответа
-  `[t_start, t_end]` и `evidence_span`. Второе обязательно и добавлено не для
-  симметрии: визуальное доказательство часто лежит вне окна — таблицу нарисовали
-  на пятой минуте, а отвечают на двадцать пятой, — и плотный скан одного окна
-  его не увидит. Редкая сетка остаётся поверх, для контекста.
-
-  Фактическая сетка записывается в `budget` файла ревью. Без этого числа
-  отрицательный ответ не интерпретируется, а при смене режима просмотра старые
-  и новые замеры станет нечем различить.
-
-  Из флага выводится метка:
-
-  ```
-  visiononly_solved == true                      ->  unnecessary
-  visiononly_solved == false и solvable == true  ->  required
-  иначе                                          ->  null
-  ```
-
-  Градация `helpful` из метки убрана: два бита её не различают, а числовой шкалы
-  у нас теперь нет и не будет на этом этапе. Мнение разметчика по-прежнему живёт
-  в `audio_dependency_claim`, где `helpful` остаётся допустимым, — но это мнение,
-  на выводы оно не влияет.
-
-  Обрати внимание: `textonly_solved` и `visiononly_solved` могут быть истинны
-  **одновременно**. Это не противоречие, а обычный случай — одна и та же вещь
-  сказана и показана.
-
-  *Статус.* Зонд не реализован. **Сверка метки с флагом — автоматическая**,
-  см. 7.6: сам вывод метки это арифметика, и держать её под `[M]`-пунктом было
-  нарушением 9.4.
-
-  *Частота.* —
-
-- `[M]` **4.6. Хватает ли одного кадра.** · `single-frame-enough`
-
-  *Формулировка.* Зонду даётся единственный кадр в **середине окна**,
-  `(t_start + t_end) / 2`, без истории.
-
-  Середина, а не `t_ideal`: последний выставляется механически как `t_start + 1`
-  и ничего не значит, а кадр в первой секунде окна — это кадр, где анимация часто
-  ещё доезжает. Замер тогда отвечал бы на вопрос «видно ли ответ в первую секунду»,
-  а не на «хватает ли одного кадра», и был бы смещён в сторону `false` всюду, где
-  различающая деталь появляется чуть позже. Середина — самая нейтральная точка:
-  окно к ней уже открыто содержательно и ещё не закрылось.
-
-  Положительный ответ **не отбраковывает сэмпл**. Он говорит, что задача сводится
-  к распознаванию момента, — а это законный и нужный нам класс: `alert`-вопрос
-  ровно про то, чтобы заметить событие в кадре. Пункт работает как проверка
-  **согласованности** с 7.3 и `act`:
-
-  - `L1`, `act` = `alert` или `monitor` — положительный ответ ожидаем, всё в порядке;
-  - `L2`/`L3` — противоречие: заявлено связывание разнесённых моментов или вывод,
-    а хватило одного кадра. Уровень завышен, и это `FIX_QUESTION` по 7.3.
-
-  *Алгоритм проверки.* Зонд с одним кадром на каждый обязательный триггер,
-  кадр берётся в `(t_start + t_end) / 2`.
-  Результат — `validation.frozenframe_solved`.
-
-  *Статус.* Не реализовано.
-
-  *Частота.* —
-
-- `[M]` **4.7. Вопрос вообще решаем.** · `solvable-at-all`
-
-  *Формулировка.* Обратная сторона всей группы, без которой она однобока: мы
-  старательно проверяем, что вопрос **не** решается коротким путём, и ни разу
-  не проверяем, что он решается длинным. Сэмпл, на который нельзя ответить и по
-  полному материалу, наказывает любую модель одинаково и в бенчмарке бесполезен.
-
-  Полный ревьюер этого проверить не может: он знает эталон и потому решит что
-  угодно. Нужен зонд, эталона не видевший.
-
-  *Алгоритм проверки.* Зонд с полным материалом до `t_end` — транскрипт и кадры
-  вместе. Запускается, только если 4.4 и 4.5 оба отрицательны: положительный ответ
-  любого из них уже доказывает решаемость. Результат — `validation.solvable`.
-
-  Отсюда правило заполнения, без которого поле остаётся пустым в самом частом
-  случае (зонд не запускался, потому что запускать было незачем):
-
-  ```
-  solvable = textonly_solved OR visiononly_solved OR <ответ зонда 4.7>
-  ```
-
-  То есть флаг ставит координатор, а не только зонд: успех любого одномодального
-  зонда — уже доказательство решаемости, и `solvable = true` выводится из него
-  арифметически. Обратное неверно: `solvable = false` ставится **только** после
-  отрицательного ответа зонда 4.7, потому что «не решилось по одной модальности»
-  не значит «не решается вовсе». Согласованность сторожит `S-27`.
-
-  *Что делать при срабатывании.* `solvable == false` — это `CRITICAL_FAIL`: либо
-  вопрос требует того, чего в ролике нет, либо рубрика требует не того, что в ролике
-  есть. Итерацией границ не лечится.
-
-  *Статус.* Не реализовано.
-
-  *Частота.* Ни разу — проверки до сих пор не существовало.
-
-- `[M]` **4.8. Формулировка вопроса привязана к экрану, а не к общему знанию.** · `question-anchored-to-screen`
-
-  *Формулировка.* Профилактика вместо лечения. Вопрос, сформулированный через
-  свойства конкретного изображения («для каких значений параметра нарисованы
-  столбики»), нельзя решить по памяти о предмете, даже если предмет знаком.
-  Вопрос, сформулированный через тему («как ведёт себя такая-то функция»), решается
-  вслепую как учебная задача, и никакие оговорки в рубрике этого не чинят.
-
-  *Алгоритм проверки.* Структурная, а не содержательная: назвать в тексте вопроса
-  те слова, которые указывают на конкретный экран — объекты, их положение, подписи,
-  значения на осях. Не нашлось ни одного, и вопрос держится только на теме, —
-  срабатывание.
-
-  Проверка не требует решать вопрос и потому не портится знанием эталона: она
-  о формулировке, а не об ответе. Это её отличие от 4.2, который тот же дефект
-  ловит эмпирически и потому отдан полу-слепому.
-
-  *Статус.* Шаг 0 ревьюера сэмпла, кадры не нужны. Вердикт `FIX_QUESTION`.
-  Дешевле всего сделать это на этапе написания вопроса — после срабатывания 4.2
-  сэмпл придётся выбросить целиком, а не переформулировать.
-
-  *Частота.* Ловилось.
+  *Frequency.* Caught once in the pilot.
 
 ---
+## 7. Labels
 
-## 5. Согласованность вопроса, ответа и рубрики
+- `[A]` **7.1. `temporal_rel` is derived, not set by hand.** · `temporal-rel-derived`
 
-Речь в этой группе о **модели-участнике** — той, которую бенчмарк будет оценивать
-на замере (план, §1.3: генератор ≠ судья ≠ участник). Она получит **только строку
-`question`**. Ни `response`, ни `rubric`, ни `question_time_note`, ни `distractor.why`,
-ни `validation.notes` ей не покажут: рубрика — это инструкция судье, а не условие
-задачи.
+  *Statement.* The "pre / at / post" axis is determined by the position of `question_time`
+  relative to the **evidence** (`evidence_span`), not relative to the answer window and not by
+  "where the model takes the answer from" — the latter is the `reasoning_level` axis, and the
+  two are easy to confuse.
 
-Проверяющий, наоборот, видит сэмпл целиком, и в этом весь смысл группы: сверить
-критерий, доступный ему, с тем, что достанется участнику. Расхождение — это ровно
-та ситуация, ради которой чеклист написан: участник рассуждает правильно, но
-наказывается за различие, о котором ему не сообщили.
+  The geometry that follows from this, and that is useful to keep in mind while annotating:
 
-Пункты 5.2–5.4 проверяются по тексту вопроса и рубрики, кадры для них не нужны,
-поэтому их делает **полный** ревьюер (не полу-слепой: у него нет ни `response`,
-ни `rubric`) на шаге 0, до того как потратит первый кадр. Проверка дешёвая, и от
-неё зависит смысл дорогих: если рубрика требует не того, о чём вопрос, спорить
-о границах окна уже незачем.
-
-- `[A]` **5.1. У контрольных близнецов совпадают критерии рубрики.** · `twins-share-rubric`
-
-  *Формулировка.* Близнецы — это два сэмпла с одинаковым вопросом и разным
-  `question_time`; их разность метрик задумана как цена тайминга. Если критерии
-  разошлись, разность меряет смену требований судьи.
-
-  Сравнивать надо именно критерии, а не байты: формулировка ожидаемого ответа
-  у близнецов законно различается.
-
-  *Алгоритм проверки.* Собрать группы близнецов по полю `twin_of` и сверить
-  списки `rubric` у **обязательных** триггеров. Опциональное окно, которое есть
-  у одного близнеца и отсутствует у другого, из сравнения исключается: у `at`/`post`
-  окно ответа начинается в момент выдачи вопроса, и предшествующего опционального
-  окна там просто не бывает. Заодно сверяются `act`, `reasoning_level` и видео,
-  а `question_time` обязан различаться — иначе пара не меряет ничего.
-
-  Ссылка `twin_of` ненаправленная: достаточно проставить её у одного из пары,
-  валидатор объединяет группу сам. Группа может быть и больше двух.
-
-  *Статус.* Реализовано: `S-23` (целостность ссылки) и `S-24` (совпадение критериев)
-  в `tools/validate_samples.py`. Это единственные проверки, которым одного сэмпла
-  мало, поэтому они живут в `cross_sample_checks`, а не в `semantic_checks`,
-  и требуют, чтобы близнецы попали в один прогон валидатора.
-
-  *Частота.* Ловилось: рубрики близнецов разошлись сразу после создания пары.
-
-  *Дополнительно.* Даже при совпадающих критериях близнецы различаются шириной
-  окна — это неустранимый конфаунд, его надо держать в голове при чтении результата.
-
-- `[M]` **5.2. Рубрика не требует того, чего вопрос не спрашивал.** · `rubric-within-question`
-
-  *Формулировка.* Классическая рассинхронизация: вопрос просит назвать один объект,
-  а рубрика начисляет баллы за перечисление двух. Модель, ответившая ровно на
-  заданный вопрос, теряет балл.
-
-  *Алгоритм проверки.* Идти **по пунктам рубрики**, а не по вопросу: для каждого
-  пункта найти в тексте вопроса требование, из которого он следует. Направление
-  важно — при чтении от вопроса лишний пункт рубрики просто не попадается на глаза.
-  Не засчитывать «это же очевидно из контекста»: контекст есть у разметчика,
-  а у модели-участника — одна строка вопроса.
-
-  Пункт, для которого требования в вопросе нет, чинится одним из двух способов:
-  убрать пункт или дописать требование в вопрос. Что именно — решает координатор,
-  ревьюер называет пункт и недостающее требование.
-
-  *Статус.* Шаг 0 ревьюера сэмпла, кадры не нужны. Вердикт `FIX_QUESTION`.
-
-  *Частота.* Ловилось.
-
-- `[M]` **5.3. Всё, что различает верный ответ и неверный, стоит в самом вопросе.** · `discriminator-in-question`
-
-  *Формулировка.* Условие, по которому триггер отличается от приманки, часто
-  формулируется впервые в служебной заметке — и туда же и остаётся. Модель этого
-  не видит и попадается на различии, о котором её не предупредили.
-
-  *Алгоритм проверки.* Взять каждое `distractor.why` и показать, каким словом
-  или оборотом вопроса приманка отсекается. Если такого слова нет — модель наказана
-  за различие, о котором ей не сообщили.
-
-  Тот же вопрос задать отсекающим пунктам рубрики («НЕ засчитывать X»): раз ответ
-  X считается неверным, вопрос обязан давать основание его отвергнуть.
-
-  Особенно внимательно — к приманкам, где совпадает **сама величина** ответа
-  и различие держится только на её происхождении или на сопутствующем условии.
-  Такие приманки законны, но лишь при условии, что происхождение названо в вопросе.
-
-  *Статус.* Шаг 0 ревьюера сэмпла, кадры не нужны. Вердикт `FIX_QUESTION`.
-
-  *Частота.* Ловилось.
-
-- `[M]` **5.4. Рубрика не штрафует за верную деталь сверх ожидаемого.** · `rubric-not-punishing-extra`
-
-  *Формулировка.* Пункты вида «в списке ровно один элемент» наказывают модель
-  за упоминание чего-то верного, но не предусмотренного разметчиком. Штрафовать
-  нужно за неверное, а не за избыточное.
-
-  *Алгоритм проверки.* В два приёма, потому что пункт наполовину текстовый,
-  наполовину требует кадра.
-
-  На шаге 0 выписать все **ограничительные** пункты рубрики — те, что содержат
-  «ровно», «только», «единственный», «не более» или закрытый перечень. Пункты
-  вида «названо X» ограничительными не являются и дальше не рассматриваются.
-
-  На шаге просмотра окна (там кадры всё равно берутся ради 2.4 и 2.5) для каждого
-  выписанного пункта спросить: есть ли в кадрах окна что-то ещё, подпадающее под
-  формулировку вопроса? Если да — либо смягчить пункт, либо сузить вопрос; второе
-  обычно лучше, потому что снимает неоднозначность и для модели-участника.
-
-  *Статус.* Шаги 0 и 2 ревьюера сэмпла. Вердикт `FIX_QUESTION`.
-
-  *Частота.* Ловилось.
-
----
-
-## 6. Дистракторы
-
-Дистрактор — место, где неверно рассуждающая модель, скорее всего, заговорит.
-Он должен ловить на непонимании, а не на придирке к формулировке.
-Формальные ограничения на его границы — в 1.2.
-
-- `[M]` **6.1. Приманка покрыта окном целиком.** · `distractor-fully-covered`
-
-  *Формулировка.* Реальный соблазн почти всегда шире окна, которое ставит разметчик:
-  разбор темы начинается раньше, чем звучит характерная фраза, а подпись на экране
-  исчезает не там, где кажется. Модель, соблазнившаяся на пять секунд раньше края
-  окна, не будет наказана.
-
-  *Алгоритм проверки.* Взять причину дистрактора из `distractor.why`, найти
-  в транскрипте и кадрах фактические границы этого фрагмента, расширить окно до них.
-
-  *Статус.* Не реализовано, проверяется вручную.
-
-  *Частота.* Ловилось.
-
-- `[M]` **6.2. Дистрактор не является верным ответом по формулировке вопроса.** · `distractor-not-correct-answer`
-
-  *Формулировка.* Если различие между триггером и приманкой держится на одном слове
-  в вопросе, есть риск, что дистрактор — на самом деле второй верный ответ, а разметка
-  наказывает за него из-за придирки. Пункт смежный с 5.4, но проверяется с другой
-  стороны: там мы смотрим на рубрику, здесь — на приманку.
-
-  *Алгоритм проверки.* Прочитать вопрос, забыв про `distractor.why`, и решить:
-  можно ли добросовестно счесть этот момент срабатыванием? Если можно — либо уточнить
-  вопрос, либо перевести дистрактор в опциональный триггер.
-
-  *Статус.* Шаг 0 ревьюера сэмпла, кадры не нужны. Вердикт `FIX_QUESTION`.
-
-  *Частота.* Ловилось.
-
-- `[A]` **6.3. У близнецов не пропала приманка, которая могла у них быть.** · `twins-keep-legal-distractor`
-
-  *Формулировка.* Пункт следует из 5.1. Если у одного близнеца есть дистрактор,
-  а у другого его нет, доли попаданий в ловушку несравнимы, и колонка ловушек
-  у пары становится бессмысленной.
-
-  Полного совпадения требовать нельзя, и это не небрежность разметки, а геометрия:
-  у близнеца с поздним `question_time` часть приманок физически оказывается до
-  выдачи вопроса и запрещена пунктом 1.2. Такая приманка обязана отсутствовать.
-
-  Отсюда проверяемая форма требования: **приманка, которая законна у обоих, обязана
-  быть у обоих**. Приманка законна для сэмпла, если она не лежит целиком до его
-  `question_time`. Приманки, выпавшие по этой границе, — не ошибка.
-
-  Следствие, которое надо помнить при чтении результатов: у `at`/`post`-близнеца
-  приманок обычно нет вовсе. Метрика ложных срабатываний по такой паре
-  не сравнивается — сравнивается `PAUC`. Это ограничение пары, а не дефект сэмпла.
-
-  *Алгоритм проверки.* Для каждой пары: собрать приманки обоих, отбросить те, что
-  целиком раньше `question_time` того близнеца, у которого их нет, сравнить остаток.
-
-  *Статус.* Реализовано: `S-26` в `cross_sample_checks`, там же, где 5.1.
-
-  *Частота.* Ни разу: на пилоте у обоих `at`/`post`-близнецов приманки выпали
-  по границе `question_time` законно.
-
-- `[M]` **6.4. `distractor.why` не называет верный ответ.** · `distractor-why-hides-answer`
-
-  *Формулировка.* Причина приманки передаётся полу-слепому ревьюеру (2.2): без неё
-  он попадётся на собственную ловушку сэмпла, и координатор сотрёт её, «починив»
-  границу окна. Но текст `why` пишется разметчиком, знающим ответ, и в него легко
-  попадает сам ответ — тогда передача приманок превращается в передачу эталона,
-  и полу-слепой перестаёт быть слепым.
-
-  Пример дефекта из пилота, ныне снятый: у прежнего `q03` в `why` стояло
-  «с 1621.8 автор сам проговаривает предположение („only … identical distribution“)» —
-  то есть ответ на вопрос, дословно, в кавычках.
-
-  Как надо: `why` объясняет, **чем момент соблазнителен и чего в нём не хватает**.
-  «В облачке показан наивный код, но кодовые слова одинаковой длины и вероятностей
-  рядом нет — условие вопроса не выполнено» — годится: соблазн назван, ответ нет.
-
-  *Алгоритм проверки.* Текстовая: прочитать `why` каждой приманки и спросить, можно ли
-  из неё восстановить `response` или хотя бы один пункт рубрики. Кадры не нужны.
-
-  *Что делать при срабатывании.* `FIX_QUESTION` уровня текста: переписать `why`.
-  Сам сэмпл при этом здоров — испорчен только канал передачи.
-
-  *Статус.* Не реализовано. Шаг 0 ревьюера сэмпла: у него есть и `why`, и эталон,
-  то есть ровно то, что нужно для сравнения.
-
-  *Частота.* Ловилось на пилоте один раз.
-
----
-
-## 7. Метки
-
-- `[A]` **7.1. `temporal_rel` выводится, а не проставляется.** · `temporal-rel-derived`
-
-  *Формулировка.* Ось «pre / at / post» определяется положением `question_time`
-  относительно **доказательства** (`evidence_span`), а не относительно окна ответа
-  и не по признаку «откуда модель берёт ответ» — последнее является осью
-  `reasoning_level`, и спутать их легко.
-
-  Геометрия, которая из этого следует и которую полезно держать в голове
-  при разметке:
-
-  | Ось | `question_time` относительно доказательства | окно ответа |
+  | Axis | `question_time` relative to the evidence | answer window |
   |---|---|---|
-  | `pre` | раньше, чем доказательство появилось | открывается там, где появилось |
-  | `at` | внутри доказательства | обычно `t_start = question_time` |
-  | `post` | не раньше, чем доказательство кончилось | обычно `t_start = question_time` |
+  | `pre` | earlier than the evidence appeared | opens where it appeared |
+  | `at` | inside the evidence | usually `t_start = question_time` |
+  | `post` | not earlier than the evidence ended | usually `t_start = question_time` |
 
-  Совпадение `t_start` и `question_time` у `at` и `post` — не формальное правило,
-  а следствие смысла: ждать нечего, информация уже есть или идёт прямо сейчас.
-  Исключение бывает у `at`, когда объект ещё дорисовывается.
+  The coincidence of `t_start` and `question_time` for `at` and `post` is not a formal rule but
+  a consequence of the meaning: there is nothing to wait for, the information is already there
+  or is arriving right now. An exception occurs with `at`, when the object is still being drawn.
 
-  *Алгоритм проверки.* Значение вычисляется из `question_time` и `evidence_span`
-  первого и последнего обязательного триггера и сравнивается с записанным.
+  *Checking algorithm.* The value is computed from `question_time` and the `evidence_span` of
+  the first and last required trigger and compared against the recorded one.
 
-  *Статус.* Реализовано. Раньше вырождалось при незаполненном `evidence_span`
-  (подставлялось окно ответа); теперь поле обязательно — см. 1.9.
+  *Status.* Implemented. It used to degenerate when `evidence_span` was empty (the answer window
+  was substituted); the field is now mandatory — see 1.9.
 
-  *Частота.* Ловилось на всём наборе сразу: изначально ось была понята неверно.
+  *Frequency.* Caught across the whole set at once: the axis was initially misunderstood.
 
-- `[A]` **7.2. `audio_dependency` пуст, пока не отвечены зонды.** · `audio-dependency-empty-in-draft`
+- `[A]` **7.2. `audio_dependency` is empty until the probes have answered.** · `audio-dependency-empty-in-draft`
 
-  *Формулировка.* Это результат зонда 4.5, а не мнение разметчика. Метка законна
-  ровно тогда, когда заполнены оба флага, из которых она выводится, —
-  `visiononly_solved` и `solvable`, — и обязана совпадать с выводимым по правилу
-  из 4.5. Симметрично: статус `validated` требует, чтобы все пять флагов
-  `validation.*` были заполнены. `blind_solved = true` и `solvable = false`
-  несовместимы с `validated`: первый сэмпл решается без видео, второй не решается
-  вовсе.
+  *Statement.* This is the result of probe 4.5, not the annotator's opinion. The label is legal
+  exactly when both flags it is derived from are filled in — `visiononly_solved` and
+  `solvable` — and is obliged to agree with what the rule from 4.5 derives. Symmetrically:
+  the `validated` status requires all five `validation.*` flags to be filled in.
+  `blind_solved = true` and `solvable = false` are incompatible with `validated`: the first
+  sample is solved without the video, the second is not solved at all.
 
-  **Условие — завершённость замера, а не статус, и это исправление.** Прежняя
-  редакция требовала `status: validated` и тем запрещала метку у `rejected`
-  навсегда: сэмпл, решённый вслепую, в `validated` не пройдёт никогда, значит
-  и замерить у него зависимость от звука было нельзя. А замерять надо —
-  см. врезку ниже.
+  **The condition is completeness of the measurement, not the status, and that is a
+  correction.** The former wording required `status: validated` and thereby banned the label
+  for `rejected` forever: a sample solved blind will never reach `validated`, so its dependence
+  on sound could not be measured either. And it must be measured — see the box below.
 
-  > **Отклонённые сэмплы проходят зонды наравне с остальными.** `rejected`
-  > означает «не идёт в набор заданий», а не «не измеряется». Они нужны как
-  > материал для бейзлайнов-пустышек (группа 4) и для счёта контаминации,
-  > который план требует сравнить между видео 2026 года и контрольным 2017-го.
-  > Сэмпл без замеров в этом счёте не участвует, то есть отбраковка без зондов
-  > обнуляет ровно тот результат, ради которого сэмпл и оставлен в файле.
+  > **Rejected samples go through the probes on an equal footing with the rest.** `rejected`
+  > means "does not go into the task set", not "is not measured". They are needed as material
+  > for the dummy baselines (group 4) and for the contamination count, which the plan requires
+  > to be compared between the 2026 video and the 2017 control. A sample without measurements
+  > does not take part in that count, that is, rejecting it without probes zeroes out exactly
+  > the result the sample was kept in the file for.
 
-  *Алгоритм проверки.* Проверка совместимости `audio_dependency` с флагами
-  зондов (S-17, S-25) и `validation.status` с заполненностью полей (S-18).
+  *Checking algorithm.* Checking `audio_dependency` for compatibility with the probe flags
+  (S-17, S-25) and `validation.status` against the filled-in fields (S-18).
 
-  *Статус.* Реализовано.
+  *Status.* Implemented.
 
-  *Частота.* Ловилось один раз — самим правилом: связка со статусом заклинивала
-  отклонённые сэмплы между S-17 и S-25.
+  *Frequency.* Caught once — by the rule itself: the coupling with the status jammed rejected
+  samples between S-17 and S-25.
 
-- `[M]` **7.3. `reasoning_level` не завышен.** · `reasoning-level-not-inflated`
+- `[M]` **7.3. `reasoning_level` is not inflated.** · `reasoning-level-not-inflated`
 
-  *Формулировка.* `L1` — ответ считывается с экрана или из речи напрямую;
-  `L2` — нужно связать разнесённые во времени моменты; `L3` — нужно вывести то,
-  чего в видео нет вовсе.
+  *Statement.* `L1` — the answer is read off the screen or off the speech directly; `L2` — one
+  has to connect moments separated in time; `L3` — one has to derive something that is not in
+  the video at all.
 
-  Простой тест: если все факты, из которых складывается ответ, звучат в одной
-  реплике — это `L1`, каким бы сложным сэмпл ни выглядел снаружи.
+  A simple test: if all the facts the answer is made of are spoken in a single utterance, it is
+  `L1`, however complex the sample may look from the outside.
 
-  *Алгоритм проверки.* Сверить уровень с расположением фактов ответа в транскрипте.
-  Проверяется первым из всего шага 0: от уровня зависит вердикт пункта 2.5 —
-  для `L1` прозвучавший рядом ответ автора нормален, для `L2`/`L3` он
-  компрометирует сэмпл.
+  *Checking algorithm.* Compare the level against the placement of the answer's facts in the
+  transcript. It is checked first of all in step 0: the verdict of item 2.5 depends on the
+  level — for `L1` the author's answer sounding nearby is normal, for `L2`/`L3` it compromises
+  the sample.
 
-  *Статус.* Шаг 0 ревьюера сэмпла, кадры не нужны. Вердикт `FIX_QUESTION`.
+  *Status.* Step 0 of the sample reviewer, no frames needed. Verdict `FIX_QUESTION`.
 
-  *Частота.* Ловилось.
+  *Frequency.* Caught.
 
-- `[M]` **7.4. `depends_on` означает зависимость, а не порядок.** · `depends-on-is-dependency`
+- `[M]` **7.4. `depends_on` means dependence, not order.** · `depends-on-is-dependency`
 
-  *Формулировка.* Поле нужно, чтобы считать долю правильно выстроенных цепочек.
-  Если проставить его по всем соседним триггерам подряд, метрика цепочек перестанет
-  что-либо измерять. Ставить только там, где в рубрике есть пункт, требующий
-  сослаться на предыдущее состояние.
+  *Statement.* The field exists so that the share of correctly built chains can be counted. If
+  it is set on every pair of neighbouring triggers in a row, the chain metric stops measuring
+  anything. Set it only where the rubric has an item requiring a reference to the previous
+  state.
 
-  *Алгоритм проверки.* Для каждой связи найти в рубрике зависимого триггера пункт,
-  невыполнимый без предыдущего ответа. Не нашёлся — связь лишняя. Работа чисто
-  текстовая: сравниваются два списка рубрик, кадры не нужны.
+  *Checking algorithm.* For each link, find in the rubric of the dependent trigger an item that
+  cannot be satisfied without the previous answer. If none is found, the link is superfluous.
+  The work is purely textual: two rubric lists are compared, no frames needed.
 
-  Обратная сторона того же: если такой пункт в рубрике есть, а связь не проставлена,
-  окно выпадает из знаменателя цепочечной метрики. Проверять надо в обе стороны.
+  The other side of the same thing: if such an item is in the rubric but the link is not set,
+  the window drops out of the denominator of the chain metric. It must be checked in both
+  directions.
 
-  **Обязательный триггер не может зависеть от опционального.** Опциональное окно —
-  то, где рубрика прямо разрешает молчание. Модель, законно промолчавшая там,
-  автоматически рвёт цепочку и теряет обязательное окно, то есть наказывается
-  за поведение, которое разметка объявила правильным. Это арифметика, а не
-  суждение, и её сторожит `S-30`.
+  **A required trigger cannot depend on an optional one.** An optional window is one where the
+  rubric explicitly permits silence. A model that lawfully kept silent there automatically
+  breaks the chain and loses the required window, that is, it is penalised for behaviour the
+  annotation declared correct. That is arithmetic, not judgement, and `S-30` guards it.
 
-  Оговорка, которая при этом остаётся: модель может быть обязана **помнить**
-  происходившее в опциональном окне, не будучи обязанной говорить там. Это
-  зависимость от события, а не от ответа, и `depends_on` для неё не годится —
-  поле считает цепочки ответов. Такая связь живёт в рубрике зависимого триггера
-  («сослаться на величину, введённую ранее»), где она и проверяется.
+  A caveat that nonetheless remains: a model may be obliged to **remember** what happened in an
+  optional window without being obliged to speak there. That is dependence on an event, not on
+  an answer, and `depends_on` is not suited to it — the field counts chains of answers. Such a
+  link lives in the rubric of the dependent trigger ("refer to the quantity introduced
+  earlier"), where it is also checked.
 
-  *Статус.* Работа пооконного ревьюера, кадров не требует. Вердикт `FIX_QUESTION`. Формальная сторона
-  поля — в 1.4, запрет на зависимость от опционального — `S-30`.
+  *Status.* The work of the per-window reviewer, no frames required. Verdict `FIX_QUESTION`.
+  The formal side of the field is in 1.4, the ban on depending on an optional one is `S-30`.
 
-  *Частота.* Ловилось дважды: цепочка была проставлена сквозной при реальной
-  зависимости у одного окна; у `q05` обязательный триггер зависел от опционального,
-  чья рубрика разрешала молчание.
+  *Frequency.* Caught twice: a chain was set end-to-end while the real dependence was on one
+  window only; in `q05` a required trigger depended on an optional one whose rubric permitted
+  silence.
 
-- `[M]` **7.5. `evidence_span` указывает на последнее доказательство.** · `evidence-span-is-last`
+- `[M]` **7.5. `evidence_span` points at the last piece of evidence.** · `evidence-span-is-last`
 
-  *Формулировка.* Формальное наличие поля (1.9) не гарантирует его правильности,
-  а ошибка здесь бесшумно меняет ось `temporal_rel`. Интервал должен накрывать
-  момент, когда появляется **последний** необходимый для ответа факт, а не первый
-  и не самый заметный.
+  *Statement.* The formal presence of the field (1.9) does not guarantee its correctness, and an
+  error here silently changes the `temporal_rel` axis. The interval must cover the moment when
+  the **last** fact necessary for the answer appears, not the first and not the most noticeable.
 
-  Типичный способ ошибиться здесь — принять за доказательство **подтверждение**:
-  место, где автор сам произносит ответ. Оно приходит позже и в `evidence_span`
-  не идёт (см. 1.9), его место — `provenance.evidence`. Вопрос, на который отвечает
-  этот пункт: «когда ответ **стал выводим**», а не «когда он был назван».
+  The typical way to go wrong here is to take **confirmation** for evidence: the place where the
+  author himself pronounces the answer. It comes later and does not go into `evidence_span`
+  (see 1.9); its place is `provenance.evidence`. The question this item answers is "when did the
+  answer **become derivable**", not "when was it named".
 
-  *Алгоритм проверки.* Тот же проход, что в 2.2: момент, где ответ впервые
-  совпадает с эталонным, и есть правая граница доказательства. Отдельных
-  кадров не стоит — результат берётся из уже проведённого просмотра.
+  *Checking algorithm.* The same pass as in 2.2: the moment where the answer first coincides
+  with the reference one is the right boundary of the evidence. It costs no separate frames —
+  the result is taken from the viewing already carried out.
 
-  *Статус.* Не реализовано.
+  *Status.* Not implemented.
 
-  *Частота.* Не проверялось: поле почти нигде не заполнено.
+  *Frequency.* Not checked: the field is filled in almost nowhere.
 
-- `[A]` **7.6. `audio_dependency` совпадает с выводимым из зондов.** · `audio-dependency-matches-probes`
+- `[A]` **7.6. `audio_dependency` agrees with what the probes derive.** · `audio-dependency-matches-probes`
 
-  *Формулировка.* Сам вывод метки (4.5) — арифметика над двумя флагами, и держать
-  её внутри `[M]`-пункта было нарушением 9.4: проверка жила в валидаторе, а пункт
-  для неё числился «модельным». Разделено: зонд — работа модели (4.5), сверка
-  метки с его результатом — работа валидатора.
+  *Statement.* Deriving the label itself (4.5) is arithmetic over two flags, and keeping it
+  inside an `[M]` item was a violation of 9.4: the check lived in the validator while the item
+  for it was listed as "model's work". Now split: the probe is the model's work (4.5), comparing
+  the label against its result is the validator's.
 
-  Смысл сверки: метка не ставится мнением. Расхождение значит, что кто-то записал
-  `audio_dependency` руками поверх замера, — ровно та подмена, ради запрета которой
-  поле разделено на `audio_dependency` и `audio_dependency_claim`.
+  The point of the comparison: the label is not set by opinion. A discrepancy means somebody
+  wrote `audio_dependency` by hand over the measurement — exactly the substitution the field was
+  split into `audio_dependency` and `audio_dependency_claim` to forbid.
 
-  *Алгоритм проверки.* Пересчитать метку по правилу из 4.5 и сравнить.
-  Незаполненная метка допустима, только пока сэмпл не `validated`.
+  *Checking algorithm.* Recompute the label by the rule from 4.5 and compare. An unfilled label
+  is permissible only while the sample is not `validated`.
 
-  *Статус.* Реализовано, `S-25`.
+  *Status.* Implemented, `S-25`.
 
-  *Частота.* —
+  *Frequency.* —
 
-- `[A]` **7.7. Флаги зондов не противоречат друг другу.** · `probe-flags-consistent`
+- `[A]` **7.7. The probe flags do not contradict one another.** · `probe-flags-consistent`
 
-  *Формулировка.* Пять флагов `validation` связаны по смыслу, и часть сочетаний
-  невозможна. Успех любого одномодального зонда доказывает решаемость, значит
-  `solvable = false` при нём — противоречие. Один кадр есть подмножество кадров,
-  значит `frozenframe_solved = true` при `visiononly_solved = false` — тоже.
+  *Statement.* The five `validation` flags are related in meaning, and some combinations are
+  impossible. Success of any single-modality probe proves solvability, so `solvable = false`
+  alongside it is a contradiction. A single frame is a subset of the frames, so
+  `frozenframe_solved = true` alongside `visiononly_solved = false` is one too.
 
-  Правило заполнения `solvable` (4.7) существует именно поэтому: без него поле
-  оставалось пустым в самом частом случае — зонд 4.7 не запускался, потому что
-  запускать его было незачем, — и сэмпл не проходил в `validated`, то есть
-  проверка блокировала сама себя.
+  The rule for filling in `solvable` (4.7) exists precisely for this reason: without it the
+  field stayed empty in the commonest case — probe 4.7 was not launched because there was no
+  reason to — and the sample would not reach `validated`, that is, the check blocked itself.
 
-  *Алгоритм проверки.* Решётка импликаций между `solvable`, `blind_solved`,
+  *Checking algorithm.* The lattice of implications between `solvable`, `blind_solved`,
   `textonly_solved`, `visiononly_solved`, `frozenframe_solved`.
 
-  *Статус.* Реализовано, `S-27`.
+  *Status.* Implemented, `S-27`.
 
-  *Частота.* —
+  *Frequency.* —
+
+---
+## 8. Provenance
+
+`provenance.evidence` holds references to where the reference answer was taken from. They exist
+so that the annotation can be re-checked, and are therefore obliged to be correct in themselves.
+
+- `[A]` **8.1. The timecodes in the references exist.** · `timecodes-exist`
+
+  *Statement.* A reference points at an existing moment: the frame lies within the duration, the
+  speech interval is not inverted, and both of its boundaries **coincide exactly with the
+  boundaries of utterances** in the transcript — the start with the start of some utterance, the
+  end with the end of some utterance.
+
+  This is not a formality. A reference that breaks off in the middle of a phrase cannot be
+  checked by eye: opening the transcript at that place, the reader sees a fragment rather than
+  what was referred to.
+
+  The rule is deliberately asymmetric in the cost of an error. Capturing an extra neighbouring
+  phrase is harmless — the reference stays readable and checkable; cutting off a needed one is
+  not. So the interval should be aligned **outwards**, to the end of the last utterance touched,
+  rather than inwards. Completeness of coverage and consistency matter more here than precision
+  of the boundary.
+
+  *Checking algorithm.* Parsing the structured `evidence` records and comparing them against the
+  duration and the transcript from `bundle.json`.
+
+  *Status.* Implemented. It became possible after `evidence` moved to a structured format: over
+  free prose the regular expression saw only records of the form `frame t=<number>` and only
+  going beyond the duration — speech intervals and second timecodes inside a line were invisible
+  to it.
+
+  *Frequency.* Never.
+
+- `[M]` **8.2. The content at the reference matches its description.** · `reference-matches-description`
+
+  *Statement.* A reference can be valid and still describe something other than what is in the
+  frame: a typical situation is a description saying "the table is shown in full" while at the
+  frame named the animation is still running (see 2.4).
+
+  *Checking algorithm.* Show the VLM the frame named together with the text of the description
+  and ask whether one corresponds to the other.
+
+  *Status.* Not implemented, checked by hand.
+
+  *Frequency.* Caught.
+
+- `[M]` **8.3. The references do not contradict the windows of their own sample.** · `references-consistent-with-windows`
+
+  *Statement.* One combination shows up: `evidence` records "the author himself pronounces the
+  answer starting from such-and-such a moment", and at the same time the answer window opens
+  later than that moment. Each statement is true separately; together they mean a broken sample.
+  This is item 2.5, detectable for free, without going to the video.
+
+  The contradiction here is one-sided. A reference **later** than the window is the norm, not an
+  error: `provenance.evidence` holds the confirmation, and with `predict` it arrives by
+  construction after the model was supposed to answer (1.9). What breaks the sample is only a
+  reference implying that the answer was available or pronounced **before** the window opened.
+
+  *Checking algorithm.* Feed an LLM the texts of all the `evidence` records together with the
+  window boundaries and ask whether there is a contradiction between them — in that direction
+  specifically.
+
+  *Status.* Not implemented.
+
+  *Frequency.* Caught.
+
+- `[M]` **8.4. The reference answer is correct.** · `reference-answer-verified`
+
+  *Statement.* The blind spot of the whole checklist: groups 2–8 check the consistency of the
+  annotation with itself and with the video, and not one of them checks that the answer recorded
+  in `response` is **right**. A wrong reference breaks the sample twice over — a model that
+  answered correctly gets zero, and a model that repeated the annotator's mistake gets a point.
+
+  Worse, the mechanism masks the error. Probe 4.7 answers from the full material independently;
+  the coordinator compares its answer against the wrong reference, gets a discrepancy, sets
+  `solvable = false` and throws out a **good** sample with a `CRITICAL_FAIL` verdict. With this
+  arrangement, the hypothesis "the reference is wrong" never surfaces.
+
+  *Checking algorithm.* Recompute the answer **independently**, without looking at `response`,
+  and only then compare. For computational answers (`act: counterfact`, level `L3`, any numbers
+  in the rubric) — symbolically or numerically, not in one's head: the result of the
+  recomputation goes into `provenance.evidence` as an `other` record with the formula and the
+  number obtained. For qualitative answers — name the place in the video the answer follows
+  from, and check that it follows from there rather than from general knowledge of the subject.
+
+  The coordinator is obliged to hold two hypotheses rather than one: a discrepancy between probe
+  and reference means either "the probe failed" or "the reference is wrong", and telling them
+  apart is the work of this item, not of 4.7.
+
+  *What to do on a hit.* `CRITICAL_FAIL` if the answer is wrong on the merits; `FIX_QUESTION` if
+  it is right but written down in a way that makes it impossible to accept as right.
+
+  *Status.* Not implemented. The sample reviewer, item `reference-answer-verified`.
+
+  *Frequency.* Never — the check did not exist until now.
+
+- `[M]` **8.5. The twins' reference answers agree in substance.** · `twins-agree-on-substance`
+
+  *Statement.* A twin pair (`twin_of`) exists so that the difference between their metrics reads
+  as **the price of timing alone**: the same question, the same material, a different moment of
+  issue. If their reference answers have diverged not in wording but in content, the difference
+  no longer measures timing but the difference between two tasks — and the conclusion the pair
+  was created for becomes wrong. The judge sees exactly the `response`, so a discrepancy here
+  costs more than a discrepancy in any other field.
+
+  A discrepancy in **wording** is legitimate and expected: for the `post` twin the answer
+  naturally sounds in the past tense ("the author showed…"), for the `at` twin in the present.
+  What is checked is the substance: the same quantities, the same objects, the same conclusion.
+
+  This cannot be checked automatically — `S-24` compares the rubric, the modalities, the level
+  and the act, that is, everything comparable as a string. Comparing the meaning of two free
+  texts is left to a human or a reviewer.
+
+  *Checking algorithm.* If the sample has a `twin_of`, write out both `response` texts and name
+  point by point what coincides in them: quantities, objects, direction of the conclusion. A
+  discrepancy in even one is a hit. If there is no `twin_of`, the item is `na`.
+
+  *What to do on a hit.* `FIX_QUESTION`: the reference that diverged from the intent of the pair
+  is fixed, not both at once.
+
+  *Status.* Not implemented. The sample reviewer, item `twins-agree-on-substance`. No frames
+  required — the work is textual.
+
+  *Frequency.* Never: in the pilot both pairs (`q02`/`q02b`, `q07`/`q07b`) coincide verbatim,
+  but the check did not exist until now.
+
+---
+## 9. Drift of documentation and tools
+
+A group of its own: there are no errors in the data, but the description has fallen out of sync
+with it. It is caught badly, because the eye slides over familiar text.
+
+- `[A]` **9.1. The numbers in the documentation are recomputed from the data.** · `numbers-recomputed`
+
+  *Statement.* Counts of samples and triggers, coverage tables, derived columns. A number
+  written by hand goes stale at the very first edit of the annotation.
+
+  *Checking algorithm.* Generate such fragments with a script, or verify them with a script
+  during validation.
+
+  *Status.* Not implemented.
+
+  *Frequency.* Caught several times.
+
+- `[A]` **9.2. The examples in the documentation are dumped from a live file.** · `examples-generated`
+
+  *Statement.* An example rewritten by hand stops passing its own schema in time — and the
+  reader learns from a wrong specimen.
+
+  *Checking algorithm.* Run every JSON fragment from the markdown files through the same schema
+  and the same semantic checks as the annotation.
+
+  *Status.* Not implemented.
+
+  *Frequency.* Caught: the canonical example in the plan did not pass its own schema.
+
+- `[A]` **9.3. The tools are idempotent.** · `tools-idempotent`
+
+  *Statement.* Re-running a documented command must not change the artefacts. A violation is
+  dangerous because it breaks reproduction at the very first step: a person follows the
+  instruction from the README and immediately gets a discrepancy.
+
+  *Checking algorithm.* Run the pipeline again and compare **file hashes**. Checking with
+  `git status` is not enough: the videos, the frames and `vendor/` are not under version control,
+  and those are exactly what gets regenerated.
+
+  *Status.* Implemented for `prepare_review_workspace.py`: a repeated `--until` rebuilds
+  `frames/` and `transcript.md` from scratch, so narrowing the boundary no longer leaves material
+  beyond it. In the rest of the pipeline it is maintained by discipline.
+
+  *Frequency.* Caught twice: a change in the frame naming scheme diverged from the committed
+  bundle; a repeated `--until 400` on top of `--until 1200` left frames up to 1155 s in the blind
+  reviewer's folder while `limits.json` claimed 400.
+
+- `[A]` **9.4. The checklist does not diverge from the validator.** · `checklist-matches-validator`
+
+  *Statement.* Group 1 is declared to be the specification of `tools/validate_samples.py`. A
+  check that lives in the code but is not described here is invisible to a person who reads the
+  checklist as a convention; an item described here as implemented but absent from the code
+  creates false confidence.
+
+  *Checking algorithm.* Compare the two lists at every change to the validator: every check in
+  the code has an `[A]` item, and every `[A]` item with the status "implemented" has a negative
+  test.
+
+  *Status.* Implemented in `schema/review.py` (the `__main__` block): it compares the names in
+  both directions, requires an `S-NN` rule for every implemented `[A]` item and either a role or
+  a coordinator's derivation for every `[M]`. Group 9 is excluded from the first check: its `[A]`
+  items are about the code of the repository, not about a sample.
+
+  *Frequency.* Caught: seven implemented checks were missing from the checklist, and two items
+  were marked as automatic without having any code.
 
 ---
 
-## 8. Провенанс
-
-`provenance.evidence` — ссылки на то, откуда взят эталонный ответ. Они существуют,
-чтобы разметку можно было перепроверить, и потому обязаны быть верны сами по себе.
-
-- `[A]` **8.1. Таймкоды в ссылках существуют.** · `timecodes-exist`
-
-  *Формулировка.* Ссылка указывает на существующий момент: кадр лежит внутри
-  длительности, речевой интервал не вывернут, а обе его границы **в точности
-  совпадают с границами реплик** транскрипта — начало с началом какой-то реплики,
-  конец с концом какой-то.
-
-  Это не формальность. Ссылка, обрывающаяся посреди фразы, не проверяется глазами:
-  открыв транскрипт на этом месте, читатель видит обрывок, а не то, на что ссылались.
-
-  Правило намеренно асимметрично по цене ошибки. Захватить лишнюю соседнюю фразу
-  не страшно — ссылка остаётся читаемой и проверяемой; обрезать нужную — страшно.
-  Поэтому выравнивать интервал следует **наружу**, к концу последней задетой реплики,
-  а не внутрь. Полнота охвата и согласованность здесь важнее точности границы.
-
-  *Алгоритм проверки.* Разбор структурных записей `evidence` и сверка
-  с длительностью и транскриптом из `bundle.json`.
-
-  *Статус.* Реализовано. Стало возможным после перехода `evidence` на структурный
-  формат: по свободной прозе регулярное выражение видело только записи вида
-  `кадр t=<число>` и только выход за длительность — речевые интервалы и вторые
-  таймкоды внутри строки были ему невидимы.
-
-  *Частота.* Ни разу.
-
-- `[M]` **8.2. Содержимое по ссылке соответствует описанию.** · `reference-matches-description`
-
-  *Формулировка.* Ссылка может быть валидной и при этом описывать не то, что
-  на кадре: типична ситуация, когда описание говорит «таблица показана полностью»,
-  а на указанном кадре ещё идёт анимация (см. 2.4).
-
-  *Алгоритм проверки.* Показать VLM указанный кадр вместе с текстом описания
-  и спросить, соответствует ли одно другому.
-
-  *Статус.* Не реализовано, проверяется вручную.
-
-  *Частота.* Ловилось.
-
-- `[M]` **8.3. Ссылки не противоречат окнам собственного сэмпла.** · `references-consistent-with-windows`
-
-  *Формулировка.* Встречается связка: в `evidence` записано «автор сам произносит
-  ответ начиная с такого-то момента», и одновременно окно ответа открыто позже
-  этого момента. Каждое утверждение по отдельности верно, вместе они означают
-  сломанный сэмпл. Это пункт 2.5, обнаруживаемый бесплатно, без обращения к видео.
-
-  Противоречие тут одностороннее. Ссылка **позже** окна — норма, а не ошибка:
-  в `provenance.evidence` лежит подтверждение, и у `predict` оно по построению
-  приходит после того, как модель должна была ответить (1.9). Ломает сэмпл только
-  ссылка, из которой следует, что ответ был доступен или произнесён **до** открытия
-  окна.
-
-  *Алгоритм проверки.* Подать LLM тексты всех `evidence` вместе с границами окон
-  и спросить, есть ли между ними противоречие — именно в этом направлении.
-
-  *Статус.* Не реализовано.
-
-  *Частота.* Ловилось.
-
-- `[M]` **8.4. Эталонный ответ верен.** · `reference-answer-verified`
-
-  *Формулировка.* Слепое место всего чеклиста: группы 2–8 проверяют согласованность
-  разметки с собой и с роликом, и ни одна не проверяет, что записанный в `response`
-  ответ **правильный**. Неверный эталон ломает сэмпл дважды — модель, ответившая
-  верно, получает ноль, а модель, повторившая ошибку разметчика, получает балл.
-
-  Хуже того, механизм маскирует ошибку. Зонд 4.7 отвечает по полному материалу
-  независимо; координатор сверяет его ответ с неверным эталоном, получает
-  расхождение, ставит `solvable = false` и выбрасывает **хороший** сэмпл
-  с вердиктом `CRITICAL_FAIL`. Гипотеза «эталон неверен» при таком устройстве
-  не всплывает никогда.
-
-  *Алгоритм проверки.* Пересчитать ответ **независимо**, не глядя в `response`,
-  и только потом сверить. Для вычислительных ответов (`act: counterfact`, уровень
-  `L3`, любые числа в рубрике) — символьно или численно, а не в уме: результат
-  пересчёта кладётся в `provenance.evidence` записью типа `other` с формулой
-  и полученным числом. Для качественных ответов — назвать, из какого места ролика
-  ответ следует, и проверить, что он следует именно оттуда, а не из общего знания
-  о предмете.
-
-  Координатор обязан держать две гипотезы, а не одну: расхождение зонда с эталоном
-  значит либо «зонд не справился», либо «эталон неверен», и различать их — работа
-  этого пункта, а не 4.7.
-
-  *Что делать при срабатывании.* `CRITICAL_FAIL`, если ответ неверен по существу;
-  `FIX_QUESTION`, если верен, но записан так, что верным его признать нельзя.
-
-  *Статус.* Не реализовано. Ревьюер сэмпла, пункт `reference-answer-verified`.
-
-  *Частота.* Ни разу — проверки до сих пор не существовало.
-
-- `[M]` **8.5. Эталоны близнецов совпадают по сути.** · `twins-agree-on-substance`
-
-  *Формулировка.* Пара близнецов (`twin_of`) существует затем, чтобы разность их
-  метрик читалась как **цена одного лишь тайминга**: тот же вопрос, тот же материал,
-  разное время выдачи. Если эталонные ответы у них разошлись не формулировкой,
-  а содержанием, разность мерит уже не тайминг, а разницу двух заданий — и вывод,
-  ради которого пара заведена, становится неверным. Судья видит именно `response`,
-  так что расхождение здесь дороже расхождения в любом другом поле.
-
-  Расхождение в **формулировке** законно и ожидаемо: у `post`-близнеца ответ
-  естественно звучит в прошедшем времени («автор показал…»), у `at`-близнеца —
-  в настоящем. Проверяется суть: те же величины, те же объекты, тот же вывод.
-
-  Автоматически это не проверить — `S-24` сверяет рубрику, модальности, уровень
-  и акт, то есть всё, что сравнимо строкой. Смысловое сравнение двух свободных
-  текстов остаётся человеку или ревьюеру.
-
-  *Алгоритм проверки.* Если у сэмпла есть `twin_of`, выписать оба `response`
-  и назвать по пунктам, что в них совпадает: величины, объекты, направление вывода.
-  Расхождение хотя бы в одном — сработало. Если `twin_of` нет, пункт `na`.
-
-  *Что делать при срабатывании.* `FIX_QUESTION`: правится тот эталон, который
-  разошёлся с замыслом пары, а не оба сразу.
-
-  *Статус.* Не реализовано. Ревьюер сэмпла, пункт `twins-agree-on-substance`.
-  Кадров не требует — работа текстовая.
-
-  *Частота.* Ни разу: на пилоте обе пары (`q02`/`q02b`, `q07`/`q07b`) совпадают
-  дословно, но проверки до сих пор не существовало.
-
----
-
-## 9. Дрейф документации и инструментов
-
-Отдельная группа: ошибок в данных нет, но описание рассинхронизировалось с ними.
-Ловится плохо, потому что глаз скользит по знакомому тексту.
-
-- `[A]` **9.1. Числа в документации пересчитываются из данных.** · `numbers-recomputed`
-
-  *Формулировка.* Количество сэмплов и триггеров, таблицы покрытия, производные
-  колонки. Написанное руками число устаревает при первой же правке разметки.
-
-  *Алгоритм проверки.* Генерировать такие фрагменты скриптом либо сверять их
-  скриптом при валидации.
-
-  *Статус.* Не реализовано.
-
-  *Частота.* Ловилось несколько раз.
-
-- `[A]` **9.2. Примеры в документации выгружаются из живого файла.** · `examples-generated`
-
-  *Формулировка.* Переписанный руками пример со временем перестаёт проходить
-  собственную схему — и читатель учится по неверному образцу.
-
-  *Алгоритм проверки.* Прогнать все JSON-фрагменты из markdown-файлов через
-  ту же схему и те же семантические проверки, что и разметку.
-
-  *Статус.* Не реализовано.
-
-  *Частота.* Ловилось: канонический пример в плане не проходил собственную схему.
-
-- `[A]` **9.3. Инструменты идемпотентны.** · `tools-idempotent`
-
-  *Формулировка.* Повторный прогон задокументированной команды не должен менять
-  артефакты. Нарушение опасно тем, что ломает воспроизведение на самом первом шаге:
-  человек выполняет инструкцию из README и сразу получает расхождение.
-
-  *Алгоритм проверки.* Прогнать конвейер повторно и сравнить **хеши файлов**.
-  Проверять по `git status` недостаточно: видео, кадры и `vendor/` не под контролем
-  версий, а именно они и перегенерируются.
-
-  *Статус.* Реализовано у `prepare_review_workspace.py`: повторный `--until`
-  пересобирает `frames/` и `transcript.md` с нуля, поэтому сужение границы
-  больше не оставляет материал за ней. У остального конвейера соблюдается
-  дисциплиной.
-
-  *Частота.* Ловилось дважды: смена схемы имён кадров разошлась с закоммиченным
-  бандлом; повторный `--until 400` поверх `--until 1200` оставлял в папке
-  слепого ревьюера кадры до 1155 с, а `limits.json` при этом утверждал 400.
-
-- `[A]` **9.4. Чеклист не расходится с валидатором.** · `checklist-matches-validator`
-
-  *Формулировка.* Группа 1 объявлена спецификацией `tools/validate_samples.py`.
-  Проверка, живущая в коде, но не описанная здесь, невидима для человека, который
-  читает чеклист как конвенцию; пункт, описанный здесь как реализованный, но
-  отсутствующий в коде, создаёт ложную уверенность.
-
-  *Алгоритм проверки.* Сверять два списка при каждом изменении валидатора:
-  у каждой проверки в коде есть пункт `[A]`, у каждого пункта `[A]` со статусом
-  «реализовано» есть негативный тест.
-
-  *Статус.* Реализовано в `schema/review.py` (блок `__main__`): сверяет имена
-  в обе стороны, требует правило `S-NN` у каждого реализованного `[A]`-пункта
-  и роль либо вывод координатора у каждого `[M]`. Группа 9 из первой проверки
-  исключена: её `[A]` — про код репозитория, а не про сэмпл.
-
-  *Частота.* Ловилось: семь реализованных проверок отсутствовали в чеклисте,
-  а два пункта были помечены как автоматические, не имея кода.
-
----
-
-## Порядок применения
+## The order of application
 
 1. `[A]` — `/home/user/conda/bin/python3 tools/validate_samples.py data/annotations/*.jsonl`.
-   Дёшево, гоняется после каждой правки. Интерпретатор указывается явно:
-   в проекте два окружения, и `python3` резолвится по-разному.
+   Cheap, run after every edit. The interpreter is named explicitly: the project has two
+   environments, and `python3` resolves differently in each.
 
-2. `[M]` — верификатор. Порядок внутри уровня задан стоимостью: сначала 4.6 и 4.7
-   (вопросы к самому себе, ноль кадров), затем чтение транскрипта, затем
-   sparse-просмотр, и только в конце dense-просмотр тех участков, которые
-   предыдущие шаги пометили подозрительными. Прогоны 4.2–4.5 идут отдельным
-   конвейером и отбраковывают сэмплы целиком.
+2. `[M]` — the verifier. The order within the level is set by cost: first 4.6 and 4.7 (questions
+   to oneself, zero frames), then reading the transcript, then the sparse viewing, and only at
+   the end a dense viewing of the stretches the previous steps flagged as suspicious. Runs
+   4.2–4.5 go as a separate pipeline and reject samples wholesale.
 
-   Полный порядок работы верификатора описан в
+   The full working order of the verifier is described in
    [docs/annotation_pipeline.md](annotation_pipeline.md).
 
-3. `[H]` — пунктов, которые ждали бы человека, **нет**: последние три (4.8, 6.3, 7.4)
-   переведены на ревьюера и валидатор. Уровень остаётся точкой эскалации: сюда
-   попадает всё, что цикл правок не закрыл за три итерации, а также случаи,
-   где ревьюеры устойчиво расходятся. Отдельно от этого идёт приёмка (шаг 6
-   конвейера) — она сплошная, но проверяет не пункты, а чеклист целиком.
+3. `[H]` — there are **no** items that would wait for a human: the last three (4.8, 6.3, 7.4)
+   have been handed to the reviewer and the validator. The level remains an escalation point:
+   everything the edit cycle has not closed in three iterations lands here, as do cases where the
+   reviewers persistently disagree. Separate from that is acceptance (step 6 of the pipeline) —
+   it is exhaustive, but it checks the checklist as a whole rather than individual items.
 
-4. **Повторный прогон `[A]`.** Правки по итогам `[M]` и `[H]` — это сдвиги границ,
-   а границы связаны: сдвиг `t_start` может нарушить 1.1, сдвиг `question_time`
-   меняет выводимую метку `temporal_rel` (7.1) и ломает сопоставимость близнецов
-   (5.1). Проход не одноразовый.
+4. **A repeat `[A]` run.** Edits following from `[M]` and `[H]` are shifts of boundaries, and the
+   boundaries are coupled: shifting `t_start` may violate 1.1, shifting `question_time` changes
+   the derived `temporal_rel` label (7.1) and breaks the comparability of twins (5.1). The pass
+   is not a one-off.
 
-Отдельный случай, где шаги конфликтуют: 2.2 требует сдвинуть `t_start` к первому
-моменту, где ответ возможен, а 1.1 запрещает окну начинаться раньше `question_time`.
-Если этот момент оказался раньше выдачи вопроса, это уже случай 2.3: правится
-не окно, а замысел — либо переносится `question_time`, либо сэмпл переразмечается
-как `post`. После этого перепроверяются 7.1, 5.1 и 6.3.
+A separate case where the steps conflict: 2.2 requires shifting `t_start` to the first moment
+where the answer is possible, while 1.1 forbids a window to start earlier than `question_time`.
+If that moment turns out to be earlier than the issue of the question, this is already case 2.3:
+what is fixed is not the window but the intent — either `question_time` is moved, or the sample
+is re-annotated as `post`. After that 7.1, 5.1 and 6.3 are re-checked.
 
-Ни один из трёх уровней не заменяет остальные. Показательно, что независимые
-адверсальные проверки пилота находили по несколько содержательных ошибок каждая
-в то время, когда валидатор стабильно показывал ноль.
+None of the three levels replaces the others. Tellingly, independent adversarial reviews of the
+pilot each found several substantive errors at a time when the validator was steadily showing
+zero.
 
 ---
 
-## Открытые вопросы
+## Open questions
 
-Открытых вопросов формата сейчас нет. Ниже — решения, к которым пришли, с причиной:
-без неё через месяц те же развилки обсуждаются заново.
+There are no open format questions at the moment. Below are the decisions reached, with the
+reason: without it the same forks get discussed anew in a month.
 
-### Закрытые
+### Closed
 
-- **Семантика `provenance.chapter`** — поле удалено. Оно денормализовало то, что
-  выводится из `triggers` и `info.json`, и протухало при сдвиге окна через границу
-  главы. Все применения (навигация человека, контроль разнообразия, нарезка ролика
-  на интервалы для пропозеров) работают на вычисленном значении, а ноутбук обзора
-  так и делал с самого начала: `chapter_at(t)` берёт главы из `bundle.json`,
-  а поле не читал ни разу.
-- **Признак исчерпывающести вопроса** — флаг `exhaustive` не заводим. Группа 3
-  переписана так, что работает без него: он влиял бы только на выбор лечения в 3.1,
-  а лечение и так предлагается по формулировке вопроса. Как ступень таксономии
-  признак тоже не нужен — он почти совпадает с `act` = `monitor`.
-- **Как связаны контрольные близнецы** — поле `twin_of`, проверки `S-23`/`S-24` (5.1).
-- **Чем измеряется `audio_dependency`** — зондом 4.5 по правилу вывода из
-  `visiononly_solved` и `solvable`; градация `helpful` из метки убрана.
-- **Гранулярность шорткат-флагов** — прогонов больше нет, флаги заполняются зондами
-  по сэмплу целиком с правилом агрегации «достаточно одного обязательного окна» (4.1).
-- **Что делать с сэмплом, решаемым вслепую** — выбрасывать (4.2). Тестов «на один
-  лишь тайминг» в наборе не будет.
-- **Шкала рубрики** — на этапе разметки не нужна: зонд отвечает, координатор сверяет
-  качественно, спорные случаи переспрашиваются точечно и при сохранившемся
-  разногласии уходят человеку или выбрасываются (4.1). Веса и пороги — вопрос
-  фазы замера, вместе с метрикой.
+- **The semantics of `provenance.chapter`** — the field has been removed. It denormalised what is
+  derived from `triggers` and `info.json`, and went stale when a window shifted across a chapter
+  boundary. All its uses (human navigation, diversity control, cutting the video into intervals
+  for proposers) work on the computed value, and the overview notebook did exactly that from the
+  start: `chapter_at(t)` takes the chapters from `bundle.json` and never read the field once.
+- **A flag for the exhaustiveness of a question** — no `exhaustive` flag will be introduced.
+  Group 3 has been rewritten so that it works without one: it would have influenced only the
+  choice of remedy in 3.1, and the remedy is already proposed from the wording of the question.
+  As a taxonomy level the attribute is not needed either — it almost coincides with
+  `act` = `monitor`.
+- **How control twins are linked** — the `twin_of` field, checks `S-23`/`S-24` (5.1).
+- **What `audio_dependency` is measured by** — probe 4.5, by the rule deriving it from
+  `visiononly_solved` and `solvable`; the `helpful` grade has been removed from the label.
+- **The granularity of the shortcut flags** — there are no runs any more; the flags are filled in
+  by probes over the sample as a whole, with the aggregation rule "one required window is enough"
+  (4.1).
+- **What to do with a sample solvable blind** — throw it out (4.2). There will be no tests of
+  "timing alone" in the set.
+- **The scale of the rubric** — not needed at the annotation stage: the probe answers, the
+  coordinator compares qualitatively, disputed cases are asked again pointwise and, if the
+  disagreement persists, go to a human or are thrown out (4.1). Weights and thresholds are a
+  question for the measurement phase, together with the metric.

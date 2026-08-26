@@ -1,39 +1,39 @@
-# Разметка ProLecture — формат хранения
+# ProLecture annotation — storage format
 
-## 1. Раскладка файлов
+## 1. File layout
 
 ```
 data/
-├── videos/<youtube_id>/           # исходники (не под версионным контролем — тяжёлые)
-│   ├── <id>.mp4                   # 640x360 h264+aac, ~48 МБ на 32 мин
-│   ├── <id>.info.json             # дамп yt-dlp: chapters, duration, upload_date, …
-│   ├── <id>.en.vtt                # человеческие субтитры (не ASR)
+├── videos/<youtube_id>/           # sources (not under version control — heavy)
+│   ├── <id>.mp4                   # 640x360 h264+aac, ~48 MB for 32 min
+│   ├── <id>.info.json             # yt-dlp dump: chapters, duration, upload_date, …
+│   ├── <id>.en.vtt                # human subtitles (not ASR)
 │   └── <id>.description
-├── bundles/<youtube_id>/          # материалы для разметчика, генерируются
-│   ├── bundle.json                # всё машиночитаемо в одном файле
-│   ├── transcript.md              # транскрипт с таймкодами, разбитый по чаптерам
-│   ├── formulas.md                # LaTeX-строки из manim-исходника
-│   └── frames/tNNNNNN.N.jpg       # кадры по детекции смены сцен
-└── annotations/<youtube_id>.jsonl # ← сама разметка, один сэмпл на строку
+├── bundles/<youtube_id>/          # material for the annotator, generated
+│   ├── bundle.json                # everything machine-readable in one file
+│   ├── transcript.md              # transcript with timecodes, split by chapters
+│   ├── formulas.md                # LaTeX strings from the manim source
+│   └── frames/tNNNNNN.N.jpg       # frames from scene-change detection
+└── annotations/<youtube_id>.jsonl # ← the annotation itself, one sample per line
 ```
 
-`schema/sample.schema.json` — JSON Schema draft 2020-12, `additionalProperties: false`
-на всех уровнях: незнакомое поле будет ошибкой, а не молча проигнорируется.
+`schema/sample.schema.json` — JSON Schema draft 2020-12, `additionalProperties: false` at
+every level: an unknown field is an error rather than something silently ignored.
 
-## 2. Соглашения
+## 2. Conventions
 
 | | |
 |---|---|
-| Формат файла | JSONL, UTF-8 без BOM, один JSON-объект на строку, без завершающей запятой |
-| Время | секунды от начала видео, `float`, полуинтервалы `[t_start, t_end)` |
-| `id` | `3b1b__<youtube_id>__q<NN>`, регэксп `^[A-Za-z0-9_.-]+$` |
-| Язык | вопросы, ответы и рубрики — по-русски; цитаты из видео — в оригинале |
-| Порядок | сэмплы в файле идут в порядке `id`, триггеры внутри сэмпла — по времени |
+| File format | JSONL, UTF-8 without BOM, one JSON object per line, no trailing comma |
+| Time | seconds from the start of the video, `float`, half-open intervals `[t_start, t_end)` |
+| `id` | `3b1b__<youtube_id>__q<NN>`, regexp `^[A-Za-z0-9_.-]+$` |
+| Language | questions, answers and rubrics in English; the terms follow the video's own wording |
+| Order | samples in a file are ordered by `id`, triggers inside a sample by time |
 
-## 3. Полный пример
+## 3. A complete example
 
-Сэмпл `q02` целиком, как он лежит в файле (здесь с отступами для читаемости —
-в файле это одна строка):
+The sample `q02` in full, as it lies in the file (indented here for readability — in the
+file it is a single line):
 
 ```json
 {
@@ -46,7 +46,7 @@ data/
     "source_code": "_2026/cross_entropy"
   },
   "question_time": 2.0,
-  "question": "Дождись момента, когда автор назовёт оценку Шеннона для предела сжатия английского языка, и скажи одновременно две вещи: само число и при каком объёме предшествующего контекста эта оценка получена. Пока не прозвучит именно оценка Шеннона — молчи.",
+  "question": "Wait for the moment when the author names Shannon's estimate for the compression limit of the English language, and say two things at once: the number itself and with how much preceding context that estimate was obtained. Until Shannon's estimate specifically is spoken — stay silent.",
   "act": "alert",
   "temporal_rel": "pre",
   "reasoning_level": "L1",
@@ -58,18 +58,22 @@ data/
       "t_start": 1822.0,
       "t_end": 1860.0,
       "t_ideal": 1823.0,
-      "response": "Около одного бита на символ; оценка получена, когда у людей-угадывателей было не менее 100 предшествующих букв контекста.",
+      "response": "About one bit per character; the estimate was obtained when his interviewees had at least 100 preceding letters of context.",
       "rubric": [
-        "названа величина ≈1 бит на символ",
-        "названо условие: не менее 100 предшествующих символов контекста",
-        "указано, что это оценка по экспериментам с людьми, а не измерение алгоритмом",
-        "ответ только с числом, без условия про 100 символов — частичный (1 из 2)",
-        "НЕ засчитывать 1.1 бит/символ — это результат нейросетевых методов с 30-й секунды",
-        "НЕ засчитывать 4.2 бит/символ — это Huffman с 21-й секунды"
+        "the value ≈1 bit per character is named",
+        "the condition is named: at least 100 preceding letters of context",
+        "it is stated that this is an estimate from experiments with people rather than a measurement by an algorithm",
+        "an answer with the number alone, without the condition about 100 letters, is partial (1 of 2)",
+        "do NOT count 1.1 bits per character — that is the result of neural methods, from second 30",
+        "do NOT count 4.2 bits per character — that is Huffman, from second 21"
       ],
       "trigger_modality": [
         "speech",
         "visual"
+      ],
+      "evidence_span": [
+        1822.0,
+        1829.4
       ]
     }
   ],
@@ -77,12 +81,12 @@ data/
     {
       "t_start": 12.0,
       "t_end": 34.0,
-      "why": "на экране идёт ряд ASCII 8.0 -> Huffman ~4.2 -> Neural methods ~1.1 бит/символ; это достижения методов сжатия, а не оценка Шеннона"
+      "why": "the screen runs through the series ASCII 8.0 -> Huffman ~4.2 -> Neural methods ~1.1 bits per character; these are achievements of compression methods, not Shannon's estimate"
     },
     {
       "t_start": 34.0,
       "t_end": 60.0,
-      "why": "на экране спидометр со значением 1.0 bits/ch и подписью «Limit?» — число совпадает с верным ответом, но это постановка вопроса, а не ответ, и без условий получения"
+      "why": "the screen shows a speedometer reading 1.0 bits/ch with the caption “Limit?” — the number coincides with the correct answer, but this is the statement of the question rather than the answer, and it comes without the conditions it was obtained under"
     }
   ],
   "audio_dependency": null,
@@ -100,7 +104,7 @@ data/
       {
         "type": "frame",
         "t": 1832.0,
-        "explanation": "счётчик «Bits Per Character ≈ 1.0»"
+        "explanation": "the counter “Bits Per Character ≈ 1.0”"
       },
       {
         "type": "frame",
@@ -120,170 +124,178 @@ data/
       {
         "type": "frame",
         "t": 40.0,
-        "explanation": "спидометр 1.0 bits/ch с подписью Limit?"
+        "explanation": "the speedometer 1.0 bits/ch with the caption Limit?"
       }
     ]
   },
   "validation": {
-    "status": "draft",
-    "notes": "ключевой сэмпл на timing: верное число видно на экране за 1785 с до ответа; уровень L1: оба факта звучат в одной реплике 1822-1829, сложность сэмпла целиком в тайминге, а не в рассуждении"
+    "status": "rejected",
+    "notes": "a key sample for timing: the correct number is visible on screen 1785 s before the answer; level L1: both facts are spoken in a single line 1822-1829, and the difficulty of the sample lies entirely in the timing rather than in the reasoning | blind: before viewing, the semi-blind reviewer named both quantities of the rubric (≈1 bit per character, ≥100 letters of context) with no assumptions about the screen — a commonly known fact about Shannon's experiment",
+    "blind_solved": true
   },
-  "question_time_note": "вопрос о пределе сжатия текста поставлен самим видео на 4.6-11.5, но выдать инструкцию нужно ДО первого дистрактора на 12 с, иначе ловушка с экранным «1.0 bits/ch  Limit?» на 40 с перестаёт быть ловушкой."
+  "question_time_note": "the question about the compression limit of text is raised by the video itself at 4.6-11.5, but the instruction has to be issued BEFORE the first distractor at 12 s, otherwise the trap with the on-screen “1.0 bits/ch  Limit?” at 40 s stops being a trap."
 }
 ```
 
-Он же на временной оси:
+The same thing on the time axis:
 
 ```
  0s  2     12      34       60                                 1822   1829       1860      1939s
  │   ▲     ├───────┼────────┤                                  ├────────●─────────┤          │
  │   │     │  D0   │   D1   │                                  │   t_ideal        │          ▲
- │   │     └── дистракторы ─┘                                  └──── trigger[0] ──┘          │
- │   question_time    ответ здесь = 0 баллов               единственное окно,          конец видео
-начало   вопрос выдан  и портит все последующие            где ответ засчитывается
+ │   │     └── distractors ─┘                                  └──── trigger[0] ──┘          │
+ │   question_time   an answer here = 0 points             the one window where          end of
+start   question issued  and it spoils all later ones      an answer counts               video
 ```
 
-## 4. Справочник полей
+## 4. Field reference
 
-### Верхний уровень
+### Top level
 
-| Поле | Тип | Обяз. | Смысл |
+| Field | Type | Req. | Meaning |
 |---|---|:---:|---|
-| `id` | string | ✔ | уникальный идентификатор сэмпла |
-| `twin_of` | string | | `id` контрольного близнеца: того же вопроса, выданного в другой момент. Ссылка ненаправленная — достаточно проставить её у одного из пары; валидатор собирает группу и требует, чтобы у её участников совпадали рубрики обязательных триггеров, `act` и `reasoning_level`, а `question_time` различался |
-| `video` | object | ✔ | к какому видео относится, см. ниже |
-| `question` | string ≥20 симв. | ✔ | постоянная инструкция, выдаётся модели один раз |
-| `question_time` | number ≥0 | ✔ | момент выдачи инструкции, см. §4.1 |
-| `question_time_note` | string | — | почему выбран именно этот момент |
-| `act` | enum | ✔ | тип проактивного акта (ось A таксономии) |
-| `temporal_rel` | enum | ✔ | ось B, **выводится автоматически**, см. §4.1 |
-| `reasoning_level` | enum | ✔ | глубина рассуждения (ось C) |
-| `template` | string | ✔ | шаблон из каталога §2.1 плана; свободная строка, не enum |
-| `triggers` | array ≥1 | ✔ | окна, в которых ожидается ответ |
-| `distractor_windows` | array | — | окна, где отвечать **нельзя** |
-| `audio_dependency` | enum \| null | ✔ | **выводится из зондов** `visiononly_solved` и `solvable`, руками не ставится; `null`, пока зонды не отвечены |
-| `audio_dependency_claim` | enum | — | что предполагал разметчик; замером не является |
-| `followup` | object | — | непроактивное продолжение (`question` + `answer`), считается отдельно |
-| `provenance` | object | ✔ | откуда взят GT |
-| `validation` | object | ✔ | состояние проверки |
+| `id` | string | ✔ | unique identifier of the sample |
+| `twin_of` | string | | the `id` of the control twin: the same question issued at a different moment. The link is undirected — setting it on one of the pair is enough; the validator gathers the group and requires its members to agree on the rubrics of the required triggers, on `act` and on `reasoning_level`, while `question_time` must differ |
+| `video` | object | ✔ | which video it belongs to, see below |
+| `question` | string ≥20 chars | ✔ | the standing instruction, issued to the model once |
+| `question_time` | number ≥0 | ✔ | the moment the instruction is issued, see §4.1 |
+| `question_time_note` | string | — | why exactly that moment was chosen |
+| `act` | enum | ✔ | the type of proactive act (taxonomy axis A) |
+| `temporal_rel` | enum | ✔ | axis B, **derived automatically**, see §4.1 |
+| `reasoning_level` | enum | ✔ | depth of reasoning (axis C) |
+| `template` | string | ✔ | a template from the catalogue in §2.1 of the plan; a free string, not an enum |
+| `triggers` | array ≥1 | ✔ | the windows in which an answer is expected |
+| `distractor_windows` | array | — | the windows in which one **must not** answer |
+| `audio_dependency` | enum \| null | ✔ | **derived from the probes** `visiononly_solved` and `solvable`, never set by hand; `null` until the probes have answered |
+| `audio_dependency_claim` | enum | — | what the annotator assumed; not a measurement |
+| `followup` | object | — | a non-proactive continuation (`question` + `answer`), scored separately |
+| `provenance` | object | ✔ | where the ground truth came from |
+| `validation` | object | ✔ | the state of the checking |
 
-Значения перечислений:
+The enumeration values:
 
 - `act` — `alert`, `monitor`, `ground`, `narrate`, `predict`, `verify`, `counterfact`
-- `temporal_rel` — `pre`, `at`, `post`; смысл и правило вывода в §4.1
-- `reasoning_level` — `L1` (считывается с экрана или из речи), `L2` (нужно связать ≥2 разнесённых момента), `L3` (нужно вычисление или вывод, которого в видео нет)
-- `audio_dependency` — `required`, `unnecessary` (градация `helpful` убрана: двумя
-  булевыми флагами она не различается)
-- `audio_dependency_claim` — `required`, `helpful`, `unnecessary`; это мнение
-  разметчика, и градация в нём осмысленна
+- `temporal_rel` — `pre`, `at`, `post`; the meaning and the derivation rule are in §4.1
+- `reasoning_level` — `L1` (read off the screen or off the speech), `L2` (≥2 moments far
+  apart have to be connected), `L3` (a computation or a derivation not present in the
+  video is needed)
+- `audio_dependency` — `required`, `unnecessary` (the intermediate `helpful` was removed:
+  two boolean flags cannot tell it apart)
+- `audio_dependency_claim` — `required`, `helpful`, `unnecessary`; this is the annotator's
+  opinion, and a middle grade is meaningful in it
 
-### 4.1. Ось B и выбор `question_time`
+### 4.1. Axis B and the choice of `question_time`
 
-**Ось B — это про то, где лежит доказательство относительно момента выдачи вопроса.**
-Не про то, где лежит окно ответа, и не про то, как ответ вычисляется (последнее —
-ось C, `reasoning_level`).
+**Axis B is about where the evidence lies relative to the moment the question is issued.**
+Not about where the answer window lies, and not about how the answer is computed (the
+latter is axis C, `reasoning_level`).
 
-| Значение | Условие | Что проверяет |
+| Value | Condition | What it tests |
 |---|---|---|
-| `pre` | доказательство появляется **после** `question_time` | модель должна **ждать** и сама решить, когда отвечать |
-| `at` | доказательство присутствует **в момент** `question_time` | восприятие и счёт здесь и сейчас; решения «когда» нет |
-| `post` | доказательство прошло **до** `question_time` | ответ по памяти, немедленно |
+| `pre` | the evidence appears **after** `question_time` | the model has to **wait** and decide for itself when to answer |
+| `at` | the evidence is present **at** `question_time` | perception and computation here and now; there is no "when" to decide |
+| `post` | the evidence went by **before** `question_time` | an answer from memory, immediately |
 
-Формально: пусть `[e1, e2)` — `evidence_span` первого и последнего обязательного
-триггера (по умолчанию равен окну ответа). Тогда
+Formally: let `[e1, e2)` be the `evidence_span` of the first and of the last required
+trigger (by default equal to the answer window). Then
 
 ```
-question_time <  e1(первого)   ->  pre
-question_time >= e2(последнего) ->  post
-иначе                          ->  at
+question_time <  e1(of the first)  ->  pre
+question_time >= e2(of the last)   ->  post
+otherwise                          ->  at
 ```
 
-Поле `temporal_rel` **выводится валидатором** и сверяется с записанным: разойтись
-они больше не могут. Определять ось через окно ответа нельзя — у `post`-вопроса окно
-ответа начинается ровно в момент выдачи вопроса, и от `at` он так неотличим.
+The `temporal_rel` field is **derived by the validator** and compared against the recorded
+one: the two can no longer diverge. Defining the axis through the answer window is not
+allowed — for a `post` question the answer window begins exactly at the moment the
+question is issued, which makes it indistinguishable from `at`.
 
-**Геометрия близнецов не идентична, и это конфаунд.** У `at`/`post`-близнеца окно ответа по построению начинается в момент выдачи вопроса, поэтому его длина отличается от исходной (q07 — 43 с, q07b — 37 с). Разность метрик между близнецами содержит и эффект тайминга, и эффект длины окна; при интерпретации это надо учитывать или нормировать на длину.
+**The geometry of the twins is not identical, and that is a confound.** For an `at`/`post`
+twin the answer window begins, by construction, at the moment the question is issued, so
+its length differs from the original (q07 — 43 s, q07b — 37 s). The difference in metrics
+between twins contains both the effect of timing and the effect of window length; that has
+to be taken into account, or normalised for length, when interpreting it.
 
-Проактивен по-настоящему только `pre`. `at` и `post` существуют как **контрольные
-близнецы**: те же триггеры и та же рубрика, сдвинут только `question_time`. Пара
-связывается полем `twin_of` — по именам `id` связь не восстанавливается, суффикс `b`
-это соглашение, а не контракт. Если модель
-решает `q02b` (`post`), но не решает `q02` (`pre`), значит проблема в проактивности,
-а не в понимании — разность PAUC между близнецами и есть цена тайминга.
+Only `pre` is genuinely proactive. `at` and `post` exist as **control twins**: the same
+triggers and the same rubric, with only `question_time` shifted. The pair is linked by the
+`twin_of` field — the link cannot be reconstructed from `id` names, and the `b` suffix is a
+convention rather than a contract. If a model solves `q02b` (`post`) but does not solve
+`q02` (`pre`), the problem is in proactivity rather than in understanding — the difference
+in PAUC between the twins is exactly the price of timing.
 
-**Правило для `question_time`:** самый поздний момент, в который вопрос уже осмыслен,
-но окно ещё не наступило. Три ограничения снизу и сверху:
+**The rule for `question_time`:** the latest moment at which the question already makes
+sense but the window has not yet arrived. Three constraints, from below and from above:
 
-1. *Референты должны существовать.* q03 спрашивает «какой из двух примеров, разобранных
-   в этом видео» — на нулевой секунде у этой фразы нет референта, поэтому
-   `question_time = 1480`, сразу после того как оба примера разобраны.
-2. *Дистракторы должны быть живыми.* У q02 ловушки стоят на 12–34 и 34–60 с, значит
-   вопрос обязан быть выдан раньше: `question_time = 2.0`. Дистрактор целиком до выдачи
-   вопроса — ошибка валидации, ловить там нечего.
-3. *Ноль тоже бывает правильным.* q04 и q06 осмысленны с первого кадра и никакого
-   контекста не требуют — у них `question_time = 0.0` честно.
+1. *The referents must exist.* q03 asks "which of the two examples gone through in this
+   video" — at second zero that phrase has no referent, hence `question_time = 1480`,
+   right after both examples have been gone through.
+2. *The distractors must be alive.* In q02 the traps are at 12–34 and 34–60 s, so the
+   question must be issued earlier: `question_time = 2.0`. A distractor lying entirely
+   before the question is issued is a validation error — there is nothing to catch there.
+3. *Zero is sometimes right too.* q04 and q06 make sense from the first frame and require
+   no context at all — their `question_time = 0.0` honestly.
 
-Причина выбора у каждого сэмпла записана в `question_time_note`.
+The reason for the choice is recorded in `question_time_note` for every sample.
 
 ### `video`
 
-| Поле | Тип | Обяз. | Смысл |
+| Field | Type | Req. | Meaning |
 |---|---|:---:|---|
-| `youtube_id` | string | ✔ | 11 символов, он же ключ в `data/videos/` |
-| `title` | string | ✔ | как в `info.json` |
-| `release_date` | string `YYYY-MM-DD` | ✔ | нужен для оценки контаминации |
-| `duration` | number >0 | ✔ | секунды; валидатор проверяет, что окна в неё влезают |
-| `source_code` | string | — | путь внутри `vendor/videos`, файл или директория |
+| `youtube_id` | string | ✔ | 11 characters, also the key in `data/videos/` |
+| `title` | string | ✔ | as in `info.json` |
+| `release_date` | string `YYYY-MM-DD` | ✔ | needed for estimating contamination |
+| `duration` | number >0 | ✔ | seconds; the validator checks that the windows fit inside it |
+| `source_code` | string | — | a path inside `vendor/videos`, a file or a directory |
 
 ### `triggers[]`
 
-| Поле | Тип | Обяз. | Смысл |
+| Field | Type | Req. | Meaning |
 |---|---|:---:|---|
-| `idx` | int ≥0 | ✔ | порядковый номер, подряд с нуля |
-| `required` | bool | ✔ | `true` — пропуск штрафуется и окно идёт в знаменатель recall; `false` — бесспорным не является, не штрафуем ни за ответ, ни за молчание |
-| `t_start`, `t_end` | number | ✔ | границы GT-окна. Именно окно, а не точка: PAUC строит ломаную на интервале |
-| `t_ideal` | number | ✔ | служебное, `t_start + 1`; задержка считается от `t_start` |
-| `response` | string | ✔ | эталонный ответ прозой, а не ключ варианта |
-| `rubric` | array ≥1 | ✔ | критерии для судьи. Пункты, начинающиеся с «НЕ засчитывать», — явные анти-критерии |
-| `trigger_modality` | array | ✔ | из чего в принципе детектируется момент: `visual`, `speech`, `sound` |
-| `depends_on` | array of int | — | индексы предыдущих окон, без знания которых ответ неполон; только меньшие `idx` |
-| `evidence_span` | `[t1, t2]` | ✔ | где лежит **последняя по времени** часть информации, без которой ответить нельзя. Обязательно: раньше поле можно было опустить, и тогда вместо него подставлялось окно ответа — из-за чего `post`-вопрос становился неотличим от `at`. Часто совпадает с окном, но не всегда: у `post`-вопросов доказательство прошло задолго до него. Это **доказательство, а не подтверждение**: то, чем проверяется, что эталон вообще верен, живёт в `provenance.evidence` и может лежать позже окна (`predict`) или вне ролика (`counterfact`) |
+| `idx` | int ≥0 | ✔ | ordinal number, consecutive from zero |
+| `required` | bool | ✔ | `true` — a miss is penalised and the window goes into the recall denominator; `false` — not beyond dispute, so neither answering nor staying silent is penalised |
+| `t_start`, `t_end` | number | ✔ | the boundaries of the ground-truth window. A window, not a point: PAUC builds a piecewise-linear curve over the interval |
+| `t_ideal` | number | ✔ | a service field, `t_start + 1`; latency is measured from `t_start` |
+| `response` | string | ✔ | the reference answer in prose, not the key of an option |
+| `rubric` | array ≥1 | ✔ | criteria for the judge. Items beginning with "do NOT count" are explicit anti-criteria |
+| `trigger_modality` | array | ✔ | what the moment can be detected from in principle: `visual`, `speech`, `sound` |
+| `depends_on` | array of int | — | the indices of earlier windows without which the answer is incomplete; only smaller `idx` values |
+| `evidence_span` | `[t1, t2]` | ✔ | where the **latest** piece of the information lies without which the question cannot be answered. Required: the field used to be optional, in which case the answer window was substituted for it — which made a `post` question indistinguishable from an `at` one. It often coincides with the window, but not always: for `post` questions the evidence went by long before it. This is the **evidence, not the corroboration**: what establishes that the reference answer is correct at all lives in `provenance.evidence` and may lie after the window (`predict`) or outside the video (`counterfact`) |
 
 ### `distractor_windows[]`
 
-| Поле | Тип | Обяз. | Смысл |
+| Field | Type | Req. | Meaning |
 |---|---|:---:|---|
-| `t_start`, `t_end` | number | ✔ | окно, попадание в которое = ложное срабатывание |
-| `why` | string | ✔ | почему ответ здесь неверен — читается человеком при разборе спорных случаев |
+| `t_start`, `t_end` | number | ✔ | the window; landing in it = a false positive |
+| `why` | string | ✔ | why an answer here is wrong — read by a human when disputed cases are analysed |
 
-Дистракторы не пересекаются ни с одним триггером: иначе один и тот же ответ был бы
-одновременно верным и ложным.
+Distractors do not intersect any trigger: otherwise one and the same answer would be
+correct and false at once.
 
 ### `provenance`
 
-| Поле | Тип | Обяз. | Смысл |
+| Field | Type | Req. | Meaning |
 |---|---|:---:|---|
-| `annotator` | string | ✔ | кто разметил |
-| `created` | string | ✔ | дата разметки |
-| `evidence` | array ≥1 | ✔ | **обязательные ссылки на источник** — защита от выдуманного GT. Каждая запись структурна, вид задаётся полем `type`: `{"type": "frame", "t", "explanation"}`, `{"type": "speech", "t_start", "t_end", "explanation"}` (обе границы — точно по границам реплик транскрипта; выравнивать наружу) или `{"type": "other", "explanation"}` для нетаймкодовых ссылок (исходник сцены, связь с близнецом). Проза не принимается: по ней ссылку не проверить иначе как регулярным выражением. Здесь живёт **подтверждение** — то, чем проверяется, что эталон верен; в отличие от `evidence_span` оно может лежать позже окна ответа (`predict`) или вне ролика вовсе (`counterfact`, `type: other`) |
+| `annotator` | string | ✔ | who annotated it |
+| `created` | string | ✔ | the date of annotation |
+| `evidence` | array ≥1 | ✔ | **required references to the source** — protection against invented ground truth. Each record is structured, its kind set by the `type` field: `{"type": "frame", "t", "explanation"}`, `{"type": "speech", "t_start", "t_end", "explanation"}` (both boundaries exactly on transcript-line boundaries; align outwards) or `{"type": "other", "explanation"}` for references with no timecode (the scene source, the link to a twin). Prose is not accepted: a prose reference cannot be checked except by regular expression. This is where the **corroboration** lives — what establishes that the reference answer is correct; unlike `evidence_span` it may lie after the answer window (`predict`) or outside the video altogether (`counterfact`, `type: other`) |
 
 ### `validation`
 
-| Поле | Тип | Обяз. | Смысл |
+| Field | Type | Req. | Meaning |
 |---|---|:---:|---|
-| `status` | enum | ✔ | `draft` → `validated` → (или) `rejected` |
-| `solvable` | bool \| null | — | решается ли вообще, по транскрипту и кадрам вместе |
-| `blind_solved` | bool \| null | — | решается ли по одному вопросу, без видео |
-| `textonly_solved` | bool \| null | — | решается ли по вопросу + транскрипту |
-| `visiononly_solved` | bool \| null | — | решается ли без звука |
-| `frozenframe_solved` | bool \| null | — | решается ли по одному кадру в `t_ideal`, без истории |
-| `notes` | string | — | заметки разметчика |
+| `status` | enum | ✔ | `draft` → `validated` → (or) `rejected` |
+| `solvable` | bool \| null | — | is it solvable at all, from the transcript and the frames together |
+| `blind_solved` | bool \| null | — | is it solvable from the question alone, with no video |
+| `textonly_solved` | bool \| null | — | is it solvable from the question + the transcript |
+| `visiononly_solved` | bool \| null | — | is it solvable without the audio |
+| `frozenframe_solved` | bool \| null | — | is it solvable from a single frame at `t_ideal`, with no history |
+| `notes` | string | — | the annotator's notes |
 
-## 5. Многотриггерный сэмпл
+## 5. A multi-trigger sample
 
-Фрагмент `q04` (`state_monitor`): пять окон, у поздних — `depends_on` на ранние.
-Ответ в каждом окне обязан перечислить всё накопленное к этому моменту, поэтому
-окна связаны по смыслу, но оцениваются независимо.
+A fragment of `q04` (`state_monitor`): six windows, the later ones with `depends_on`
+pointing at the earlier ones. The answer in each window must list everything accumulated so
+far, so the windows are linked in meaning but scored independently.
 
 ```json
 "triggers": [
@@ -293,7 +305,7 @@ question_time >= e2(последнего) ->  post
    "t_start": 907.6,
    "t_end": 940.0,
    "t_ideal": 908.6,
-   "response": "Определено: (1) число бит на сообщение при идеальном сжатии = -log2(p) …"
+   "response": "Defined: (1) the number of bits per message under perfect compressio …"
   },
   {
    "idx": 1,
@@ -301,7 +313,7 @@ question_time >= e2(последнего) ->  post
    "t_start": 991.3,
    "t_end": 1022.0,
    "t_ideal": 992.3,
-   "response": "Определено: (1) число бит = -log2(p); (2) информация события — Шеннон …",
+   "response": "Defined: (1) the number of bits = -log2(p); (2) the information of an …",
    "depends_on": [
     0
    ]
@@ -312,7 +324,7 @@ question_time >= e2(последнего) ->  post
    "t_start": 1585.0,
    "t_end": 1620.0,
    "t_ideal": 1586.0,
-   "response": "Определено: (1) число бит = -log2(p); (2) информация события; (3) сред …",
+   "response": "Defined: (1) the number of bits = -log2(p); (2) the information of an …",
    "depends_on": [
     0,
     1
@@ -324,7 +336,7 @@ question_time >= e2(последнего) ->  post
    "t_start": 1638.0,
    "t_end": 1700.0,
    "t_ideal": 1639.0,
-   "response": "Новой формулы нет, но величина из предыдущего пункта получает имя «энт …",
+   "response": "There is no new formula, but the quantity from the previous item is g …",
    "depends_on": [
     2
    ]
@@ -335,7 +347,7 @@ question_time >= e2(последнего) ->  post
    "t_start": 1770.5,
    "t_end": 1800.0,
    "t_ideal": 1771.5,
-   "response": "Упомянута энтропийная скорость (entropy rate) стохастического процесса …",
+   "response": "The entropy rate of a stochastic process is mentioned — the generalis …",
    "depends_on": [
     2
    ]
@@ -346,7 +358,7 @@ question_time >= e2(последнего) ->  post
    "t_start": 1851.1,
    "t_end": 1862.0,
    "t_ideal": 1852.1,
-   "response": "Упомянута кросс-энтропия как вариация энтропии — имя дано, формула не …",
+   "response": "Cross-entropy is mentioned as a variation of entropy — the name is gi …",
    "depends_on": [
     2
    ]
@@ -354,44 +366,45 @@ question_time >= e2(последнего) ->  post
  ]
 ```
 
-Два последних окна `required: false` намеренно: именование уже введённой величины
-и упоминание без формулы — это те самые пограничные случаи, где разумный разметчик
-мог бы и промолчать.
+The last three windows are `required: false` on purpose: naming a quantity that has already
+been introduced, and a mention with no formula, are exactly the borderline cases where a
+reasonable annotator might have said nothing.
 
-## 6. Инварианты, которые проверяет валидатор
+## 6. The invariants the validator checks
 
-Помимо схемы, `tools/validate_samples.py` проверяет семантику:
+Besides the schema, `tools/validate_samples.py` checks the semantics:
 
-- `idx` идут подряд с нуля; есть хотя бы один `required` триггер;
-- `t_start < t_end`, окно внутри `duration`, `t_start ≤ t_ideal < t_end`,
-  окно не короче пяти секунд;
-- `t_start ≥ evidence_span[0]` и `evidence_span[1] ≤ t_end`;
-  правильность самой границы `t_start` машина не проверяет — это работа
-  ревьюера (2.4, 3.3);
-- окна триггеров не пересекаются между собой и не пересекаются с дистракторами;
-- `depends_on` ссылается только на строго меньшие `idx`;
-- `temporal_rel` совпадает с выведенным из `question_time` и `evidence_span` (§4.1);
-- `question_time` не больше длительности; ни одно окно ответа не лежит целиком до него;
-- у многотриггерного сэмпла есть хотя бы один `distractor_window` (иначе спам-стратегия
-  ничем не наказана);
-- `id` уникален в пределах всех проверяемых файлов;
-- ни один дистрактор не лежит целиком до `question_time` — ловить там нечего;
-- `audio_dependency` остаётся `null`, пока `status == "draft"` — метка выводится
-  из ответов зондов модальностей (чеклист 4.5), а намерение разметчика живёт
-  отдельно в `audio_dependency_claim`;
-- `claim` не противоречит модальностям: `unnecessary` при всех триггерах только
-  речевых — ошибка, `required` без единого `speech`/`sound` — тоже.
+- `idx` values run consecutively from zero; there is at least one `required` trigger;
+- `t_start < t_end`, the window is inside `duration`, `t_start ≤ t_ideal < t_end`, the
+  window is no shorter than five seconds;
+- `t_start ≥ evidence_span[0]` and `evidence_span[1] ≤ t_end`; whether the `t_start`
+  boundary itself is right is not checked by the machine — that is the reviewer's work
+  (2.4, 3.3);
+- trigger windows do not intersect each other and do not intersect the distractors;
+- `depends_on` refers only to strictly smaller `idx` values;
+- `temporal_rel` matches the value derived from `question_time` and `evidence_span` (§4.1);
+- `question_time` is not greater than the duration; no answer window lies entirely before
+  it;
+- a multi-trigger sample has at least one `distractor_window` (otherwise a spam strategy
+  goes unpunished);
+- `id` is unique across all the files being checked;
+- no distractor lies entirely before `question_time` — there is nothing to catch there;
+- `audio_dependency` stays `null` while `status == "draft"` — the label is derived from the
+  answers of the modality probes (checklist 4.5), while the annotator's intent lives
+  separately in `audio_dependency_claim`;
+- the `claim` does not contradict the modalities: `unnecessary` when every trigger is
+  speech-only is an error, and so is `required` without a single `speech`/`sound`.
 
-Запуск:
+To run it:
 
 ```bash
 python tools/validate_samples.py data/annotations/*.jsonl
 ```
 
-При нуле ошибок печатает разбивку покрытия по всем трём осям, шаблонам и числу
-триггеров на сэмпл.
+With zero errors it prints the coverage breakdown along all three axes, the templates and
+the number of triggers per sample.
 
-## 7. Как читать программно
+## 7. How to read it programmatically
 
 ```python
 import json
@@ -400,134 +413,142 @@ from pathlib import Path
 rows = [json.loads(l) for l in
         Path("data/annotations/l6DKRf-fAAM.jsonl").read_text(encoding="utf-8").splitlines() if l.strip()]
 
-# все обязательные окна, отсортированные по времени
+# every required window, sorted by time
 for s in rows:
     for t in s["triggers"]:
         if t["required"]:
             print(f"{s['id']}  [{t['t_start']:7.1f}, {t['t_end']:7.1f})  {t['response'][:60]}…")
 
-# только валидированные, с замеренной аудиозависимостью
+# only the validated ones, with audio dependency measured
 ready = [s for s in rows if s["validation"]["status"] == "validated"]
 ```
 
-## 8. Что уже размечено
+## 8. What has been annotated so far
 
-`l6DKRf-fAAM.jsonl` — «Reinventing Entropy | Compression is Intelligence Part 1»,
-выложено 2026-06-07, **10 сэмплов / 25 триггеров**. Пилотное видео выбрано так, чтобы
-дата выхода была позже cutoff большинства моделей.
+`l6DKRf-fAAM.jsonl` — "Reinventing Entropy | Compression is Intelligence Part 1",
+published 2026-06-07, **10 samples / 24 triggers**. The pilot video was chosen so that its
+release date falls after the cutoff of most models.
 
-| id | шаблон | акт / отношение / уровень | q_time | ожидание | триггеров |
+| id | template | act / rel / level | q_time | wait | triggers |
 |---|---|---|---|---|---|
-| q01 | counterfactual_on_appearance | counterfact / pre / L3 | 250 | 65 с | 1 +1 дистр. |
-| q02 | premature_answer_trap | alert / pre / L1 | 2 | 1820 с | 1 +2 дистр. |
-| q02b | post_control_twin | alert / **post** / L1 | 1900 | 0 с (доказательство на -78 с) | 1 |
-| q03 | assumption_probe | verify / pre / L2 | 1480 | 105 с | 1 +1 дистр. |
-| q04 | state_monitor | monitor / pre / L2 | 0 | 907 с | 6 (3 опц.) +2 дистр. |
-| q05 | step_dependency | alert / pre / L2 | 370 | 1179 с | 2 (1 опц.) +1 дистр. |
-| q06 | speech_only_marker | ground / pre / L1 | 0 | 34 с | 9 (5 опц.) +2 дистр. |
-| q07 | counterfactual_on_appearance | counterfact / pre / L3 | 930 | 27 с | 2 (1 опц.) +1 дистр. |
-| q07b | at_control_twin | counterfact / **at** / L3 | 963 | 0 с | 1 |
-| q08 | prediction_ahead | predict / pre / L3 | 1110 | 149 с | 1 +1 дистр. |
+| q01 | counterfactual_on_appearance | counterfact / pre / L3 | 250 | 65 s | 1 +1 distr. |
+| q02 | premature_answer_trap | alert / pre / L1 | 2 | 1820 s | 1 +2 distr. |
+| q02b | post_control_twin | alert / **post** / L1 | 1900 | 0 s | 1 |
+| q03 | assumption_probe | alert / pre / L1 | 1480 | 142 s | 1 +1 distr. |
+| q04 | state_monitor | monitor / pre / L1 | 0 | 908 s | 6 (3 opt.) +2 distr. |
+| q05 | step_dependency | alert / pre / L1 | 370 | 1181 s | 1 +2 distr. |
+| q06 | speech_only_marker | ground / pre / L1 | 0 | 34 s | 9 (5 opt.) +2 distr. |
+| q07 | counterfactual_on_appearance | counterfact / pre / L3 | 930 | 16 s | 2 (1 opt.) +1 distr. |
+| q07b | at_control_twin | counterfact / **at** / L3 | 963 | 0 s | 1 |
+| q08 | prediction_ahead | predict / pre / L1 | 1110 | 149 s | 1 +1 distr. |
 
-**Окна привязаны к появлению информации на экране, а не к речи.** Это отдельная
-грабля: автор часто показывает таблицу или значения за десятки секунд до того, как
-проговорит их вслух. У q01 таблица кодовых слов полна уже на 315, тогда как автор
-называет те же слова на 337–347 и считает среднее на 347–360 — окно открывается на 315,
-потому что для ответа хватает кодов и вероятностей. У q07 те же четыре пары
-`(p, −log₂ p)` показаны квадратными диаграммами на 946, за 11 секунд до графика; этот
-момент оформлен опциональным окном, чтобы ранний правильный ответ не считался ложным
-срабатыванием. Проверять надо кадрами, а не транскриптом.
+Four of the ten (q02, q02b, q03, q08) carry `status: rejected` after review round 1: their
+answers were given blind. They are kept in the file on purpose — the share of
+blind-solvable questions is a measurable result, and discarding them silently would zero it
+out.
 
-Полный перечень классов ошибок, которые надо проверять при разметке, —
-в [docs/annotation_checklist.md](../../docs/annotation_checklist.md).
+**The windows are anchored to information appearing on screen, not to the speech.** This is
+a pitfall of its own: the author often shows a table or the values tens of seconds before
+speaking them aloud. In q01 the table of code words is complete as early as 315, whereas the
+author names those same words at 337–347 and computes the average at 347–360 — the window
+opens at 315, because the codes and the probabilities are enough to answer. In q07 the same
+four pairs `(p, −log₂ p)` are shown as square diagrams at 946, 11 seconds before the graph;
+that moment is recorded as an optional window so that an early correct answer does not count
+as a false positive. This has to be checked against frames, not against the transcript.
 
-## 9. Статусы и что должна показать Фаза 3
+The full list of the error classes to check for while annotating is in
+[docs/annotation_checklist.md](../../docs/annotation_checklist.md).
 
-Все десять сейчас `draft`. Перевод в `validated` — только после ответов зондов
-модальностей (`text`, `vision`, `frame`, при необходимости `full`; см.
-[docs/annotation_pipeline.md](../../docs/annotation_pipeline.md)). Ожидания, которые
-зонды должны подтвердить или опровергнуть:
+## 9. Statuses and what Phase 3 has to show
 
-- **q06 обязан провалить vision-only** — все семь триггеров чисто речевые.
-  Если не провалит, сломан метод замера, а не сэмпл. Оговорка: окно `[34, 46)` совпадает
-  с кадром t=40, где на экране спидометр с подписью «Limit?» — визуальный маркер
-  «вопрос отложен» там частично читается, так что контроль слабее, чем хотелось бы.
-- **q01, q07 и q07b обязаны выжить без звука** — ответ считается по картинке.
-- **Кандидаты на blind-solved шире, чем кажется**: помимо q02, q02b и q08 сюда попадают
-  q01 (канонический хаффмановский пример `1/2, 1/4, 1/8, 1/8 → 0, 10, 110, 111`), q03
-  (сводится к «энтропия предполагает i.i.d.») и q07/q07b (столбики на `1/2, 1/4, 1/8, 1/16`
-  высотой `1, 2, 3, 4` — каноническая иллюстрация `−log₂ p`). Проверять надо все семь;
-  утверждения в `validation.notes` о стойкости к blind — это гипотезы, а не замеры.
-- **q02, q02b и q08**: оценка Шеннона ≈1 бит/символ
-  и эксперимент с угадыванием буквы есть в учебниках. Если содержательная часть
-  ответа даётся вслепую, выбрасываются все три: тестов «на один лишь тайминг»
-  в наборе не будет (чеклист 4.2).
-- **q03 не должен решаться frozen-frame**: по одному кадру с формулой нельзя назвать,
-  какие два примера разбирались раньше в этом же ролике.
-- **q07/q07b не должны решаться frozen-frame по кадру без графика** и не должны решаться
-  вслепую: позиции столбиков `p = 1/16, 1/8, 1/4, 1/2` считываются только с экрана.
-  Ранняя редакция вопроса (без привязки к столбикам) была чистой учебной задачей и
-  решалась без видео — это исправлено.
+Promotion to `validated` happens only after the modality probes have answered (`text`,
+`vision`, `frame`, and `full` if needed; see
+[docs/annotation_pipeline.md](../../docs/annotation_pipeline.md)). The expectations the
+probes have to confirm or refute:
 
-## 10. Окружения
+- **q06 must fail vision-only** — all seven of its triggers are purely spoken. If it does
+  not fail, what is broken is the measurement method, not the sample. A caveat: the window
+  `[34, 46)` coincides with the frame t=40, where the screen shows a speedometer captioned
+  "Limit?" — a visual marker for "the question is postponed" is partly readable there, so
+  the control is weaker than one would like.
+- **q01, q07 and q07b must survive without the audio** — their answers are computed from
+  the picture.
+- **The candidates for blind-solved are wider than they look**: besides q02, q02b and q08
+  this includes q01 (the canonical Huffman example `1/2, 1/4, 1/8, 1/8 → 0, 10, 110, 111`),
+  q03 (which reduces to "entropy assumes i.i.d.") and q07/q07b (bars at
+  `1/2, 1/4, 1/8, 1/16` of heights `1, 2, 3, 4` — the canonical illustration of `−log₂ p`).
+  All seven have to be checked; the claims in `validation.notes` about resistance to blind
+  solving are hypotheses, not measurements.
+- **q02, q02b and q08**: Shannon's estimate of ≈1 bit per character and the letter-guessing
+  experiment are in the textbooks. If the substantive part of the answer is given blind, all
+  three are thrown out: there will be no "timing only" tests in the set (checklist 4.2).
+- **q03 must not be solvable frozen-frame**: from a single frame with the formula one cannot
+  name which two examples were gone through earlier in the same video.
+- **q07/q07b must not be solvable frozen-frame from a frame without the graph**, and must
+  not be solvable blind: the positions of the bars `p = 1/16, 1/8, 1/4, 1/2` can only be
+  read off the screen. An early revision of the question (with no anchoring to the bars) was
+  a pure textbook exercise and was solvable without the video — that has been fixed.
 
-В проекте два питона, и они делят обязанности:
+## 10. Environments
 
-| Окружение | Путь | Что в нём | Для чего |
+The project has two pythons, and they divide the duties:
+
+| Environment | Path | What is in it | What for |
 |---|---|---|---|
-| `rah_manim` | `/home/jovyan/.mlspace/envs/rah_manim/bin/python` | `manim` 0.20.1, `yt-dlp` | скачивание видео, будущий ре-рендер сцен |
-| base conda | `/home/user/conda/bin/python3` | `matplotlib`, `pandas`, `jsonschema`, `cv2`, jupyter | ноутбук, валидатор, сборка bundle |
+| `rah_manim` | `/home/jovyan/.mlspace/envs/rah_manim/bin/python` | `manim` 0.20.1, `yt-dlp` | downloading videos, future re-rendering of scenes |
+| base conda | `/home/user/conda/bin/python3` | `matplotlib`, `pandas`, `jsonschema`, `cv2`, jupyter | the notebook, the validator, building bundles |
 
-`python3` в интерактивной оболочке может резолвиться в любой из них, поэтому
-`tools/fetch_video.py` сам ищет интерпретатор с `yt_dlp` (список — в `CANDIDATE_PYTHONS`)
-и печатает, какой выбрал. Остальные инструменты запускай базовым питоном:
+`python3` in an interactive shell may resolve to either of them, so
+`tools/fetch_video.py` finds an interpreter with `yt_dlp` on its own (the list is in
+`CANDIDATE_PYTHONS`) and prints which one it chose. Run the other tools with the base
+python:
 
 ```bash
 /home/user/conda/bin/python3 tools/make_bundle.py <id>
 /home/user/conda/bin/python3 tools/validate_samples.py data/annotations/*.jsonl
 ```
 
-Ядро ноутбука `data_overview.ipynb` — base conda; в `rah_manim` нет ни `matplotlib`,
-ни `pandas`, ни `ipykernel`.
+The kernel of the `data_overview.ipynb` notebook is base conda; `rah_manim` has neither
+`matplotlib`, nor `pandas`, nor `ipykernel`.
 
-## 11. Как воспроизвести с нуля
+## 11. How to reproduce from scratch
 
 ```bash
-python tools/build_3b1b_mapping.py            # урок -> youtube_id -> manim-исходник
+python tools/build_3b1b_mapping.py            # lesson -> youtube_id -> manim source
 python tools/fetch_video.py l6DKRf-fAAM       # mp4 + info.json + en.vtt + description
 python tools/make_bundle.py l6DKRf-fAAM       # transcript.md, formulas.md, frames/
 python tools/validate_samples.py data/annotations/l6DKRf-fAAM.jsonl
 ```
 
-## 12. Кадры: только детекция сцен
+## 12. Frames: scene detection only
 
-Равномерной сетки в конвейере больше нет. Она требовала одного ffmpeg, но
-на manim-видео ошибалась сразу в две стороны: дублировала статику и **теряла
-сцены целиком**. На пилотном ролике в окне 887–1011 с сетка пропускала
-8 содержательных состояний из 18, включая всю цепочку вывода
-`p = 2⁻ⁿ → log₂(p) = −n → −log₂(p) = n` и момент, где вводится определение
-`Information := −log₂(p)`.
+There is no uniform grid in the pipeline any more. It needed nothing but ffmpeg, but on
+manim videos it erred in both directions at once: it duplicated static shots and **lost
+whole scenes**. On the pilot video, in the window 887–1011 s, the grid missed 8 meaningful
+states out of 18, including the entire derivation chain
+`p = 2⁻ⁿ → log₂(p) = −n → −log₂(p) = n` and the moment where the definition
+`Information := −log₂(p)` is introduced.
 
-Кадры режет [`tools/detect_scenes.py`](../../tools/detect_scenes.py): накопленный
-дрейф относительно последнего снятого кадра, с вычетом шумового пола по блокам.
-На том же окне ловит 18 состояний из 18. Цена — кадров в 3.2 раза больше
-(437 против прежних 136 на 32-минутном ролике) и зависимость от OpenCV:
+Frames are cut by [`tools/detect_scenes.py`](../../tools/detect_scenes.py): accumulated
+drift relative to the last frame taken, with the noise floor subtracted block by block. Over
+the same window it catches 18 states out of 18. The price is 3.2 times as many frames (437
+against the previous 136 for a 32-minute video) and a dependency on OpenCV:
 
 ```bash
-/home/user/conda/bin/python3 -m pip install opencv-python-headless   # в base conda
+/home/user/conda/bin/python3 -m pip install opencv-python-headless   # into base conda
 ```
 
-Как подбирался порог, на каких роликах проверялось, сколько кадров на минуту
-получается и чего детектор не ловит — в [docs/scene_detection.md](../../docs/scene_detection.md).
-Времена съёма зависят от параметров детектора, поэтому `make_bundle.py` сносит
-все старые кадры перед записью: иначе прогон с другим порогом оставил бы свои
-файлы рядом с новыми, и разметчик видел бы смесь двух нарезок, а `bundle.json` —
-только половину.
+How the threshold was chosen, which videos it was checked on, how many frames per minute it
+produces and what the detector does not catch are in
+[docs/scene_detection.md](../../docs/scene_detection.md). Capture times depend on the
+detector's parameters, so `make_bundle.py` wipes all the old frames before writing:
+otherwise a run with a different threshold would leave its files next to the new ones, the
+annotator would see a mixture of two cuts, and `bundle.json` would list only half of them.
 
-Детектор работает и как самостоятельный инструмент:
+The detector also works as a standalone tool:
 
 ```bash
-python tools/detect_scenes.py l6DKRf-fAAM                    # только времена
-python tools/detect_scenes.py l6DKRf-fAAM --write-frames     # ещё и кадры
+python tools/detect_scenes.py l6DKRf-fAAM                    # times only
+python tools/detect_scenes.py l6DKRf-fAAM --write-frames     # frames as well
 python tools/detect_scenes.py video.mp4 --threshold 0.02 --json cuts.json
 ```

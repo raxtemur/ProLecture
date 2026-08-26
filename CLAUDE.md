@@ -2,77 +2,78 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Что это за репозиторий
+## What this repository is
 
-Две независимые линии работы под одной крышей:
+Two independent lines of work under one roof:
 
-1. **ProLecture** — бенчмарк проактивных задач для стриминговых VLM на видео 3Blue1Brown.
-   Это основная линия: `tools/`, `data/`, `schema/`, `docs/`, `articles/`.
-2. **Песочница manim** — эксперименты с анимацией и две самописные проверки качества сцен:
+1. **ProLecture** — a benchmark of proactive tasks for streaming VLMs on 3Blue1Brown videos.
+   This is the main line: `tools/`, `data/`, `schema/`, `docs/`, `articles/`.
+2. **The manim sandbox** — animation experiments and two home-grown scene quality checks:
    `demo/`, `scripts/`.
 
-Проектный замысел ProLecture целиком описан в [docs/plans/general.md](docs/plans/general.md),
-формат разметки — в [data/annotations/README.md](data/annotations/README.md), нарезка
-кадров по смене сцен — в [docs/scene_detection.md](docs/scene_detection.md),
-прогон описания видеоряда — в [docs/video_description.md](docs/video_description.md), классы ошибок
-разметки и кто их ловит — в [docs/annotation_checklist.md](docs/annotation_checklist.md),
-порядок работы агентов-разметчиков и ревьюеров — в
-[docs/annotation_pipeline.md](docs/annotation_pipeline.md) вместе с драфтами промптов
-в [docs/prompts/](docs/prompts/) и анти-примерами по шаблонам вопросов
-в [docs/question_templates.md](docs/question_templates.md).
-Контракт, по которому отчитываются субагенты-ревьюеры, — [schema/review.py](schema/review.py)
-(pydantic, не JSON-схема: его читает и модель тоже).
-Читай их перед любой правкой разметки или метрик: там зафиксированы решения, у которых
-есть неочевидное «почему».
+The design intent of ProLecture is described in full in [docs/plans/general.md](docs/plans/general.md),
+the annotation format in [data/annotations/README.md](data/annotations/README.md), the cutting of
+frames by scene change in [docs/scene_detection.md](docs/scene_detection.md),
+the run of the video-track description in [docs/video_description.md](docs/video_description.md),
+the classes of annotation error and who catches them in
+[docs/annotation_checklist.md](docs/annotation_checklist.md), the working order of the annotator
+and reviewer agents in [docs/annotation_pipeline.md](docs/annotation_pipeline.md) together with the
+draft prompts in [docs/prompts/](docs/prompts/) and the anti-examples by question template in
+[docs/question_templates.md](docs/question_templates.md).
+The contract the reviewer subagents report against is [schema/review.py](schema/review.py)
+(pydantic, not a JSON schema: a model reads it too).
+Read them before any edit to the annotation or the metrics: they record decisions that have a
+non-obvious "why".
 
-## Два окружения — главная грабля
+## Two environments — the main snag
 
-`python3` в оболочке резолвится то в одно, то в другое. **Всегда указывай интерпретатор явно.**
+`python3` in the shell resolves now to one, now to the other. **Always name the interpreter
+explicitly.**
 
-| Окружение | Путь | Что есть | Чего нет |
+| Environment | Path | What it has | What it lacks |
 |---|---|---|---|
 | `rah_manim` | `/home/jovyan/.mlspace/envs/rah_manim/bin/python` | manim CE 0.20.1, manim-voiceover, yt-dlp, cv2, openai | matplotlib, pandas, jupyter, jsonschema |
 | base conda | `/home/user/conda/bin/python3` | matplotlib, pandas, jsonschema, cv2, jupyter | yt-dlp, manim |
 
-`tools/fetch_video.py` сам ищет интерпретатор с `yt_dlp` (список в `CANDIDATE_PYTHONS`).
-Остальные инструменты и ядро ноутбука — base conda. LaTeX для manim берётся из TinyTeX
-(`~/.TinyTeX/bin/x86_64-linux`, прописан в `~/.zshrc`).
+`tools/fetch_video.py` looks for an interpreter with `yt_dlp` itself (the list is in
+`CANDIDATE_PYTHONS`). The other tools and the notebook kernel are base conda. LaTeX for manim comes
+from TinyTeX (`~/.TinyTeX/bin/x86_64-linux`, set in `~/.zshrc`).
 
-## Команды
+## Commands
 
 ```bash
 BASE=/home/user/conda/bin/python3
 RAH=/home/jovyan/.mlspace/envs/rah_manim/bin/python
 
-# конвейер данных: маппинг -> скачивание -> bundle -> проверка разметки
-$BASE tools/build_3b1b_mapping.py                  # урок -> youtube_id -> manim-исходник
-$BASE tools/fetch_video.py <youtube_id>            # или --slug <lesson-slug>
-$BASE tools/make_bundle.py <youtube_id>            # кадры режет детектор сцен; --no-frames оставляет прежние
-$BASE tools/detect_scenes.py <youtube_id>          # детектор сцен сам по себе
-$BASE tools/describe_video.py <youtube_id> --settled 0.5   # описание видеоряда VLM, нужен сервер
+# the data pipeline: mapping -> download -> bundle -> annotation check
+$BASE tools/build_3b1b_mapping.py                  # lesson -> youtube_id -> manim source
+$BASE tools/fetch_video.py <youtube_id>            # or --slug <lesson-slug>
+$BASE tools/make_bundle.py <youtube_id>            # frames are cut by the scene detector; --no-frames keeps the old ones
+$BASE tools/detect_scenes.py <youtube_id>          # the scene detector on its own
+$BASE tools/describe_video.py <youtube_id> --settled 0.5   # VLM description of the video track, needs a server
 $BASE tools/validate_samples.py data/annotations/*.jsonl
 
-# контракт ревью: сверка чеклиста с Item и проверка сохранённого ревью
+# the review contract: cross-checking the checklist against Item and checking a saved review
 $BASE schema/review.py
 $BASE schema/review.py --check data/reviews/<VIDEO_ID>/<SAMPLE_ID>/full.1.json
 
-# ноутбук обзора (ядро — base conda, в rah_manim он не запустится)
+# the overview notebook (the kernel is base conda; it will not run in rah_manim)
 cd data && $BASE -m nbconvert --to notebook --execute --inplace \
     --ExecutePreprocessor.timeout=300 data_overview.ipynb
 
-# manim: рендер сцены. PYTHONPATH обязателен — сцены в demo/ импортируют
-# scene_asserts и layout_check, а manim кладёт в sys.path только каталог сцены
+# manim: rendering a scene. PYTHONPATH is mandatory — the scenes in demo/ import
+# scene_asserts and layout_check, and manim puts only the scene's directory on sys.path
 conda activate rah_manim
 PYTHONPATH=scripts manim -ql demo/demo.py SquareToCircle
 PYTHONPATH=scripts MANIM_LAYOUT_STRICT=1 MANIM_SCENE_STRICT=1 \
     manim -ql demo/demo2.py EigenLecture
 ```
 
-Тестового фреймворка нет. Роль тестов для разметки играет `tools/validate_samples.py`:
-он возвращает код 1 при любой ошибке и печатает разбивку покрытия при нуле ошибок.
-Проверить одиночный файл — просто передать его вместо глоба.
+There is no test framework. The role of tests for the annotation is played by
+`tools/validate_samples.py`: it returns code 1 on any error and prints a coverage breakdown when
+there are none. To check a single file, simply pass it instead of the glob.
 
-## Конвейер ProLecture
+## The ProLecture pipeline
 
 ```
 vendor/site (3Blue1Brown.com)          vendor/videos (3b1b/videos)
@@ -83,84 +84,85 @@ vendor/site (3Blue1Brown.com)          vendor/videos (3b1b/videos)
                                     │
                      ┌──────────────┴──────────────┐
                      ▼                             ▼
-          data/videos/<id>/               (путь к manim-исходнику)
+          data/videos/<id>/               (the path to the manim source)
           mp4 + info.json + en.vtt                 │
                      └──────────────┬──────────────┘
                                     ▼
                        data/bundles/<id>/           tools/make_bundle.py
                        transcript.md, formulas.md, frames/, bundle.json
                                     ▼
-                       разметка руками по bundle
+                       annotation by hand from the bundle
                                     ▼
                      data/annotations/<id>.jsonl    tools/validate_samples.py
 ```
 
-**Ключ ко всему — frontmatter репозитория сайта.** В самом `3b1b/videos` нет ни одной ссылки
-на YouTube; связь «урок ↔ ролик ↔ код сцены» существует только в
-`vendor/site/app/pages/lessons/<год>/<slug>/index.mdx`, где есть поля `video:` (YouTube-id)
-и `source:` (путь внутри `3b1b/videos`). Из 175 уроков 170 имеют id, 159 объявляют `source` (155 — вместе с id),
-и лишь **140** указывают на реально существующий файл — остальные пути устарели, для них
-скрипт предлагает `source_guess` через `difflib`.
+**The key to everything is the frontmatter of the site's repository.** `3b1b/videos` itself
+contains not a single link to YouTube; the connection "lesson ↔ video ↔ scene code" exists only in
+`vendor/site/app/pages/lessons/<year>/<slug>/index.mdx`, which has the fields `video:` (the YouTube
+id) and `source:` (a path inside `3b1b/videos`). Of the 175 lessons, 170 have an id, 159 declare a
+`source` (155 together with an id), and only **140** point at a file that actually exists — the
+other paths are stale, and for them the script proposes a `source_guess` via `difflib`.
 
-`vendor/` не под версионным контролем; коммиты трёх сторонних репозиториев зафиксированы
-в `vendor/PINNED.txt` — без них числа выше невоспроизводимы. Учти: `3b1b/videos` написан под
-**manimgl** (3b1b/manim), а установлен manim **CE** — отрендерить оттуда сцену без отдельной
-установки нельзя.
+`vendor/` is not under version control; the commits of the three third-party repositories are fixed
+in `vendor/PINNED.txt` — without them the numbers above are irreproducible. Note: `3b1b/videos` is
+written for **manimgl** (3b1b/manim) while manim **CE** is installed — a scene from there cannot be
+rendered without a separate installation.
 
-## Скачивание с YouTube: три граблины
+## Downloading from YouTube: three snags
 
-Куки и логин **не нужны**, но:
+Cookies and a login are **not needed**, but:
 
-- дефолтный клиент `android_vr` отдаёт URL, на которых CDN возвращает 403 — обязателен
-  `--extractor-args "youtube:player_client=android"`;
-- `--download-sections` не работает: он передаёт URL внешнему ffmpeg, который ходит без
-  нужных заголовков. Качать целиком, резать локально;
-- без PO-токена доступен только формат 18 (640×360). Для 1080p нужен плагин
-  `bgutil-ytdlp-pot-provider` (логина тоже не требует).
+- the default client `android_vr` returns URLs on which the CDN answers 403 —
+  `--extractor-args "youtube:player_client=android"` is mandatory;
+- `--download-sections` does not work: it passes the URL to an external ffmpeg, which goes without
+  the necessary headers. Download whole, cut locally;
+- without a PO token only format 18 (640×360) is available. For 1080p the
+  `bgutil-ytdlp-pot-provider` plugin is needed (it does not require a login either).
 
-У 3b1b субтитры **человеческие** (`subtitles`, а не `automatic_captions`), Whisper не нужен.
+3b1b's subtitles are **human** (`subtitles`, not `automatic_captions`); Whisper is not needed.
 
-## Инварианты разметки
+## Annotation invariants
 
-Схема — `schema/sample.schema.json`, `additionalProperties: false` на всех уровнях.
-Семантику поверх схемы проверяет `tools/validate_samples.py`. Два правила, которые легко
-нарушить по незнанию:
+The schema is `schema/sample.schema.json`, with `additionalProperties: false` at every level. The
+semantics on top of the schema are checked by `tools/validate_samples.py`. Two rules that are easy
+to break out of ignorance:
 
-- **`temporal_rel` не ставится руками, а выводится** из `question_time` и `evidence_span`
-  первого/последнего обязательного триггера. Ось определяется положением *доказательства*,
-  а не окна ответа: у `post`-вопроса окно ответа тоже начинается в момент выдачи вопроса,
-  и по окну он неотличим от `at`.
-- **`audio_dependency` остаётся `null`, пока `status == "draft"`** — метка выводится
-  из ответов зондов модальностей (`visiononly_solved` и `solvable`, чеклист 4.5),
-  а не ставится мнением разметчика. Мнение живёт отдельно в `audio_dependency_claim`.
+- **`temporal_rel` is not set by hand but derived** from `question_time` and the `evidence_span` of
+  the first/last required trigger. The axis is determined by the position of the *evidence*, not of
+  the answer window: with a `post` question the answer window also begins at the moment the
+  question is issued, and by the window it is indistinguishable from `at`.
+- **`audio_dependency` stays `null` while `status == "draft"`** — the label is derived from the
+  answers of the modality probes (`visiononly_solved` and `solvable`, checklist 4.5) rather than
+  set by the annotator's opinion. The opinion lives separately in `audio_dependency_claim`.
 
-Прочее, что проверяется: непересекающиеся окна, `t_ideal` внутри своего окна, `depends_on`
-только на более ранние индексы, дистрактор не лежит целиком до `question_time` и не
-пересекается с триггером, у многотриггерного сэмпла есть хотя бы один дистрактор,
-уникальность `id`.
+What else is checked: non-overlapping windows, `t_ideal` inside its own window, `depends_on` only
+on earlier indices, a distractor not lying entirely before `question_time` and not overlapping a
+trigger, a multi-trigger sample having at least one distractor, the uniqueness of `id`.
 
-## Принципы, из которых вырос дизайн
+## The principles the design grew out of
 
-Взяты из адверсальных разборов трёх статей в `articles/` — каждый пункт закрывает провал,
-на котором погорела соответствующая работа:
+Taken from the adversarial reviews of three papers in `articles/` — each point closes a failure
+that sank the work in question:
 
-- метки, влияющие на выводы (`audio_dependency`), ставятся **замером**, а не декларацией;
-- модель-генератор, модель-судья и оцениваемая модель — разные;
-- ответы открытые с рубрикой, без MCQ (перекошенный ключ ответов ломает бенчмарк);
-- обязательные бейзлайны-пустышки: blind, text-only, vision-only, frozen-frame,
-  «отвечать сразу», «отвечать в конце», «молчать»;
-- никаких квот вида «ровно N сэмплов на задачу» — сколько прошло валидацию, столько и есть;
-- контаминация: пилот строится на видео 2026 года, контрольное видео 2017 года нужно,
-  чтобы разрыв blind-бейзлайна **измерить**, а не отрицать.
+- labels that influence conclusions (`audio_dependency`) are set by **measurement**, not by
+  declaration;
+- the generator model, the judge model and the model being evaluated are different;
+- open answers with a rubric, no MCQs (a skewed answer key breaks a benchmark);
+- mandatory dummy baselines: blind, text-only, vision-only, frozen-frame, "answer immediately",
+  "answer at the end", "stay silent";
+- no quotas of the form "exactly N samples per task" — however many passed validation is however
+  many there are;
+- contamination: the pilot is built on a 2026 video, and the 2017 control video is there so that
+  the gap of the blind baseline can be **measured** rather than denied.
 
-## Проверки сцен manim
+## The manim scene checks
 
-`scripts/layout_check.py` и `scripts/scene_asserts.py` закрывают два разных класса ошибок,
-о которых manim молчит: вёрстку (выход за кадр, наложения) и семантику («картинка аккуратна,
-но означает не то»). Переменные `MANIM_LAYOUT_STRICT=1` и `MANIM_SCENE_STRICT=1` превращают
-предупреждения в исключения.
+`scripts/layout_check.py` and `scripts/scene_asserts.py` close two different classes of error that
+manim stays silent about: layout (going off-screen, overlaps) and semantics ("the picture is tidy
+but means the wrong thing"). The variables `MANIM_LAYOUT_STRICT=1` and `MANIM_SCENE_STRICT=1` turn
+warnings into exceptions.
 
-## Язык
+## Language
 
-Код, документация и разметка ведутся по-русски; идентификаторы, термины и цитаты из видео —
-в оригинале.
+The code, the documentation and the annotation are kept in English; identifiers, terms and
+quotations from the videos stay in the original.

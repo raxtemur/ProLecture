@@ -1,21 +1,21 @@
 #!/usr/bin/env python3
-"""Собирает annotation bundle по видео: то, с чем реально работает разметчик.
+"""Assembles the annotation bundle for a video: what an annotator actually works with.
 
-На выходе data/bundles/<id>/:
-    bundle.json     — машиночитаемо: чаптеры, транскрипт, формулы из исходника
-    transcript.md   — транскрипт с таймкодами, разбитый по чаптерам
-    formulas.md     — LaTeX-строки из manim-исходника (сцена, файл, строка)
-    frames/         — кадры по детекции смены сцен (tools/detect_scenes.py)
+The output is data/bundles/<id>/:
+    bundle.json     — machine-readable: chapters, transcript, formulas from the source
+    transcript.md   — the transcript with timecodes, broken up by chapter
+    formulas.md     — the LaTeX strings from the manim source (scene, file, line)
+    frames/         — frames by scene change detection (tools/detect_scenes.py)
 
-Равномерной сетки здесь больше нет. На manim-видео она ошибается сразу в две
-стороны: на статичном куске выдаёт несколько одинаковых кадров, а сцену, прожившую
-десять секунд между узлами сетки, не показывает вовсе. Замер и разбор —
-в docs/scene_detection.md. Нужен OpenCV (base conda).
+There is no uniform grid here any more. On manim videos it errs in two directions at
+once: on a static stretch it produces several identical frames, while a scene that
+lived ten seconds between the nodes of the grid is not shown at all. The measurements
+and the discussion are in docs/scene_detection.md. OpenCV is needed (base conda).
 
-Использование:
+Usage:
     python tools/make_bundle.py l6DKRf-fAAM
     python tools/make_bundle.py l6DKRf-fAAM --scene-threshold 0.008
-    python tools/make_bundle.py l6DKRf-fAAM --no-frames     # оставить нарезку как есть
+    python tools/make_bundle.py l6DKRf-fAAM --no-frames     # keep the cut as it is
 """
 
 import argparse
@@ -27,7 +27,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-import detect_scenes  # noqa: E402  (лежит рядом, в tools/)
+import detect_scenes  # noqa: E402  (it sits next door, in tools/)
 
 ROOT = Path(__file__).resolve().parent.parent
 VIDEOS_DIR = ROOT / "data" / "videos"
@@ -40,12 +40,12 @@ TEX_RE = re.compile(
     r"\b(" + "|".join(TEX_CALLS) + r")\s*\(\s*([rRfFbB]{0,2})(['\"])(.*?)\3",
     re.DOTALL,
 )
-# все места вызова — чтобы честно посчитать, сколько не удалось разобрать
+# every call site — so as to count honestly how many could not be parsed
 TEX_CALL_SITE_RE = re.compile(r"\b(" + "|".join(TEX_CALLS) + r")\s*\(")
 CLASS_RE = re.compile(r"^class\s+(\w+)\s*\(")
 
 
-# ---------------------------------------------------------------- транскрипт
+# ---------------------------------------------------------------- the transcript
 
 def ts_to_sec(ts: str) -> float:
     h, m, rest = ts.split(":")
@@ -54,7 +54,7 @@ def ts_to_sec(ts: str) -> float:
 
 
 def parse_vtt(path: Path) -> list[dict]:
-    """Возвращает список {start, end, text}. Склеивает дубли подряд идущих реплик."""
+    """Returns a list of {start, end, text}. Merges duplicates of consecutive utterances."""
     cues: list[dict] = []
     block: list[str] = []
     for raw in path.read_text(encoding="utf-8").splitlines() + [""]:
@@ -72,12 +72,12 @@ def parse_vtt(path: Path) -> list[dict]:
                     if "-->" not in l and not l.isdigit() and not l.startswith("WEBVTT")
                     and not l.startswith("Kind:") and not l.startswith("Language:")
                 ).strip()
-                # служебная плашка 3b1b про правку субтитров
+                # 3b1b's service note about editing the subtitles
                 text = re.sub(r"\[Submit subtitle corrections at [^\]]*\]", "", text).strip()
                 if text:
                     cues.append({"start": ts_to_sec(start_s), "end": ts_to_sec(end_s), "text": text})
             block = []
-    # склейка точных дублей (в vtt 3b1b встречаются повторы одной реплики)
+    # merging exact duplicates (3b1b's vtt contains repeats of the same utterance)
     merged: list[dict] = []
     for c in cues:
         if merged and c["text"] == merged[-1]["text"]:
@@ -87,7 +87,7 @@ def parse_vtt(path: Path) -> list[dict]:
     return merged
 
 
-# ---------------------------------------------------------------- исходники
+# ---------------------------------------------------------------- the sources
 
 def iter_source_files(source: str) -> list[Path]:
     if not source:
@@ -101,10 +101,11 @@ def iter_source_files(source: str) -> list[Path]:
 
 
 def extract_formulas(source: str) -> tuple[list[dict], int]:
-    """LaTeX/текстовые строки из manim-исходника с привязкой к сцене.
+    """LaTeX/text strings from the manim source, tied to a scene.
 
-    Возвращает (строки, сколько мест вызова разобрать не удалось). Не всякий вызов
-    несёт литерал: аргументом бывает переменная, конкатенация или результат функции.
+    Returns (strings, how many call sites could not be parsed). Not every call carries
+    a literal: the argument is sometimes a variable, a concatenation or the result of
+    a function.
     """
     out: list[dict] = []
     call_sites = 0
@@ -112,7 +113,7 @@ def extract_formulas(source: str) -> tuple[list[dict], int]:
         text = f.read_text(encoding="utf-8", errors="replace")
         call_sites += len(TEX_CALL_SITE_RE.findall(text))
         lines = text.splitlines()
-        # карта: номер строки -> имя ближайшего класса выше
+        # a map: line number -> the name of the nearest class above
         class_at: list[str] = []
         current = ""
         for line in lines:
@@ -135,42 +136,42 @@ def extract_formulas(source: str) -> tuple[list[dict], int]:
     return out, max(call_sites - len(out), 0)
 
 
-# ---------------------------------------------------------------- кадры
+# ---------------------------------------------------------------- the frames
 
 def wipe_frames(out_dir: Path) -> None:
-    """Сносит все кадры перед новой нарезкой.
+    """Removes every frame before a new cut.
 
-    Мало снести кадры чужого режима: у `scenes` времена съёма зависят от
-    параметров детектора, и прогон с другим порогом оставляет свои файлы рядом
-    с новыми. Разметчик тогда видит смесь двух нарезок, а `bundle.json` —
-    только половину, которую записал последний прогон. Каталог кадров целиком
-    воспроизводится из mp4, терять там нечего.
+    Removing the frames of a different mode is not enough: with `scenes` the capture
+    times depend on the detector's parameters, and a run with a different threshold
+    leaves its files next to the new ones. The annotator then sees a mixture of two
+    cuts, and `bundle.json` only the half the last run wrote. The frames directory is
+    reproduced from the mp4 in full, so there is nothing to lose there.
     """
     if not out_dir.exists():
         return
     stale = list(out_dir.glob("t*.jpg"))
     if stale:
-        print(f"[info] в {out_dir} {len(stale)} кадров прошлой нарезки — удаляю")
+        print(f"[info] {out_dir} holds {len(stale)} frames of a previous cut — removing them")
         for f in stale:
             f.unlink()
-    # Подкаталоги не трогаем: `frames/exact/` — это кеш ноутбука обзора
-    # (`data/data_overview.ipynb` режет туда дробные времена по требованию),
-    # а не остаток чужой нарезки. Но предупредить стоит: кадры там лежат
-    # в другом формате имени и к списку в bundle.json отношения не имеют.
+    # We do not touch subdirectories: `frames/exact/` is the overview notebook's cache
+    # (`data/data_overview.ipynb` cuts fractional times into it on demand), not a
+    # leftover of somebody else's cut. But it is worth a warning: the frames there use
+    # a different name format and have nothing to do with the list in bundle.json.
     for sub in sorted(d for d in out_dir.iterdir() if d.is_dir()):
         inner = list(sub.glob("t*.jpg"))
         if inner:
-            print(f"[info] в {sub} {len(inner)} кадров вне списка bundle.json "
-                  f"(кеш ноутбука) — оставляю как есть")
+            print(f"[info] {sub} holds {len(inner)} frames outside the bundle.json list "
+                  f"(the notebook's cache) — leaving them as they are")
 
 
-# ---------------------------------------------------------------- сборка
+# ---------------------------------------------------------------- assembly
 
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("video_id")
     ap.add_argument("--scene-threshold", type=float, default=detect_scenes.THRESHOLD,
-                    help=f"порог детектора сцен (по умолчанию {detect_scenes.THRESHOLD})")
+                    help=f"the scene detector's threshold (default {detect_scenes.THRESHOLD})")
     ap.add_argument("--no-frames", action="store_true")
     args = ap.parse_args()
 
@@ -178,15 +179,15 @@ def main() -> None:
     vdir = VIDEOS_DIR / vid
     info_path = vdir / f"{vid}.info.json"
     if not info_path.exists():
-        sys.exit(f"нет {info_path}; сначала tools/fetch_video.py {vid}")
+        sys.exit(f"no {info_path}; run tools/fetch_video.py {vid} first")
     info = json.loads(info_path.read_text(encoding="utf-8"))
 
     vtt = vdir / f"{vid}.en.vtt"
     if not vtt.exists():
-        sys.exit(f"нет {vtt}: субтитры не скачались. Перезапусти tools/fetch_video.py {vid} --force")
+        sys.exit(f"no {vtt}: the subtitles were not downloaded. Re-run tools/fetch_video.py {vid} --force")
     cues = parse_vtt(vtt)
     if not cues:
-        sys.exit(f"{vtt} разобран, но не дал ни одной реплики — проверь формат файла")
+        sys.exit(f"{vtt} was parsed but yielded not a single utterance — check the format of the file")
     chapters = info.get("chapters") or []
     duration = float(info["duration"])
 
@@ -199,10 +200,10 @@ def main() -> None:
     if source and not iter_source_files(source):
         guess = (row or {}).get("source_guess", "")
         if guess and iter_source_files(guess):
-            print(f"[warn] путь {source} не существует, беру фаззи-догадку {guess}")
+            print(f"[warn] the path {source} does not exist, taking the fuzzy guess {guess}")
             source = guess
         else:
-            print(f"[warn] путь к исходнику {source!r} не существует, формул не будет")
+            print(f"[warn] the source path {source!r} does not exist, there will be no formulas")
     formulas, unparsed = extract_formulas(source)
 
     bdir = BUNDLES_DIR / vid
@@ -211,20 +212,20 @@ def main() -> None:
     bundle_path = bdir / "bundle.json"
     frames = []
     if args.no_frames and bundle_path.exists():
-        # не затирать уже собранный список кадров
+        # do not wipe the already assembled list of frames
         prev = json.loads(bundle_path.read_text(encoding="utf-8"))
         frames = prev.get("frames", [])
     if not args.no_frames:
         fdir = bdir / "frames"
-        # Сначала убеждаемся, что нарезка вообще возможна, и только потом сносим
-        # старую: иначе на машине без mp4 или без OpenCV `make_bundle.py <id>`
-        # удаляет 437 кадров, падает и оставляет bundle.json со списком путей,
-        # которых больше нет. Прежняя сетка ничего не удаляла, так что это
-        # был бы регресс, а не наследство.
+        # First we make sure the cut is possible at all, and only then remove the old
+        # one: otherwise, on a machine without the mp4 or without OpenCV,
+        # `make_bundle.py <id>` deletes 437 frames, dies, and leaves a bundle.json
+        # listing paths that no longer exist. The former grid deleted nothing, so this
+        # would be a regression rather than an inheritance.
         mp4 = vdir / f"{vid}.mp4"
         if not mp4.exists():
-            raise SystemExit(f"нет {mp4}: кадры резать нечем "
-                             f"(скачать: tools/fetch_video.py {vid})")
+            raise SystemExit(f"no {mp4}: there is nothing to cut frames from "
+                             f"(download it: tools/fetch_video.py {vid})")
         detect_scenes.require_cv2()
         wipe_frames(fdir)
         cuts = detect_scenes.detect(
@@ -252,15 +253,15 @@ def main() -> None:
         json.dumps(bundle, ensure_ascii=False, indent=1), encoding="utf-8"
     )
 
-    # transcript.md — по чаптерам
+    # transcript.md — by chapter
     def chapter_of(t: float) -> str:
         for c in chapters:
             if c["start_time"] <= t < c["end_time"]:
                 return c["title"]
         return "—"
 
-    lines = [f"# {info['title']}", "", f"Длительность {duration:.0f} с. "
-             f"Реплик {len(cues)}. Чаптеров {len(chapters)}.", ""]
+    lines = [f"# {info['title']}", "", f"Duration {duration:.0f} s. "
+             f"Utterances {len(cues)}. Chapters {len(chapters)}.", ""]
     prev_ch = None
     for c in cues:
         ch = chapter_of(c["start"])
@@ -271,9 +272,9 @@ def main() -> None:
     (bdir / "transcript.md").write_text("\n".join(lines), encoding="utf-8")
 
     # formulas.md
-    flines = [f"# Строки из manim-исходника `{source}`", "",
-              f"Разобрано {len(formulas)} строк; ещё {unparsed} мест вызова содержат "
-              f"не литерал (переменная, конкатенация, результат функции) и не извлечены.", ""]
+    flines = [f"# Strings from the manim source `{source}`", "",
+              f"{len(formulas)} strings parsed; another {unparsed} call sites contain "
+              f"a non-literal (a variable, a concatenation, the result of a function) and were not extracted.", ""]
     cur_file = None
     for f in formulas:
         if f["file"] != cur_file:
@@ -283,14 +284,14 @@ def main() -> None:
     (bdir / "formulas.md").write_text("\n".join(flines), encoding="utf-8")
 
     if not args.no_frames:
-        print(f"  ffmpeg    : {shutil.which('ffmpeg') or 'НЕ НАЙДЕН'}")
+        print(f"  ffmpeg    : {shutil.which('ffmpeg') or 'NOT FOUND'}")
     print(f"bundle → {bdir}")
-    print(f"  чаптеров  : {len(chapters)}")
-    print(f"  реплик    : {len(cues)}")
-    print(f"  формул    : {len(formulas)} из {len(formulas) + unparsed} мест вызова "
-          f"({unparsed} не литералы), файлов {len(iter_source_files(source))}")
-    print(f"  кадров    : {len(frames)}"
-          + (f" ({len(frames) / duration * 60:.1f} на минуту)" if duration else ""))
+    print(f"  chapters  : {len(chapters)}")
+    print(f"  utterances: {len(cues)}")
+    print(f"  formulas  : {len(formulas)} of {len(formulas) + unparsed} call sites "
+          f"({unparsed} non-literals), files {len(iter_source_files(source))}")
+    print(f"  frames    : {len(frames)}"
+          + (f" ({len(frames) / duration * 60:.1f} per minute)" if duration else ""))
 
 
 if __name__ == "__main__":

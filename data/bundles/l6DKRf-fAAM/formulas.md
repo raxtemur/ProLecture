@@ -1,6 +1,6 @@
-# Строки из manim-исходника `_2026/cross_entropy`
+# Strings from the manim source `_2026/cross_entropy`
 
-Разобрано 388 строк; ещё 130 мест вызова содержат не литерал (переменная, конкатенация, результат функции) и не извлечены.
+388 strings parsed; another 130 call sites contain a non-literal (a variable, a concatenation, the result of a function) and were not extracted.
 
 
 ## _2026/cross_entropy/arithmetic_coding.py

@@ -1,38 +1,38 @@
 #!/usr/bin/env python3
-"""Контракт ревью: что субагент обязан вернуть о проверенном сэмпле.
+"""The review contract: what a subagent must return about a sample it checked.
 
-Почему pydantic, а не JSON-схема. Схему сэмпла (`sample.schema.json`) читают
-только валидатор и люди; схему ревью читает ещё и модель — она заполняет её
-через constrained decoding. Класс с полями и комментариями рядом одновременно
-и документация, и валидатор, и промпт: `model_json_schema()` отдаёт то же, что
-писалось бы руками, а `Field(description=...)` доезжает до модели дословно.
+Why pydantic rather than a JSON schema. The sample schema (`sample.schema.json`) is read
+only by the validator and by humans; the review schema is read by a model too — it fills
+the schema in through constrained decoding. A class with fields and comments beside them
+is documentation, validator and prompt at once: `model_json_schema()` returns what one
+would otherwise write by hand, and `Field(description=...)` reaches the model verbatim.
 
-Два принципа, из которых выросла форма.
+Two principles the form grew out of.
 
-**Идентичность по имени, а не по номеру.** Пункты чеклиста перенумеровываются:
-за одну сессию группа 4 переехала целиком (прежний 4.7 стал 4.3, прежний 4.3 —
-4.6). Ревью, сохранённое ключом `"4.6"`, после такой перестановки читается как
-ревью другого пункта — молча и необратимо. Поэтому в контракте живут `Group`
-и `Item` — устойчивые имена, а номера остаются в тексте чеклиста и в справочной
-таблице `ITEM_NUMBER` внизу файла. Таблица не авторитетна: разойдётся — правится
-она, а не сохранённые ревью.
+**Identity by name, not by number.** Checklist items get renumbered: in a single session
+group 4 moved wholesale (the former 4.7 became 4.3, the former 4.3 became 4.6). A review
+saved under the key `"4.6"` reads, after such a reshuffle, as a review of a different item
+— silently and irreversibly. So `Group` and `Item` live in the contract as stable names,
+while the numbers stay in the text of the checklist and in the reference table
+`ITEM_NUMBER` at the bottom of this file. That table is not authoritative: if it diverges,
+it is the table that gets fixed, not the saved reviews.
 
-**Schema-Guided Reasoning.** Модель, которую спросили сразу про вердикт, вердикт
-и выдаёт — вместе с обоснованием, придуманным задним числом. Поэтому поля в каждой
-проверке идут каскадом (SGR Cascade): сначала что смотрел, потом что увидел, потом
-промежуточные ответы — булевы и численные, потом и только потом `result`. Порядок
-полей здесь не косметика: при constrained decoding модель физически генерирует их
-в этом порядке, и `result` пишется уже после того, как основания зафиксированы.
-Побочная выгода важнее прямой: расхождение двух ревьюеров становится
-локализуемым — видно, на каком именно промежуточном шаге они разошлись, а не
-только что вердикты разные.
+**Schema-Guided Reasoning.** A model asked for the verdict up front produces a verdict —
+together with a justification invented after the fact. So the fields of every check run in
+a cascade (SGR Cascade): first what was looked at, then what was seen, then the
+intermediate answers, boolean and numeric, and then and only then `result`. The field
+order here is not cosmetic: under constrained decoding the model physically generates the
+fields in this order, and `result` is written only after the grounds have been fixed. The
+side benefit matters more than the direct one: a disagreement between two reviewers
+becomes localisable — one can see at which intermediate step they diverged, and not merely
+that the verdicts differ.
 
     https://abdullin.com/schema-guided-reasoning/
 
-Субагент **сохраняет заполненную модель в файл** `data/reviews/<VIDEO_ID>/<SAMPLE_ID>/
-<role>.<iteration>.json`, а координатору возвращает текстовые рассуждения. Так
-координатор не тащит в контекст полный json каждого субагента, но всегда может
-его перечитать — и человек на приёмке тоже.
+The subagent **saves the filled-in model to the file** `data/reviews/<VIDEO_ID>/<SAMPLE_ID>/
+<role>.<iteration>.json` and returns its reasoning as text to the coordinator. That way
+the coordinator does not drag every subagent's full json into context but can always
+re-read it — and so can the human at acceptance.
 """
 
 from __future__ import annotations
@@ -43,55 +43,51 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-# Версия самого контракта: меняется, когда меняются поля здесь.
-SCHEMA_VERSION = "1.2"   # 1.1: роль full разведена на full_sample и full_window
-                         # 1.2: вердикт по 4.2 перешёл к координатору, у полу-слепого
-                         #      он остался предварительным (см. COORDINATOR_ITEMS)
-# Версия чеклиста, по которому проверял субагент. Нужна, чтобы через полгода
-# было понятно, какую редакцию пункта он применял.
+# The version of the contract itself: it changes when the fields here change.
+SCHEMA_VERSION = "1.2"   # 1.1: the full role was split into full_sample and full_window
+# 1.2: the verdict on 4.2 moved to the coordinator; for the
+#      semi-blind reviewer it stayed preliminary (see COORDINATOR_ITEMS)
 CHECKLIST_VERSION = "2026-08-24"
 
 
 class Strict(BaseModel):
-    """Общая база: лишние поля запрещены.
+    """The common base: extra fields are forbidden.
 
-    Та же дисциплина, что `additionalProperties: false` в схеме сэмпла. Модель,
-    дописавшая поле от себя, обычно так маскирует то, что не влезло в контракт, —
-    и это ровно тот сигнал, который нельзя терять.
+    The same discipline as `additionalProperties: false` in the sample schema. A model that
+    added a field of its own is usually masking something that did not fit the contract —
+    and that is exactly the signal one must not lose.
     """
 
     model_config = ConfigDict(extra="forbid")
 
 
-# --------------------------------------------------------------------------
-# Устойчивые имена: группы и пункты чеклиста
-# --------------------------------------------------------------------------
+# The version of the checklist the subagent checked against. Needed so that in six
+# months one can tell which revision of an item it applied.
 
 
 class Group(StrEnum):
-    """Группы чеклиста. Имя группы — часть адреса пункта."""
+    """The checklist groups. The name of a group is part of an item's address."""
 
-    FORMAL = "formal"            # 1. Формальная целостность файла
-    WINDOWS = "windows"          # 2. Границы окон ответа
-    TRIGGERS = "triggers"        # 3. Соответствие набора триггеров критерию вопроса
-    SHORTCUTS = "shortcuts"      # 4. Разрешимость в обход видео
-    RUBRIC = "rubric"            # 5. Согласованность вопроса, ответа и рубрики
-    DISTRACTORS = "distractors"  # 6. Дистракторы
-    LABELS = "labels"            # 7. Метки
-    PROVENANCE = "provenance"    # 8. Провенанс
-    DRIFT = "drift"              # 9. Дрейф документации и инструментов
+    FORMAL = "formal"            # 1. Formal integrity of the file
+    WINDOWS = "windows"          # 2. Answer window boundaries
+    TRIGGERS = "triggers"        # 3. The trigger set against the criterion of the question
+    SHORTCUTS = "shortcuts"      # 4. Solvability that bypasses the video
+    RUBRIC = "rubric"            # 5. Consistency of question, answer and rubric
+    DISTRACTORS = "distractors"  # 6. Distractors
+    LABELS = "labels"            # 7. Labels
+    PROVENANCE = "provenance"    # 8. Provenance
+    DRIFT = "drift"              # 9. Drift of documentation and tools
 
 
 class Item(StrEnum):
-    """Пункты чеклиста под устойчивыми именами.
+    """The checklist items under stable names.
 
-    Имя описывает **что проверяется**, а не порядок. Добавлять новые пункты можно
-    в любое место — на сохранённые ревью это не влияет. Удалять нельзя: имя
-    удалённого пункта остаётся здесь с пометкой, иначе старые ревью перестанут
-    читаться.
+    The name describes **what is checked**, not the order. New items may be added anywhere
+    — that does not affect saved reviews. They must not be deleted: the name of a deleted
+    item stays here with a note, otherwise old reviews stop being readable.
     """
 
-    # --- 1. formal (все автоматические, ревьюер их не заполняет) -----------
+    # --- 1. formal (all automatic, a reviewer does not fill them in) -------
     WINDOW_GEOMETRY = "window-geometry"
     DISTRACTOR_GEOMETRY = "distractor-geometry"
     SAMPLE_INTEGRITY = "sample-integrity"
@@ -151,10 +147,10 @@ class Item(StrEnum):
     TIMECODES_EXIST = "timecodes-exist"
     REFERENCE_MATCHES_DESCRIPTION = "reference-matches-description"
     REFERENCES_CONSISTENT_WITH_WINDOWS = "references-consistent-with-windows"
-    REFERENCE_ANSWER_VERIFIED = "reference-answer-verified"   # новый, разбор ревью A3
+    REFERENCE_ANSWER_VERIFIED = "reference-answer-verified"   # new, from the analysis of review A3
     TWINS_AGREE_ON_SUBSTANCE = "twins-agree-on-substance"
 
-    # --- 9. drift (автоматические) -----------------------------------------
+    # --- 9. drift (automatic) ----------------------------------------------
     NUMBERS_RECOMPUTED = "numbers-recomputed"
     EXAMPLES_GENERATED = "examples-generated"
     TOOLS_IDEMPOTENT = "tools-idempotent"
@@ -162,51 +158,54 @@ class Item(StrEnum):
 
 
 # --------------------------------------------------------------------------
-# Мелкие типы
+# Small types
 # --------------------------------------------------------------------------
 
-Seconds = Annotated[float, Field(ge=0, description="момент в ролике, секунды")]
+Seconds = Annotated[float, Field(ge=0, description="a moment in the video, seconds")]
 
 
 class Role(StrEnum):
-    """Кто заполнял. У каждой роли свой промпт и свой набор доступного материала."""
+    """Who filled it in. Every role has its own prompt and its own set of available material."""
 
-    SEMIBLIND = "semiblind"       # знает t_end окон, не знает ответа: 2.2, 2.3
-    FULL_SAMPLE = "full_sample"   # видит сэмпл целиком, один запуск на сэмпл
-    FULL_WINDOW = "full_window"   # видит одно окно, по запуску на окно
+    SEMIBLIND = "semiblind"       # knows the t_end of the windows, not the answer: 2.2, 2.3
+    FULL_SAMPLE = "full_sample"   # sees the whole sample, one run per sample
+    FULL_WINDOW = "full_window"   # sees one window, one run per window
     PROBE_TEXT = "probe_text"
     PROBE_VISION = "probe_vision"
     PROBE_FRAME = "probe_frame"
     PROBE_FULL = "probe_full"
 
 
-# Кто какие пункты обязан закрыть. Это не справочник, а часть контракта:
-# по нему валидируется полнота ревью, поэтому таблица авторитетна.
+# Which items each role must close. This is not a reference table but part of the
+# contract: review completeness is validated against it, so the table is authoritative.
 #
-# Разделение не административное. Полный ревьюер знает эталон и потому смещён
-# в одну сторону: на полукадре, где объект ещё дорисовывается, он «узнаёт» ответ,
-# которого там ещё нет, и предлагает сдвинуть t_start влево. Координатор правку
-# применяет — и за три итерации окно уезжает монотонно. Поэтому левые границы
-# ему запрещены, а не просто «не поручены».
+# The split is not administrative. A full reviewer knows the reference answer and is
+# therefore biased in one direction: in a half-drawn frame, where the object is still
+# being rendered, they "recognise" an answer that is not there yet and propose moving
+# t_start to the left. The coordinator applies the fix — and over three iterations the
+# window drifts monotonically. Hence left boundaries are forbidden to them, not merely
+# "not assigned".
 ROLE_ITEMS: dict[Role, frozenset[Item]] = {
-    # 2.2 и 2.3 полу-слепой не «проверяет»: он возвращает scans, а вердикт
-    # выводит координатор, сверяя t_val с t_start, которого ревьюер не видел.
+    # The semi-blind reviewer does not "check" 2.2 and 2.3: they return scans, and the
+    # verdict is derived by the coordinator, comparing t_val against a t_start they never saw.
     Role.SEMIBLIND: frozenset({
         Item.SOLVABLE_WITHOUT_VIDEO,
         Item.VIDEO_RECOGNIZED,
     }),
-    # Полное ревью разведено на две роли, потому что прежний единый набор был
-    # невыполним: контракт требовал строку по всем восемнадцати пунктам, а конвейер
-    # на сэмпле с девятью окнами запускал ревьюера ПО ОКНУ и давал ему бюджет
-    # кадров на это окно. Пооконный ревьюер физически не мог закрыть «не пропущено
-    # ли срабатывание» (нужен весь ролик) и девять раз одинаково отвечал про текст
-    # вопроса и рубрику. Итог по построению: skipped, а skipped запрещает PASS —
-    # то есть на многооконных сэмплах цикл не сходился никогда.
+    # The full review was split into two roles because the former single set was
+    # unsatisfiable: the contract demanded a line for all eighteen items, while the
+    # pipeline launched the reviewer PER WINDOW on a sample with nine windows and gave
+    # them a frame budget for that window. A per-window reviewer physically could not
+    # close "no firing was missed" (which needs the whole video) and answered nine
+    # identical times about the text of the question and the rubric. The outcome by
+    # construction: skipped, and skipped forbids PASS — so on multi-window samples the
+    # cycle never converged.
     #
-    # Граница проведена по тому, к чему пункт относится, а не по трудоёмкости:
-    # окну принадлежит ровно то, что можно решить, глядя на это окно и ничего
-    # больше. Приманки, ссылки provenance и эталон окну не принадлежат — они
-    # общие для сэмпла, и делить их между пооконными запусками не по чему.
+    # The boundary was drawn by what an item is about rather than by how much work it is:
+    # a window owns exactly what can be decided by looking at that window and nothing
+    # else. The distractors, the provenance references and the reference answer do not
+    # belong to a window — they are common to the sample, and there is nothing to divide
+    # them along between per-window runs.
     Role.FULL_SAMPLE: frozenset({
         Item.NO_MISSED_TRIGGER,
         Item.TRIGGER_MATCHES_CRITERION,
@@ -232,11 +231,11 @@ ROLE_ITEMS: dict[Role, frozenset[Item]] = {
     }),
 }
 
-# Пункты, которые не поручены ни одной роли субагента, потому что их выводит
-# координатор из чужих ответов: 2.2 и 2.3 — из `scans` полу-слепого, 4.1 и 4.4-4.7 —
-# из ответов зондов. Список нужен, чтобы сверка ниже отличала «выводится» от
-# «забыли назначить»: без него пункт, выпавший из всех ролей, выглядит так же,
-# как пункт, за который отвечает координатор.
+# The items assigned to no subagent role, because the coordinator derives them from
+# other agents' answers: 2.2 and 2.3 from the semi-blind reviewer's `scans`, 4.1 and
+# 4.4-4.7 from the probe answers. The list is needed so that the cross-check below can
+# tell "derived" from "we forgot to assign it": without it an item that fell out of every
+# role looks exactly like an item the coordinator is responsible for.
 COORDINATOR_ITEMS: frozenset[Item] = frozenset({
     Item.ANSWER_POSSIBLE_BEFORE_START,
     Item.ANSWER_AVAILABLE_BEFORE_QUESTION,
@@ -245,26 +244,26 @@ COORDINATOR_ITEMS: frozenset[Item] = frozenset({
     Item.FRAMES_ENOUGH,
     Item.SINGLE_FRAME_ENOUGH,
     Item.SOLVABLE_AT_ALL,
-    # 4.2 стоит и здесь, и в ROLE_ITEMS[SEMIBLIND], и пересечение намеренное.
-    # Полу-слепой пишет `prior_answer` и своё предварительное суждение — это
-    # данные замера. Но окончательный вердикт он вынести не может по той же
-    # причине, по какой не выносит 2.2 и 2.3: сверять не с чем, эталона у него
-    # нет. На пилоте это сработало ровно так, как и должно было: ревьюер угадал
-    # каноничный учебный пример, сам себе поставил `fail` и объявил решённым
-    # вслепую сэмпл, ответ на который он на самом деле не знал, а достроил
-    # предположением о том, что окажется на экране. Поэтому:
+    # 4.2 stands both here and in ROLE_ITEMS[SEMIBLIND], and the overlap is deliberate.
+    # The semi-blind reviewer writes `prior_answer` and their preliminary judgement — that
+    # is measurement data. But they cannot issue the final verdict for the same reason
+    # they do not issue 2.2 and 2.3: there is nothing to compare against, they have no
+    # reference answer. On the pilot this played out exactly as it should have: the
+    # reviewer guessed the canonical textbook example, gave themselves a `fail` and
+    # declared blind-solved a sample whose answer they did not actually know but filled in
+    # with an assumption about what would be on screen. Hence:
     #
-    #   * `checks[solvable-without-video].result` полу-слепого — ПРЕДВАРИТЕЛЬНЫЙ;
-    #   * `validation.blind_solved` ставит координатор, сверив `prior_answer`
-    #     с рубрикой по двум условиям сразу — ответ должен быть и ЧЕСТНЫМ
-    #     (без допущений о невиденном материале), и ПРАВИЛЬНЫМ.
+    #   * the semi-blind `checks[solvable-without-video].result` is PRELIMINARY;
+    #   * `validation.blind_solved` is set by the coordinator, comparing `prior_answer`
+    #     against the rubric on two conditions at once — the answer must be both HONEST
+    #     (no assumptions about material that was not seen) and CORRECT.
     Item.SOLVABLE_WITHOUT_VIDEO,
 })
 
 
-# Пункты, у которых вывод относится к конкретному окну или приманке. Один `ok`
-# на девятиоконный сэмпл — это восемь непроверенных окон под видом проверенного,
-# поэтому у таких пунктов `target` обязателен.
+# The items whose conclusion concerns a specific window or distractor. One `ok` for a
+# nine-window sample is eight unchecked windows disguised as checked ones, so for such
+# items `target` is required.
 ITEMS_NEEDING_TARGET: frozenset[Item] = frozenset({
     Item.WINDOW_CAN_BE_TIGHTENED,
     Item.AUTHOR_SAYS_ANSWER_IN_WINDOW,
@@ -276,17 +275,17 @@ ITEMS_NEEDING_TARGET: frozenset[Item] = frozenset({
 })
 
 
-# Какой именно индекс обязан назвать target. Пункты про приманки без
-# distractor_idx бессмысленны: «приманка покрыта целиком» с одним лишь
-# trigger_idx не говорит, какая из приманок проверена.
+# Which index exactly the target must name. Distractor items without a distractor_idx
+# are meaningless: "the distractor is covered in full" with a trigger_idx alone does not
+# say which of the distractors was checked.
 ITEMS_NEEDING_DISTRACTOR_IDX: frozenset[Item] = frozenset({
     Item.DISTRACTOR_FULLY_COVERED,
     Item.DISTRACTOR_NOT_CORRECT_ANSWER,
 })
 
 
-# Пункты, вывод по которым делается по тексту сэмпла и не требует ни кадров,
-# ни реплик. Только у них `looked_at` может быть пустым.
+# The items whose conclusion is drawn from the text of the sample and requires neither
+# frames nor lines of speech. Only for these may `looked_at` be empty.
 ITEMS_WITHOUT_VIEWING: frozenset[Item] = frozenset({
     Item.QUESTION_ANCHORED_TO_SCREEN,
     Item.RUBRIC_WITHIN_QUESTION,
@@ -298,11 +297,11 @@ ITEMS_WITHOUT_VIEWING: frozenset[Item] = frozenset({
     Item.REFERENCES_CONSISTENT_WITH_WINDOWS,
 })
 
-# Пункты, применимые к любому сэмплу: `na` по ним не бывает.
-# Неприменимость возможна только там, где её создаёт геометрия сэмпла — нет
-# приманок, нет `depends_on`, нет близнеца. Без этого списка `na` оказывается
-# дешевле честного `skipped`: он ничего не требует и не мешает вердикту PASS,
-# то есть становится самым выгодным способом не проверять.
+# The items applicable to any sample: there is no `na` for them.
+# Inapplicability is possible only where the geometry of the sample creates it — no
+# distractors, no `depends_on`, no twin. Without this list `na` turns out cheaper than an
+# honest `skipped`: it demands nothing and does not stand in the way of a PASS verdict,
+# which makes it the most profitable way of not checking.
 ITEMS_ALWAYS_APPLICABLE: frozenset[Item] = frozenset({
     Item.WINDOW_CAN_BE_TIGHTENED,
     Item.AUTHOR_SAYS_ANSWER_IN_WINDOW,
@@ -318,29 +317,30 @@ ITEMS_ALWAYS_APPLICABLE: frozenset[Item] = frozenset({
     Item.REFERENCE_MATCHES_DESCRIPTION,
     Item.REFERENCE_ANSWER_VERIFIED,
 })
-# `twins-agree-on-substance` в этом списке НЕ стоит, и это исправление, а не упущение.
-# Он был здесь, и получалось противоречие с собственным правилом списка: неприменимость
-# законна там, где её создаёт геометрия сэмпла, и «нет близнеца» — ровно такой случай,
-# названный в докстроке выше. Промпт роли велел ставить `na` у сэмпла без `twin_of`,
-# а контракт такое ревью не сохранял; ревьюер был вынужден писать `ok` с разбором
-# «пары не существует, расходиться нечему» — то есть отчитываться о проверке,
-# которой не было. Теперь `na` законен ровно при отсутствии `twin_of`.
+# `twins-agree-on-substance` is NOT in this list, and that is a fix rather than an
+# oversight. It used to be here, and it contradicted the list's own rule: inapplicability
+# is legitimate where the geometry of the sample creates it, and "there is no twin" is
+# exactly such a case, named in the docstring above. The role prompt told the reviewer to
+# put `na` on a sample with no `twin_of`, while the contract refused to save such a
+# review; the reviewer was forced to write `ok` with the analysis "the pair does not
+# exist, there is nothing to diverge" — that is, to report on a check that never happened.
+# Now `na` is legitimate exactly when `twin_of` is absent.
 
 
 class Verdict(StrEnum):
-    """Лестница вердиктов: каждый следующий дороже в лечении."""
+    """The ladder of verdicts: each one costs more to cure than the last."""
 
     PASS = "PASS"
-    FIX_INTERVALS = "FIX_INTERVALS"    # лечится сдвигом границ
-    FIX_QUESTION = "FIX_QUESTION"      # лечится переформулировкой
-    CRITICAL_FAIL = "CRITICAL_FAIL"    # сэмпл выбрасывается
+    FIX_INTERVALS = "FIX_INTERVALS"    # cured by moving boundaries
+    FIX_QUESTION = "FIX_QUESTION"      # cured by rewording
+    CRITICAL_FAIL = "CRITICAL_FAIL"    # the sample is thrown out
 
 
 class Result(StrEnum):
-    OK = "ok"            # проверил, не сработало
-    FAIL = "fail"        # проверил, сработало
-    SKIPPED = "skipped"  # не проверил — обязан назвать непокрытое
-    NA = "na"            # пункт неприменим к этому сэмплу
+    OK = "ok"            # checked, did not fire
+    FAIL = "fail"        # checked, fired
+    SKIPPED = "skipped"  # not checked — must name what was left uncovered
+    NA = "na"            # the item does not apply to this sample
 
 
 class Confidence(StrEnum):
@@ -350,42 +350,42 @@ class Confidence(StrEnum):
 
 
 class Observation(Strict):
-    """Что именно субагент видел или слышал. Единица «посмотренного».
+    """What exactly the subagent saw or heard. The unit of "what was looked at".
 
-    Нужна не для отчётности: по списку наблюдений координатор видит, покрыт ли
-    интервал, на котором пункт объявлен пройденным. Пункт `ok` при пустом
-    `looked_at` — это `skipped`, только необъявленный.
+    It is not there for reporting: from the list of observations the coordinator can see
+    whether the interval over which an item was declared passed is actually covered. An
+    item marked `ok` with an empty `looked_at` is a `skipped`, only an undeclared one.
     """
 
     kind: Literal["frame", "cue"]
-    t: Seconds = Field(description="таймкод кадра или начала реплики")
-    what: str = Field(min_length=3, description="что на кадре видно / что в реплике сказано")
+    t: Seconds = Field(description="the timecode of a frame or of the start of a line of speech")
+    what: str = Field(min_length=3, description="what is visible in the frame / what is said in the line")
 
 
 class SubAnswer(Strict):
-    """Промежуточный ответ внутри проверки — сердце SGR.
+    """An intermediate answer inside a check — the heart of SGR.
 
-    Пункт чеклиста почти никогда не сводится к одному «да/нет»: 2.4 («окно можно
-    ужать») распадается на «событие кончилось в момент X» и «после X ничего
-    относящегося не происходит». Записанные по отдельности, эти шаги позволяют
-    понять, где разошлись два ревьюера, — а не только что они разошлись.
+    A checklist item almost never reduces to a single yes/no: 2.4 ("the window can be
+    tightened") splits into "the event ended at moment X" and "after X nothing relevant
+    happens". Recorded separately, these steps make it possible to see where two reviewers
+    diverged — not merely that they did.
 
-    Формулировать вопрос надо так, чтобы ответ был проверяем: не «нормально ли
-    окно», а «последний кадр, где объект ещё меняется».
+    The question has to be phrased so that the answer can be checked: not "is the window
+    all right" but "the last frame in which the object is still changing".
     """
 
-    question: str = Field(min_length=5, description="что именно спрашиваем у себя на этом шаге")
+    question: str = Field(min_length=5, description="what exactly we are asking ourselves at this step")
     answer_bool: bool | None = None
     answer_number: float | None = None
     answer_text: str | None = None
-    why: str = Field(min_length=5, description="на чём основан этот промежуточный ответ")
+    why: str = Field(min_length=5, description="what this intermediate answer rests on")
 
     @model_validator(mode="after")
     def _one_answer(self) -> SubAnswer:
         filled = [x for x in (self.answer_bool, self.answer_number, self.answer_text)
                   if x is not None]
         if not filled:
-            raise ValueError("промежуточный шаг без ответа: заполните одно из answer_*")
+            raise ValueError("an intermediate step with no answer: fill in one of the answer_*")
         return self
 
 
@@ -396,18 +396,18 @@ class Interval(Strict):
     @model_validator(mode="after")
     def _ordered(self) -> Interval:
         if self.t_end <= self.t_start:
-            raise ValueError("интервал пуст или вывернут")
+            raise ValueError("the interval is empty or inverted")
         return self
 
 
 class Target(Strict):
-    """К чему относится проверка: у сэмпла бывает девять окон.
+    """What the check is about: a sample can have nine windows.
 
-    Оба поля необязательны по отдельности, но пустой `Target()` — это тот же
-    «один ok на девятиоконный сэмпл», только прошедший проверку: требование
-    «пункту нужен target» удовлетворяется объектом, который ни на что не
-    указывает. Поэтому хотя бы одно поле обязано быть заполнено, а какое именно —
-    решает пункт (см. `_target_points_somewhere` в `Check`).
+    Both fields are optional individually, but an empty `Target()` is the same "one ok for
+    a nine-window sample", only one that passed validation: the requirement "this item
+    needs a target" is satisfied by an object that points at nothing. So at least one
+    field must be filled in, and which one is decided by the item itself (see
+    `_target_points_somewhere` in `Check`).
     """
 
     trigger_idx: int | None = Field(default=None, ge=0)
@@ -416,311 +416,314 @@ class Target(Strict):
     @model_validator(mode="after")
     def _not_empty(self) -> Target:
         if self.trigger_idx is None and self.distractor_idx is None:
-            raise ValueError("пустой target: он обязан называть окно или приманку, "
-                             "иначе проверка формально есть, а к чему она — неизвестно")
+            raise ValueError("empty target: it must name a window or a distractor, "
+                             "otherwise the check formally exists but what it is about is unknown")
         return self
 
 
 class Proposal(Strict):
-    """Предложение правки. Ревьюер не правит файлы — правит координатор."""
+    """A proposed fix. The reviewer does not edit files — the coordinator does."""
 
-    field: str = Field(description="что менять: t_start, t_end, question, rubric[2], ...")
-    value: str = Field(description="на что менять; число тоже строкой, чтобы не терять формат")
+    field: str = Field(description="what to change: t_start, t_end, question, rubric[2], ...")
+    value: str = Field(description="what to change it to; a number goes as a string too, so as not to lose the format")
     why: str = Field(min_length=10)
 
 
 class Violation(Strict):
-    """Признание в том, что был прочитан запретный файл.
+    """An admission that a forbidden file was read.
 
-    Провал не в том, что прочитал: путь попадает в вывод `grep`, файл открывается
-    заодно с соседним. Провал — в молчании, потому что молча загрязнённое ревью
-    неотличимо от чистого и портит всё, что из него выведено.
+    The failure is not in having read it: a path turns up in `grep` output, a file is
+    opened alongside its neighbour. The failure is in keeping quiet, because a silently
+    contaminated review is indistinguishable from a clean one and spoils everything
+    derived from it.
     """
 
     path: str
-    why: str = Field(min_length=5, description="зачем открыл")
-    what_seen: str = Field(min_length=5, description="что успел увидеть — честно")
+    why: str = Field(min_length=5, description="why it was opened")
+    what_seen: str = Field(min_length=5, description="what was seen — honestly")
 
 
 class Budget(Strict):
-    """При каком просмотре получен результат.
+    """Under which viewing regime the result was obtained.
 
-    Флаг `visiononly_solved = false` без этого числа не интерпретируется: он
-    смешивает «зрения не хватило» и «зрению показали сорок картинок на полчаса».
-    Сетку просмотра мы собираемся менять — и в тот день старые и новые замеры
-    надо будет различать, иначе `audio_dependency` выведется из смеси режимов.
+    The flag `visiononly_solved = false` cannot be interpreted without this number: it
+    mixes "vision was not enough" with "vision was shown forty pictures for half an hour".
+    We are going to change the viewing grid — and on that day old and new measurements
+    will have to be told apart, otherwise `audio_dependency` will be derived from a
+    mixture of regimes.
 
-    Этот день настал вместе с текстовым индексом видеоряда: `screen_index_used`
-    и есть та отметка о режиме просмотра, ради которой класс написан.
+    That day arrived along with the text index of the video track: `screen_index_used` is
+    exactly the mark of the viewing regime this class was written for.
     """
 
     frames_viewed: int = Field(ge=0)
-    sparse_step: float | None = Field(default=None, description="шаг редкой сетки, с")
+    sparse_step: float | None = Field(default=None, description="the step of the sparse grid, s")
     dense_intervals: list[Interval] = Field(default_factory=list,
-                                            description="где смотрел часто")
-    transcript_cues: int | None = Field(default=None, description="сколько реплик прочитал")
+                                            description="where the reviewer looked densely")
+    transcript_cues: int | None = Field(default=None, description="how many lines of speech were read")
     screen_index_used: bool = Field(
         default=False,
-        description="пользовался ли текстовым индексом видеоряда (screen_text.md, "
-                    "screen.jsonl). Замер с индексом и без него несравним: индекс "
-                    "построен по 0.5-секундной сетке, то есть плотнее любого "
-                    "бюджета кадров. Без этого флага visiononly_solved, полученный "
-                    "двумя способами, выглядит одинаково, а значит и выведенная "
-                    "из него метка audio_dependency смешивает два режима просмотра")
+        description="whether the text index of the video track was used (screen_text.md, "
+                    "screen.jsonl). A measurement with the index and one without it are "
+                    "not comparable: the index is built on a 0.5-second grid, that is, "
+                    "denser than any frame budget. Without this flag a visiononly_solved "
+                    "obtained the two ways looks the same, which means the "
+                    "audio_dependency label derived from it mixes two viewing regimes")
 
 
 # --------------------------------------------------------------------------
-# Проверка по пункту чеклиста (SGR Cascade)
+# A check against a checklist item (SGR Cascade)
 # --------------------------------------------------------------------------
 
 
 class Check(Strict):
-    """Один пункт чеклиста.
+    """One checklist item.
 
-    Порядок полей — это порядок рассуждения, и менять его нельзя: при constrained
-    decoding модель генерирует поля сверху вниз, и `result`, стоящий последним,
-    пишется уже после того, как основания зафиксированы. Переставь `result`
-    наверх — и всё, что ниже, станет пересказом уже принятого решения.
+    The order of the fields is the order of the reasoning, and it must not be changed:
+    under constrained decoding the model generates the fields top to bottom, and `result`,
+    standing last, is written only after the grounds have been fixed. Move `result` to the
+    top and everything below it becomes a retelling of a decision already made.
     """
 
     group: Group
     item: Item
 
     target: Target | None = Field(default=None,
-                                  description="обязателен для пунктов про конкретное окно "
-                                              "или приманку; у пунктов уровня сэмпла — null")
+                                  description="required for items about a specific window "
+                                              "or distractor; null for sample-level items")
 
-    # --- каскад: смотрю -> вижу -> примеряю критерий -> шаги -> вывод ------
+        # --- the cascade: look -> see -> apply the criterion -> steps -> conclude
     looked_at: list[Observation] = Field(
         default_factory=list,
-        description="кадры и реплики, на которых держится вывод; пусто допустимо "
-                    "только для пунктов, не требующих просмотра")
+        description="the frames and lines of speech the conclusion rests on; empty is allowed "
+                    "only for items that require no viewing")
     findings: str = Field(
         min_length=10,
-        description="что увидел, своими словами и без оценки: сначала факты")
+        description="what was seen, in your own words and without judgement: facts first")
     criterion: str = Field(
         min_length=10,
-        description="какой именно критерий пункта применяется к увиденному; "
-                    "формулировать своими словами, а не цитатой чеклиста — "
-                    "пересказ обнажает непонимание, цитата его прячет")
+        description="which criterion of the item is being applied to what was seen; "
+                    "phrase it in your own words rather than quoting the checklist — "
+                    "a restatement exposes a misunderstanding, a quotation hides it")
     steps: list[SubAnswer] = Field(
         default_factory=list,
-        description="промежуточные ответы, из которых складывается вердикт")
+        description="the intermediate answers the verdict is assembled from")
 
-    # --- и только теперь вывод --------------------------------------------
+        # --- and only now the conclusion ---------------------------------------
     result: Result
     confidence: Confidence = Confidence.HIGH
     proposal: Proposal | None = None
     uncovered: Interval | None = Field(
-        default=None, description="что осталось непроверенным; обязателен при skipped")
+        default=None, description="what was left unchecked; required when skipped")
 
     @model_validator(mode="after")
     def _group_matches_item(self) -> Check:
-        """Группа выводится из пункта, но пишется всё равно.
+        """The group is derivable from the item but is written down anyway.
 
-        Дублирование намеренное: при constrained decoding модель сначала выбирает
-        группу и тем сужает себе выбор пункта — это дешёвый Routing. Расхождение
-        значит, что модель ошиблась ветвью, и вывод ниже относится не к тому
-        пункту, который она назвала.
+        The duplication is deliberate: under constrained decoding the model first picks
+        the group and thereby narrows its own choice of item — cheap Routing. A mismatch
+        means the model took the wrong branch, and the conclusion below concerns a
+        different item from the one it named.
         """
         expected = ITEM_GROUP.get(self.item)
         if expected is not None and self.group is not expected:
-            raise ValueError(f"пункт {self.item.value} принадлежит группе "
-                             f"{expected.value}, а не {self.group.value}")
+            raise ValueError(f"item {self.item.value} belongs to group "
+                             f"{expected.value}, not {self.group.value}")
         if self.item in ITEMS_NEEDING_TARGET and self.target is None:
-            raise ValueError(f"пункт {self.item.value} относится к конкретному окну "
-                             f"или приманке: без target координатор не поймёт, что править")
+            raise ValueError(f"item {self.item.value} concerns a specific window "
+                             f"or distractor: without a target the coordinator cannot tell what to fix")
         if self.target is not None:
             if self.item in ITEMS_NEEDING_DISTRACTOR_IDX and self.target.distractor_idx is None:
-                raise ValueError(f"пункт {self.item.value} — про приманку, а target называет "
-                                 f"только триггер: непонятно, какая приманка проверена")
+                raise ValueError(f"item {self.item.value} is about a distractor, while the target names "
+                                 f"only a trigger: it is unclear which distractor was checked")
             if (self.item in ITEMS_NEEDING_TARGET
                     and self.item not in ITEMS_NEEDING_DISTRACTOR_IDX
                     and self.target.trigger_idx is None):
-                raise ValueError(f"пункт {self.item.value} — про окно триггера, "
-                                 f"а target называет только приманку")
+                raise ValueError(f"item {self.item.value} is about a trigger window, "
+                                 f"while the target names only a distractor")
         return self
 
     @model_validator(mode="after")
     def _skipped_names_the_gap(self) -> Check:
         if self.result is Result.SKIPPED and self.uncovered is None:
-            raise ValueError("skipped без uncovered: непокрытый интервал обязан быть назван, "
-                             "иначе пропуск неотличим от пройденной проверки")
+            raise ValueError("skipped without uncovered: the uncovered interval must be named, "
+                             "otherwise a gap is indistinguishable from a completed check")
         if self.result is Result.FAIL and self.proposal is None:
-            raise ValueError("fail без proposal: сработавший пункт обязан предлагать лечение")
+            raise ValueError("fail without proposal: an item that fired must propose a cure")
         return self
 
     @model_validator(mode="after")
     def _conclusion_rests_on_something(self) -> Check:
-        """Вывод обязан на чём-то стоять.
+        """The conclusion has to stand on something.
 
-        `ok` при пустом `looked_at` — это `skipped`, только необъявленный: снаружи
-        он неотличим от проверенного пункта, а изнутри проверки не было. Исключение
-        одно — пункты, вывод по которым делается по тексту сэмпла; для них
-        обязателен разбор в `steps`, потому что иначе от проверки не остаётся
-        вообще ничего.
+        An `ok` with an empty `looked_at` is a `skipped`, only an undeclared one: from
+        outside it is indistinguishable from a checked item, while inside there was no
+        check. There is one exception — the items whose conclusion is drawn from the text
+        of the sample; for them `steps` is required, because otherwise nothing at all is
+        left of the check.
         """
         if self.result in (Result.OK, Result.FAIL):
             if self.item in ITEMS_WITHOUT_VIEWING:
                 if not self.steps:
                     raise ValueError(
-                        f"{self.item.value}: текстовый пункт без steps — вывод не на чём "
-                        f"держится. Разложите его на проверяемые промежуточные ответы")
+                        f"{self.item.value}: a text item with no steps — there is nothing for the "
+                        f"conclusion to stand on. Break it down into checkable intermediate answers")
             elif not self.looked_at:
                 raise ValueError(
-                    f"{self.item.value}: result={self.result.value} при пустом looked_at. "
-                    f"Пункт, по которому ничего не смотрели, — это skipped, а не ok")
+                    f"{self.item.value}: result={self.result.value} with an empty looked_at. "
+                    f"An item nothing was looked at for is a skipped, not an ok")
         if self.result is Result.NA and self.item in ITEMS_ALWAYS_APPLICABLE:
             raise ValueError(
-                f"{self.item.value} применим к любому сэмплу — na по нему не бывает. "
-                f"Если проверить не удалось, это skipped с названным непокрытым интервалом")
+                f"{self.item.value} applies to any sample — there is no na for it. "
+                f"If it could not be checked, that is a skipped with the uncovered interval named")
         return self
 
 
 # --------------------------------------------------------------------------
-# Конверт
+# The envelope
 # --------------------------------------------------------------------------
 
 
 class ReviewBase(Strict):
-    """Общая часть любого ревью.
+    """The common part of any review.
 
-    `model` и `date` здесь, а не в сэмпле: сэмпл — это данные, ревью — это замер.
-    План требует, чтобы генератор, судья и участник были разными моделями;
-    проверить это постфактум можно только по сохранённым ревью, поэтому
-    `data/reviews/` обязан лежать в репозитории.
+    `model` and `date` live here rather than in the sample: a sample is data, a review is
+    a measurement. The plan requires the generator, the judge and the participant to be
+    different models; after the fact that can be checked only against the saved reviews,
+    which is why `data/reviews/` has to live in the repository.
     """
 
     schema_version: str = SCHEMA_VERSION
     checklist_version: str = CHECKLIST_VERSION
     sample_id: str
     role: Role
-    iteration: int = Field(ge=1, description="номер круга правок: ревью не переписываются, "
-                                             "а накапливаются — по ним видно осцилляцию")
-    model: str = Field(description="какая модель заполняла")
+    iteration: int = Field(ge=1, description="the number of the fix round: reviews are not rewritten "
+                                             "but accumulate — they are what makes oscillation visible")
+    model: str = Field(description="which model filled it in")
     date: str
-    workspace: str = Field(description="папка, из которой брался материал")
+    workspace: str = Field(description="the folder the material was taken from")
     budget: Budget
     violations: list[Violation] = Field(default_factory=list)
-    notes: str = Field(default="", description="не более пяти строк")
+    notes: str = Field(default="", description="no more than five lines")
 
 
 # --------------------------------------------------------------------------
-# Полу-слепой ревьюер: 2.2 и 2.3
+# The semi-blind reviewer: 2.2 and 2.3
 # --------------------------------------------------------------------------
 
 
 class IntervalScan(Strict):
-    """Один отрезок просмотра у полу-слепого ревьюера.
+    """One viewing stretch of the semi-blind reviewer.
 
-    Почему отрезки, а не один префикс. Слепой, которому дали ролик до `t_start`
-    первого окна, проверяет левую границу только этого окна: у девятиоконного
-    вопроса восемь остальных не проверяет никто. Разбить на отрезки по одному
-    на окно — и покрытие становится полным.
+    Why stretches rather than a single prefix. A blind reviewer given the video up to the
+    `t_start` of the first window checks the left boundary of that window only: on a
+    nine-window question the other eight are checked by nobody. Split it into stretches,
+    one per window, and the coverage becomes complete.
 
-    Почему отрезок кончается на `t_end`, а не начинается с `t_start`. Ревьюер
-    знает, что где-то в конце отрезка ответ уже доступен, и ищет **первый** момент,
-    когда это стало так. Вопрос «мог бы ты ответить?» для многотриггерного сэмпла
-    бессмыслен — ответ «да, много раз, в этом и смысл»; вопрос «с какого момента
-    можно?» осмыслен всегда.
+    Why a stretch ends at `t_end` rather than beginning at `t_start`. The reviewer knows
+    that somewhere near the end of the stretch the answer is already available, and looks
+    for the **first** moment at which that became so. The question "could you answer?" is
+    meaningless for a multi-trigger sample — the answer is "yes, many times, that is the
+    whole point"; the question "from which moment can one?" is always meaningful.
 
-    Почему ревьюер полу-слепой, а не слепой. Он видит `t_to` — то есть знает,
-    к какому моменту ответ обязан появиться. Это неустранимо: без верхней границы
-    отрезка не бывает. Зато он не видит ни ответа, ни рубрики, ни `t_start`, —
-    а именно `t_start` его вывод и проверяет.
+    Why the reviewer is semi-blind rather than blind. They see `t_to` — that is, they know
+    by which moment the answer must have appeared. That is unavoidable: a stretch cannot
+    exist without an upper bound. But they see neither the answer, nor the rubric, nor
+    `t_start` — and it is `t_start` that their conclusion checks.
     """
 
-    idx: int = Field(ge=0, description="номер окна, к которому относится отрезок")
-    t_from: Seconds = Field(description="начало отрезка: t_end предыдущего окна, "
-                                        "а для первого — 0, чтобы захватить и 2.3")
-    t_to: Seconds = Field(description="конец отрезка: t_end своего окна")
+    idx: int = Field(ge=0, description="the number of the window the stretch belongs to")
+    t_from: Seconds = Field(description="the start of the stretch: the t_end of the previous window, "
+                                        "and 0 for the first one, so as to capture 2.3 as well")
+    t_to: Seconds = Field(description="the end of the stretch: the t_end of its own window")
 
     watched: list[Observation] = Field(default_factory=list)
     candidates: list[SubAnswer] = Field(
         default_factory=list,
-        description="моменты-кандидаты и почему они отброшены или приняты; "
-                    "именно здесь видно, ошибся ревьюер или ошиблась разметка")
+        description="the candidate moments and why they were rejected or accepted; "
+                    "this is where one can see whether the reviewer erred or the annotation did")
 
     t_val: Seconds | None = Field(
         default=None,
-        description="самая ранняя точка отрезка, начиная с которой на вопрос "
-                    "можно ответить по существу; null — если не стало возможно нигде")
+        description="the earliest point of the stretch from which the question can be "
+                    "answered on the merits; null if it did not become possible anywhere")
     t_val_basis: str = Field(
-        default="", description="что именно в этот момент появилось")
+        default="", description="what exactly appeared at that moment")
     answer_at_t_val: str = Field(
-        default="", description="что конкретно можно ответить с этого момента; "
-                                "сверять с эталоном будет координатор")
+        default="", description="what specifically can be answered from that moment on; "
+                                "the comparison against the reference answer is the coordinator's job")
     confidence: Confidence = Confidence.HIGH
 
     @model_validator(mode="after")
     def _inside(self) -> IntervalScan:
         if self.t_to <= self.t_from:
-            raise ValueError("отрезок пуст или вывернут")
+            raise ValueError("the stretch is empty or inverted")
         if self.t_val is not None and not (self.t_from <= self.t_val <= self.t_to):
-            raise ValueError("t_val вне своего отрезка: ревьюер искал не там, где просили")
+            raise ValueError("t_val outside its own stretch: the reviewer looked where they were not asked to")
         if self.t_val is not None and len(self.t_val_basis) < 5:
-            raise ValueError("t_val без основания")
+            raise ValueError("t_val with no grounds")
         return self
 
 
 class SemiBlindReview(ReviewBase):
-    """Ревью полу-слепого: левые границы всех окон плюс контаминация.
+    """The semi-blind review: the left boundaries of every window plus contamination.
 
-    Координатор из `scans` выводит два пункта чеклиста, сам ревьюер вердиктов
-    по ним не ставит:
+    From `scans` the coordinator derives two checklist items; the reviewer issues no
+    verdicts on them:
 
     * `t_val[0] < question_time`  -> `answer-available-before-question` (2.3);
     * `t_val[k] < t_start[k]`     -> `answer-possible-before-start` (2.2);
-    * `t_val[k] is None`          -> ревьюер не нашёл ответа там, где он обязан
-      быть к концу отрезка: сигнал в сторону `author-says-answer-in-window` (2.5)
-      или `solvable-at-all` (4.7), но **не** 2.2. Случая `t_val > t_end` не бывает:
-      его отсекает валидатор `IntervalScan`, потому что искать за верхней границей
-      отрезка ревьюеру нечем — материала там нет.
+    * `t_val[k] is None`          -> the reviewer did not find the answer where it must be
+      by the end of the stretch: a signal towards `author-says-answer-in-window` (2.5) or
+      `solvable-at-all` (4.7), but **not** towards 2.2. The case `t_val > t_end` does not
+      arise: the `IntervalScan` validator rules it out, because the reviewer has nothing
+      to search past the upper bound of the stretch with — there is no material there.
 
-    Первый отрезок начинается с **нуля**, а не с `question_time`: иначе 2.3
-    («ответ был доступен ещё до выдачи вопроса») нечем проверить — материал
-    до `question_time` просто не попадёт ревьюеру в руки. Одно число `t_val[0]`
-    закрывает оба пункта сразу, разделяет их сравнение с `question_time`.
+    The first stretch begins at **zero** rather than at `question_time`: otherwise there
+    is no way to check 2.3 ("the answer was available even before the question was
+    issued") — the material before `question_time` would simply never reach the reviewer.
+    A single number `t_val[0]` closes both items at once; what separates them is its
+    comparison against `question_time`.
 
-    Просить самого ревьюера назвать вердикт нельзя: он не знает `t_start`,
-    а знал бы — перестал бы быть полу-слепым.
+    Asking the reviewer themselves for the verdict is not allowed: they do not know
+    `t_start`, and if they did they would stop being semi-blind.
 
-    По той же причине **предварителен и его вердикт по 4.2**
-    (`solvable-without-video`): эталона у него нет, и «совпало» он определяет
-    на глаз по собственному `prior_answer`. Строку он пишет — она полезна как
-    самоотчёт, — но `validation.blind_solved` ставит координатор, сверяя
-    `prior_answer` и `prior_answer_assumptions` с рубрикой.
+    For the same reason **their verdict on 4.2 is preliminary too**
+    (`solvable-without-video`): they have no reference answer, and they judge "it matched"
+    by eye against their own `prior_answer`. They do write the line — it is useful as a
+    self-report — but `validation.blind_solved` is set by the coordinator, comparing
+    `prior_answer` and `prior_answer_assumptions` against the rubric.
     """
 
     role: Literal[Role.SEMIBLIND] = Role.SEMIBLIND
 
     prior_answer: str = Field(
-        description="ответ на вопрос до всякого просмотра, по общим знаниям (4.2). "
-                    "Записывается дословно. Это ОТВЕТ, а не догадка о том, что "
-                    "окажется на экране: достраивать условие задачи запрещено. "
-                    "Если названных в вопросе величин не хватает, честный "
-                    "prior_answer — «ответить по существу нельзя, не хватает "
-                    "таких-то данных», и это НЕ решение вслепую. Сверять "
-                    "с рубрикой будет координатор")
+        description="the answer to the question before any viewing, from general knowledge (4.2). "
+                    "Recorded verbatim. This is an ANSWER, not a guess about what "
+                    "will be on screen: filling in the statement of the problem is forbidden. "
+                    "If the quantities named in the question are not enough, the honest "
+                    "prior_answer is \u00abit cannot be answered on the merits, such-and-such "
+                    "data are missing\u00bb, and that is NOT blind solving. The comparison "
+                    "against the rubric is the coordinator's job")
     prior_answer_assumptions: list[str] = Field(
         default_factory=list,
-        description="допущения, без которых prior_answer не держится: каждое "
-                    "отдельной строкой («на экране канонический пример 1/2, 1/4, "
-                    "1/8, 1/8»). Пустой список означает, что ответ выведен только "
-                    "из текста вопроса и общих знаний о предмете. Поле заведено "
-                    "затем, что ответ, стоящий на угаданном содержимом экрана, "
-                    "решением вслепую не является, а внешне от него неотличим")
+        description="the assumptions without which prior_answer does not stand: each "
+                    "on its own line (\u00abthe screen shows the canonical example 1/2, 1/4, "
+                    "1/8, 1/8\u00bb). An empty list means the answer was derived only "
+                    "from the text of the question and general knowledge of the subject. The field "
+                    "exists because an answer resting on guessed screen content is "
+                    "not blind solving, while from outside it is indistinguishable from it")
     recognized_video: bool = Field(
-        description="узнал ли ролик до просмотра (4.3)")
+        description="whether the video was recognised before viewing (4.3)")
     recognized_how: str = Field(
-        default="", description="по каким признакам узнал")
+        default="", description="by which signs it was recognised")
 
     scans: list[IntervalScan] = Field(min_length=1)
     checks: list[Check] = Field(
         default_factory=list,
-        description="две строки: video-recognized (вердикт окончательный) "
-                    "и solvable-without-video (вердикт ПРЕДВАРИТЕЛЬНЫЙ — "
-                    "перепроверяет координатор, см. COORDINATOR_ITEMS)")
+        description="two lines: video-recognized (the verdict is final) "
+                    "and solvable-without-video (the verdict is PRELIMINARY — "
+                    "the coordinator re-checks it, see COORDINATOR_ITEMS)")
 
     @model_validator(mode="after")
     def _covers_its_items(self) -> SemiBlindReview:
@@ -729,28 +732,28 @@ class SemiBlindReview(ReviewBase):
         missing = required - seen
         if missing:
             names = ", ".join(sorted(i.value for i in missing))
-            raise ValueError(f"нет строки по пунктам режима: {names}")
+            raise ValueError(f"no line for the items of the mode: {names}")
         alien = seen - required
         if alien:
             names = ", ".join(sorted(i.value for i in alien))
-            raise ValueError(f"пункты не из этого режима: {names}. Левые границы "
-                             f"полу-слепой не судит сам — их выводит координатор "
-                             f"из scans, потому что t_start ему не показан")
+            raise ValueError(f"items outside this mode: {names}. Left boundaries "
+                             f"are not judged by the semi-blind reviewer — the coordinator derives "
+                             f"them from scans, because t_start was never shown to them")
         return self
 
 
 # --------------------------------------------------------------------------
-# Полный ревьюер
+# The full reviewer
 # --------------------------------------------------------------------------
 
 
 class FullReview(ReviewBase):
-    """Общая часть обоих не-слепых ревью. Сама по себе не сохраняется.
+    """The common part of both non-blind reviews. It is never saved on its own.
 
-    Единственное, что здесь описано сверх общего конверта, — **покрытие**:
-    строка обязана быть на каждый пункт своего режима, включая несработавшие
-    (`ok`) и неприменимые (`na`). Отсутствие строки неотличимо от пройденной
-    проверки, а это ровно та подмена, ради запрета которой заведён `skipped`.
+    The only thing described here beyond the common envelope is **coverage**: there must
+    be a line for every item of the role's mode, including the ones that did not fire
+    (`ok`) and the ones that do not apply (`na`). A missing line is indistinguishable from
+    a completed check, and that is exactly the substitution `skipped` exists to forbid.
     """
 
     verdict: Verdict
@@ -763,51 +766,54 @@ class FullReview(ReviewBase):
         missing = required - seen
         if missing:
             names = ", ".join(sorted(i.value for i in missing))
-            raise ValueError(f"нет строки по пунктам режима {self.role.value}: {names}. "
-                             f"Отсутствие строки неотличимо от пройденной проверки — "
-                             f"поставьте ok, na или skipped")
+            raise ValueError(f"no line for the items of mode {self.role.value}: {names}. "
+                             f"A missing line is indistinguishable from a completed check — "
+                             f"put ok, na or skipped")
         alien = seen - required
         if alien:
             names = ", ".join(sorted(i.value for i in alien))
-            raise ValueError(f"пункты не из режима {self.role.value}: {names}")
+            raise ValueError(f"items outside mode {self.role.value}: {names}")
         return self
 
     @model_validator(mode="after")
     def _verdict_matches_checks(self) -> FullReview:
-        """Вердикт не может быть лучше худшей из проверок.
+        """The verdict cannot be better than the worst of the checks.
 
-        Это ловит самый частый способ сдать плохую работу как хорошую: расписать
-        сработавшие пункты честно, а в вердикт поставить PASS.
+        This catches the commonest way of passing bad work off as good: write up the items
+        that fired honestly, and put PASS in the verdict.
         """
         bad = [c for c in self.checks if c.result in (Result.FAIL, Result.SKIPPED)]
         if bad and self.verdict is Verdict.PASS:
             names = ", ".join(sorted({c.item.value for c in bad}))
-            raise ValueError(f"verdict=PASS при сработавших или пропущенных пунктах: {names}")
+            raise ValueError(f"verdict=PASS while items have fired or been skipped: {names}")
         return self
 
 
 class FullSampleReview(FullReview):
-    """Ревью сэмпла как целого: текст вопроса, рубрика, приманки, эталон, полнота
-    набора триггеров. Один запуск на сэмпл, бюджет кадров — на весь ролик.
+    """The review of the sample as a whole: the text of the question, the rubric, the
+    distractors, the reference answer, the completeness of the trigger set. One run per
+    sample, with a frame budget for the whole video.
 
-    Сюда собрано всё, что не принадлежит отдельному окну. Проверка «не пропущено
-    ли срабатывание» требует редкой сетки по всей лекции; текст вопроса и рубрика
-    у сэмпла одни на всех; приманки и ссылки `provenance` между окнами не делятся.
+    Everything that does not belong to an individual window is gathered here. The check
+    "was a firing missed" needs a sparse grid over the whole lecture; the text of the
+    question and the rubric are shared by all the windows of a sample; the distractors and
+    the `provenance` references cannot be divided between windows.
     """
 
     role: Literal[Role.FULL_SAMPLE] = Role.FULL_SAMPLE
 
 
 class FullWindowReview(FullReview):
-    """Ревью одного окна. По запуску на окно, бюджет кадров — на это окно.
+    """The review of one window. One run per window, with a frame budget for that window.
 
-    `window_idx` обязателен и дублируется в каждом `target`: без него координатор,
-    получив девять файлов, не отличит девять ревью девяти окон от девяти ревью
-    одного и того же — а именно ради этого различения роль и заведена.
+    `window_idx` is required and is duplicated in every `target`: without it the
+    coordinator, handed nine files, could not tell nine reviews of nine windows from nine
+    reviews of one and the same window — and it is exactly for that distinction that the
+    role exists.
     """
 
     role: Literal[Role.FULL_WINDOW] = Role.FULL_WINDOW
-    window_idx: int = Field(ge=0, description="idx триггера, ревью которого это")
+    window_idx: int = Field(ge=0, description="the idx of the trigger this is a review of")
 
     @model_validator(mode="after")
     def _target_is_this_window(self) -> FullWindowReview:
@@ -815,23 +821,24 @@ class FullWindowReview(FullReview):
                         if c.target is not None and c.target.trigger_idx is not None
                         and c.target.trigger_idx != self.window_idx})
         if wrong:
-            raise ValueError(f"ревью окна {self.window_idx}, а target называет окна {wrong}: "
-                             f"пооконный ревьюер видит только своё окно и судить о чужих "
-                             f"не может")
+            raise ValueError(f"a review of window {self.window_idx} whose target names windows {wrong}: "
+                             f"a per-window reviewer sees only their own window and cannot judge "
+                             f"anybody else's")
         return self
 
 
 # --------------------------------------------------------------------------
-# Зонды модальностей
+# The modality probes
 # --------------------------------------------------------------------------
 
 
 class ProbeAnswer(ReviewBase):
-    """Ответ зонда. Вердиктов не ставит и о качестве вопроса не рассуждает.
+    """A probe's answer. It issues no verdicts and does not reason about the question.
 
-    Зонд не знает, что участвует в проверке: он просто отвечает на вопрос по тому
-    материалу, который ему дали. Решение о флаге принимает координатор, сверив
-    ответ с эталоном, — иначе зонд начнёт подстраивать ответ под ожидаемый флаг.
+    The probe does not know it is taking part in a check: it simply answers the question
+    from the material it was given. The decision about the flag is taken by the
+    coordinator, comparing the answer against the reference — otherwise the probe would
+    start tuning its answer to the expected flag.
     """
 
     role: Literal[Role.PROBE_TEXT, Role.PROBE_VISION,
@@ -840,18 +847,18 @@ class ProbeAnswer(ReviewBase):
     looked_at: list[Observation] = Field(default_factory=list)
     steps: list[SubAnswer] = Field(
         default_factory=list,
-        description="как шёл к ответу; для зонда это ещё и способ отличить вывод "
-                    "из материала от воспоминания о предмете")
-    answer: str = Field(min_length=1, description="ответ по существу, своими словами")
+        description="how the probe got to the answer; for a probe this is also a way to tell "
+                    "an inference from the material apart from a recollection about the subject")
+    answer: str = Field(min_length=1, description="the answer on the merits, in your own words")
     basis: str = Field(min_length=5,
-                       description="откуда ответ: таймкоды и цитаты — или «общие знания». "
-                                   "Если узнал ролик или вспомнил ответ до того, как "
-                                   "заглянул в материал, — напиши это прямо")
+                       description="where the answer came from: timecodes and quotations — or \u00abgeneral knowledge\u00bb. "
+                                   "If you recognised the video or recalled the answer before you "
+                                   "looked at the material, write that down plainly")
     confidence: Confidence
     insufficient: bool = Field(
         default=False,
-        description="материала не хватило; ставится вместе с попыткой ответа, "
-                    "а не вместо неё")
+        description="the material was not enough; set together with an attempt at an answer, "
+                    "not instead of one")
 
 
 Review = Annotated[SemiBlindReview | FullReview | ProbeAnswer,
@@ -859,8 +866,8 @@ Review = Annotated[SemiBlindReview | FullReview | ProbeAnswer,
 
 
 # --------------------------------------------------------------------------
-# Справочная таблица номеров. НЕ авторитетна: если разойдётся с чеклистом,
-# правится она, а не сохранённые ревью.
+# The reference table of numbers. NOT authoritative: if it diverges from the
+# checklist, it is the table that gets fixed, not the saved reviews.
 # --------------------------------------------------------------------------
 
 ITEM_NUMBER: dict[Item, str] = {
@@ -917,8 +924,9 @@ ITEM_NUMBER: dict[Item, str] = {
     Item.CHECKLIST_MATCHES_VALIDATOR: "9.4",
 }
 
-# Номер группы -> группа. Явно, а не через list(Group)[n-1]: перестановка двух
-# членов enum молча переназначила бы группы всем пунктам сразу, без единой ошибки.
+# Group number -> group. Explicitly, rather than through list(Group)[n-1]: swapping two
+# members of the enum would silently reassign the groups of every item at once, without a
+# single error.
 GROUP_BY_NUMBER: dict[str, Group] = {
     "1": Group.FORMAL, "2": Group.WINDOWS, "3": Group.TRIGGERS, "4": Group.SHORTCUTS,
     "5": Group.RUBRIC, "6": Group.DISTRACTORS, "7": Group.LABELS,
@@ -941,18 +949,17 @@ ROLE_MODEL: dict[Role, type[ReviewBase]] = {
 
 
 def check_file(path: str) -> ReviewBase:
-    """Проверить сохранённое ревью. Роль берётся из самого файла.
+    """Check a saved review. The role is taken from the file itself.
 
-    Субагент запускает это на себе перед тем, как отчитаться координатору:
-    невалидное ревью дешевле починить на месте, чем разбирать потом, почему
-    у пункта нет строки.
+    A subagent runs this on themselves before reporting to the coordinator: an invalid
+    review is cheaper to fix on the spot than to work out later why an item has no line.
     """
     import json
 
     raw = json.loads(Path(path).read_text(encoding="utf-8"))
     role = raw.get("role")
     if role not in set(Role):
-        raise SystemExit(f"неизвестная роль {role!r}; ожидается одна из "
+        raise SystemExit(f"unknown role {role!r}; expected one of "
                          f"{[r.value for r in Role]}")
     return ROLE_MODEL[Role(role)].model_validate(raw)
 
@@ -962,23 +969,23 @@ if __name__ == "__main__":
 
     if len(sys.argv) > 1 and sys.argv[1] == "--check":
         if len(sys.argv) != 3:
-            raise SystemExit("использование: review.py --check <файл ревью>")
+            raise SystemExit("usage: review.py --check <review file>")
         try:
             obj = check_file(sys.argv[2])
         except Exception as e:  # ValidationError, JSONDecodeError, KeyError...
-            print(f"ревью НЕ валидно:\n{e}")
+            print(f"the review is NOT valid:\n{e}")
             raise SystemExit(1)
-        print(f"ревью валидно: {obj.role.value}, сэмпл {obj.sample_id}, "
-              f"круг {obj.iteration}")
+        print(f"the review is valid: {obj.role.value}, sample {obj.sample_id}, "
+              f"round {obj.iteration}")
         raise SystemExit(0)
 
     missing = [i.value for i in Item if i not in ITEM_NUMBER]
     if missing:
-        raise SystemExit(f"пункты без номера: {missing}")
+        raise SystemExit(f"items with no number: {missing}")
 
-    # Чеклист и контракт обязаны совпадать в обе стороны (чеклист 9.4). Пункт,
-    # который есть здесь и которого нет там, — это требование к ревьюеру, которого
-    # он нигде не прочитает; обратное — пункт, по которому никто не отчитается.
+    # The checklist and the contract must agree in both directions (checklist 9.4). An
+    # item that exists here and not there is a requirement on the reviewer that they will
+    # never read anywhere; the converse is an item nobody will report on.
     checklist = Path(__file__).resolve().parent.parent / "docs" / "annotation_checklist.md"
     if checklist.exists():
         import re
@@ -992,15 +999,15 @@ if __name__ == "__main__":
                 cur = m.group(2)
                 found[cur] = m.group(3)
                 level[cur] = m.group(1)
-            elif cur and line.strip().startswith("*Статус.*"):
-                # Не сбрасываем cur: раньше второй «*Статус.*» внутри одного пункта
-                # молча игнорировался, и 2.1 годами числился нереализованным при
-                # живом S-33 — то есть проверка на расхождение была слепа ровно там,
-                # где расхождение и было.
+            elif cur and line.strip().startswith("*Status.*"):
+                # We do not reset cur: a second \u00ab*Status.*\u00bb inside one item used to be
+                # ignored silently, and 2.1 was listed as unimplemented for ages while
+                # S-33 was alive — that is, the divergence check was blind exactly where
+                # the divergence was.
                 if cur in done:
-                    raise SystemExit(f"у пункта {cur} два «*Статус.*» — какой из них "
-                                     f"настоящий, знает только автор правки; оставьте один")
-                done[cur] = "Реализовано" in line
+                    raise SystemExit(f"item {cur} has two \u00ab*Status.*\u00bb lines — which of them "
+                                     f"is the real one only the author of the edit knows; leave one")
+                done[cur] = "Implemented" in line
         by_num = {num: item.value for item, num in ITEM_NUMBER.items()}
         only_here = sorted(set(by_num) - set(found))
         only_there = sorted(set(found) - set(by_num))
@@ -1008,56 +1015,57 @@ if __name__ == "__main__":
                    if by_num[n] != found[n]}
         problems = []
         if only_here:
-            problems.append(f"есть в контракте, нет в чеклисте: {only_here}")
+            problems.append(f"in the contract, not in the checklist: {only_here}")
         if only_there:
-            problems.append(f"есть в чеклисте, нет в контракте: {only_there}")
+            problems.append(f"in the checklist, not in the contract: {only_there}")
         if renamed:
-            problems.append(f"имена разошлись: {renamed}")
-        # Пункт, помеченный [A] и объявленный реализованным, обязан иметь правило
-        # в валидаторе; пункт [M] — роль, которая по нему отчитывается. Иначе метка
-        # уровня выводит пункт из-под чьей-либо ответственности: статус честный,
-        # кода нет, роли нет, и заметить это некому.
+            problems.append(f"the names diverged: {renamed}")
+        # An item marked [A] and declared implemented must have a rule in the
+        # validator; an item marked [M] must have a role that reports on it. Otherwise the
+        # level tag takes the item out from under anybody's responsibility: the status is
+        # honest, there is no code, there is no role, and there is nobody to notice.
         validator = Path(__file__).resolve().parent.parent / "tools" / "validate_samples.py"
         coded = set()
         if validator.exists():
             src = validator.read_text(encoding="utf-8")
-            passports = re.findall(r"# (S-\d+) · чеклист ([\d.]+) —", src)
+            passports = re.findall(r"# (S-\d+) \u00b7 checklist ([\d.]+) \u2014", src)
             coded = {num for _, num in passports}
-            # Обратная сторона 9.4: правило, сославшееся на несуществующий пункт,
-            # выглядит документированным, но ведёт в никуда — а заметить это
-            # можно только сверкой, потому что паспорт читается как проза.
+            # The other side of 9.4: a rule that referred to a non-existent item
+            # looks documented but leads nowhere — and that can only be noticed by a
+            # cross-check, because the data sheet reads as prose.
             stray = sorted({f"{rule}->{num}" for rule, num in passports
                             if num not in found})
             if stray:
-                problems.append(f"правила ссылаются на пункты, которых нет: {stray}")
+                problems.append(f"rules refer to items that do not exist: {stray}")
         assigned = {ITEM_NUMBER[i] for items in ROLE_ITEMS.values() for i in items}
         assigned |= {ITEM_NUMBER[i] for i in COORDINATOR_ITEMS}
-        # Группа 9 — гигиена процесса (числа в документации, идемпотентность
-        # инструментов, эта самая сверка). Её `[A]` означает «делается кодом»,
-        # но кодом не валидатора: правила S-NN проверяют сэмпл, а не репозиторий.
+        # Group 9 is process hygiene (the numbers in the documentation, the
+        # idempotence of the tools, this very cross-check). Its `[A]` means "done by
+        # code", but not by the validator's code: the S-NN rules check a sample, not the
+        # repository.
         for num in sorted(level, key=lambda n: [int(x) for x in n.split(".")]):
             if num.startswith("9."):
                 continue
             if level[num] == "A" and done.get(num) and num not in coded:
-                problems.append(f"{num} помечен [A] и «Реализовано», но правила S-NN "
-                                f"на него в валидаторе нет")
+                problems.append(f"{num} is marked [A] and \u00abImplemented\u00bb, but there is no S-NN "
+                                f"rule for it in the validator")
             if level[num] == "M" and num not in assigned:
-                problems.append(f"{num} помечен [M], но не входит ни в одну роль "
-                                f"и не выводится координатором")
+                problems.append(f"{num} is marked [M] but belongs to no role "
+                                f"and is not derived by the coordinator")
         if problems:
-            raise SystemExit("чеклист и контракт разошлись:\n  " + "\n  ".join(problems))
+            raise SystemExit("the checklist and the contract have diverged:\n  " + "\n  ".join(problems))
         n_a = sum(1 for v in level.values() if v == "A")
-        print(f"чеклист сверен: {len(found)} пунктов ({n_a} автоматических), "
-              f"имена совпадают, у каждого есть исполнитель")
+        print(f"checklist cross-checked: {len(found)} items ({n_a} automatic), "
+              f"the names agree, every one has an owner")
     roles = sorted(ROLE_ITEMS)
     for i, a in enumerate(roles):
         for b in roles[i + 1:]:
             overlap = ROLE_ITEMS[a] & ROLE_ITEMS[b]
             if overlap:
-                raise SystemExit(f"пункт назначен и {a.value}, и {b.value}: "
+                raise SystemExit(f"item assigned to both {a.value} and {b.value}: "
                                  f"{[i.value for i in overlap]}")
-    print(f"контракт ревью {SCHEMA_VERSION}, чеклист {CHECKLIST_VERSION}")
-    print(f"пунктов: {len(Item)}, групп: {len(Group)}")
+    print(f"review contract {SCHEMA_VERSION}, checklist {CHECKLIST_VERSION}")
+    print(f"items: {len(Item)}, groups: {len(Group)}")
     for role, items in ROLE_ITEMS.items():
         nums = sorted(ITEM_NUMBER[i] for i in items)
-        print(f"  {role.value:10s} {len(items):2d} пунктов: {', '.join(nums)}")
+        print(f"  {role.value:10s} {len(items):2d} items: {', '.join(nums)}")

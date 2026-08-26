@@ -13,243 +13,243 @@ review_type: adversarial
 
 # TL;DR
 
-- Датасет из 1113 YouTube-лекций (366.9 ч, 5 источников), с OCR-разметкой слайдов и транскрипциями речи; 3 бенчмарка: CASR, spontaneous TTS, Slide↔Script generation [§3, §5].
-- Заявленные «high-quality human annotations» речи неверны для 80.5% корпуса: train-сплит (295.4 ч) — чистый выход Microsoft STT без единой правки человеком [§4.2.4, Tab. 3].
-- Оценка ASR ведётся против меток, порождённых теми же Whisper/Microsoft, что и оцениваются; цифра «WER 10%» измеряет согласие с Microsoft STT, а не точность [§5.1.3, Tab. 5].
-- Главная «фича» — рукописный текст и формулы — это 772 страницы (3.1% слайдов), и ни один бенчмарк на OCR-разметке вообще не запущен [§3.3, Tab. 4].
-- Human-оценки: MOS на 20 сэмплах, SSG на 100 сэмплах × 3 аннотаторов из команды авторов, без IAA, без CI, без тестов значимости [§5.2.3, §5.3.3, App. A.4].
-- Код и данные реально доступны (45.5 ГБ, CC BY-NC-SA), но GPT-4 вызывается через незапиненный алиас `gpt-4` и снятый с обслуживания `gpt-4-vision-preview` → числа в Tab. 7 невоспроизводимы.
+- A dataset of 1113 YouTube lectures (366.9 h, 5 sources), with OCR annotation of the slides and transcriptions of the speech; 3 benchmarks: CASR, spontaneous TTS, Slide↔Script generation [§3, §5].
+- The claimed "high-quality human annotations" of speech are untrue for 80.5% of the corpus: the train split (295.4 h) is the raw output of Microsoft STT without a single human edit [§4.2.4, Tab. 3].
+- The ASR evaluation is carried out against labels produced by the very Whisper/Microsoft systems being evaluated; the figure "WER 10%" measures agreement with Microsoft STT, not accuracy [§5.1.3, Tab. 5].
+- The main "feature" — handwritten text and formulas — amounts to 772 pages (3.1% of the slides), and not a single benchmark is run on the OCR annotation at all [§3.3, Tab. 4].
+- Human evaluations: MOS on 20 samples, SSG on 100 samples × 3 annotators from the authors' own team, with no IAA, no CIs, no significance tests [§5.2.3, §5.3.3, App. A.4].
+- The code and the data really are available (45.5 GB, CC BY-NC-SA), but GPT-4 is called through the unpinned alias `gpt-4` and the retired `gpt-4-vision-preview` → the numbers in Tab. 7 are irreproducible.
 
 ---
 
 # Problem & Motivation
 
-Заявленный авторами разрыв: существующие датасеты академических лекций делятся на два непересекающихся класса. Одни (LectureVideoDB, SlideSpeech) заточены под *распознавание* мультимодального контента, другие (LectureBank, TalkSumm, AVIATE, LPM) — под *понимание* академического знания, и ни один не поддерживает оба режима одновременно. Причина, по мнению авторов, — недостаток качественной ручной разметки [§1, §2]. Из этого выводится необходимость корпуса, где одновременно есть: (а) вручную выверенный OCR слайдов, включая рукописный текст и формулы в LaTeX, (б) выверенные транскрипции речи с пословными таймингами и в двух формах (spoken/written), (в) тексты соответствующих статей как внешний источник знания.
+The gap the authors claim: existing academic-lecture datasets fall into two disjoint classes. Some (LectureVideoDB, SlideSpeech) are aimed at the *recognition* of multimodal content, others (LectureBank, TalkSumm, AVIATE, LPM) at the *understanding* of academic knowledge, and none supports both regimes at once. The reason, in the authors' view, is a shortage of quality manual annotation [§1, §2]. From this they derive the need for a corpus that has, simultaneously: (a) manually verified OCR of the slides, including handwritten text and formulas in LaTeX, (b) verified speech transcriptions with word-level timings and in two forms (spoken/written), (c) the texts of the corresponding papers as an external source of knowledge.
 
-Мотивация правдоподобна, но сама постановка «gap» построена на таблице сравнения (Tab. 1 в §2), где авторы сами расставляют метки «A» (автоматическая обработка) и «M» (полностью или частично ручная). Формулировка «fully **or partially** manual» делает колонку почти бессодержательной: M³AV получает «M» в колонке Transcription на том основании, что часть сегментов dev/test прошла через MTurk, при том что 80.5% корпуса по длительности — необработанный выход коммерческого ASR. По той же логике «M» могли бы получить и несколько конкурентов. Утверждение «none of them has yet simultaneously paid attention to recognition and understanding» [§1] проверяется только этой таблицей и не подкреплено ни одним экспериментом, где бы существующий датасет провалил задачу M³AV.
+The motivation is plausible, but the very statement of the "gap" is built on a comparison table (Tab. 1 in §2) where the authors themselves assign the labels "A" (automatic processing) and "M" (fully or partially manual). The wording "fully **or partially** manual" makes the column almost contentless: M³AV gets an "M" in the Transcription column on the grounds that part of the dev/test segments went through MTurk, while 80.5% of the corpus by duration is the unprocessed output of a commercial ASR. By the same logic several competitors could have got an "M" too. The claim "none of them has yet simultaneously paid attention to recognition and understanding" [§1] is checked only against that table and is not supported by a single experiment in which an existing dataset fails the M³AV task.
 
-Второй слой мотивации — прикладной: помощь исследователям в подготовке презентаций, генерация скриптов по слайдам и слайдов по скриптам. Здесь мотивация сильнее, потому что задача SSG действительно новая относительно LPM (там — кросс-модальный retrieval, а не генерация).
+A second layer of motivation is applied: helping researchers prepare presentations, generating scripts from slides and slides from scripts. Here the motivation is stronger, because the SSG task really is new relative to LPM (which is cross-modal retrieval, not generation).
 
-К генерации образовательных видео в стиле Manim/3Blue1Brown работа отношения не имеет: анимации не собираются, видеоряд вообще не распространяется (см. «Как собирались данные»), сохраняются только кадры-слайды и аудио. Ближайшая точка соприкосновения — сплит Oxford Mathematics (MLS), где есть рукописные выкладки и формулы в LaTeX, но это 51 видео, 26.2 ч и 577 слайдов, т.е. 2.3% корпуса по слайдам.
+The work has no bearing on generating educational videos in the Manim/3Blue1Brown style: no animations are assembled and the video track is not distributed at all (see "How the data were collected") — only slide frames and audio are kept. The closest point of contact is the Oxford Mathematics (MLS) split, which has handwritten derivations and formulas in LaTeX, but that is 51 videos, 26.2 h and 577 slides, i.e. 2.3% of the corpus by slides.
 
-![Обзор датасета: слайды с блочной разметкой, речь в spoken/written форме с пословными таймингами, текст статьи](figures/figures_1-1.png)
+![An overview of the dataset: slides with block annotation, speech in spoken/written form with word-level timings, the text of the paper](figures/figures_1-1.png)
 
 ---
 
-# Method (пайплайн построения датасета)
+# Method (the dataset construction pipeline)
 
-Метода в привычном смысле здесь нет — есть пайплайн разметки, который и является главным техническим вкладом. Разбираю его подробно, потому что все претензии к работе растут именно отсюда.
+There is no method in the usual sense here — there is an annotation pipeline, and that is the main technical contribution. I go through it in detail, because every complaint about the work grows out of it.
 
-## Как собирались данные
+## How the data were collected
 
-**Источники.** Пять YouTube-плейлистов, все публично доступные [§4.1]:
+**The sources.** Five YouTube playlists, all publicly available [§4.1]:
 
-| Источник | Область | Часы | Видео | Слайды | Статьи |
+| Source | Field | Hours | Videos | Slides | Papers |
 |---|---|---:|---:|---:|---:|
 | CHI 2021 Paper Presentations | HCI / CS | 53.2 | 660 | 9195 | 660 |
 | UbiComp 2020 Presentations | HCI / CS | 10.4 | 107 | 1451 | 107 |
-| NIH Director's Wednesday Afternoon Lectures | биомед | 235.4 | 228 | 11208 | — |
-| Introduction to the Principles and Practice of Clinical Research (IPPCR) | биомед | 41.7 | 67 | 2525 | — |
-| Oxford Mathematics | математика | 26.2 | 51 | 577 | — |
-| **Итого** | | **366.9** | **1113** | **24956** | **767** |
+| NIH Director's Wednesday Afternoon Lectures | biomed | 235.4 | 228 | 11208 | — |
+| Introduction to the Principles and Practice of Clinical Research (IPPCR) | biomed | 41.7 | 67 | 2525 | — |
+| Oxford Mathematics | mathematics | 26.2 | 51 | 577 | — |
+| **Total** | | **366.9** | **1113** | **24956** | **767** |
 
-Цифры по часам и слайдам — из Fig. 5(a,b); суммарные — из §3.2 и §3.3. В README репозитория указаны исходные длительности плейлистов (55.00 / 10.65 / 237.71 / 42.27 / 27.23 = 372.86 ч), т.е. ~6 ч отброшено при фильтрации; в статье это расхождение не объясняется.
+The hours and slide figures come from Fig. 5(a,b); the totals from §3.2 and §3.3. The repository README gives the original playlist durations (55.00 / 10.65 / 237.71 / 42.27 / 27.23 = 372.86 h), i.e. ~6 h were discarded during filtering; the paper does not explain this discrepancy.
 
-**Ключевой факт о балансе:** NIH — 64.2% всей длительности корпуса при 20.5% видео. Тест-сплит: NIH 23.5 ч из 36.4 ч = 64.6%. То есть все агрегированные метрики в Tab. 5 — это, по сути, метрики на биомедицинских лекциях NIH. Слово «Multigenre» в названии данными не поддержано: разбивки результатов по источникам нет ни в одной таблице.
+**A key fact about the balance:** NIH is 64.2% of the corpus's total duration while being 20.5% of the videos. The test split: NIH 23.5 h out of 36.4 h = 64.6%. That is, all the aggregate metrics in Tab. 5 are in essence metrics on NIH biomedical lectures. The word "Multigenre" in the title is not supported by the data: no table breaks the results down by source.
 
-**Скачивание.** Видео, описания и субтитры качаются с YouTube. Для CS-видео (CHI + UbiComp = ровно 767 = число статей в Tab. 2) скачиваются PDF статей и парсятся через `science-parse` (AllenAI) [§4.1]. Файл `download/paper_link.json` в репозитории содержит ровно 767 непустых ссылок, все — на `dl.acm.org/doi/pdf/...`. В релизе распространяется не PDF, а `paper/paper_sentences.json` — список предложений статьи.
+**Downloading.** The videos, descriptions and subtitles are downloaded from YouTube. For the CS videos (CHI + UbiComp = exactly 767 = the number of papers in Tab. 2) the PDFs of the papers are downloaded and parsed with `science-parse` (AllenAI) [§4.1]. The file `download/paper_link.json` in the repository contains exactly 767 non-empty links, all to `dl.acm.org/doi/pdf/...`. What is distributed in the release is not the PDF but `paper/paper_sentences.json` — a list of the paper's sentences.
 
-**Транскрипция речи (4 шага)** [§4.2]:
+**Speech transcription (4 steps)** [§4.2]:
 
-1. *Генерация кандидатов.* Авторские субтитры YouTube признаны низкокачественными «по нашему наблюдению» (без измерений). Вместо них — два коммерческих/открытых ASR: **Microsoft STT** (даёт written-форму $M_w$ и spoken-форму $M_s$) и **Whisper-large-v2** (только written, $W_w$). Обоснование выбора: «оба дают WER < 10% или даже < 5% на нескольких тестах SpeechColab Leaderboard в октябре 2022» [§4.2.1].
-2. *Сегментация аудио.* Ре-сегментация по пословным таймингам $M_w$. Правила [App. A.1]: разрез разрешён при паузе > 0.2 с или на `.`/`!`/`?`; сегмент замыкается при накоплении ≥ 8 с или если добавление следующего куска даст ≥ 10 с; пауза > 5 с выбрасывается и режет сегмент.
-3. *Разбиение на сплиты.* Примерно 8:1:1 по длительности. Заявлено, что один и тот же спикер не попадает в разные сплиты, и идентифицируется он «по вступительной информации и тексту описания» [§4.2.3]. По факту (`download/set_split.json`): train 901 / dev 99 / test 113 видео; в тесте CHI 58, NIH 22, Ubi 16, IPP 13, MLS 4.
-4. *Комбинация кандидатов.* **Train: берутся напрямую $M_w$ и $M_s$ от Microsoft, без участия человека.** Dev/test: если $M_w \approx W_w$ («approximately equal», с прощением рассогласований на паузах и частотных словах) — Case I, метки берутся как есть от Microsoft; иначе Case II: рассогласованные слова маскируются как `[???]` в $M_s$, MTurk-аннотаторы заполняют маски ($M_s^{a}$), затем другие аннотаторы объединяют $M_s$ и $M_s^{a}$ в финальный $M_s^{c}$ [§4.2.4].
+1. *Generating candidates.* The authors' YouTube subtitles are declared low-quality "by our observation" (with no measurement). In their place, two commercial/open ASR systems: **Microsoft STT** (giving the written form $M_w$ and the spoken form $M_s$) and **Whisper-large-v2** (written only, $W_w$). The justification for the choice: "both give WER < 10% or even < 5% on several tests of the SpeechColab Leaderboard in October 2022" [§4.2.1].
+2. *Audio segmentation.* Re-segmentation by the word-level timings of $M_w$. The rules [App. A.1]: a cut is allowed at a pause > 0.2 s or at a `.`/`!`/`?`; a segment is closed once ≥ 8 s have accumulated or if adding the next piece would give ≥ 10 s; a pause > 5 s is discarded and cuts the segment.
+3. *Splitting into sets.* Roughly 8:1:1 by duration. It is claimed that one and the same speaker does not land in different splits, and that the speaker is identified "from the introductory information and the description text" [§4.2.3]. In fact (`download/set_split.json`): train 901 / dev 99 / test 113 videos; in the test set CHI 58, NIH 22, Ubi 16, IPP 13, MLS 4.
+4. *Combining the candidates.* **Train: $M_w$ and $M_s$ are taken directly from Microsoft, with no human involvement.** Dev/test: if $M_w \approx W_w$ ("approximately equal", forgiving mismatches at pauses and on frequent words) — Case I, the labels are taken as they are from Microsoft; otherwise Case II: the mismatched words are masked as `[???]` in $M_s$, MTurk annotators fill in the masks ($M_s^{a}$), then other annotators merge $M_s$ and $M_s^{a}$ into the final $M_s^{c}$ [§4.2.4].
 
-![Пайплайн создания транскрипций: 4 шага от кандидатов ASR до финальных меток](figures/figures_2-1.png)
+![The transcription creation pipeline: 4 steps from ASR candidates to the final labels](figures/figures_2-1.png)
 
-Постобработка $M_s^c$ [App. A.3]: inverse text normalization (NeMo WFST), расстановка пунктуации и капитализация (NeMo), пословные тайминги через Montreal Forced Aligner.
+Post-processing of $M_s^c$ [App. A.3]: inverse text normalisation (NeMo WFST), punctuation and capitalisation (NeMo), word-level timings via the Montreal Forced Aligner.
 
-**Аннотация слайдов (4 шага)** [§4.3]:
+**Slide annotation (4 steps)** [§4.3]:
 
-1. *Пре-аннотация.* Сэмплирование кадров 1 fps + **PaddleOCR** для детекции и распознавания текста.
-2. *Дедупликация.* Автоматически: удаляются кадры с блоками обложки $B_{\text{cover}}$ и фиксированные логотипы $B_{\text{excluded}}$; фильтрация блоков с малым числом букв ($\min^{\text{B}}_{\text{alpha}}$) и кадров со слишком малым/большим числом блоков ($\min^{\text{I}}_{\text{B}}$, $\max^{\text{I}}_{\text{B}}$); затем кадры группируются в сегменты по модифицированной ошибке [App. A.2]:
+1. *Pre-annotation.* Frame sampling at 1 fps + **PaddleOCR** for text detection and recognition.
+2. *Deduplication.* Automatically: frames with cover blocks $B_{\text{cover}}$ and fixed logos $B_{\text{excluded}}$ are removed; blocks with few letters ($\min^{\text{B}}_{\text{alpha}}$) and frames with too few or too many blocks ($\min^{\text{I}}_{\text{B}}$, $\max^{\text{I}}_{\text{B}}$) are filtered out; then the frames are grouped into segments by a modified error [App. A.2]:
    $$\text{WER}^{\text{mod}} = \frac{S + D + 0 \times I}{H + S + D}, \qquad \text{CER}^{\text{mod}} = \frac{S + D + 0.1 \times I}{H + S + D}$$
-   Вставки почти не штрафуются — это сделано специально, чтобы инкрементально дополняемый слайд считался «тем же» слайдом. Пороги подбираются вручную под каждый источник. Затем — ручная дедупликация с сохранением последнего кадра сегмента.
-3. *Ручная коррекция.* Простой текст правят «опытные исследователи» из команды (координаты + содержимое), блоки с URL и e-mail выбрасываются. Сложные кадры (рукопись, формулы) пре-размечаются через **Mathpix OCR API**, затем правятся вручную; формулы — inline LaTeX. Интерфейс — PPOCRLabel.
-4. *Правила слияния строк в абзацы.* Три геометрических критерия с параметрами $a=b=0.8$, $c=0.6$:
+   Insertions are almost unpenalised — done deliberately so that a slide built up incrementally counts as "the same" slide. The thresholds are tuned by hand per source. After that, manual deduplication keeping the last frame of each segment.
+3. *Manual correction.* Plain text is corrected by "experienced researchers" from the team (coordinates + content), and blocks with URLs and e-mails are discarded. Complex frames (handwriting, formulas) are pre-annotated with the **Mathpix OCR API**, then corrected by hand; formulas are inline LaTeX. The interface is PPOCRLabel.
+4. *The rules for merging lines into paragraphs.* Three geometric criteria with the parameters $a=b=0.8$, $c=0.6$:
    $$\max(h_0^a, h_0^b) - \min(h_0^a, h_0^b) \leq a \cdot \max(h_0^a, h_0^b)$$
    $$\min(a_2^x, b_1^x) - \max(a_3^x, b_0^x) \geq b \cdot \min(b_1^x - b_0^x,\ a_2^x - a_3^x)$$
    $$b_0^y - a_3^y \leq c \cdot \min(h_0^a, h_0^b)$$
 
-![Пайплайн аннотации слайдов: пре-аннотация, дедупликация, ручная коррекция, слияние блоков](figures/figures_4-1.png)
+![The slide annotation pipeline: pre-annotation, deduplication, manual correction, block merging](figures/figures_4-1.png)
 
-**Объём и формат релиза.** HuggingFace `CHHHH/M3AV_v1.0`, 45.5 ГБ: `dataset_v1.0_noaudio.tar.gz` (2.02 ГБ — JPG слайдов в `ocr/seg_imgs/`, `ocr/ocr_result.json` с полигонами и текстом блоков, `ocr/seg_speech_ocr.json` со сшивкой слайд↔речь, `speech/final+timestamps.json`, `paper/paper_sentences.json`) + 9 частей `dataset_v1.0_onlyaudio` (43.5 ГБ). **Видеоряд не распространяется** — только `raw/*.mp4.ytbUrl` со ссылкой на YouTube. Лицензия CC BY-NC-SA 4.0 при явной оговорке «M³AV doesn't own the copyright of the videos».
+**The volume and the format of the release.** HuggingFace `CHHHH/M3AV_v1.0`, 45.5 GB: `dataset_v1.0_noaudio.tar.gz` (2.02 GB — slide JPGs in `ocr/seg_imgs/`, `ocr/ocr_result.json` with the polygons and the text of the blocks, `ocr/seg_speech_ocr.json` with the slide↔speech stitching, `speech/final+timestamps.json`, `paper/paper_sentences.json`) + 9 parts of `dataset_v1.0_onlyaudio` (43.5 GB). **The video track is not distributed** — only `raw/*.mp4.ytbUrl` with a link to YouTube. The licence is CC BY-NC-SA 4.0 with the explicit caveat "M³AV doesn't own the copyright of the videos".
 
-**Оплата аннотаторов** [App. A.4]: MTurk masters получают **0.06 USD за сэмпл** за заполнение масок и столько же за объединение; **0.2 USD за батч** из 6 TTS-сэмплов + trap-сэмпл для MOS. Ставка в час не указана. OCR-разметку делали «опытные исследователи команды», получившие «appropriate remuneration» — без цифр.
+**Annotator pay** [App. A.4]: MTurk masters get **0.06 USD per sample** for filling in the masks and the same for merging; **0.2 USD per batch** of 6 TTS samples + a trap sample for MOS. No hourly rate is given. The OCR annotation was done by "experienced researchers of the team" who received "appropriate remuneration" — with no figures.
 
-**Контроль качества** [§4.3.3, App. A.4]: «мы сэмплировали результаты 9 аннотаторов индивидуально и проверяли, есть ли у 120 размеченных изображений большое число пропусков или ошибок, не более 10 ошибочных элементов». Формулировка неоднозначна (120 изображений всего или на аннотатора?), но в любом случае это ≤ 0.5% от 24956 слайдов. Ни IAA, ни оценённого error rate, ни доли отклонённых работ не приводится.
+**Quality control** [§4.3.3, App. A.4]: "we sampled the results of 9 annotators individually and checked whether 120 annotated images had a large number of omissions or errors, no more than 10 erroneous elements". The wording is ambiguous (120 images in total or per annotator?), but either way that is ≤ 0.5% of the 24956 slides. No IAA, no measured error rate, no share of rejected work is given.
 
-## Бенчмарки
+## The benchmarks
 
-- **ASR/CASR.** Свои системы: AED (Conformer-12 encoder, $d^{\text{ff}}=2048$, $d^{\text{att}}=512$, $H=8$, Transformer-декодер на 6 блоков, BPE 1k, CTC-вес 0.3/0.2, SpecAugment, 4×RTX 3090, 60 эпох, усреднение top-10 чекпоинтов) и RNN-T (Conformer-15, joint 320). Плюс предобученные Whisper-v3, Wav2Vec2+CTC, NeMo Conformer-Transducer/CTC, SeamlessM4T-v2. CASR — TCPGen с GNN-кодированием префиксного дерева; редкие слова = всё, кроме топ-5k по частоте в train (≈38k слов из ≈43k словаря); biasing list длиной 500 при обучении и 1000 при инференсе [App. B.1, B.2].
-- **Spontaneous TTS.** MQTTS (двухстадийная: HiFi-GAN-квантизатор 600k шагов + авторегрессионный Transformer над кодами, обусловленный speaker embedding), обучен на train M³AV. Сравнение с Bark и SpeechT5 [App. B.3].
-- **SSG.** Slide→Script: каскад (gold OCR-текст → LLaMA-2-7B/13B с LoRA, либо GPT-4) и интегрированные (fine-tuned InstructBLIP-7B/13B, GPT-4V). Script→Slide: LLaMA-2, GPT-4. RAG: топ-3 предложения статьи с косинусной близостью > 0.5 по `msmarco-distilbert-base-v4`. Генерация: nucleus sampling top_p 0.9, max 300 токенов [App. B.4].
+- **ASR/CASR.** Their own systems: AED (a Conformer-12 encoder, $d^{\text{ff}}=2048$, $d^{\text{att}}=512$, $H=8$, a 6-block Transformer decoder, BPE 1k, CTC weight 0.3/0.2, SpecAugment, 4×RTX 3090, 60 epochs, averaging the top-10 checkpoints) and RNN-T (Conformer-15, joint 320). Plus pre-trained Whisper-v3, Wav2Vec2+CTC, NeMo Conformer-Transducer/CTC, SeamlessM4T-v2. CASR is TCPGen with GNN encoding of a prefix tree; rare words = everything outside the top-5k by frequency in train (≈38k words out of a ≈43k vocabulary); a biasing list of length 500 in training and 1000 at inference [App. B.1, B.2].
+- **Spontaneous TTS.** MQTTS (two-stage: a HiFi-GAN quantiser for 600k steps + an autoregressive Transformer over the codes, conditioned on a speaker embedding), trained on M³AV's train split. Compared against Bark and SpeechT5 [App. B.3].
+- **SSG.** Slide→Script: a cascade (gold OCR text → LLaMA-2-7B/13B with LoRA, or GPT-4) and integrated models (fine-tuned InstructBLIP-7B/13B, GPT-4V). Script→Slide: LLaMA-2, GPT-4. RAG: the top-3 sentences of the paper with a cosine similarity > 0.5 under `msmarco-distilbert-base-v4`. Generation: nucleus sampling top_p 0.9, max 300 tokens [App. B.4].
 
 ---
 
 # Experiments & Results
 
-**ASR/CASR (Tab. 5).** Собственные системы: AED 10.0% WER (dev и test), RNN-T 10.3/10.6%. BWER (доля ошибок на редких словах) — 35.5–38.0%, т.е. втрое хуже общего WER. Предобученные: Whisper-v3 7.1/7.2% WER (помечен курсивом «for reference only»), NeMo Conformer+Transducer 10.7/10.5%, Conformer+CTC 11.1/11.1%, SeamlessM4T-v2 17.1/18.6%, Wav2Vec2+CTC 28.3/28.5%. CASR с TCPGen: список из 1000 случайных дистракторов → BWER 26.7/27.1; список «OCR + редкие слова той же темы» → 30.5/31.7 (хуже); только OCR-слова → 22.9/25.0. Итоговое заявление: относительное падение BWER на 37.8% (dev) и 34.2% (test) относительно RNN-T без биасинга. Арифметика сходится (36.8→22.9; 38.0→25.0).
+**ASR/CASR (Tab. 5).** Their own systems: AED 10.0% WER (dev and test), RNN-T 10.3/10.6%. BWER (the share of errors on rare words) is 35.5–38.0%, i.e. three times worse than the overall WER. Pre-trained: Whisper-v3 7.1/7.2% WER (marked in italics "for reference only"), NeMo Conformer+Transducer 10.7/10.5%, Conformer+CTC 11.1/11.1%, SeamlessM4T-v2 17.1/18.6%, Wav2Vec2+CTC 28.3/28.5%. CASR with TCPGen: a list of 1000 random distractors → BWER 26.7/27.1; a list of "OCR + rare words of the same topic" → 30.5/31.7 (worse); OCR words only → 22.9/25.0. The final claim: a relative BWER drop of 37.8% (dev) and 34.2% (test) relative to RNN-T without biasing. The arithmetic checks out (36.8→22.9; 38.0→25.0).
 
-**TTS (Tab. 6).** MQTTS: FFE 0.3518, MCD 9.40, MOS 3.67 ± 0.94. SpeechT5: 0.4153 / 9.43 / 3.43 ± 1.09. Bark: 0.4269 / 10.57 / 3.31 ± 1.02. Ground truth: MOS 3.86 ± 1.02. MOS считался на **20 случайных сэмплах**.
+**TTS (Tab. 6).** MQTTS: FFE 0.3518, MCD 9.40, MOS 3.67 ± 0.94. SpeechT5: 0.4153 / 9.43 / 3.43 ± 1.09. Bark: 0.4269 / 10.57 / 3.31 ± 1.02. Ground truth: MOS 3.86 ± 1.02. The MOS was computed on **20 random samples**.
 
-**SSG (Tab. 7).** Slide→Script: LLaMA-2-13B+OCR даёт лучший ROUGE-1 (26.9), ROUGE-2 (6.4) и BERTScore (0.102); GPT-4+OCR — 26.2 / 5.8 / 0.085, но лучший BARTScore (−4.621); GPT-4V — 26.4 / 6.2 / 0.092 / −4.630. InstructBLIP проваливается (ROUGE-2 2.2–2.3). Human: InstructBLIP 2.4–2.5, LLaMA-2 3.6–3.9, GPT-4 4.6, GPT-4V 4.7. Script→Slide: GPT-4 лидирует по ROUGE (26.8/7.7/23.0) и human (4.8), LLaMA-2-13B — по BERTScore (0.092).
+**SSG (Tab. 7).** Slide→Script: LLaMA-2-13B+OCR gives the best ROUGE-1 (26.9), ROUGE-2 (6.4) and BERTScore (0.102); GPT-4+OCR gives 26.2 / 5.8 / 0.085 but the best BARTScore (−4.621); GPT-4V gives 26.4 / 6.2 / 0.092 / −4.630. InstructBLIP fails (ROUGE-2 2.2–2.3). Human: InstructBLIP 2.4–2.5, LLaMA-2 3.6–3.9, GPT-4 4.6, GPT-4V 4.7. Script→Slide: GPT-4 leads on ROUGE (26.8/7.7/23.0) and human (4.8), LLaMA-2-13B on BERTScore (0.092).
 
-**RAG-абляция (Tab. 8).** Только LLaMA-2-7B, только CS-подмножество. Slide→Script: 24.9→29.2 ROUGE-1, human 3.7→4.1. Script→Slide: 20.9→22.3, human 3.3→3.6, BERTScore не меняется (0.061→0.061).
+**The RAG ablation (Tab. 8).** LLaMA-2-7B only, the CS subset only. Slide→Script: 24.9→29.2 ROUGE-1, human 3.7→4.1. Script→Slide: 20.9→22.3, human 3.3→3.6, BERTScore unchanged (0.061→0.061).
 
-**Детальные human-оценки (Tab. 9–10, App. B.5).** GPT-4 и GPT-4V получают ровно **5.0** по fluency и relevance в обеих задачах — потолок шкалы.
+**Detailed human scores (Tab. 9–10, App. B.5).** GPT-4 and GPT-4V get exactly **5.0** for fluency and relevance in both tasks — the ceiling of the scale.
 
 ---
 
-# Критический разбор
+# The critical discussion
 
-## 1. Заявления, не подкреплённые экспериментами
+## 1. Claims not backed by experiments
 
-**«High-quality human annotations ... of spoken words».** Это центральное утверждение аннотации и абстракта, и оно неверно для 295.4 ч из 366.9 ч (80.5%): в train-сплите метки — прямой выход Microsoft STT [§4.2.4]. Для dev/test человек трогает **только** сегменты Case II, где Microsoft и Whisper разошлись; сегменты Case I (где два ASR согласны) уходят в «gold» без единого взгляда человека. Доля Case I / Case II нигде не приводится — а это единственное число, которое позволило бы оценить реальный объём ручной работы. Обоснование для train — «показывает высокое качество, проверенное сверкой с ручной разметкой на подмножестве» [§4.2.4]: ни размера подмножества, ни измеренного WER, ни критерия «высокого качества». В таблице сравнения датасетов (Tab. 1) M³AV при этом получает «M» в колонке Transcription — это натяжка.
+**"High-quality human annotations ... of spoken words".** This is the central claim of the annotation and of the abstract, and it is untrue for 295.4 h out of 366.9 h (80.5%): in the train split the labels are the direct output of Microsoft STT [§4.2.4]. For dev/test a human touches **only** the Case II segments, where Microsoft and Whisper disagreed; the Case I segments (where the two ASR systems agree) go into "gold" without a single human glance. The Case I / Case II ratio is given nowhere — and it is the one number that would let one gauge the real volume of manual work. The justification for train is that it "shows high quality, verified by comparison with manual annotation on a subset" [§4.2.4]: no size of the subset, no measured WER, no criterion for "high quality". Meanwhile in the dataset comparison table (Tab. 1) M³AV gets an "M" in the Transcription column — that is a stretch.
 
-**Дополнительный сигнал: описание в статье расходится с релизом.** README репозитория (новость от 2024-04) утверждает: «the training set adopts the text-normalised **Whisper** results, and the development/testing set employs a manual combination of Whisper and microsoft STT results». Камера-реди ACL (стр. 706 текстового слоя PDF) и arXiv v3 говорят обратное: «For the training set, we directly adopt the **Microsoft** transcription $M_w$ and $M_s$». Одно из двух описаний ложно. Если верен README, то ситуация хуже, чем в статье: AED/RNN-T обучены имитировать Whisper, а Whisper-v3 затем оценивается на том же корпусе — и оговорка «Whisper for reference only» становится недостаточной, потому что заражены и «честные» бейзлайны.
+**An additional signal: the paper's description diverges from the release.** The repository README (a news item from 2024-04) states: "the training set adopts the text-normalised **Whisper** results, and the development/testing set employs a manual combination of Whisper and microsoft STT results". The ACL camera-ready (p. 706 of the PDF's text layer) and arXiv v3 say the opposite: "For the training set, we directly adopt the **Microsoft** transcription $M_w$ and $M_s$". One of the two descriptions is false. If the README is right, the situation is worse than in the paper: AED/RNN-T were trained to imitate Whisper, and Whisper-v3 is then evaluated on the same corpus — and the caveat "Whisper for reference only" becomes insufficient, because the "honest" baselines are contaminated too.
 
-**«Avoiding the issue of training data contamination»** [§5.1.2] — non sequitur. Аргумент: «наши видео впервые корректно транскрибированы, поэтому остальные open-source ASR можно оценивать честно». Но контаминация ASR идёт по **аудио**, а не по транскриптам: Whisper обучался на 680k ч веб-аудио, NeMo и SeamlessM4T — на смеси, куда входят публичные YouTube-корпуса. NIH WALS и Oxford Mathematics — крупные, старые, публичные плейлисты, вероятность их присутствия в pretraining-миксах высока. Никакой проверки (например, memorization probe или сравнение с приватным held-out) не проводится.
+**"Avoiding the issue of training data contamination"** [§5.1.2] is a non sequitur. The argument: "our videos are correctly transcribed for the first time, so the other open-source ASR systems can be evaluated fairly". But ASR contamination goes through the **audio**, not through the transcripts: Whisper was trained on 680k h of web audio, and NeMo and SeamlessM4T on mixtures that include public YouTube corpora. NIH WALS and Oxford Mathematics are large, old, public playlists, and the probability of their presence in pre-training mixtures is high. No check (for example a memorisation probe or a comparison with a private held-out set) is carried out.
 
-**«The diversity of M³AV makes it a challenging dataset»** (абстракт, §6). Разбивки результатов по источникам нет ни в одной таблице. Утверждение о сложности через разнообразие проверяемо только per-source метриками, которых нет. Более того, 10% WER на подготовленной лекционной речи — не «challenging» по меркам 2024 г.; на реально сложных корпусах (например, спонтанные митинги) числа кратно выше.
+**"The diversity of M³AV makes it a challenging dataset"** (the abstract, §6). No table breaks the results down by source. A claim of difficulty grounded in diversity is checkable only through per-source metrics, and there are none. Moreover, 10% WER on prepared lecture speech is not "challenging" by 2024 standards; on genuinely hard corpora (spontaneous meetings, say) the numbers are several times higher.
 
-**«M³AV ... is completely qualified to cover tasks in the aforementioned datasets»** [§2] — то есть заменяет LectureVideoDB (распознавание рукописного/сценового текста) и SlideSpeech. Ни одного эксперимента по распознаванию текста на слайдах в работе нет. Вручную выверенный OCR — заявленный главный вклад — используется **только как gold-вход** для CASR и SSG, но никогда как gold-выход для задачи OCR. В Tab. 1 M³AV ставит себе галочку «Recognition», при том что единственная реализованная recognition-задача — ASR.
+**"M³AV ... is completely qualified to cover tasks in the aforementioned datasets"** [§2] — that is, it replaces LectureVideoDB (recognition of handwritten/scene text) and SlideSpeech. There is not a single experiment on recognising the text of the slides in the work. The manually verified OCR — the declared main contribution — is used **only as a gold input** for CASR and SSG, and never as a gold output for an OCR task. In Tab. 1 M³AV ticks the "Recognition" box, while the only recognition task actually implemented is ASR.
 
-**«Real speech in our dataset can drive AI systems to simulate more natural speech»** [§5.2.3]. Вывод сделан из того, что MQTTS, обученный на M³AV, обходит Bark и SpeechT5 по MOS. Контроля нет: не обучен MQTTS на другом корпусе (например, на том же GigaSpeech-подмножестве, на котором его обучали авторы MQTTS) с оценкой на M³AV. Без этого сравнения вывод о вкладе именно *данных* невозможен.
+**"Real speech in our dataset can drive AI systems to simulate more natural speech"** [§5.2.3]. The conclusion is drawn from MQTTS, trained on M³AV, beating Bark and SpeechT5 on MOS. There is no control: MQTTS is not trained on another corpus (for example the GigaSpeech subset its own authors trained it on) and evaluated on M³AV. Without that comparison no conclusion about the contribution of the *data* is possible.
 
-**«GPT-4V has already exceeded the cascaded pipeline»** [§5.3.3]. Разница GPT-4V vs GPT-4+OCR: ROUGE-1 26.4 vs 26.2, ROUGE-L 23.7 vs 23.7, human 4.7 vs 4.6. Это шум, поданный как «significant observation». Ни доверительных интервалов, ни повторных запусков.
+**"GPT-4V has already exceeded the cascaded pipeline"** [§5.3.3]. The difference GPT-4V vs GPT-4+OCR: ROUGE-1 26.4 vs 26.2, ROUGE-L 23.7 vs 23.7, human 4.7 vs 4.6. This is noise presented as a "significant observation". No confidence intervals, no repeated runs.
 
-**«Open-source models ... are far from the closed-source models»** [§5.3.3] — прямо противоречит собственной Tab. 7: fine-tuned LLaMA-2-13B выигрывает у GPT-4 по ROUGE-1 (26.9 vs 26.2), ROUGE-2 (6.4 vs 5.8) и BERTScore (0.102 vs 0.085) в Slide→Script. Вывод «far from» держится исключительно на human-оценке, где GPT-4 упирается в потолок шкалы.
+**"Open-source models ... are far from the closed-source models"** [§5.3.3] directly contradicts their own Tab. 7: the fine-tuned LLaMA-2-13B beats GPT-4 on ROUGE-1 (26.9 vs 26.2), ROUGE-2 (6.4 vs 5.8) and BERTScore (0.102 vs 0.085) in Slide→Script. The "far from" conclusion rests exclusively on the human evaluation, where GPT-4 hits the ceiling of the scale.
 
-## 2. Слабые места бенчмарков и метрик
+## 2. Weak points of the benchmarks and metrics
 
-**Циркулярность ASR-оценки.** Референсные метки dev/test порождены Microsoft STT и Whisper. В Case I «gold» = выход Microsoft буквально. Следовательно: (а) любая система, похожая на Microsoft STT по нормализации, пунктуации и обработке чисел, получает бонус; (б) абсолютные WER не измеряют точность распознавания — они измеряют расстояние до консенсуса двух ASR; (в) даже курсивная оговорка про Whisper недостаточна, потому что Whisper участвовал в отборе того, *какие* сегменты вообще пойдут к человеку. Отсутствует базовое для датасетного пейпера число: WER финальных меток относительно независимой человеческой транскрипции хотя бы на 1–2 ч.
+**The circularity of the ASR evaluation.** The dev/test reference labels were produced by Microsoft STT and Whisper. In Case I the "gold" is literally Microsoft's output. Consequently: (a) any system resembling Microsoft STT in normalisation, punctuation and number handling gets a bonus; (b) the absolute WERs do not measure recognition accuracy — they measure the distance to the consensus of two ASR systems; (c) even the italicised caveat about Whisper is insufficient, because Whisper took part in deciding *which* segments would reach a human at all. A figure basic to any dataset paper is missing: the WER of the final labels relative to an independent human transcription of at least 1–2 h.
 
-**Несопоставимые biasing-списки в CASR.** Три строки CASR сравниваются между собой, но условия различаются по параметру, который сильнее всего влияет на BWER, — по размеру списка. «Random distractors» — фиксированные 1000 слов. «OCR» — слова с конкретного слайда, т.е. список на порядки короче и почти наверняка содержит целевые слова. Короткий и релевантный список тривиально проще. Контроля «OCR-список, дополненный дистракторами до 1000» нет, размеры OCR-списков не приводятся. Заявленное «относительное падение BWER на 37.8%» поэтому не отделяет вклад визуальной модальности от вклада уменьшения пространства поиска. Плюс OCR-подсказки — это **вручную выверенный** OCR, а не выход реальной OCR-модели: в продакшене такого входа не бывает, оценка оптимистична по построению.
+**Incomparable biasing lists in CASR.** The three CASR rows are compared with one another, but the conditions differ in the parameter that affects BWER most — the size of the list. "Random distractors" is a fixed 1000 words. "OCR" is the words from a specific slide, i.e. a list orders of magnitude shorter and almost certainly containing the target words. A short, relevant list is trivially easier. There is no control of "the OCR list padded with distractors up to 1000", and the sizes of the OCR lists are not given. The claimed "relative BWER drop of 37.8%" therefore does not separate the contribution of the visual modality from the contribution of shrinking the search space. On top of that, the OCR hints are the **manually verified** OCR rather than the output of a real OCR model: no such input exists in production, and the evaluation is optimistic by construction.
 
-**Размер выборки и статистика.**
-- MOS: 20 сэмплов [§5.2.3]. Число оценщиков на сэмпл не указано. `±` — это, судя по всему, стандартное отклонение, а не 95% CI. При разбросе ~1.0 и n=20 доверительный интервал ≈ ±0.45; разрывы MQTTS (3.67) vs SpeechT5 (3.43) и MQTTS vs GT (3.86) внутри шума. Никаких t-тестов, ANOVA или bootstrap.
-- SSG human: 100 сэмплов, 3 аннотатора [§5.3.3, App. A.4]. IAA (Krippendorff's α, Fleiss' κ) не приводится. Аннотаторы — «three experienced researchers» из команды авторов; про слепоту (blind evaluation, рандомизация порядка систем) ничего не сказано. Это self-evaluation с прямым конфликтом интересов: авторы оценивают свои же бейзлайны и знают, какой из них должен выиграть. Показательно, что MTurk-разметку для SSG сначала запустили и отбросили как «unsatisfactory» — то есть решение перейти на внутренних оценщиков принималось *после* просмотра результатов.
-- Потолок шкалы: GPT-4/GPT-4V получают ровно 5.0/5.0 по fluency и relevance (Tab. 9). Метрика не различает модели в верхнем сегменте и, скорее всего, отражает верифицируемую только стилистически «гладкость» длинного LLM-текста.
-- Нигде нет multiple seeds. Все таблицы — одиночные прогоны.
+**Sample size and statistics.**
+- MOS: 20 samples [§5.2.3]. The number of raters per sample is not given. The `±` is apparently a standard deviation, not a 95% CI. With a spread of ~1.0 and n=20 the confidence interval is ≈ ±0.45; the gaps MQTTS (3.67) vs SpeechT5 (3.43) and MQTTS vs GT (3.86) are inside the noise. No t-tests, no ANOVA, no bootstrap.
+- SSG human: 100 samples, 3 annotators [§5.3.3, App. A.4]. No IAA (Krippendorff's α, Fleiss' κ) is given. The annotators are "three experienced researchers" from the authors' team; nothing is said about blinding (blind evaluation, randomising the order of the systems). This is self-evaluation with a direct conflict of interest: the authors score their own baselines and know which one is supposed to win. Tellingly, MTurk annotation for SSG was first launched and then discarded as "unsatisfactory" — that is, the decision to switch to in-house raters was taken *after* looking at the results.
+- The ceiling of the scale: GPT-4/GPT-4V get exactly 5.0/5.0 on fluency and relevance (Tab. 9). The metric does not distinguish models in the upper segment and most likely reflects the merely stylistic "smoothness" of a long LLM text.
+- Nowhere are there multiple seeds. Every table is a single run.
 
-**Метрики SSG плохо подходят задаче.** Референс для Slide→Script — реальная устная речь докладчика. Задача принципиально one-to-many: по одному слайду возможны десятки корректных скриптов. ROUGE-1 ~25 и ROUGE-2 ~6 — это уровень, на котором ранжирование систем нестабильно. BERTScore в районе 0.07–0.16 (по-видимому, rescaled) практически неинформативен. Три автоматические метрики и human-оценка дают три разных порядка систем — и авторы выбирают тот, который поддерживает нарратив «closed-source ≫ open-source».
+**The SSG metrics fit the task badly.** The reference for Slide→Script is the speaker's real spoken words. The task is fundamentally one-to-many: dozens of correct scripts are possible for one slide. ROUGE-1 ~25 and ROUGE-2 ~6 is the level at which the ranking of systems is unstable. A BERTScore around 0.07–0.16 (apparently rescaled) is practically uninformative. Three automatic metrics and the human evaluation give three different orderings of the systems — and the authors pick the one that supports the narrative "closed-source ≫ open-source".
 
-**RAG-абляция без контроля.** Единственная проверка «внешнее знание помогает» [Tab. 8] сделана на одной модели (LLaMA-2-7B), на одном подмножестве (CS), без контрольного условия. Обязательные контроли, которых нет: (а) предложения из *случайной другой* статьи той же конференции — чтобы отделить эффект релевантного знания от эффекта дополнительного контекста и изменения формата промпта; (б) top-3 предложения из самого скрипта соседних сегментов. Кроме того, извлекается текст статьи, по которой сделана эта же презентация, а докладчики на CHI/UbiComp часто зачитывают формулировки из статьи — retrieval здесь местами близок к извлечению самого ответа.
+**The RAG ablation without a control.** The only check that "external knowledge helps" [Tab. 8] is done on one model (LLaMA-2-7B), on one subset (CS), with no control condition. The mandatory controls that are missing: (a) sentences from a *random other* paper of the same conference — to separate the effect of relevant knowledge from the effect of extra context and a changed prompt format; (b) the top-3 sentences from the script of the neighbouring segments themselves. Besides, what is retrieved is the text of the very paper this presentation was made from, and speakers at CHI/UbiComp often read out formulations from the paper — the retrieval here is at times close to retrieving the answer itself.
 
-**Нечестные сравнения в бейзлайнах.**
-- TTS: MQTTS обучен на train M³AV и обусловлен speaker embedding спикера из того же домена; Bark и SpeechT5 применяются zero-shot, обучены на других данных, с другой нормализацией текста и другим целевым стилем (чистая студийная речь). Победа in-domain модели над out-of-domain — тавтология, но подаётся как свойство данных.
-- SSG: LLaMA-2 и InstructBLIP файн-тюнятся на train M³AV (что даёт им стилистическое преимущество в ROUGE), GPT-4/GPT-4V вызываются zero-shot без few-shot примеров и без указания целевой длины/стиля. Сравнение смешивает три фактора: размер модели, режим обучения и формат оценки. Вывод «нужны более качественные pretraining-данные для open-source» из такого дизайна не следует.
-- ASR: собственные AED/RNN-T обучены на 295 ч in-domain данных; SeamlessM4T-v2 и Wav2Vec2 — out-of-domain. То, что «Whisper лучше наших систем», честно помечено курсивом, но общая рамка «existing models showcase limited performance» [§1] опирается на смесь in-domain и out-of-domain систем.
+**Unfair comparisons in the baselines.**
+- TTS: MQTTS is trained on M³AV's train split and conditioned on a speaker embedding of a speaker from the same domain; Bark and SpeechT5 are applied zero-shot, trained on other data, with different text normalisation and a different target style (clean studio speech). An in-domain model beating an out-of-domain one is a tautology, but it is presented as a property of the data.
+- SSG: LLaMA-2 and InstructBLIP are fine-tuned on M³AV's train split (which gives them a stylistic advantage in ROUGE), while GPT-4/GPT-4V are called zero-shot with no few-shot examples and no indication of the target length or style. The comparison mixes three factors: model size, training regime and evaluation format. The conclusion "open-source needs better pre-training data" does not follow from such a design.
+- ASR: their own AED/RNN-T are trained on 295 h of in-domain data; SeamlessM4T-v2 and Wav2Vec2 are out-of-domain. That "Whisper is better than our systems" is honestly marked in italics, but the general frame "existing models showcase limited performance" [§1] leans on a mixture of in-domain and out-of-domain systems.
 
-## 3. Утечки данных
+## 3. Data leaks
 
-- **Аудио в pretraining.** См. выше: NIH WALS и Oxford Mathematics — публичные плейлисты с большой историей; вероятность попадания в обучающие миксы Whisper/NeMo/Seamless высока и не проверяется.
-- **Циркулярные метки** dev/test → фактически утечка обучающих сигналов Microsoft/Whisper в «золотой стандарт».
-- **Разделение по спикерам — эвристическое.** «Speaker ... identified by the introductory information and description text» [§4.2.3]. Ни диаризации, ни speaker embeddings, ни проверки постфактум. При этом IPP (67 видео) — это **один курс** с повторяющимися преподавателями, разбитый как 49/5/13; NIH WALS — серия, где приглашённые докладчики выступают повторно в разные годы. Риск утечки спикера в test реален и напрямую завышает как WER-результаты, так и MOS для MQTTS (модель могла видеть голос тестового спикера).
-- **Тематическая утечка и утечка шаблонов слайдов.** Разбиение по видео, а не по сессиям/курсам. Соседние лекции курса IPPCR разделяют терминологию, шаблон слайдов и целые повторяющиеся слайды («Objectives», «Outline»). CHI 2021 — доклады одной конференции с общим оформлением. Для задачи Script→Slide, где метрика — совпадение текста слайда, это заметный источник завышения.
-- **GPT-4 и CHI/UbiComp статьи.** Cut-off GPT-4 покрывает 2021 г.; статьи CHI 2021 и UbiComp 2020 почти наверняка в pretraining. Для Slide→Script на CS-подмножестве это прямая утечка контента в закрытую модель — что делает сравнение GPT-4 vs LLaMA-2 ещё менее интерпретируемым.
-- **Редкие слова.** Список редких слов строится по частоте в train и применяется к dev/test — здесь методология корректна.
+- **Audio in pre-training.** See above: NIH WALS and Oxford Mathematics are public playlists with a long history; the probability of their appearing in the Whisper/NeMo/Seamless training mixtures is high and is not checked.
+- **Circular labels** in dev/test → effectively a leak of Microsoft's/Whisper's training signals into the "gold standard".
+- **The speaker split is heuristic.** "Speaker ... identified by the introductory information and description text" [§4.2.3]. No diarisation, no speaker embeddings, no post-hoc verification. Meanwhile IPP (67 videos) is **one course** with recurring lecturers, split as 49/5/13; NIH WALS is a series where invited speakers appear repeatedly in different years. The risk of a speaker leaking into the test set is real and directly inflates both the WER results and the MOS for MQTTS (the model may have seen the test speaker's voice).
+- **Topic leakage and slide-template leakage.** The split is by video rather than by session/course. Neighbouring lectures of the IPPCR course share terminology, a slide template and entire repeated slides ("Objectives", "Outline"). CHI 2021 consists of talks from one conference with a common design. For the Script→Slide task, whose metric is the match of the slide's text, this is a noticeable source of inflation.
+- **GPT-4 and the CHI/UbiComp papers.** GPT-4's cut-off covers 2021; the CHI 2021 and UbiComp 2020 papers are almost certainly in its pre-training. For Slide→Script on the CS subset this is a direct leak of content into the closed model — which makes the GPT-4 vs LLaMA-2 comparison even less interpretable.
+- **Rare words.** The rare-word list is built from the frequencies in train and applied to dev/test — the methodology here is correct.
 
-**Отдельно про статистику редких слов.** §3.2: «размер словаря spoken-формы 47865, при этом слов с частотой в пределах 1k — 47483 (99.20%)». Это утверждение истинно для практически любого естественного корпуса (закон Ципфа) и не является свидетельством особой насыщенности терминологией. Плюс расхождение с приложением: App. B.2 говорит про «примерно 43k различных слов» и «около 38k» редких. 47865 vs 43k — несогласованные числа в одной работе.
+**Separately on the rare-word statistics.** §3.2: "the vocabulary size of the spoken form is 47865, of which words with a frequency within 1k number 47483 (99.20%)". That statement is true for practically any natural corpus (Zipf's law) and is no evidence of any special saturation with terminology. Plus there is a discrepancy with the appendix: App. B.2 speaks of "about 43k distinct words" and "about 38k" rare ones. 47865 vs 43k are inconsistent numbers in one work.
 
-## 4. Воспроизводимость: что реально доступно
+## 4. Reproducibility: what is actually available
 
-Здесь работа выглядит существенно лучше среднего датасетного пейпера, но с оговорками.
+Here the work looks substantially better than the average dataset paper, but with caveats.
 
-**Доступно:**
-- Репозиторий `github.com/Jack-ZC8/M3AV-dataset` (последний push 2025-05-29, 24 звезды, 3 открытых issue). Есть `set_split.json` (1113 записей), `paper_link.json` (767 ссылок), SHA-256 всех архивов, демо-сэмпл с описанием формата.
-- Данные на HuggingFace `CHHHH/M3AV_v1.0`, 45.5 ГБ, публично, не gated: 2.02 ГБ «noaudio» (кадры слайдов + JSON-аннотации + предложения статей) и 43.5 ГБ аудио, нарезанного на 9 частей.
-- Бенчмарки: ASR — рецепт ESPnet (`egs2/M3AV/asr1`); CASR — рецепт + патчи; TTS — полный форк MQTTS (`train.py`, `trainer.py`, `infer.py`, `tester.py`, quantizer, measures); SSG — код подготовки данных, LoRA-файнтюн LLaMA-2, скрипты GPT-4/GPT-4V, скоринг ROUGE/BERTScore/BARTScore.
+**Available:**
+- The repository `github.com/Jack-ZC8/M3AV-dataset` (last push 2025-05-29, 24 stars, 3 open issues). It has `set_split.json` (1113 records), `paper_link.json` (767 links), the SHA-256 of every archive, and a demo sample with a description of the format.
+- The data on HuggingFace `CHHHH/M3AV_v1.0`, 45.5 GB, public, not gated: 2.02 GB of "noaudio" (slide frames + JSON annotations + the papers' sentences) and 43.5 GB of audio cut into 9 parts.
+- The benchmarks: ASR — an ESPnet recipe (`egs2/M3AV/asr1`); CASR — a recipe plus patches; TTS — a full fork of MQTTS (`train.py`, `trainer.py`, `infer.py`, `tester.py`, the quantiser, the measures); SSG — the data preparation code, the LoRA fine-tune of LLaMA-2, the GPT-4/GPT-4V scripts, and ROUGE/BERTScore/BARTScore scoring.
 
-**Не доступно / проблемно:**
-- **Видео не распространяется.** Только `raw/*.mp4.ytbUrl`. Любая работа, требующая говорящей головы, жестов, анимации переходов — невоспроизводима без повторного скачивания с YouTube, где ссылки постепенно умирают. Датасет с названием «Audio-**Visual**» на практике отдаёт аудио + статичные кадры.
-- **CASR завязан на непринятый PR** ESPnet #5261 плюс ручную замену `espnet2/text/Butils.py` и `espnet2/bin/asr_inference.py`. Это гарантированный bit-rot: с любым обновлением ESPnet рецепт ломается.
-- **GPT-4/GPT-4V невоспроизводимы.** В `ssg_gpt4/gpt4_generate.py` модели заданы как `model='gpt-4'` (плавающий алиас) и `model='gpt-4-vision-preview'` (снят с обслуживания). В статье версия/дата снапшота не указана. Параметры генерации: `temperature=1.0, top_p=0.9, n=1, seed=0` — `seed` в OpenAI API даёт лишь «best effort» детерминизм. Числа в Tab. 7 и Tab. 9 воспроизвести невозможно в принципе.
-- **Пороги дедупликации слайдов не опубликованы.** $\min^{\text{B}}_{\text{alpha}}$, $\min^{\text{I}}_{\text{B}}$, $\max^{\text{I}}_{\text{B}}$, $\min_{\text{ER}}$ и выбор WER/CER объявлены зависящими от источника [App. A.2], но конкретные значения не даны ни в статье, ни в репозитории. Пересоздать датасет с нуля нельзя.
-- **Расхождение «статья vs релиз»** про источник train-транскриптов (Microsoft в статье, Whisper в README) не разрешено нигде.
-- Нет model checkpoints, нет логов обучения, нет сырых оценок аннотаторов (что не позволяет пересчитать IAA независимо).
+**Not available / problematic:**
+- **The video is not distributed.** Only `raw/*.mp4.ytbUrl`. Any work requiring the talking head, gestures or transition animations is irreproducible without re-downloading from YouTube, where the links gradually die. A dataset titled "Audio-**Visual**" in practice hands over audio plus static frames.
+- **CASR depends on an unmerged PR** to ESPnet, #5261, plus a manual replacement of `espnet2/text/Butils.py` and `espnet2/bin/asr_inference.py`. This is guaranteed bit-rot: any update to ESPnet breaks the recipe.
+- **GPT-4/GPT-4V are irreproducible.** In `ssg_gpt4/gpt4_generate.py` the models are given as `model='gpt-4'` (a floating alias) and `model='gpt-4-vision-preview'` (retired). The paper gives no version or snapshot date. The generation parameters are `temperature=1.0, top_p=0.9, n=1, seed=0` — `seed` in the OpenAI API gives only "best effort" determinism. The numbers in Tab. 7 and Tab. 9 cannot be reproduced in principle.
+- **The slide deduplication thresholds are not published.** $\min^{\text{B}}_{\text{alpha}}$, $\min^{\text{I}}_{\text{B}}$, $\max^{\text{I}}_{\text{B}}$, $\min_{\text{ER}}$ and the choice of WER/CER are declared to be source-dependent [App. A.2], but the specific values are given neither in the paper nor in the repository. The dataset cannot be recreated from scratch.
+- **The "paper vs release" discrepancy** about the source of the train transcripts (Microsoft in the paper, Whisper in the README) is resolved nowhere.
+- There are no model checkpoints, no training logs, no raw annotator scores (so the IAA cannot be recomputed independently).
 
-**Лицензии и правовой статус.** Датасет выложен под CC BY-NC-SA 4.0, при этом авторы прямо признают, что не владеют правами на видео. Раздача **полного аудио** (43.5 ГБ) и извлечённых кадров чужих видео под своей лицензией — юридически спорно и различается по источникам: NIH (работа федерального агентства США, де-факто public domain) — низкий риск; CHI/UbiComp — записи, права на которые у ACM/авторов; Oxford Mathematics — права Оксфорда. Файл `paper_sentences.json` — производное от PDF с `dl.acm.org`, и его перераспространение под CC BY-NC-SA сомнительно. Раздел Ethical Consideration [§Ethics] ограничивается фразой «copyright remains with the original owners» и не разбирает эти различия. Заявление «fair payments» не подкреплено: 0.06 USD за сэмпл без указания времени на сэмпл не позволяет проверить соответствие даже минимальной ставке.
+**Licences and legal status.** The dataset is published under CC BY-NC-SA 4.0 while the authors openly admit they do not own the rights to the videos. Distributing **the full audio** (43.5 GB) and extracted frames of other people's videos under one's own licence is legally contentious and differs by source: NIH (the work of a US federal agency, de facto public domain) — low risk; CHI/UbiComp — recordings whose rights belong to the ACM/the authors; Oxford Mathematics — Oxford's rights. The file `paper_sentences.json` is a derivative of PDFs from `dl.acm.org`, and redistributing it under CC BY-NC-SA is dubious. The Ethical Consideration section [§Ethics] limits itself to the phrase "copyright remains with the original owners" and does not go into these distinctions. The claim of "fair payments" is unsupported: 0.06 USD per sample without any indication of the time per sample makes it impossible to check compliance even with a minimum wage.
 
-## 5. Что авторы признают сами
+## 5. What the authors acknowledge themselves
 
-Раздел Limitations [§Limitations] честно перечисляет: возможные смещения по типам презентаций и демографии спикеров; ограниченность доменов (нет гуманитарных наук) и одноязычность (только английский); визуальная информация недоразмечена — иллюстрации со слайдов не извлекаются (в отличие от LPM), говорящие головы не выделяются; в задаче Slide Generation генерируется только текст слайда, не изображение.
+The Limitations section [§Limitations] honestly lists: possible biases by presentation type and speaker demographics; a limited range of domains (no humanities) and monolingualism (English only); the visual information being under-annotated — illustrations from the slides are not extracted (unlike LPM) and talking heads are not isolated; and, in the Slide Generation task, only the text of the slide being generated, not an image.
 
-Чего они не признают: (1) машинное происхождение подавляющей части «золотых» транскриптов; (2) циркулярность ASR-оценки; (3) отсутствие бенчмарка на собственной OCR-разметке; (4) экстремальный дисбаланс источников и отсутствие per-source результатов; (5) статистическую невесомость human-оценок.
+What they do not acknowledge: (1) the machine origin of the overwhelming majority of the "gold" transcripts; (2) the circularity of the ASR evaluation; (3) the absence of a benchmark on their own OCR annotation; (4) the extreme imbalance of the sources and the absence of per-source results; (5) the statistical weightlessness of the human evaluations.
 
 ---
 
 # Related Work positioning
 
-M³AV встаёт между двумя линиями работ. Линия распознавания: **LectureVideoDB** (Dutta et al., 2018; 24 видео, 5474 кадра, ручная разметка текста и рукописи, без речи) и **SlideSpeech** (Wang et al., 2023; 1705 видео, 1080 ч, автоматический OCR + ручные транскрипции). Линия понимания: **LectureBank** (Li et al., 2019; prerequisite chains), **TalkSumm** (Lev et al., 2019; 1716 суммаризаций статей из транскриптов докладов), **AVIATE** (Atri et al., 2021; 8201 видео, ~2300 ч, полностью автоматическая разметка, абстрактивная суммаризация), **LPM** (Lee et al., 2022/2023; 334 видео, 187 ч, кросс-модальный retrieval с извлечёнными иллюстрациями), **GoogleI/O** и **LaRochelle** (video-level retrieval).
+M³AV stands between two lines of work. The recognition line: **LectureVideoDB** (Dutta et al., 2018; 24 videos, 5474 frames, manual annotation of text and handwriting, no speech) and **SlideSpeech** (Wang et al., 2023; 1705 videos, 1080 h, automatic OCR + manual transcriptions). The understanding line: **LectureBank** (Li et al., 2019; prerequisite chains), **TalkSumm** (Lev et al., 2019; 1716 paper summaries from talk transcripts), **AVIATE** (Atri et al., 2021; 8201 videos, ~2300 h, fully automatic annotation, abstractive summarisation), **LPM** (Lee et al., 2022/2023; 334 videos, 187 h, cross-modal retrieval with extracted illustrations), **GoogleI/O** and **LaRochelle** (video-level retrieval).
 
-Дифференцирующее заявление M³AV — единственный корпус с ручной разметкой и слайдов (включая рукопись и формулы в LaTeX), и речи, и с текстами статей, поддерживающий обе группы задач. Первая половина заявления держится на растяжимом определении «M = fully **or partially** manual»; вторая (обе группы задач) не реализована, поскольку задача распознавания текста на слайдах не бенчмаркится. По объёму M³AV меньше SlideSpeech (367 ч vs 1080 ч) и AVIATE (~2300 ч), но больше LPM (187 ч), и заметно богаче по числу типов аннотаций. Наиболее близкий конкурент по духу — LPM (выравненные слайды и речь, кросс-модальные задачи); главные реальные преимущества M³AV над ним — пословные тайминги, spoken/written формы, LaTeX-формулы и постановка генеративной задачи SSG вместо retrieval. Наследственно CASR-часть продолжает линию TCPGen (Sun et al., 2021/2023) и audio-visual contextual biasing (Sun et al., 2022), где M³AV служит новым тестовым полигоном.
+M³AV's differentiating claim is to be the only corpus with manual annotation of both the slides (including handwriting and formulas in LaTeX) and the speech, plus the texts of the papers, supporting both groups of tasks. The first half of the claim rests on the elastic definition "M = fully **or partially** manual"; the second (both groups of tasks) is not realised, since the task of recognising the text of the slides is not benchmarked. By volume M³AV is smaller than SlideSpeech (367 h vs 1080 h) and AVIATE (~2300 h) but larger than LPM (187 h), and noticeably richer in the number of annotation types. The closest competitor in spirit is LPM (aligned slides and speech, cross-modal tasks); M³AV's main real advantages over it are word-level timings, spoken/written forms, LaTeX formulas and the framing of a generative SSG task instead of retrieval. By descent the CASR part continues the line of TCPGen (Sun et al., 2021/2023) and audio-visual contextual biasing (Sun et al., 2022), for which M³AV serves as a new test bed.
 
-Итоговая оценка: как **ресурс** M³AV полезен и аккуратно выложен — формат аннотаций продуман, код бенчмарков реально существует, данные скачиваются одним `wget`. Как **научная работа** он переоценивает степень человеческого участия в разметке, строит ASR-оценку по кругу, не бенчмаркит свой же главный артефакт (OCR), и подпирает выводы human-оценками, которые не выдерживают статистической проверки.
+The overall assessment: as a **resource** M³AV is useful and carefully published — the annotation format is well thought out, the benchmark code really exists, and the data download with a single `wget`. As a **piece of research** it overstates the degree of human involvement in the annotation, builds its ASR evaluation in a circle, does not benchmark its own main artefact (the OCR), and props up its conclusions with human evaluations that do not survive statistical scrutiny.
 
 ---
 
 # Anchors
 
-- `dataset_summary: source/03-the_xxx_dataset.tex:L43 — 1113 видео, 366.9 ч, перечень пяти источников`
-- `rare_word_claim: source/03-the_xxx_dataset.tex:L44 — словарь 47865 слов, 99.20% с частотой < 1k (тривиально по Ципфу)`
-- `split_table: source/03-the_xxx_dataset.tex:L13-17 — Tab. 3, длительности train/dev/test по источникам (295.4/35.1/36.4 ч)`
-- `complex_pages_table: source/03-the_xxx_dataset.tex:L65-75 — Tab. 4, 772 страницы с рукописью/формулами, из них 577 в MLS`
-- `data_collection: source/04-creation_pipeline.tex:L5-6 — сбор с YouTube, парсинг статей через science-parse`
-- `asr_candidates: source/04-creation_pipeline.tex:L22 — выбор Microsoft STT и Whisper-large-v2 как источников кандидатов`
-- `train_labels_machine_generated: source/04-creation_pipeline.tex:L52 — «For the training set, we directly adopt the Microsoft transcription»`
-- `candidate_combination: source/04-creation_pipeline.tex:L54-62 — Case I / Case II, маскирование [???], MTurk-заполнение и объединение`
-- `speaker_split_heuristic: source/04-creation_pipeline.tex:L48 — спикер определяется по вступлению и тексту описания`
-- `ocr_pipeline: source/04-creation_pipeline.tex:L70-78 — PaddleOCR 1 fps, дедупликация, Mathpix для формул, QC на 120 изображениях`
-- `merge_rules: source/04-creation_pipeline.tex:L86-107 — Eq. (1)-(3), правила слияния OCR-блоков, a=b=0.8, c=0.6`
-- `asr_results_table: source/05-benchmarks_and_experiments.tex:L17-30 — Tab. 5, ASR и CASR (WER/BWER)`
-- `contamination_claim: source/05-benchmarks_and_experiments.tex:L47 — «avoiding the issue of training data contamination»`
-- `casr_conclusion: source/05-benchmarks_and_experiments.tex:L56 — относительное падение BWER на 37.8%/34.2%`
+- `dataset_summary: source/03-the_xxx_dataset.tex:L43 — 1113 videos, 366.9 h, the list of the five sources`
+- `rare_word_claim: source/03-the_xxx_dataset.tex:L44 — a vocabulary of 47865 words, 99.20% with a frequency < 1k (trivial under Zipf)`
+- `split_table: source/03-the_xxx_dataset.tex:L13-17 — Tab. 3, train/dev/test durations by source (295.4/35.1/36.4 h)`
+- `complex_pages_table: source/03-the_xxx_dataset.tex:L65-75 — Tab. 4, 772 pages with handwriting/formulas, 577 of them in MLS`
+- `data_collection: source/04-creation_pipeline.tex:L5-6 — collection from YouTube, parsing the papers with science-parse`
+- `asr_candidates: source/04-creation_pipeline.tex:L22 — the choice of Microsoft STT and Whisper-large-v2 as candidate sources`
+- `train_labels_machine_generated: source/04-creation_pipeline.tex:L52 — "For the training set, we directly adopt the Microsoft transcription"`
+- `candidate_combination: source/04-creation_pipeline.tex:L54-62 — Case I / Case II, [???] masking, MTurk filling and merging`
+- `speaker_split_heuristic: source/04-creation_pipeline.tex:L48 — the speaker is identified from the introduction and the description text`
+- `ocr_pipeline: source/04-creation_pipeline.tex:L70-78 — PaddleOCR at 1 fps, deduplication, Mathpix for formulas, QC on 120 images`
+- `merge_rules: source/04-creation_pipeline.tex:L86-107 — Eq. (1)-(3), the OCR block merging rules, a=b=0.8, c=0.6`
+- `asr_results_table: source/05-benchmarks_and_experiments.tex:L17-30 — Tab. 5, ASR and CASR (WER/BWER)`
+- `contamination_claim: source/05-benchmarks_and_experiments.tex:L47 — "avoiding the issue of training data contamination"`
+- `casr_conclusion: source/05-benchmarks_and_experiments.tex:L56 — a relative BWER drop of 37.8%/34.2%`
 - `tts_results_table: source/05-benchmarks_and_experiments.tex:L82-86 — Tab. 6, FFE/MCD/MOS, GT 3.86±1.02 vs MQTTS 3.67±0.94`
-- `mos_sample_size: source/05-benchmarks_and_experiments.tex:L95 — MOS считается на 20 случайных сэмплах`
-- `ssg_results_table: source/05-benchmarks_and_experiments.tex:L113-125 — Tab. 7, ROUGE/BERTScore/BARTScore/Human для SSG`
-- `rag_ablation_table: source/05-benchmarks_and_experiments.tex:L146-152 — Tab. 8, эффект добавления предложений статьи (только LLaMA-2-7B, CS-подмножество)`
-- `ssg_human_protocol: source/05-benchmarks_and_experiments.tex:L169 — 100 сэмплов, 3 аннотатора, измерения SummEval`
-- `ssg_claims: source/05-benchmarks_and_experiments.tex:L171 — три «significant observations», включая «far from closed-source» и превосходство GPT-4V`
-- `annotator_pay: source/08-appendix.tex:L46 — 0.06 USD за сэмпл на MTurk`
-- `ocr_qc: source/08-appendix.tex:L51 — контроль качества по 120 изображениям от 9 аннотаторов`
-- `ssg_annotators_internal: source/08-appendix.tex:L57 — MTurk отброшен, оценивают трое исследователей команды`
-- `casr_details: source/08-appendix.tex:L69-74 — 1000 дистракторов, редкие слова вне топ-5k, словарь ~43k / ~38k редких`
-- `dedup_formulas: source/08-appendix.tex:L33-36 — Eq. (4)-(5), WER^mod и CER^mod с почти не штрафуемыми вставками`
-- `ssg_training_details: source/08-appendix.tex:L82-84 — LoRA, lr 2e-4, 3 эпохи, top_p 0.9, max 300 токенов`
-- `detailed_human_scores: source/08-appendix.tex:L100-114 — Tab. 9, GPT-4/GPT-4V получают 5.0 по fluency и relevance`
-- `limitations: source/07-limit_ethi.tex:L3-9 — признанные ограничения (bias, домены, визуальная информация, текстовые слайды)`
-- `ethics_license: source/07-limit_ethi.tex:L13 — CC BY-NC-SA 4.0, авторские права остаются у владельцев видео`
-- `related_datatype_table: source/02-related_work.tex:L15-31 — Tab. 1, «A» vs «M» разметка по датасетам`
-- `related_datasize_table: source/02-related_work.tex:L47-63 — Tab. 2 (сравнение размеров): 1113 видео, 367 ч, 24956 слайдов, 767 статей`
-- `dataset_overview_figure: figures/figures_1-1.png — Fig. 1, три компонента датасета`
-- `speech_pipeline_figure: figures/figures_2-1.png — Fig. 2, четырёхшаговый пайплайн транскрипции`
-- `slide_pipeline_figure: figures/figures_4-1.png — Fig. 4, пайплайн аннотации слайдов`
-- `statistics_figure: figures/figures_5-1.png — Fig. 5, часы/слайды по источникам (NIH 235.4 ч, MLS 577 слайдов)`
+- `mos_sample_size: source/05-benchmarks_and_experiments.tex:L95 — the MOS is computed on 20 random samples`
+- `ssg_results_table: source/05-benchmarks_and_experiments.tex:L113-125 — Tab. 7, ROUGE/BERTScore/BARTScore/Human for SSG`
+- `rag_ablation_table: source/05-benchmarks_and_experiments.tex:L146-152 — Tab. 8, the effect of adding the paper's sentences (LLaMA-2-7B only, the CS subset)`
+- `ssg_human_protocol: source/05-benchmarks_and_experiments.tex:L169 — 100 samples, 3 annotators, the SummEval measures`
+- `ssg_claims: source/05-benchmarks_and_experiments.tex:L171 — three "significant observations", including "far from closed-source" and GPT-4V's superiority`
+- `annotator_pay: source/08-appendix.tex:L46 — 0.06 USD per sample on MTurk`
+- `ocr_qc: source/08-appendix.tex:L51 — quality control over 120 images from 9 annotators`
+- `ssg_annotators_internal: source/08-appendix.tex:L57 — MTurk discarded, three researchers of the team do the scoring`
+- `casr_details: source/08-appendix.tex:L69-74 — 1000 distractors, rare words outside the top-5k, a vocabulary of ~43k / ~38k rare`
+- `dedup_formulas: source/08-appendix.tex:L33-36 — Eq. (4)-(5), WER^mod and CER^mod with almost unpenalised insertions`
+- `ssg_training_details: source/08-appendix.tex:L82-84 — LoRA, lr 2e-4, 3 epochs, top_p 0.9, max 300 tokens`
+- `detailed_human_scores: source/08-appendix.tex:L100-114 — Tab. 9, GPT-4/GPT-4V get 5.0 for fluency and relevance`
+- `limitations: source/07-limit_ethi.tex:L3-9 — the acknowledged limitations (bias, domains, visual information, text-only slides)`
+- `ethics_license: source/07-limit_ethi.tex:L13 — CC BY-NC-SA 4.0, copyright remains with the owners of the videos`
+- `related_datatype_table: source/02-related_work.tex:L15-31 — Tab. 1, "A" vs "M" annotation across datasets`
+- `related_datasize_table: source/02-related_work.tex:L47-63 — Tab. 2 (a size comparison): 1113 videos, 367 h, 24956 slides, 767 papers`
+- `dataset_overview_figure: figures/figures_1-1.png — Fig. 1, the three components of the dataset`
+- `speech_pipeline_figure: figures/figures_2-1.png — Fig. 2, the four-step transcription pipeline`
+- `slide_pipeline_figure: figures/figures_4-1.png — Fig. 4, the slide annotation pipeline`
+- `statistics_figure: figures/figures_5-1.png — Fig. 5, hours/slides by source (NIH 235.4 h, MLS 577 slides)`
 
 ---
 
 # Glossary
 
-- `M³AV` — Multimodal, Multigenre, Multipurpose Audio-Visual dataset; 1113 лекционных видео с YouTube, 366.9 ч.
-- `spoken form / written form` — две формы транскрипта: как произносится («one hundred thousand») и как записывается («100,000»); обе даются с пословными таймингами.
-- `CASR` — Contextual ASR: распознавание с подсказкой в виде biasing list — списка редких слов, которые нужно распознать точно.
-- `BWER` — biasing WER: ошибки только на редких словах, делённые на число редких слов, с учётом ложных вставок редких слов.
-- `distractors` — слова, добавленные в biasing list, но отсутствующие в конкретном высказывании; имитируют реальный шумный контекст.
-- `TCPGen` — Tree-Constrained Pointer Generator: комбинация символьного поиска по префиксному дереву biasing-списка и нейронного указателя.
-- `SSG` — Slide and Script Generation: две зеркальные задачи, Slide→Script (по слайду породить речь докладчика) и Script→Slide.
-- `MQTTS` — Multi-codebook Quantized TTS: двухстадийная TTS (квантизатор волны + авторегрессионный Transformer над кодами) для спонтанной речи.
-- `Case I / Case II` — развилка в комбинации кандидатов: при согласии Microsoft и Whisper метка берётся автоматически (Case I), иначе идёт к аннотаторам (Case II).
-- `seg_imgs` — каталог релиза с дедуплицированными кадрами слайдов; фактически единственная визуальная модальность, которая реально раздаётся.
+- `M³AV` — the Multimodal, Multigenre, Multipurpose Audio-Visual dataset; 1113 lecture videos from YouTube, 366.9 h.
+- `spoken form / written form` — two forms of the transcript: as pronounced ("one hundred thousand") and as written ("100,000"); both are given with word-level timings.
+- `CASR` — Contextual ASR: recognition with a hint in the form of a biasing list, a list of rare words that must be recognised exactly.
+- `BWER` — biasing WER: errors on rare words only, divided by the number of rare words, counting false insertions of rare words.
+- `distractors` — words added to the biasing list but absent from the particular utterance; they imitate a real noisy context.
+- `TCPGen` — Tree-Constrained Pointer Generator: a combination of a symbolic search over a prefix tree of the biasing list and a neural pointer.
+- `SSG` — Slide and Script Generation: two mirror tasks, Slide→Script (produce the speaker's words from a slide) and Script→Slide.
+- `MQTTS` — Multi-codebook Quantized TTS: a two-stage TTS (a waveform quantiser + an autoregressive Transformer over the codes) for spontaneous speech.
+- `Case I / Case II` — the fork in combining the candidates: when Microsoft and Whisper agree the label is taken automatically (Case I), otherwise it goes to the annotators (Case II).
+- `seg_imgs` — the release directory with the deduplicated slide frames; in effect the only visual modality actually distributed.

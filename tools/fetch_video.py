@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-"""Скачивает видео 3b1b с YouTube в data/videos/<id>/.
+"""Downloads a 3b1b video from YouTube into data/videos/<id>/.
 
-Куки не нужны, но нужен явный player_client: дефолтный android_vr отдаёт URL,
-на которых CDN возвращает 403. --download-sections тоже не работает (передаёт URL
-внешнему ffmpeg) — качаем целиком, режем локально.
+Cookies are not needed, but an explicit player_client is: the default android_vr
+returns URLs on which the CDN answers 403. --download-sections does not work either
+(it passes the URL to an external ffmpeg) — we download whole and cut locally.
 
-Без PO-токена доступен только формат 18 (640x360 progressive h264+aac).
+Without a PO token only format 18 is available (640x360 progressive h264+aac).
 
-Использование:
+Usage:
     python tools/fetch_video.py l6DKRf-fAAM
     python tools/fetch_video.py --slug reinventing-entropy
 """
@@ -25,8 +25,9 @@ MAPPING = ROOT / "data" / "3b1b_mapping.json"
 PLAYER_CLIENT = "android"
 FORMAT = "18"
 
-# yt-dlp стоит не во всяком интерпретаторе: в этом проекте он есть в conda-окружении
-# rah_manim, а ноутбук и валидатор работают под base conda. Ищем подходящий питон сами.
+# yt-dlp is not installed in every interpreter: in this project it is in the conda
+# environment rah_manim, while the notebook and the validator run under base conda.
+# So we look for a suitable python ourselves.
 CANDIDATE_PYTHONS = [
     sys.executable,
     "/home/jovyan/.mlspace/envs/rah_manim/bin/python",
@@ -43,9 +44,9 @@ def find_python_with_ytdlp() -> str:
         if probe.returncode == 0:
             return py
     sys.exit(
-        "не нашёл интерпретатор с yt_dlp. Поставь его:\n"
+        "could not find an interpreter with yt_dlp. Install it:\n"
         "    /home/jovyan/.mlspace/envs/rah_manim/bin/python -m pip install -U yt-dlp\n"
-        "или добавь свой путь в CANDIDATE_PYTHONS в tools/fetch_video.py"
+        "or add your own path to CANDIDATE_PYTHONS in tools/fetch_video.py"
     )
 
 
@@ -54,9 +55,9 @@ def resolve_slug(slug: str) -> str:
     for r in rows:
         if r["slug"] == slug:
             if not r["youtube_id"]:
-                sys.exit(f"у урока {slug} нет youtube_id")
+                sys.exit(f"lesson {slug} has no youtube_id")
             return r["youtube_id"]
-    sys.exit(f"урок {slug} не найден в {MAPPING}")
+    sys.exit(f"lesson {slug} not found in {MAPPING}")
 
 
 def fetch(video_id: str, subs_langs: str = "en", force: bool = False) -> Path:
@@ -67,14 +68,14 @@ def fetch(video_id: str, subs_langs: str = "en", force: bool = False) -> Path:
     needed = [mp4, out_dir / f"{video_id}.info.json", out_dir / f"{video_id}.en.vtt"]
     missing = [f.name for f in needed if not f.exists()]
     if not missing and not force:
-        print(f"[skip] всё на месте: {mp4.name} ({mp4.stat().st_size / 2**20:.1f} МБ), info.json, en.vtt")
+        print(f"[skip] everything in place: {mp4.name} ({mp4.stat().st_size / 2**20:.1f} MB), info.json, en.vtt")
         return out_dir
     if mp4.exists() and missing:
-        print(f"[warn] mp4 есть, но не хватает: {', '.join(missing)} — докачиваю")
+        print(f"[warn] the mp4 is there but these are missing: {', '.join(missing)} — fetching them")
 
     py = find_python_with_ytdlp()
     if py != sys.executable:
-        print(f"[env] yt_dlp найден в {py}")
+        print(f"[env] yt_dlp found in {py}")
     cmd = [
         py, "-m", "yt_dlp",
         "--no-warnings",
@@ -91,37 +92,37 @@ def fetch(video_id: str, subs_langs: str = "en", force: bool = False) -> Path:
     if res.returncode != 0:
         print(res.stdout[-2000:], file=sys.stderr)
         print(res.stderr[-2000:], file=sys.stderr)
-        sys.exit(f"yt-dlp упал с кодом {res.returncode}")
+        sys.exit(f"yt-dlp failed with code {res.returncode}")
     return out_dir
 
 
 def report(out_dir: Path, video_id: str) -> None:
     info_path = out_dir / f"{video_id}.info.json"
     if not info_path.exists():
-        print("!! info.json не скачался")
+        print("!! info.json was not downloaded")
         return
     info = json.loads(info_path.read_text(encoding="utf-8"))
     chapters = info.get("chapters") or []
     auto = info.get("automatic_captions") or {}
     manual = info.get("subtitles") or {}
     print(f"\n{info['title']}")
-    print(f"  длительность : {info['duration']} с ({info['duration']/60:.1f} мин)")
-    print(f"  выложено     : {info.get('upload_date')}")
-    print(f"  чаптеров     : {len(chapters)}")
-    print(f"  субтитры     : ручные={sorted(manual)[:6]}… авто-en={'en' in auto}")
+    print(f"  duration     : {info['duration']} s ({info['duration']/60:.1f} min)")
+    print(f"  uploaded     : {info.get('upload_date')}")
+    print(f"  chapters     : {len(chapters)}")
+    print(f"  subtitles    : manual={sorted(manual)[:6]}… auto-en={'en' in auto}")
     if not (out_dir / f"{video_id}.en.vtt").exists():
-        print("!! .en.vtt не скачался — у ролика может не быть ручных субтитров. "
-              "make_bundle без транскрипта работать не будет.")
+        print("!! the .en.vtt was not downloaded — the video may have no manual subtitles. "
+              "make_bundle will not work without a transcript.")
     for f in sorted(out_dir.iterdir()):
-        print(f"  {f.name:36} {f.stat().st_size/2**20:8.2f} МБ")
+        print(f"  {f.name:36} {f.stat().st_size/2**20:8.2f} MB")
 
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("video", help="YouTube id, либо slug урока с --slug")
-    ap.add_argument("--slug", action="store_true", help="трактовать аргумент как slug урока")
-    ap.add_argument("--subs", default="en", help="языки субтитров (через запятую)")
-    ap.add_argument("--force", action="store_true", help="перекачать, даже если файл есть")
+    ap.add_argument("video", help="a YouTube id, or a lesson slug with --slug")
+    ap.add_argument("--slug", action="store_true", help="treat the argument as a lesson slug")
+    ap.add_argument("--subs", default="en", help="subtitle languages (comma-separated)")
+    ap.add_argument("--force", action="store_true", help="re-download even if the file is there")
     args = ap.parse_args()
 
     video_id = resolve_slug(args.video) if args.slug else args.video

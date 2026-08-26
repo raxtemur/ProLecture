@@ -1,6 +1,6 @@
-# Строки из manim-исходника `_2017/eoc/chapter10.py`
+# Strings from the manim source `_2017/eoc/chapter10.py`
 
-Разобрано 69 строк; ещё 26 мест вызова содержат не литерал (переменная, конкатенация, результат функции) и не извлечены.
+69 strings parsed; another 26 call sites contain a non-literal (a variable, a concatenation, the result of a function) and were not extracted.
 
 
 ## _2017/eoc/chapter10.py

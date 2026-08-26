@@ -1,18 +1,18 @@
-"""Проверки вёрстки сцены, которых нет в самом manim.
+"""Scene layout checks that manim itself does not have.
 
-manim не предупреждает ни о выходе объекта за кадр, ни о наложениях: у него
-нет layout-движка, координаты абсолютные, а всё, что вне кадра, просто
-обрезается камерой. LaTeX тоже молчит — manim компилирует каждую формулу
-в `standalone`, где страница подгоняется под содержимое, так что привычного
-`Overfull \\hbox` не возникает.
+manim warns neither about an object going off-screen nor about overlaps: it has
+no layout engine, the coordinates are absolute, and everything outside the frame
+is simply cropped by the camera. LaTeX stays silent too — manim compiles every
+formula in `standalone`, where the page is fitted to the content, so the familiar
+`Overfull \\hbox` never arises.
 
-Использование:
+Usage:
 
     from layout_check import audit
     ...
-    audit(self, "Шаг 2")          # в конце слайда, перед очисткой экрана
+    audit(self, "Step 2")          # at the end of a slide, before clearing the screen
 
-Запуск с ошибкой вместо предупреждения (удобно в CI):
+Running with an error instead of a warning (convenient in CI):
 
     MANIM_LAYOUT_STRICT=1 manim -ql demo2.py EigenLecture
 """
@@ -25,16 +25,16 @@ import numpy as np
 
 from manim import Mobject, Rectangle, Scene, config, logger
 
-# объекты этих типов обводят/соединяют другие и пересекаются с ними по смыслу
+# objects of these types outline/connect others and overlap them by design
 _OVERLAP_EXEMPT = ("SurroundingRectangle", "Brace", "BraceLabel", "Line", "Arrow",
                    "Underline", "NumberPlane", "Axes", "ArrowVectorField")
 
 
 def frame_bounds(scene: Scene) -> tuple[float, float, float, float]:
-    """Границы видимой области: (left, right, bottom, top).
+    """The boundaries of the visible area: (left, right, bottom, top).
 
-    В MovingCameraScene/ZoomedScene кадр ездит и меняет масштаб, поэтому
-    смотреть надо на camera.frame, а не на статический config.
+    In MovingCameraScene/ZoomedScene the frame travels and changes scale, so
+    one must look at camera.frame rather than at the static config.
     """
     frame = getattr(scene.camera, "frame", None)
     if frame is not None:
@@ -45,10 +45,10 @@ def frame_bounds(scene: Scene) -> tuple[float, float, float, float]:
 
 
 def visible_bbox(mob: Mobject, eps: float = 0.01) -> tuple[float, float, float, float] | None:
-    """Габариты только видимых частей: (left, right, bottom, top).
+    """The extents of the visible parts only: (left, right, bottom, top).
 
-    Обычный get_left()/get_right() считает и погашенные FadeOut'ом объекты —
-    они остаются в семье группы с нулевой непрозрачностью и раздувают bbox.
+    The ordinary get_left()/get_right() counts objects extinguished by FadeOut too —
+    they stay in the group's family with zero opacity and inflate the bbox.
     """
     points = [
         part.points
@@ -68,13 +68,13 @@ def frame_overflow(
     bounds: tuple[float, float, float, float] | None = None,
     tol: float = 0.01,
 ) -> dict[str, float]:
-    """Насколько объект вылез за кадр по каждой стороне (пусто = не вылез)."""
+    """By how much the object sticks out of the frame on each side (empty = it does not)."""
     if bounds is None:
         half_w, half_h = config.frame_width / 2, config.frame_height / 2
         bounds = (-half_w, half_w, -half_h, half_h)
     left, right, bottom, top = bounds
     box = visible_bbox(mob)
-    if box is None:  # объект целиком погашен — проверять нечего
+    if box is None:  # the object is entirely extinguished — nothing to check
         return {}
     m_left, m_right, m_bottom, m_top = box
     return {
@@ -90,7 +90,7 @@ def frame_overflow(
 
 
 def bbox_overlap(a: Mobject, b: Mobject, tol: float = 0.05) -> float:
-    """Площадь пересечения habitual bounding box'ов (0, если не пересекаются)."""
+    """The area of the intersection of the habitual bounding boxes (0 if they do not intersect)."""
     dx = min(a.get_right()[0], b.get_right()[0]) - max(a.get_left()[0], b.get_left()[0])
     dy = min(a.get_top()[1], b.get_top()[1]) - max(a.get_bottom()[1], b.get_bottom()[1])
     return dx * dy if dx > tol and dy > tol else 0.0
@@ -103,16 +103,17 @@ def audit(
     check_overlaps: bool = True,
     check_intruders: bool = False,
 ) -> list[str]:
-    """Проверяет объекты сцены и пишет предупреждения в лог.
+    """Checks the objects of the scene and writes warnings to the log.
 
-    mobjects — что именно проверять; по умолчанию всё содержимое сцены.
-    В MovingCameraScene передавайте только тот блок, на который сейчас
-    наведена камера: остальной холст намеренно лежит вне кадра.
+    mobjects — what exactly to check; by default the whole content of the scene.
+    In a MovingCameraScene pass only the block the camera is currently pointed
+    at: the rest of the canvas lies outside the frame deliberately.
 
-    check_intruders — ищет посторонние объекты, случайно попавшие в кадр
-    (актуально для холста с камерой: край соседнего блока лезет в кадр).
+    check_intruders — looks for foreign objects that accidentally got into the
+    frame (relevant for a canvas with a camera: the edge of a neighbouring block
+    creeps into the frame).
 
-    Возвращает список сообщений; при MANIM_LAYOUT_STRICT=1 бросает AssertionError.
+    Returns a list of messages; with MANIM_LAYOUT_STRICT=1 raises an AssertionError.
     """
     source = scene.mobjects if mobjects is None else mobjects
     tops = [m for m in source if m.get_width() > 0 and m.get_height() > 0]
@@ -121,8 +122,8 @@ def audit(
 
     for mob in tops:
         if over := frame_overflow(mob, bounds):
-            sides = ", ".join(f"{k} на {v}" for k, v in over.items())
-            problems.append(f"{type(mob).__name__} вылезает за кадр ({sides})")
+            sides = ", ".join(f"{k} by {v}" for k, v in over.items())
+            problems.append(f"{type(mob).__name__} sticks out of the frame ({sides})")
 
     if check_overlaps:
         checkable = [m for m in tops if type(m).__name__ not in _OVERLAP_EXEMPT]
@@ -130,8 +131,8 @@ def audit(
             for b in checkable[i + 1:]:
                 if area := bbox_overlap(a, b):
                     problems.append(
-                        f"{type(a).__name__} и {type(b).__name__} накладываются "
-                        f"(площадь пересечения {area:.2f})"
+                        f"{type(a).__name__} and {type(b).__name__} overlap "
+                        f"(intersection area {area:.2f})"
                     )
 
     if check_intruders and mobjects is not None:
@@ -144,15 +145,15 @@ def audit(
             [(left + right) / 2, (bottom + top) / 2, 0]
         )
         camera_frame = getattr(scene.camera, "frame", None)
-        if camera_frame is not None:  # сам кадр камеры лежит в scene.mobjects
+        if camera_frame is not None:  # the camera frame itself lies in scene.mobjects
             wanted.add(id(camera_frame))
         for mob in scene.mobjects:
             if id(mob) in wanted or mob.get_width() <= 0:
                 continue
             if bbox_overlap(mob, viewport):
                 problems.append(
-                    f"посторонний {type(mob).__name__} попал в кадр "
-                    f"(его край на x={mob.get_left()[0]:.1f}..{mob.get_right()[0]:.1f})"
+                    f"a foreign {type(mob).__name__} got into the frame "
+                    f"(its edge at x={mob.get_left()[0]:.1f}..{mob.get_right()[0]:.1f})"
                 )
 
     prefix = f"[layout:{label}] " if label else "[layout] "

@@ -1,110 +1,109 @@
-# Кадры и описание видеоряда: что появилось и что убрано, 2026-08-25
+# Frames and the description of the video track: what appeared and what was removed, 2026-08-25
 
-Два новых инструмента и одна ампутация в `make_bundle.py`. Общий мотив: кадры,
-которые получает модель, должны выбираться по содержанию, а не по таймеру.
+Two new tools and one amputation in `make_bundle.py`. The common motive: the frames a model gets
+must be chosen by content, not by a timer.
 
-## 1. `tools/detect_scenes.py` — своя детекция смены сцен
+## 1. `tools/detect_scenes.py` — our own scene change detection
 
-Готовые детекторы (`ffmpeg -vf select='gt(scene,…)'`, `ContentDetector` из
-PySceneDetect) сравнивают кадр с **предыдущим**. Manim этим ломается: типовой
-переход — плавный переезд объекта за 2–4 секунды, где соседние кадры отличаются
-меньше любого разумного порога, а суммарная перемена полная.
+The off-the-shelf detectors (`ffmpeg -vf select='gt(scene,…)'`, `ContentDetector` from
+PySceneDetect) compare a frame with the **previous** one. Manim breaks that: the typical transition
+is a smooth travel of an object over 2–4 seconds, where neighbouring frames differ by less than any
+reasonable threshold while the total change is complete.
 
-Алгоритм считает **накопленный дрейф от последнего снятого кадра**: опрос 4 раза
-в секунду, кадр ужимается до 192×108 и режется на сетку 9×12, из поблочной разницы
-вычитается шумовой пол (медиана шевеления блока по окну 8 с), скор — степенное
-среднее со степенью 2. Шумовой пол нужен ровно из-за 3b1b: поверх сцены постоянно
-крутится лента случайных бит, и такой блок не должен голосовать. Степень 2 нужна,
-чтобы одна дописанная строка формулы не тонула среди 108 блоков.
+The algorithm computes the **accumulated drift from the last captured frame**: probing 4 times a
+second, the frame shrunk to 192×108 and cut into a 9×12 grid, the noise floor (the median stirring
+of a block over an 8 s window) subtracted from the per-block difference, and the score being the
+power mean with exponent 2. The noise floor is needed precisely because of 3b1b: a ribbon of random
+bits runs constantly on top of the scene, and such a block must not vote. Exponent 2 is needed so
+that a single line added to a formula does not drown among the 108 blocks.
 
-Кадр снимается не в момент срабатывания, а когда анимация улеглась — после
-`--settle-quiet` (2) тихих опросов подряд. Одного мало: manim пишет формулу
-несколько секунд и делает паузу в середине, на которой кадр получался
-полудописанным — тот самый дефект, который мы вменяем равномерной сетке.
+A frame is captured not at the moment of firing but once the animation has settled — after
+`--settle-quiet` (2) quiet probes in a row. One is not enough: manim writes a formula over several
+seconds and pauses in the middle, and at that pause the frame came out half-written — the very
+defect we hold against the uniform grid.
 
-Второй режим — `--every СЕК`: слоты фиксированной длины, внутри слота берётся
-самый спокойный кадр. Дыр не оставляет по построению, полукадров тоже. Им
-пользуется описание видеоряда.
+The second mode is `--every SEC`: slots of fixed length, with the quietest frame taken within a
+slot. It leaves no holes by construction, and no half-frames either. The description of the video
+track uses it.
 
-Числа: один порог `0.010` на домен даёт 13.5 / 13.0 / 10.1 кадра на минуту
-на роликах 2026-06, 2026-07 и 2017-05. На контрольном участке 887–1011 с ловит
-18 обязательных состояний из 18 против 10 у прежней сетки. Подробности, таблица
-сверки по кадрам и раздел «чего детектор не ловит» — в
+The numbers: a single threshold of `0.010` per domain gives 13.5 / 13.0 / 10.1 frames per minute on
+the videos from 2026-06, 2026-07 and 2017-05. On the control stretch 887–1011 s it catches 18
+mandatory states out of 18 against the former grid's 10. The details, the frame-by-frame comparison
+table and the section "what the detector does not catch" are in
 [scene_detection.md](../scene_detection.md).
 
-## 2. `tools/describe_video.py` — плотное описание видеоряда
+## 2. `tools/describe_video.py` — a dense description of the video track
 
-Документ вроде субтитров, только вместо реплик — что происходит на экране.
-Нужен, чтобы на большинстве шагов разметки читать текст вместо просмотра десятков
-кадров.
+A document like subtitles, only instead of utterances it holds what is happening on the screen. It
+is needed so that at most steps of the annotation one can read text instead of looking through
+dozens of frames.
 
-Кадры берутся у детектора в режиме слотов (два кадра в секунду, каждый
-«спокойный», из середины слота) — это источник по умолчанию. Окно запроса —
-5 секунд со сдвигом 4: по секунде (два кадра) перекрытия с левым и правым
-соседом, три секунды свои. Крайние секунды описывают оба соседних фрагмента,
-и эти описания можно сверить между собой.
+The frames are taken from the detector in slot mode (two frames per second, each of them "quiet",
+from the middle of the slot) — that is the default source. The request window is 5 seconds with a
+shift of 4: a second (two frames) of overlap with the left and the right neighbour, three seconds
+of its own. The edge seconds are described by both neighbouring fragments, and those descriptions
+can be cross-checked against each other.
 
-Ответ модели — **строгий JSON по схеме**, которую держит сам сервер (vLLM, guided
-decoding): `begin`, `events` (по записи на каждую секунду), `screen_text`
-(`{t, text, location}` с позицией из девяти клеток), `end`. До этого поля
-вытаскивались регулярками из свободного текста, и хватало одной латинской буквы
-в заголовке, чтобы целый блок уехал не в то поле.
+The model's answer is **strict JSON against a schema** held by the server itself (vLLM, guided
+decoding): `begin`, `events` (one record per second), `screen_text` (`{t, text, location}` with the
+position out of nine cells), `end`. Before this the fields were pulled out of free text with
+regular expressions, and a single Latin letter in a heading was enough for a whole block to end up
+in the wrong field.
 
-**Субтитры ролика самой описывающей модели не показывают** — в запрос уходят
-только кадры. Причина в конвейере: готовое описание отдают зонду vision-only
-вместо плотной нарезки кадров, и это законно ровно потому, что звука в описании
-нет. Услышь модель речь — индекс перестанет быть функцией визуального канала,
-а метка `audio_dependency` начнёт мерить не то.
+**The video's subtitles are not shown to the describing model** — only the frames go into the
+request. The reason lies in the pipeline: the finished description is given to the vision-only
+probe instead of a dense cut of frames, and that is legitimate precisely because there is no sound
+in the description. Were the model to hear the speech, the index would stop being a function of the
+visual channel and the `audio_dependency` label would start measuring the wrong thing.
 
-Прогон на пилоте (1939 с): 3878 кадров, 485 фрагментов, **20 минут** на двух
-A100 с `Qwen3.6-35B-A3B` (bf16, vLLM 0.27.1). Итог — 1939 секунд из 1939 покрыты
-событиями, 6950 элементов текста с экрана (3 без секунды), ошибок 0, обрывов 0,
-вырожденных ответов 0. С перекрытием каждый кадр уходит на сервер 1.29 раза,
-это ~4.5 млн токенов картинок только на prefill.
+The run on the pilot (1939 s): 3878 frames, 485 fragments, **20 minutes** on two A100s with
+`Qwen3.6-35B-A3B` (bf16, vLLM 0.27.1). The result: 1939 seconds out of 1939 covered by events, 6950
+elements of on-screen text (3 without a second), 0 errors, 0 truncations, 0 degenerate answers.
+With the overlap each frame goes to the server 1.29 times, which is ~4.5 million image tokens on
+prefill alone.
 
-Модель выбрана MoE не из экономии, а из профиля нагрузки: она почти целиком
-prefill, и 3B активных параметров против 27B плотных решают тут больше, чем
-разница в бенчмарках. FP8-версии не берём — у A100 нет тензорных ядер FP8,
-vLLM разжимает такие веса в bf16 на лету.
+The model was chosen as an MoE not out of economy but because of the load profile: it is almost
+entirely prefill, and 3B active parameters against 27B dense ones decide more here than the
+difference in the benchmarks. We do not take the FP8 versions — the A100 has no FP8 tensor cores,
+and vLLM decompresses such weights into bf16 on the fly.
 
-Чему верить: крупные формулы и подписи воспроизводятся дословно. Мелкие подписи
-делений прежняя модель **подставляла правдоподобные** вместо прочитанных
-(на 1206 с шкалу `0.17 … 0.23` описывала как `0.0 … 1.0`); новая читает этот же
-ряд как `0.17, 0.18, … 0.25` — то есть шаг и начало верны, последнее деление
-всё-таки промахнулось. Порядок ошибки другой, но проверять по кадру
-по-прежнему обязательно. Корень — исходник 360p; 1080p недоступен без
-PO-токена и куков аккаунта.
+What can be trusted: large formulas and captions are reproduced verbatim. Small tick labels the
+previous model **substituted plausible ones** for instead of reading (at 1206 s it described the
+scale `0.17 … 0.23` as `0.0 … 1.0`); the new one reads the same row as `0.17, 0.18, … 0.25` — that
+is, the step and the start are right, but the last tick still missed. The order of the error is
+different, but checking against the frame is still mandatory. The root cause is the 360p source;
+1080p is unavailable without a PO token and account cookies.
 
-Полезные флаги: `--range` для пробы на куске, `--redo-bad` — перезапросить только
-испорченные фрагменты вместо всего ролика (проверяет, что нарезка та же).
+Useful flags: `--range` for a trial on a stretch, `--redo-bad` to re-request only the spoiled
+fragments instead of the whole video (it checks that the cut is the same).
 
-## 3. Что убрано из `make_bundle.py`
+## 3. What was removed from `make_bundle.py`
 
-Равномерная сетка ffmpeg (кадр каждые 15 секунд плюс границы чаптеров) **удалена
-целиком** вместе с флагом `--frame-interval` и функцией `extract_frames`. Кадры
-теперь режет только детектор сцен, а из флагов остались `--no-frames`
-и `--scene-threshold`.
+The uniform ffmpeg grid (a frame every 15 seconds plus the chapter boundaries) has been **removed
+entirely**, together with the `--frame-interval` flag and the `extract_frames` function. The frames
+are now cut by the scene detector alone, and of the flags only `--no-frames` and
+`--scene-threshold` remain.
 
-Причина не в эстетике: сетка ошибалась в две стороны одновременно — дублировала
-статику и теряла сцены целиком. На пилоте в окне 887–1011 с она пропускала
-8 содержательных состояний из 18, включая всю цепочку вывода
-`p = 2⁻ⁿ → log₂(p) = −n → −log₂(p) = n` и момент, где вводится определение
-`Information := −log₂(p)`. Держать её как значение по умолчанию значило раздавать
-разметчикам заведомо дырявый материал.
+The reason is not aesthetics: the grid erred in two directions at once — it duplicated static
+material and lost whole scenes. In the pilot, over the window 887–1011 s, it missed 8 substantive
+states out of 18, including the whole derivation chain
+`p = 2⁻ⁿ → log₂(p) = −n → −log₂(p) = n` and the moment where the definition
+`Information := −log₂(p)` is introduced. Keeping it as the default meant handing annotators
+knowingly holey material.
 
-Цена ампутации: кадров в 3.2 раза больше (437 против 136 на 32-минутном ролике)
-и появилась зависимость от OpenCV. Она поставлена в оба окружения, так что выбор
-интерпретатора этим не сужается:
+The price of the amputation: 3.2 times more frames (437 against 136 on a 32-minute video) and a
+dependency on OpenCV. It is installed in both environments, so the choice of interpreter is not
+narrowed by this:
 
 ```bash
 /home/user/conda/bin/python3 -m pip install opencv-python-headless
 /home/jovyan/.mlspace/envs/rah_manim/bin/python -m pip install opencv-python-headless openai
 ```
 
-Заодно `make_bundle.py` теперь сносит **все** старые кадры перед записью, а не
-только кадры чужого режима: времена съёма зависят от параметров детектора, и прогон
-с другим порогом оставлял свои файлы рядом с новыми. Так и вышло на `GlYgs6v2YfU` —
-839 кадров от двух прогонов в каталоге при 438 в `bundle.json`.
+Along the way, `make_bundle.py` now removes **all** the old frames before writing, not only the
+frames of a different mode: the capture times depend on the detector's parameters, and a run with a
+different threshold left its files next to the new ones. That is exactly what happened with
+`GlYgs6v2YfU` — 839 frames from two runs in the directory against 438 in `bundle.json`.
 
-`--no-frames` сохранился: он оставляет нарезку как есть и не трогает список кадров
-в `bundle.json`.
+`--no-frames` has been kept: it leaves the cut as it is and does not touch the list of frames in
+`bundle.json`.
