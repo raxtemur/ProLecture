@@ -158,8 +158,8 @@
   \end{center}
 
   \begin{itemize}
-    \item Ось \texttt{temporal\_rel} (\texttt{pre} / \texttt{at} / \texttt{post}) \lead{выводится валидатором}
-          из положения доказательства, а не ставится руками.
+    \item Ось \texttt{temporal\_rel} (\texttt{pre} / \texttt{at} / \texttt{post}) \lead{проверяется валидатором}:
+          он пересчитывает её из \texttt{question\_time} и \texttt{evidence\_span} и отвергает несовпадение.
     \item \texttt{distractor\_windows} — моменты, где ответ выглядит уместным, но преждевременен.
     \item Подтверждение эталона живёт отдельно, в \texttt{provenance}: оно может лежать позже окна и даже вне ролика.
   \end{itemize}
