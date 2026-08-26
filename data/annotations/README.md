@@ -13,7 +13,7 @@ data/
 │   ├── bundle.json                # всё машиночитаемо в одном файле
 │   ├── transcript.md              # транскрипт с таймкодами, разбитый по чаптерам
 │   ├── formulas.md                # LaTeX-строки из manim-исходника
-│   └── frames/tNNNNN.jpg          # кадры каждые 15 с + на границах чаптеров
+│   └── frames/tNNNNNN.N.jpg       # кадры по детекции смены сцен
 └── annotations/<youtube_id>.jsonl # ← сама разметка, один сэмпл на строку
 ```
 
@@ -476,7 +476,7 @@ ready = [s for s in rows if s["validation"]["status"] == "validated"]
 | Окружение | Путь | Что в нём | Для чего |
 |---|---|---|---|
 | `rah_manim` | `/home/jovyan/.mlspace/envs/rah_manim/bin/python` | `manim` 0.20.1, `yt-dlp` | скачивание видео, будущий ре-рендер сцен |
-| base conda | `/home/user/conda/bin/python3` | `matplotlib`, `pandas`, `jsonschema`, jupyter | ноутбук, валидатор, сборка bundle |
+| base conda | `/home/user/conda/bin/python3` | `matplotlib`, `pandas`, `jsonschema`, `cv2`, jupyter | ноутбук, валидатор, сборка bundle |
 
 `python3` в интерактивной оболочке может резолвиться в любой из них, поэтому
 `tools/fetch_video.py` сам ищет интерпретатор с `yt_dlp` (список — в `CANDIDATE_PYTHONS`)
@@ -497,4 +497,37 @@ python tools/build_3b1b_mapping.py            # урок -> youtube_id -> manim-
 python tools/fetch_video.py l6DKRf-fAAM       # mp4 + info.json + en.vtt + description
 python tools/make_bundle.py l6DKRf-fAAM       # transcript.md, formulas.md, frames/
 python tools/validate_samples.py data/annotations/l6DKRf-fAAM.jsonl
+```
+
+## 12. Кадры: только детекция сцен
+
+Равномерной сетки в конвейере больше нет. Она требовала одного ffmpeg, но
+на manim-видео ошибалась сразу в две стороны: дублировала статику и **теряла
+сцены целиком**. На пилотном ролике в окне 887–1011 с сетка пропускала
+8 содержательных состояний из 18, включая всю цепочку вывода
+`p = 2⁻ⁿ → log₂(p) = −n → −log₂(p) = n` и момент, где вводится определение
+`Information := −log₂(p)`.
+
+Кадры режет [`tools/detect_scenes.py`](../../tools/detect_scenes.py): накопленный
+дрейф относительно последнего снятого кадра, с вычетом шумового пола по блокам.
+На том же окне ловит 18 состояний из 18. Цена — кадров в 3.2 раза больше
+(437 против прежних 136 на 32-минутном ролике) и зависимость от OpenCV:
+
+```bash
+/home/user/conda/bin/python3 -m pip install opencv-python-headless   # в base conda
+```
+
+Как подбирался порог, на каких роликах проверялось, сколько кадров на минуту
+получается и чего детектор не ловит — в [docs/scene_detection.md](../../docs/scene_detection.md).
+Времена съёма зависят от параметров детектора, поэтому `make_bundle.py` сносит
+все старые кадры перед записью: иначе прогон с другим порогом оставил бы свои
+файлы рядом с новыми, и разметчик видел бы смесь двух нарезок, а `bundle.json` —
+только половину.
+
+Детектор работает и как самостоятельный инструмент:
+
+```bash
+python tools/detect_scenes.py l6DKRf-fAAM                    # только времена
+python tools/detect_scenes.py l6DKRf-fAAM --write-frames     # ещё и кадры
+python tools/detect_scenes.py video.mp4 --threshold 0.02 --json cuts.json
 ```
