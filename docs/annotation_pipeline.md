@@ -72,21 +72,16 @@ The pipeline is designed around three constraints:
 Prepared once per video, by tools rather than by a model: the `transcript` with timecodes, the
 sparse frames, the list of formulas from the scene source, the chapters.
 
-**A requirement on the sparse frames that is currently not met.** The bundle's frames are taken
-uniformly, once every 15 seconds. The correct sampling is the union of a uniform grid and the
-moments of scene change:
+The sparse frames in `data/bundles/<VIDEO_ID>/frames/` are produced by
+`tools/detect_scenes.py`; `tools/make_bundle.py` invokes the detector and stores their
+timecodes and paths in `bundle.json["frames"]`. They are content-selected, settled
+scene-change frames, not a uniform time grid.
 
-```bash
-ffmpeg -hide_banner -i <video>.mp4 -vf "select='gt(scene,0.15)',showinfo" -an -f null - \
-  2>&1 | grep -o "pts_time:[0-9.]*"
-```
-
-A run over a 32-minute video takes about six seconds and yields ~88 moments.
-
-⚠ Scene detection alone is **not enough**, and this has been verified on the pilot video: between
-two neighbouring scenes found there was a gap of 348 seconds, and two key appearances of objects
-fell inside it. Smooth animations produce no jump in the scene metric. So the grid is mandatory,
-and the scenes complement it.
+The dense visual description is prepared separately by `tools/describe_video.py` as
+`description.jsonl`. Reviewer workspaces receive the boundary-clipped description and
+the existing scene frames first. No uniform or dense grid is pre-filled by the
+coordinator; a role that is allowed to use images may request `--dense` only after the
+description or a scene frame identifies a suspicious interval.
 
 ## Step 1. The proposer
 
@@ -152,10 +147,10 @@ became possible between the issue of the question and the opening of the window)
 **The stretch is traversed consecutively and to the end.** The end of the stretch is chosen so
 that the interval needed lies within it — which means the reviewer is not looking for "is there an
 answer at all" but for "did it not appear earlier", and any hole in the middle is exactly the place
-where an early appearance will hide. The budget ladder (transcript → sparse grid → dense around a
-suspicion) distributes the frames but grants no right to skip stretches: the sparse grid is obliged
-to cover the stretch in full, with no hole longer than its own step. Jumping straight to the end
-answers a question nobody asked.
+where an early appearance will hide. The budget ladder (screen description and transcript →
+existing scene frames → dense around a suspicion) distributes the frames but grants no right to
+skip stretches: the text sources must account for the stretch in full, and real frames confirm
+candidate moments. Jumping straight to the end answers a question nobody asked.
 
 **They may answer only from what is visible.** Completing an indistinguishable caption from
 knowledge of the subject, recognising a familiar textbook problem in a half-drawn frame and
@@ -237,7 +232,7 @@ The script enforces this itself: `--screen` refuses to work with `--only transcr
 `--frame`.
 
 For `probe_vision` the index is not merely harmless but **cures a known bias**. It is written above
-in this document: with a single sparse grid the probe gets forty frames for half an hour,
+in this document: scene frames alone may be too sparse over a half-hour lecture,
 `visiononly_solved` drifts systematically to `false`, and the `audio_dependency` label to
 `required`. The index is built on a 0.5-second grid, that is, denser than any budget that can be
 issued to the probe in frames.
@@ -343,25 +338,29 @@ different mode (this can be bypassed with `--force`, deliberately). The **self-r
 missing is launching subagents in a restricted directory, so a probe that names a different `--out`
 will get anything at all. For now this is accepted as it is.
 
-The folders are prepared by the coordinator:
+The folders are prepared by the coordinator under
+`$PROJECT/.review_ws/<VIDEO_ID>/<QUESTION>/<SUBAGENT_NAME>/`:
 
 ```bash
 P=/home/user/conda/bin/python3
-$P tools/prepare_review_workspace.py <VIDEO_ID> --until <t_end> --only transcript --out <WS>/text
-$P tools/prepare_review_workspace.py <VIDEO_ID> --until <t_end> --only frames     --out <WS>/vision
-$P tools/prepare_review_workspace.py <VIDEO_ID> --dense <t_start> <t_end>          --out <WS>/vision
-$P tools/prepare_review_workspace.py <VIDEO_ID> --dense <evidence_span>            --out <WS>/vision
-$P tools/prepare_review_workspace.py <VIDEO_ID> --frame <(t_start+t_end)/2>       --out <WS>/frame
-$P tools/prepare_review_workspace.py <VIDEO_ID> --until <t_end>                   --out <WS>/full
+$P tools/prepare_review_workspace.py <VIDEO_ID> --until <t_end> --only transcript --out <WS>/probe_text
+$P tools/prepare_review_workspace.py <VIDEO_ID> --until <t_end> --only frames --screen --out <WS>/probe_vision
+$P tools/prepare_review_workspace.py <VIDEO_ID> --frame <(t_start+t_end)/2> --out <WS>/probe_frame
+$P tools/prepare_review_workspace.py <VIDEO_ID> --until <t_end> --screen --out <WS>/probe_full
 ```
 
-**`vision` gets two dense re-samplings, and that is not generosity.** `text` gets the whole
-transcript — it is free; `vision` with a single sparse grid would get forty frames for half an
-hour, a frame every forty-five seconds. Then `visiononly_solved = false` means "we showed it forty
-pictures" rather than "vision is not enough" — and the `audio_dependency` label, derived straight
-from that flag, drifts systematically to `required`. So the answer window and the `evidence_span`
-are cut densely: the second is mandatory, because the visual evidence often lies outside the window
-— the table was drawn in the fifth minute and the answer comes in the twenty-fifth.
+A visual or full role starts with the clipped `description.jsonl` index and the
+scene-change frames already present in `bundle.json["frames"]`. The coordinator does not
+pre-sample the answer window or `evidence_span`. If the supplied material points to a
+suspicious interval, the role may add a dense 1 fps pass itself:
+
+```bash
+$P tools/prepare_review_workspace.py <VIDEO_ID> --dense <A> <B> --step 1 --out <WS>/<ROLE>
+```
+
+This permission is unchanged: it applies to the visual/full probes and reviewers, not to
+`probe_text` or `probe_frame`. The description makes the initial search dense and
+cheap; the on-demand real frames verify only the intervals that matter.
 
 The actual grid goes into the `budget` of the review file. When the viewing regime changes there
 will otherwise be nothing to tell old measurements from new.
@@ -521,6 +520,10 @@ these changes", and it is enough to write that down in words.
 ```
 data/reviews/<VIDEO_ID>/<SAMPLE_ID>/coordinator.<ROUND>.md
 ```
+
+`<ROUND>` is the newest review iteration consolidated by the decision, not an independent
+counter of coordinator invocations. A record may cite earlier reviews as history, but its
+filename and heading must match the current review version.
 
 What must be in it, one paragraph per decision:
 

@@ -73,10 +73,10 @@ video: a screen-specific value, relation, transition or counterfactual whose ans
 change if the author had used different material. A wording wrapper that changes only
 *when* to repeat the same textbook fact is not a repair.
 
-After a substantive rewrite, set the sample back to `draft` and run a fresh semi-blind
-check and the affected probes/reviewers. Only the new review can clear `blind_solved` for
-the rewritten version. Set `status: rejected` only after the full reviews and a genuine
-repair attempt show that no faithful video-dependent task can be recovered from the
+After a substantive rewrite, set the sample back to `draft` and follow the question-version
+rule in section 3: rerun the complete review cycle on the rewritten wording. Only the new
+reviews can clear `blind_solved` for the rewritten version. Set `status: rejected` only after
+the full reviews and a genuine repair attempt show that no faithful video-dependent task can be recovered from the
 moment. The coordinator record must say what was tried and why it failed; `blind_solved`
 alone is not an adequate rejection note.
 
@@ -118,12 +118,34 @@ for samples that already look clean.
 The order: semi-blind + `probe_text` + `probe_vision` + `probe_frame` (those four in
 parallel and independently) → the coordinator's decisions → `probe_full` where it is
 needed → cheap fixes and schema validation → `full_sample` plus one `full_window` per
-trigger on **all** samples → repair or acceptance → a fresh targeted review of anything
-that changed.
+trigger on **all** samples → repair or acceptance → either the complete fresh cycle required
+for changed question wording or a targeted re-review for metadata-only changes.
 
 **`probe_full` is not always launched**, and that is not an economy but a logic: a
 positive answer from any single-modality probe already proves solvability. It is needed
 exactly where `text` and `vision` **both** answered incorrectly.
+
+**A changed participant-visible question creates a new review version.** Once any reviewer
+has seen a sample, every edit to its `question` field invalidates the acceptance evidence
+for the old wording — even if the edit looks editorial. Set `validation.status` back to
+`draft`; keep the old JSON reviews as audit history, but do not use their verdicts or
+modality flags to validate the new version.
+
+Run the complete cycle again on the new wording: fresh and independent `semiblind`,
+`probe_text`, `probe_vision`, and `probe_frame`; conditional `probe_full` under the rule
+above; then fresh `full_sample` and every `full_window`. Use new iteration numbers and
+separate reviewer workspaces. Only results produced against the exact current question may
+support `validated` or clear a previous `blind_solved` finding.
+
+Targeted re-review is permitted only while the participant-visible `question` is unchanged.
+For interval, provenance, rubric, or other metadata-only edits, rerun every role whose
+owned checks or expected answer could be affected; unaffected review evidence may remain.
+
+**Coordinator records use the review-version number, not a separate consolidation count.**
+Write the decision as `coordinator.<ROUND>.md`, where `<ROUND>` is the newest review
+iteration consolidated by that decision. The record may cite earlier reviews as history,
+but its filename and heading must match the current review version. Never call the second
+coordinator pass `coordinator.2.md` when it consolidates reviewer iteration 3 or 5.
 
 ---
 
@@ -157,3 +179,42 @@ both bans itself.
 **Measurements with the index and without it are not comparable**, which is why the
 `screen_index_used` flag exists in `budget`. When assembling the set, look at it: a
 `visiononly_solved` obtained the two ways looks the same from outside.
+
+---
+
+## 5. Reviewer workspaces are per role and are deleted after consolidation
+
+Use exactly one workspace per reviewer role:
+
+```
+$PROJECT/.review_ws/<VIDEO_ID>/<QUESTION>/<SUBAGENT_NAME>/
+```
+
+Use this source matrix; a boundary-clipped source is clipped to the permitted interval for the role:
+
+| Role | Transcript | `description.jsonl` index | Initial real frames | On-demand `--dense` |
+|---|---|---|---|---|
+| `semiblind` | clipped | clipped | existing scene frames, copied | allowed |
+| `full_sample` | full | full | existing scene frames or manifest | allowed |
+| `full_window` | clipped | clipped | existing scene frames or manifest | allowed |
+| `probe_text` | clipped | forbidden | forbidden | forbidden |
+| `probe_vision` | forbidden | clipped | existing scene frames, copied | allowed |
+| `probe_frame` | forbidden | forbidden | exactly one frozen frame | forbidden |
+| `probe_full` | clipped | clipped | existing scene frames, copied | allowed |
+
+The initial visual material is the permitted part of `description.jsonl` plus the
+existing scene-change frames listed in `bundle.json["frames"]`. Those frames were
+produced by `tools/detect_scenes.py`; the coordinator must not pre-fill a uniform or
+dense grid. A role marked `allowed` may call `--dense A B --step 1` after the
+description or scene frames identify a suspicious interval.
+
+After a review passes `schema/review.py --check` and its decisions have been incorporated
+into `coordinator.<ROUND>.md`, remove that role's reproducible workspace:
+
+```bash
+python3 tools/prepare_review_workspace.py <VIDEO_ID> \
+    --cleanup --out "$PROJECT/.review_ws/<VIDEO_ID>/<QUESTION>/<SUBAGENT_NAME>"
+```
+
+Keep an invalid or unconsolidated workspace for diagnosis. Never ask a validator to delete
+it, and never share one workspace between roles.

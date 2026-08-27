@@ -72,10 +72,10 @@ annotation, not evidence. Agreeing with their opinion confirms nothing.
 
 **No more than ~25 images per window.** The transcript is free — read as much as you need.
 
-A ladder works: first the transcript of the stretch `[t_start − 5, t_end + 15]` in full
-(free, and it usually narrows the search zone straight away), then a sparse grid with step
-`max(5 s, window length / 10)`, and only around the suspicious place a dense one, with a
-step of 1–2 s.
+A ladder works: first search the supplied screen description and read the transcript
+over `[t_start − 5, t_end + 15]`, then inspect the existing scene-change frames around
+candidate moments, and only around a suspicious place call `--dense` at 1 fps
+(a step of 1 s).
 
 If an item is still not checked — **say so** (`"result": "skipped"` naming the uncovered
 interval). A silent gap is worse than an admitted one: it looks like a completed check.
@@ -116,7 +116,7 @@ Only through `tools/prepare_review_workspace.py`:
 
 ```bash
 /home/user/conda/bin/python3 tools/prepare_review_workspace.py <VIDEO_ID> \
-    --dense <A> <B> --step 2 --out <WORKSPACE>
+    --dense <A> <B> --step 1 --out <WORKSPACE>
 ```
 
 The script keeps to the boundaries the folder was created with. Do not run your own
@@ -150,6 +150,11 @@ place, coinciding with the author's speech is fine.
 whole window. On the left the window is sometimes open while the object is still being
 drawn, on the right after it has already left the screen. A slack of one or two seconds is
 not worth a fix; propose tightening only if the empty part is large.
+
+For a question explicitly asking about the state at its first appearance, later animation
+does not erase the already observed answer. The minimum window provides generation latency:
+do not tighten it below the legal minimum merely because the current frame advances while
+the model may still be finishing an answer about that earlier state.
 
 **Item 3.3 — the event does not begin earlier than its window.** If the trigger condition
 is an event (the typical case is `monitor`, but not only), the window must open at the

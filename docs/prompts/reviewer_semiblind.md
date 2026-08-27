@@ -82,17 +82,15 @@ you need, and read it whole.
 A stretch can be half an hour long, and "just cut it every 2 s" does not fit the budget.
 What works is a ladder:
 
-1. read the transcript in full — it is free and usually narrows the search zone to a
-   minute or two straight away;
-2. walk the interval with a sparse grid: step `max(15 s, length/40)`, that is, once every
-   45 seconds over a half-hour stretch, not once every 15;
-3. and only around the suspicious place cut densely, with a step of 1–2 s.
+1. search the supplied `screen_text.md` and `screen.jsonl` across the entire stretch;
+2. read the transcript in full — it is free and provides the independent audio context;
+3. inspect the existing scene-change frames around candidate moments;
+4. only around a suspicious place, call `--dense` at 1 fps (a step of 1 s).
 
 **The ladder is a way of distributing the budget, not permission to skip stretches.** The
-order of viewing is always the same: from the beginning of the stretch to the end, in
-sequence. Steps 2 and 3 differ in the step of the grid, not in leaving part of the stretch
-unopened: the sparse grid must cover the stretch in full, from `t_from` to `t_to`, with no
-gaps longer than its own step.
+description and transcript must account for the stretch from beginning to end. The model-made
+description is not evidence, so candidate moments still have to be confirmed in existing scene
+frames or in an on-demand dense pass.
 
 The reason this requirement is strict lies in the structure of your task. **By the end of
 the stretch the answer to the question is already available — that is a given, not a
@@ -137,7 +135,7 @@ Only through `tools/prepare_review_workspace.py` — that is the one permitted w
 
 ```bash
 /home/user/conda/bin/python3 tools/prepare_review_workspace.py <VIDEO_ID> \
-    --dense <A> <B> --step 2 --out <WORKSPACE>
+    --dense <A> <B> --step 1 --out <WORKSPACE>
 ```
 
 The script keeps to the boundaries the folder was created with and counts the budget. Do

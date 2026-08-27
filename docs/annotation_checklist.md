@@ -122,29 +122,24 @@ ones to spend time on first.
 ## Viewing operations
 
 The `[M]` items are carried out by a subagent with a budget: **no more than ~50 images per
-question checked**. So the algorithms below are stated in terms of three named operations
-rather than in terms of "watch the video".
+question checked**. The common order is progressive:
 
 | Operation | What it is | Cost |
 |---|---|---|
-| **reading the transcript `[a, b]`** | every line with its timecode from `bundle.json` | cheap, taken in full in any quantity |
-| **sparse viewing `[a, b]`** | the bundle's frames plus the scene-change frames, step `max(15 s, (b−a)/40)`, no more than 40 of them | moderate |
-| **dense viewing `[a, b]`** | frames with a step of 1–2 s | expensive: 50 frames = a stretch no longer than 100 s |
+| **reading the transcript `[a, b]`** | every available line with its timecode | cheap, taken in full in any quantity |
+| **searching the screen description `[a, b]`** | the boundary-clipped records from `description.jsonl`; a search index, not evidence | cheap, taken before opening frames |
+| **scene-frame viewing `[a, b]`** | existing content-selected frames from `bundle.json["frames"]`, produced by `detect_scenes.py` | moderate |
+| **dense viewing `[a, b]`** | an on-demand grid requested with `--dense`; start at 1 fps (`--step 1`) | expensive: 50 frames cover at most 50 s at 1 fps |
 
-Hence the working rule: **the transcript is always read in full, frames go by budget.** If
-a stretch is longer than a hundred seconds, the transcript and sparse viewing come first,
-and only then dense viewing of the sub-stretch they raised a suspicion about.
+Hence the working rule: **description first, existing scene frames second, targeted dense
+viewing last.** The coordinator prepares only the clipped description and existing scene
+frames. It does not pre-fill a uniform grid or dense target/evidence intervals. A reviewer
+uses `--dense` only after the cheaper material identifies a suspicious stretch.
 
-The step of sparse viewing grows with the interval: over a half-hour stretch that is one
-frame every 45 seconds, not every 15. Otherwise the "cheap" operation eats the whole
-budget — on the pilot video the interval `[question_time, t_start]` reaches 1820 seconds,
-and a uniform 15-second grid would have given 121 frames against a budget of 50.
-
-⚠ Automatic scene-change detection does not replace a uniform grid. On the pilot video the
-threshold `scene > 0.15` gave 88 frames for 32 minutes, but between two of them there was a
-gap of 348 seconds — smooth animations do not produce "scene changes", and it was into that
-gap that the two moments the questions are built around fell. A sparse sample must be the
-union of the scenes and a uniform grid.
+The description was produced by a model and cannot prove a visual fact. A positive visual
+claim must still cite a real scene frame or an on-demand dense frame in `looked_at`.
+`probe_text` receives neither the visual description nor frames; `probe_frame` receives
+exactly its one frozen frame and cannot call `--dense`.
 
 ---
 ## 1. Formal integrity of the file
@@ -565,6 +560,13 @@ animation is running, and the picture looks incomplete.
   error when the empty part of the window is large: the sample then quietly changes what it
   tests, for example from perception to memory.
 
+  For a question explicitly anchored to a state at its first appearance, later animation does
+  not make the answer unavailable: a streaming model has already observed that state and may
+  finish generating from it. The mandatory minimum window exists precisely to absorb generation
+  latency. Do not tighten such a window below the legal minimum merely because the current frame
+  advances while the answer is being generated; tighten only when the question asks for the
+  current state or the earlier state was never fully observable.
+
   *Checking algorithm.* Dense viewing and the transcript of `[t_start, t_end]`. Determine the
   sub-interval over which the answer really does follow, and propose tightening the window to
   it.
@@ -905,18 +907,16 @@ merged into 4.2; the former 4.7 (recognising the video) became 4.3; the former 4
   *Checking algorithm.* A probe with the material "frames up to `t_end`, not a line of the
   transcript". The result is `validation.visiononly_solved`.
 
-  **This probe's frame grid is specified separately, and that is not a detail.** The `text`
-  probe gets the whole transcript — it is free; the `vision` probe on a sparse grid would get
-  forty frames for half an hour, that is, one frame every forty-five seconds. Then
-  `visiononly_solved = false` mixes "vision was not enough" with "vision was shown forty
-  pictures", while the `audio_dependency` label is derived straight from that flag — and
-  drifts systematically to `required`.
+  **This probe's visual search is specified separately, and that is not a detail.**
+  The `text` probe gets the whole transcript — it is free. The `vision` probe starts
+  with the boundary-clipped visual description and existing scene-change frames. The
+  description searches the full visual history cheaply; a positive answer is then
+  verified against a real frame.
 
-  So `vision` gets a **dense cut** of two stretches: the answer window `[t_start, t_end]` and
-  the `evidence_span`. The second is mandatory and was added for more than symmetry: visual
-  evidence often lies outside the window — the table was drawn in the fifth minute and the
-  answer comes in the twenty-fifth — and a dense scan of the window alone will not see it. The
-  sparse grid stays on top of that, for context.
+  If those sources identify a suspicious interval but do not expose a readable frame,
+  the probe may call `--dense` there at 1 fps. The coordinator does not pre-sample the
+  answer window or `evidence_span`: deciding where denser evidence is needed belongs to
+  the probe and must be visible in its `looked_at` and `budget`.
 
   The actual grid is recorded in the `budget` of the review file. Without that number a
   negative answer cannot be interpreted, and when the viewing regime changes there will be

@@ -9,12 +9,16 @@ separate directory is prepared for them, holding only what they are allowed to s
     prepare_review_workspace.py <video_id> --until 957 --out /tmp/rev_q07_blind
 
     # re-sample a stretch with a dense grid into the same folder
-    prepare_review_workspace.py <video_id> --dense 930 960 --step 2 --out /tmp/rev_q07_blind
+    prepare_review_workspace.py <video_id> --dense 930 960 --step 1 --out /tmp/rev_q07_blind
 
     # the probe folders: one modality instead of two
     prepare_review_workspace.py <video_id> --until 992 --only transcript --out /tmp/probe_text
     prepare_review_workspace.py <video_id> --until 992 --only frames    --out /tmp/probe_vision
     prepare_review_workspace.py <video_id> --frame 946                  --out /tmp/probe_frame
+
+    # after a validated review has been consolidated
+    prepare_review_workspace.py <video_id> --cleanup --out \
+        .review_ws/<video_id>/<question>/<subagent>
 
 The frames are named by timecode (t000946.jpg), so the agent sees the time right in the
 file name and has nothing to recompute.
@@ -312,6 +316,44 @@ def extract_dense(vid: str, out: Path, t0: float, t1: float, step: float, cap: i
     return n
 
 
+def cleanup_workspace(video_id: str, out: Path) -> bool:
+    """Remove one reproducible reviewer workspace, never a broader directory.
+
+    The accepted shape is exactly
+    ``<ROOT>/.review_ws/<video_id>/<question>/<subagent>``. Keeping the destructive
+    operation here lets the coordinator clean up after consolidating a valid review
+    without teaching a validator to mutate data.
+    """
+    review_root = (ROOT / ".review_ws").resolve()
+    requested = Path(out)
+    resolved = requested.resolve()
+    try:
+        relative = resolved.relative_to(review_root)
+    except ValueError as exc:
+        raise ValueError(f"cleanup target must be inside {review_root}") from exc
+    if len(relative.parts) != 3:
+        raise ValueError(
+            "cleanup target must be one reviewer workspace: "
+            ".review_ws/<video>/<question>/<subagent>"
+        )
+    if relative.parts[0] != video_id:
+        raise ValueError(
+            f"cleanup target belongs to video id {relative.parts[0]!r}, not {video_id!r}"
+        )
+    if requested.is_symlink():
+        raise ValueError("cleanup target must not be a symlink")
+    if not resolved.exists():
+        return False
+
+    shutil.rmtree(resolved)
+    for parent in (resolved.parent, resolved.parent.parent):
+        try:
+            parent.rmdir()
+        except OSError:
+            break
+    return True
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -334,14 +376,17 @@ def main() -> None:
                          "denser, and the surplus is thinned uniformly")
     ap.add_argument("--frame", type=float, metavar="T",
                     help="a folder of exactly one frame (the frozen-frame probe)")
+    ap.add_argument("--cleanup", action="store_true",
+                    help="remove exactly one completed reviewer workspace under "
+                         ".review_ws/<video>/<question>/<subagent>")
     ap.add_argument("--only", choices=("both", "transcript", "frames"), default="both",
                     help="what to put in the folder with --until: both modalities "
                          "(the default), the transcript only (the text probe) or "
                          "the frames only (the vision probe)")
     ap.add_argument("--screen", action="store_true",
                     help="put in the text index of the video track (screen_text.md "
-                         "and screen.jsonl) from description.jsonl. For reviewers only: "
-                         "for probes it breaks the measurement of the modality")
+                         "and screen.jsonl) from description.jsonl. Allowed for reviewers "
+                         "and visual/full probes; forbidden for text and frozen-frame probes")
     ap.add_argument("--index-only", action="store_true", dest="index_only",
                     help="do not copy the frames but put in a manifest frames.md "
                          "with the timecodes and the path. ONLY for full_sample and "
@@ -350,9 +395,10 @@ def main() -> None:
                          "probes get the frames as copies")
     args = ap.parse_args()
 
-    modes = [args.until is not None, args.dense is not None, args.frame is not None]
+    modes = [args.until is not None, args.dense is not None,
+             args.frame is not None, args.cleanup]
     if sum(modes) != 1:
-        sys.exit("name exactly one of --until, --dense or --frame")
+        sys.exit("name exactly one of --until, --dense, --frame or --cleanup")
     if args.only != "both" and args.until is None:
         sys.exit("--only only makes sense together with --until")
     # The screen index is built from frames ONLY (the description run's meta says
@@ -399,6 +445,13 @@ def main() -> None:
                  f"frames as the counter shows")
 
     out = Path(args.out)
+    if args.cleanup:
+        try:
+            removed = cleanup_workspace(args.video_id, out)
+        except ValueError as exc:
+            sys.exit(str(exc))
+        print(f"workspace {'removed' if removed else 'already absent'}: {out}")
+        return
     # A folder with a manifest and a folder with copies are different modes, not variants
     # of one. Otherwise a repeat call without --index-only would leave a manifest for the
     # whole bundle next to "isolated" copies, and the boundary would rest on honesty alone.
@@ -456,7 +509,7 @@ def main() -> None:
         else:
             print("  transcript   : deliberately not placed")
         if args.only in ("both", "frames"):
-            how = "a frames.md manifest, no copies" if args.index_only else "copies, the sparse grid from the bundle"
+            how = "a frames.md manifest, no copies" if args.index_only else "copies of scene-change frames from the bundle"
             print(f"  frames       : {frames} of them ({how})")
         else:
             print("  frames       : deliberately not placed")

@@ -74,6 +74,7 @@ Two rules, and both matter for what is being measured here:
    you name a quantity, you saw it — in a frame that is named in `looked_at`. Too few
    frames over the stretch you need — sample more for yourself:
    `tools/prepare_review_workspace.py --dense A B --step S --out <WORKSPACE>`.
+   Start with 1 fps (`--step 1`) and narrow the interval before asking for more frames.
 2. **Set `screen_index_used: true` in `budget`.** A measurement with the index and one
    without it are not comparable, and they must be told apart by a mark rather than from
    memory.

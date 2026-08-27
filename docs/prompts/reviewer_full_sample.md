@@ -78,7 +78,7 @@ Quotas per check, so that the budget is not eaten by the very first operation:
 
 | Check | Quota |
 |---|---|
-| 3.1 — sparse grid over the whole video | up to 30 frames |
+| 3.1 — scene-frame pass over the whole video | up to 30 frames |
 | 6.1 — distractors in full | up to 10 frames |
 | 5.4 and 8.2 — pinpointed | the remainder |
 
@@ -86,9 +86,9 @@ The budget is yours for the whole sample, and its main eater is 3.1: it is the o
 that needs the whole video, and it is what the role was split off from the per-window one
 for.
 
-A ladder works: first the transcript of the stretch in full (free, and it usually narrows
-the search zone straight away), then a sparse grid with step `max(15 s, length/40)`, and
-only around the suspicious place a dense one, with a step of 1–2 s.
+A ladder works: first search the supplied screen description and read the transcript
+over the whole stretch, then inspect the existing scene-change frames around candidate
+moments, and only around a suspicious place call `--dense` at 1 fps (a step of 1 s).
 
 If an item is still not checked — **say so** (`"result": "skipped"` naming the uncovered
 interval). A silent gap is worse than an admitted one: it looks like a completed check. A
@@ -131,7 +131,7 @@ Only through `tools/prepare_review_workspace.py` — that is the one permitted w
 
 ```bash
 /home/user/conda/bin/python3 tools/prepare_review_workspace.py <VIDEO_ID> \
-    --dense <A> <B> --step 2 --out <WORKSPACE>
+    --dense <A> <B> --step 1 --out <WORKSPACE>
 ```
 
 The script keeps to the boundaries the folder was created with and counts the budget. Do
