@@ -1,0 +1,120 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__GlYgs6v2YfU__q04",
+  "role": "full_window",
+  "iteration": 3,
+  "model": "gpt-5",
+  "date": "2026-08-26",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q04/full_window0_r3",
+  "budget": {
+    "frames_viewed": 10,
+    "sparse_step": null,
+    "dense_intervals": [{"t_start": 866.0, "t_end": 876.0}],
+    "transcript_cues": 6,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The complete fan is visible throughout the legal window; deletion and retargeting remain counterfactual deductions.",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "group": "windows",
+      "item": "window-can-be-tightened",
+      "target": {"trigger_idx": 0},
+      "looked_at": [
+        {"kind": "frame", "t": 868.0, "what": "The completed yellow fan connects the later green dark markers to the first top occurrence."},
+        {"kind": "frame", "t": 870.0, "what": "The full fan remains clearly visible."},
+        {"kind": "frame", "t": 872.0, "what": "The full fan remains clearly visible."},
+        {"kind": "frame", "t": 874.0, "what": "The full fan is still visible immediately before the scene changes at 875.0."}
+      ],
+      "findings": "The full topology is present at the 868.0 opening and persists through 874.0; the scene changes at the exclusive 875.0 endpoint.",
+      "criterion": "A window should be tightened only when it contains a substantial portion before the complete evidence or after that evidence has disappeared.",
+      "steps": [
+        {"question": "When is the fan complete?", "answer_number": 868.0, "why": "At 868.0 all visible yellow arcs terminate at the top green source."},
+        {"question": "When does the evidence scene end?", "answer_number": 875.0, "why": "The 874.0 frame still shows it and the 875.0 frame is the next scene."},
+        {"question": "Is there substantial empty slack inside 868.0 to 875.0?", "answer_bool": false, "why": "The evidence fills the legal interval."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "windows",
+      "item": "author-says-answer-in-window",
+      "target": {"trigger_idx": 0},
+      "looked_at": [
+        {"kind": "cue", "t": 865.2, "what": "The author says compression can replace later instances with pointers to earlier instances."},
+        {"kind": "cue", "t": 870.2, "what": "The author turns to the use of the approximation as a distance measure."},
+        {"kind": "cue", "t": 881.0, "what": "The author discusses cross entropy in practice without returning to the deletion counterfactual."},
+        {"kind": "frame", "t": 868.0, "what": "The arrow topology is shown, but no deletion or repaired pointer configuration is displayed."}
+      ],
+      "findings": "The author gives only the generic fact that later instances point to earlier ones. Neither speech through 885.0 nor the frames state that deleting the top source invalidates these exact references or that a surviving literal and recomputed offsets are required.",
+      "criterion": "For an L2 question, the item fails only if the complete counterfactual answer is supplied in finished form during the interval or within ten seconds after it.",
+      "steps": [
+        {"question": "Does the author identify the exact common target of this fan?", "answer_bool": false, "why": "The narration says only that later instances point to earlier instances in general."},
+        {"question": "Does the author state the deletion consequence and repair?", "answer_bool": false, "why": "No cue states invalidation, preserving another literal, or retargeting offsets."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "event-not-earlier-than-window",
+      "target": {"trigger_idx": 0},
+      "looked_at": [
+        {"kind": "frame", "t": 867.0, "what": "Only the first few yellow back-reference arcs are being drawn."},
+        {"kind": "frame", "t": 868.0, "what": "The complete fan is present at the legal opening."}
+      ],
+      "findings": "The requested event is completion of the fan, not the beginning of its drawing. It is incomplete at 867.0 and complete at 868.0.",
+      "criterion": "The window must not open after its named event has already begun; for this wording the event is the fan becoming fully drawn.",
+      "steps": [
+        {"question": "Was the named fully-drawn state already present before 868.0?", "answer_bool": false, "why": "The 867.0 frame visibly has only a partial set of arcs."},
+        {"question": "Is the named state present at 868.0?", "answer_bool": true, "why": "The 868.0 frame shows the completed fan."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "depends-on-is-dependency",
+      "target": {"trigger_idx": 0},
+      "looked_at": [],
+      "findings": "The sole trigger has no depends_on field.",
+      "criterion": "Without a declared link or a rubric requirement that consumes another trigger answer, dependency checking is inapplicable.",
+      "steps": [
+        {"question": "Does any rubric item require another trigger's answer?", "answer_bool": false, "why": "All requirements concern the topology and deletion counterfactual in this one window."}
+      ],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "evidence-span-is-last",
+      "target": {"trigger_idx": 0},
+      "looked_at": [
+        {"kind": "frame", "t": 868.0, "what": "The complete arrow fan and common top target are visible."},
+        {"kind": "frame", "t": 872.0, "what": "The same topology remains visible at the end of the declared evidence span."}
+      ],
+      "findings": "All visual facts needed for the deletion counterfactual are present by 868.0. The declared 868.0 to 872.0 span includes that last evidence and does not rely on later narration as evidence.",
+      "criterion": "The evidence span must contain the last moment at which a required answer fact appears, while later persistence may also lie inside the span.",
+      "steps": [
+        {"question": "What is the last required visual fact?", "answer_text": "Every later marked occurrence targets the first top green dark.", "why": "That common-source topology determines what deletion invalidates."},
+        {"question": "When is that topology complete?", "answer_number": 868.0, "why": "The full fan is visible in the 868.0 frame."},
+        {"question": "Does the declared span include it?", "answer_bool": true, "why": "The span begins at 868.0 and ends at 872.0."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ],
+  "window_idx": 0
+}

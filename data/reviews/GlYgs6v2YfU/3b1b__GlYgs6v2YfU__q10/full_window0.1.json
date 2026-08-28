@@ -1,0 +1,200 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__GlYgs6v2YfU__q10",
+  "role": "full_window",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-26",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q10/full_window0",
+  "budget": {
+    "frames_viewed": 11,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 9,
+    "screen_index_used": false
+  },
+  "violations": [],
+  "notes": "The window begins when the full minimum caption becomes readable and ends at the next formulation.\nThe author supplies only one component of the L3 answer.\nNo dependency is present.",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "group": "windows",
+      "item": "window-can-be-tightened",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1456,
+          "what": "the full Minimal when Q=P caption is visible"
+        },
+        {
+          "kind": "frame",
+          "t": 1463,
+          "what": "the minimum caption remains while bars vary"
+        },
+        {
+          "kind": "frame",
+          "t": 1467,
+          "what": "the name example returns with cross entropy"
+        },
+        {
+          "kind": "frame",
+          "t": 1471,
+          "what": "the same example continues near t_end"
+        },
+        {
+          "kind": "frame",
+          "t": 1473,
+          "what": "Average Loss replaces the heading just after t_end"
+        }
+      ],
+      "findings": "The minimum statement and its example remain relevant throughout 1456–1472, and the next formulation begins immediately after the end.",
+      "criterion": "Tightening is appropriate only when a large part of the window no longer supports the triggering condition or answer.",
+      "steps": [
+        {
+          "question": "Is there substantial empty slack inside the window?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Relevant minimum and example displays continue through 1471."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "windows",
+      "item": "author-says-answer-in-window",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1456,
+          "what": "screen states Minimal when Q=P"
+        },
+        {
+          "kind": "cue",
+          "t": 1455.6,
+          "what": "the narrator says the expression takes a minimum exactly when"
+        },
+        {
+          "kind": "cue",
+          "t": 1458.4,
+          "what": "the narrator says all P and Q values are equal"
+        },
+        {
+          "kind": "cue",
+          "t": 1473.9,
+          "what": "the narrator switches back to generic F"
+        }
+      ],
+      "findings": "The author states the minimum condition, but does not name the three earlier non-logarithmic functions or state the requested insufficiency of mere decrease as a finished answer within the window plus ten seconds.",
+      "criterion": "For L3, the sample is critical only if the stream supplies the complete multi-part answer in finished form.",
+      "steps": [
+        {
+          "question": "Are all three candidates and the decreasing-is-insufficient conclusion supplied here?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Only the minimum-at-P=Q requirement is restated."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "event-not-earlier-than-window",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1455,
+          "what": "the caption is entering and only a clipped fragment is visible"
+        },
+        {
+          "kind": "frame",
+          "t": 1456,
+          "what": "the full Minimal when Q=P statement is readable"
+        }
+      ],
+      "findings": "At 1455 the requirement caption is clipped and incomplete; it becomes fully readable at the 1456 window start.",
+      "criterion": "The event begins when the video actually states the complete minimum requirement, not while unreadable fragments animate in.",
+      "steps": [
+        {
+          "question": "Is the full requirement readable before 1456?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Frame 1455 shows only a clipped tail of the caption."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "depends-on-is-dependency",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [],
+      "findings": "Trigger 0 has no depends_on field; the earlier candidate functions are ordinary cross-scene evidence, not another trigger answer.",
+      "criterion": "Temporal order or distant evidence alone does not create a trigger dependency.",
+      "steps": [],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "evidence-span-is-last",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1456,
+          "what": "the complete minimum-at-Q=P statement is visible"
+        },
+        {
+          "kind": "cue",
+          "t": 1455.6,
+          "what": "the matching spoken statement begins and continues through 1461.1"
+        }
+      ],
+      "findings": "The screen supplies the complete last needed requirement at 1456, inside evidence span 1456–1458.4; later speech corroborates the same fact rather than adding a missing answer component.",
+      "criterion": "The span must include the last fact that makes the response derivable and need not extend through redundant corroboration.",
+      "steps": [
+        {
+          "question": "Does the evidence span include the first complete minimum statement?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The complete caption is visible at its 1456 start."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ],
+  "window_idx": 0
+}
+

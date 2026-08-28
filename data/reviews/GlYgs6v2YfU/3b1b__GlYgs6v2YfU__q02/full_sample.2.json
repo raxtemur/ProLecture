@@ -1,0 +1,387 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__GlYgs6v2YfU__q02",
+  "role": "full_sample",
+  "iteration": 2,
+  "model": "gpt-5.4",
+  "date": "2026-08-26",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q02/full_sample_r2",
+  "budget": {
+    "frames_viewed": 6,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 579,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "Independent round-2 review; no existing review or coordinator records were read.",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "group": "triggers",
+      "item": "no-missed-trigger",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 321,
+          "what": "the plan changes to the new distribution"
+        },
+        {
+          "kind": "cue",
+          "t": 338.3,
+          "what": "the old code is retained"
+        },
+        {
+          "kind": "cue",
+          "t": 367.6,
+          "what": "the weighted sum is later stated as 2.625"
+        },
+        {
+          "kind": "frame",
+          "t": 341.9,
+          "what": "old blue code lengths and all four updated green probabilities are jointly readable"
+        },
+        {
+          "kind": "frame",
+          "t": 374.7,
+          "what": "the four-term weighted sum and 2.625-bit result are visible"
+        }
+      ],
+      "findings": "All 579 transcript cues were read in sequence; the only post-question occurrence matching the literal screen condition is the annotated event documented by the listed frames.",
+      "criterion": "Every post-question moment satisfying the literal screen condition must be covered so an on-merits answer is not penalized.",
+      "steps": [
+        {
+          "question": "How many post-question occurrences satisfy the literal condition?",
+          "answer_text": "One annotated occurrence; no second qualifying occurrence was found.",
+          "why": "This follows from the complete cue pass and real candidate frames."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "trigger-matches-criterion",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 341.9,
+          "what": "old blue code lengths and all four updated green probabilities are jointly readable"
+        },
+        {
+          "kind": "frame",
+          "t": 374.7,
+          "what": "the four-term weighted sum and 2.625-bit result are visible"
+        }
+      ],
+      "findings": "The annotated trigger contains the screen state described in the question and supports the reference response.",
+      "criterion": "Each trigger must satisfy the question's literal condition, not merely resemble nearby examples.",
+      "steps": [
+        {
+          "question": "Does trigger 0 satisfy the literal condition?",
+          "answer_text": "Yes.",
+          "why": "The visible inputs give 1/8·1+1/8·2+1/4·3+1/2·3=2.625 bits."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "question-anchored-to-screen",
+      "target": null,
+      "looked_at": [],
+      "findings": "The question names screen-specific anchors: updated green distribution, old blue code, four terms, and weighted sum.",
+      "criterion": "A valid question must identify a concrete visual state rather than only a textbook topic.",
+      "steps": [
+        {
+          "question": "Which words bind the task to a particular screen?",
+          "answer_text": "updated green distribution, old blue code, four terms, and weighted sum",
+          "why": "These objects, labels, positions, or values are explicitly named in the question."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-within-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "Each positive rubric item scores a quantity, identity, relation, explanation, or exclusion explicitly requested by the question.",
+      "criterion": "Every rubric demand must trace to a requirement visible in the question string shown to the participant.",
+      "steps": [
+        {
+          "question": "Is any rubric requirement unsupported by the question?",
+          "answer_text": "No.",
+          "why": "The answer components and exclusions correspond directly to the question's requested fields and timing discriminator."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "discriminator-in-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "The question itself contains the timing/state distinction that excludes the distractor described in its rationale.",
+      "criterion": "The participant-facing question must itself state every distinction used to reject a plausible alternative.",
+      "steps": [
+        {
+          "question": "Can each rejected alternative be cut off using the question alone?",
+          "answer_text": "Yes.",
+          "why": "The temporal/state discriminator is explicit and does not rely on private notes."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-not-punishing-extra",
+      "target": null,
+      "looked_at": [],
+      "findings": "Restrictive clauses were checked against the literal request and real trigger frames; they exclude only later, unfinished, previous, reversed, or otherwise non-requested states.",
+      "criterion": "A restrictive rubric clause may exclude details only when the question itself narrows the requested state or answer set.",
+      "steps": [
+        {
+          "question": "Could a correct detail from the requested state be penalized?",
+          "answer_text": "No.",
+          "why": "The restrictions mirror explicit timing/state language in the question."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-fully-covered",
+      "target": {
+        "distractor_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 324.8,
+          "what": "only the old table and an incomplete new state are visible"
+        },
+        {
+          "kind": "frame",
+          "t": 334.1,
+          "what": "the new distribution and code table are still being assembled"
+        },
+        {
+          "kind": "frame",
+          "t": 336.8,
+          "what": "the new table is closer but still precedes the complete joint state"
+        },
+        {
+          "kind": "frame",
+          "t": 341.9,
+          "what": "the first complete joint input state is visible"
+        }
+      ],
+      "findings": "Frames across the distractor interval show the excluded earlier or incomplete state continuously until the complete trigger state appears.",
+      "criterion": "A distractor interval must cover the whole plausible temptation, not only its last phrase or frame.",
+      "steps": [
+        {
+          "question": "Does the distractor cover the full tempting state?",
+          "answer_text": "Yes.",
+          "why": "The listed start, middle, and transition frames bracket the temptation."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-not-correct-answer",
+      "target": {
+        "distractor_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 324.8,
+          "what": "only the old table and an incomplete new state are visible"
+        },
+        {
+          "kind": "frame",
+          "t": 334.1,
+          "what": "the new distribution and code table are still being assembled"
+        },
+        {
+          "kind": "frame",
+          "t": 336.8,
+          "what": "the new table is closer but still precedes the complete joint state"
+        },
+        {
+          "kind": "frame",
+          "t": 341.9,
+          "what": "the first complete joint input state is visible"
+        }
+      ],
+      "findings": "The distractor frames lack the explicitly requested second, complete, or fully rebuilt state, so an answer there would not yet meet the question.",
+      "criterion": "A distractor must be genuinely wrong under the participant-facing wording, not merely an alternative good-faith answer.",
+      "steps": [
+        {
+          "question": "Could the distractor satisfy the literal question?",
+          "answer_text": "No.",
+          "why": "The explicit state discriminator is not met in those frames."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-why-hides-answer",
+      "target": null,
+      "looked_at": [],
+      "findings": "The rationale says only that the inputs are piecemeal and calculation would require guesswork; it does not reveal 2.625 or the four-term answer.",
+      "criterion": "The rationale may explain exclusion to reviewers but must not contain the correct response itself.",
+      "steps": [
+        {
+          "question": "Does distractor.why disclose the answer?",
+          "answer_text": "No.",
+          "why": "The rationale says only that the inputs are piecemeal and calculation would require guesswork; it does not reveal 2.625 or the four-term answer."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "reasoning-level-not-inflated",
+      "target": null,
+      "looked_at": [],
+      "findings": "The label is L3. The four new probabilities and old code lengths must be combined and the unseen weighted sum computed.",
+      "criterion": "L1 is direct read-off, L2 joins separated video facts, and L3 derives something not stated in the video; the assigned level must not overstate that work.",
+      "steps": [
+        {
+          "question": "What is the minimum reasoning level supported by the task?",
+          "answer_text": "L3",
+          "why": "The four new probabilities and old code lengths must be combined and the unseen weighted sum computed."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-matches-description",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 341.9,
+          "what": "old blue code lengths and all four updated green probabilities are jointly readable"
+        },
+        {
+          "kind": "frame",
+          "t": 374.7,
+          "what": "the four-term weighted sum and 2.625-bit result are visible"
+        }
+      ],
+      "findings": "The real frames at or adjacent to each provenance time show the objects, labels, values, or transition described by the evidence records.",
+      "criterion": "A provenance explanation must accurately describe what is visible at its cited moment.",
+      "steps": [
+        {
+          "question": "Do the cited visual claims match real frames?",
+          "answer_text": "Yes.",
+          "why": "The visible inputs give 1/8·1+1/8·2+1/4·3+1/2·3=2.625 bits."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "references-consistent-with-windows",
+      "target": null,
+      "looked_at": [],
+      "findings": "No provenance record claims that the answer was available before the annotated opening; any later corroboration is legitimate for prediction or verification.",
+      "criterion": "Only evidence proving answer availability before t_start contradicts the window; later confirmation does not.",
+      "steps": [
+        {
+          "question": "Does provenance establish the full answer before t_start?",
+          "answer_text": "No.",
+          "why": "The opening evidence is aligned to the answer state, while later records only confirm or explain it."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-answer-verified",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 341.9,
+          "what": "old blue code lengths and all four updated green probabilities are jointly readable"
+        },
+        {
+          "kind": "frame",
+          "t": 374.7,
+          "what": "the four-term weighted sum and 2.625-bit result are visible"
+        }
+      ],
+      "findings": "The visible inputs give 1/8·1+1/8·2+1/4·3+1/2·3=2.625 bits.",
+      "criterion": "The reference response must be substantively correct under the question and supported by real video evidence plus any stated derivation.",
+      "steps": [
+        {
+          "question": "Does the evidence yield the stated response?",
+          "answer_text": "Yes.",
+          "why": "The visible inputs give 1/8·1+1/8·2+1/4·3+1/2·3=2.625 bits."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "twins-agree-on-substance",
+      "target": null,
+      "looked_at": [],
+      "findings": "The sample has no twin_of field.",
+      "criterion": "Twin comparison is inapplicable without a paired sample.",
+      "steps": [],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

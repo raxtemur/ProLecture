@@ -1,0 +1,277 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__GlYgs6v2YfU__q13",
+  "role": "full_sample",
+  "iteration": 3,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q13/full_sample_r3",
+  "budget": {
+    "frames_viewed": 31,
+    "sparse_step": null,
+    "dense_intervals": [
+      {"t_start": 1784.0, "t_end": 1789.0}
+    ],
+    "transcript_cues": 576,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The full transcript and a 26-frame scene-change sample spanning the video were reviewed; the screen index was used only to locate candidates. Five permitted dense frames at 1784-1788 verified the requested first-heading state and the later animation change.",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "group": "triggers",
+      "item": "no-missed-trigger",
+      "target": null,
+      "looked_at": [
+        {"kind": "cue", "t": 0.0, "what": "The transcript begins with the language-tree compression example."},
+        {"kind": "cue", "t": 779.8, "what": "The narration transitions from cross-entropy intuition back to the opening compression example."},
+        {"kind": "cue", "t": 910.0, "what": "The narrator identifies a transformer-architecture animation before the language-model section."},
+        {"kind": "cue", "t": 1573.3, "what": "The narration begins the distillation section."},
+        {"kind": "cue", "t": 1690.7, "what": "The narrator starts the final synthesis of compression and cross-entropy."},
+        {"kind": "cue", "t": 1761.6, "what": "The narrator introduces the next step of turning a predictor into a compressor."},
+        {"kind": "cue", "t": 1785.0, "what": "The narrator says a visual compression algorithm will be covered in the next part."},
+        {"kind": "cue", "t": 1812.1, "what": "The narration leaves the preview and begins a final KL-divergence footnote."},
+        {"kind": "cue", "t": 1962.6, "what": "The narrator begins the final three KL-divergence questions."},
+        {"kind": "frame", "t": 0.0, "what": "Opening page imagery is visible."},
+        {"kind": "frame", "t": 132.8, "what": "A cross-entropy formula and compression illustration are visible."},
+        {"kind": "frame", "t": 292.8, "what": "An information graph and a probability bar are visible."},
+        {"kind": "frame", "t": 474.9, "what": "Entropy and average-bits diagrams are visible."},
+        {"kind": "frame", "t": 688.3, "what": "A cross-entropy curve with its minimum marked is visible."},
+        {"kind": "frame", "t": 829.3, "what": "The gzip comparison diagram is visible."},
+        {"kind": "frame", "t": 976.3, "what": "A loss surface is visible."},
+        {"kind": "frame", "t": 1132.8, "what": "A negative-log loss graph is visible."},
+        {"kind": "frame", "t": 1294.4, "what": "Token probabilities and the log-loss formula are visible."},
+        {"kind": "frame", "t": 1492.3, "what": "The average-loss derivation is visible."},
+        {"kind": "frame", "t": 1595.2, "what": "A layered neural-network illustration is visible."},
+        {"kind": "frame", "t": 1685.6, "what": "The name-distribution distillation comparison is visible."},
+        {"kind": "frame", "t": 1768.3, "what": "A predictor-to-compressor diagram is visible before the requested preview."},
+        {"kind": "frame", "t": 1836.5, "what": "A virtual-career-fair slide is visible after the preview."},
+        {"kind": "frame", "t": 1917.1, "what": "The KL-divergence formula is visible."},
+        {"kind": "frame", "t": 1988.5, "what": "A KL-divergence bar diagram is visible."},
+        {"kind": "frame", "t": 2016.3, "what": "The closing supporter credits are visible."},
+        {"kind": "frame", "t": 1786.0, "what": "The heading 'Coming up in part 3' appears over the nested intervals for the first inspected dense frame; the top binary text and c-o-m-p-r path are visible."}
+      ],
+      "findings": "All 576 transcript cues from 0.0 through 2007.8 were read in sequence, the screen index was searched across the full video, and scene-change frames were sampled from the opening through the credits. Only the 1785-1791 next-part preview contains the specific heading over the nested character intervals; the heading is visible at 1786.0.",
+      "criterion": "A firing is missing only if another moment literally satisfies the question's single-moment condition: the first appearance of the named heading above the nested intervals.",
+      "steps": [
+        {"question": "Does the transcript contain another next-part preview sequence?", "answer_bool": false, "why": "The line-by-line pass has one preview at 1761.6-1810.0, followed by the distinct KL-divergence footnote and credits."},
+        {"question": "Does the full-video visual pass reveal another occurrence of the named preview heading and interval layout?", "answer_bool": false, "why": "The screen-index search found the heading only at 1786, and the real-frame sample showed distinct content elsewhere."},
+        {"question": "Is the qualifying first appearance represented by the annotated trigger?", "answer_bool": true, "why": "The dense 1786.0 frame falls inside trigger 0 at 1786.0-1792.0."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "trigger-matches-criterion",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 1785.0, "what": "The nested intervals and a changing binary fraction are visible, but the requested heading is not yet present."},
+        {"kind": "frame", "t": 1786.0, "what": "The heading 'Coming up in part 3' is now above the intervals, with binary fraction 0.00110101000011 and selected rows c, o, m, p, r."}
+      ],
+      "findings": "At 1785.0 the nested-interval animation is already underway without the heading. At 1786.0 the heading first appears above it and the requested state is legible, exactly at the trigger start.",
+      "criterion": "The trigger qualifies if its moment is the first frame where the heading named by the question appears above the nested intervals.",
+      "steps": [
+        {"question": "Is the heading absent immediately before the trigger?", "answer_bool": true, "why": "It is absent in the permitted dense frame at 1785.0."},
+        {"question": "Is the heading present with the nested intervals at the trigger moment?", "answer_bool": true, "why": "Both are plainly visible in the dense frame at 1786.0."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "question-anchored-to-screen",
+      "target": null,
+      "looked_at": [],
+      "findings": "The question names the on-screen heading 'Coming up in part 3', places it above nested intervals, and asks for a binary fraction at the top plus selected letters by visible level.",
+      "criterion": "A screen-anchored question must identify concrete visible content and spatial or state relationships rather than ask only about the mathematical topic.",
+      "steps": [
+        {"question": "Which wording points to a specific screen state?", "answer_text": "The quoted heading, 'above the nested intervals', 'binary fraction at the top', and 'letters selected so far, level by level'.", "why": "These phrases specify visible objects, their placement, and their animation state."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-within-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "Each rubric line corresponds to an explicit instruction in the participant-visible question: copy the fraction, list selected letters, exclude later animation, and do not complete the word by meaning.",
+      "criterion": "Every judging requirement must be traceable to something the participant was explicitly asked to provide or avoid.",
+      "steps": [
+        {"question": "What supports exact copying of 0.00110101000011?", "answer_text": "The instruction 'copy out the binary fraction at the top'.", "why": "Copying a displayed string requires preserving the displayed digits."},
+        {"question": "What supports listing c-o-m-p-r?", "answer_text": "The instruction to 'list the letters selected so far, level by level from the top down'.", "why": "That is exactly the ordered-letter requirement."},
+        {"question": "What supports excluding later levels?", "answer_text": "The explicit clause 'do not add letters from the animation that follows'.", "why": "The rubric repeats this participant-visible temporal exclusion."},
+        {"question": "What supports rejecting semantic completion to compression?", "answer_text": "The explicit clause 'Do not complete the word by meaning'.", "why": "The rubric's exclusion is stated verbatim in substance in the question."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "discriminator-in-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "There are no distractor records. The two excluding rubric distinctions are nevertheless both explicit in the question: later animated letters are excluded, and semantic completion is excluded.",
+      "criterion": "Any distinction used to reject a plausible alternative must be signaled by the participant-visible wording, including exclusions encoded only in negative rubric lines.",
+      "steps": [
+        {"question": "Does the question distinguish the first heading state from later animation states?", "answer_bool": true, "why": "It says 'when ... first appears' and explicitly forbids letters from the animation that follows."},
+        {"question": "Does the question distinguish visible selected letters from a completed meaningful word?", "answer_bool": true, "why": "It explicitly says not to complete the word by meaning."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-not-punishing-extra",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 1786.0, "what": "The selected path has five completed blue levels labeled c, o, m, p, r; other letters belong to unselected alternatives on the current/later level."},
+        {"kind": "frame", "t": 1788.0, "what": "The binary fraction has gained a later bit and the interval animation has progressed beyond the first-heading state."}
+      ],
+      "findings": "The restrictive rubric lines are the bans on later-level letters and on completing the word by meaning. At 1786.0 exactly five levels have selected letters c-o-m-p-r; visible alternative letters are not selected, and the later 1788.0 state has already changed.",
+      "criterion": "A restrictive rubric is sound only if it excludes details outside the exact screen state requested, rather than penalizing another detail that also satisfies the question at that state.",
+      "steps": [
+        {"question": "Is any additional letter selected at the first-heading state?", "answer_bool": false, "why": "At 1786.0 the selected nested path stops at r; other visible letters are alternatives, not selected levels."},
+        {"question": "Would completing the semantic word describe the visible selections at that moment?", "answer_bool": false, "why": "The displayed selected path is only c-o-m-p-r, while further letters belong to animation states after the requested first appearance."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-fully-covered",
+      "target": {"distractor_idx": 0},
+      "looked_at": [],
+      "findings": "The supplied sample contains no distractors, so there is no distractor interval to inspect for full coverage.",
+      "criterion": "Coverage applies only when a distractor interval exists and can be compared with the full duration of its temptation.",
+      "steps": [],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-not-correct-answer",
+      "target": {"distractor_idx": 0},
+      "looked_at": [],
+      "findings": "The supplied sample contains no distractor answer or distractor rationale to test as a possible good-faith answer.",
+      "criterion": "Correctness of a distractor can be judged only when a distractor candidate exists under the wording of the question.",
+      "steps": [],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-why-hides-answer",
+      "target": null,
+      "looked_at": [],
+      "findings": "The supplied sample has no distractor. Consequently there is no distractor rationale that could leak the reference answer.",
+      "criterion": "Answer leakage through a distractor rationale is applicable only when such a rationale exists.",
+      "steps": [],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "reasoning-level-not-inflated",
+      "target": null,
+      "looked_at": [],
+      "findings": "The labeled answer is read directly from one visual state: one binary string and one top-to-bottom sequence of selected letters. No distant moments or outside derivation are needed.",
+      "criterion": "L1 is appropriate when all answer elements can be directly transcribed from a single local observation without connecting separated evidence or deriving unseen facts.",
+      "steps": [
+        {"question": "Can every answer element be obtained from one frame?", "answer_bool": true, "why": "The 1786.0 state simultaneously displays the binary fraction and all five selected letter levels."},
+        {"question": "Does the answer require inference beyond reading and ordering visible text?", "answer_bool": false, "why": "The question explicitly forbids semantic completion; only transcription and top-down ordering remain."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-matches-description",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 1786.0, "what": "The heading is above the interval diagram; 0.00110101000011 is at the top and the selected levels read c, o, m, p, r."}
+      ],
+      "findings": "The real dense frame at the provenance time shows exactly the heading, fraction, and first selected letters described by the evidence record.",
+      "criterion": "A provenance record matches when the real frame at its stated time contains the objects and state its explanation claims.",
+      "steps": [
+        {"question": "Does the frame contain every element named by the provenance explanation?", "answer_bool": true, "why": "Heading, binary string, nested intervals, and the c-o-m-p-r selected path are all visible at 1786.0."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "references-consistent-with-windows",
+      "target": null,
+      "looked_at": [],
+      "findings": "The frame evidence time is 1786.0 and its evidence span is 1786.0-1787.0. Trigger 0 is 1786.0-1792.0, so the reference does not place the answer before the window opens.",
+      "criterion": "A provenance contradiction exists only when the reference says the answer was already available before the associated trigger window began.",
+      "steps": [
+        {"question": "Is the provenance frame time earlier than trigger 0 start?", "answer_bool": false, "why": "Both are exactly 1786.0 seconds."},
+        {"question": "Does the evidence span begin before trigger 0?", "answer_bool": false, "why": "The span begins at 1786.0, the same time as the trigger."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-answer-verified",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 1786.0, "what": "The top line reads 0.00110101000011 and the selected nested interval labels from top down are c, o, m, p, r."},
+        {"kind": "frame", "t": 1788.0, "what": "The top line has progressed to 0.001101010000111, demonstrating that the later state is not the requested first-heading state."}
+      ],
+      "findings": "The reference response exactly transcribes the binary fraction and selected letters visible at 1786.0. The 1788.0 comparison confirms why an additional bit or later letter state must not be included.",
+      "criterion": "The reference answer is verified when every required value agrees exactly with the qualifying visual state and contains nothing imported from a later state or semantic guess.",
+      "steps": [
+        {"question": "What binary fraction is visible at the qualifying state?", "answer_text": "0.00110101000011", "why": "This exact 16-character string including the decimal point is legible at the top of the 1786.0 frame."},
+        {"question": "Which letters are selected from top to bottom at that state?", "answer_text": "c, o, m, p, r", "why": "Those five labels occupy the selected nested bars in order at 1786.0."},
+        {"question": "Does the reference add anything from the later animation or complete a word?", "answer_bool": false, "why": "It stops at r and does not supply the later letters needed to form 'compression'."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "twins-agree-on-substance",
+      "target": null,
+      "looked_at": [],
+      "findings": "The supplied sample has no twin_of field, so there is no paired reference response to compare.",
+      "criterion": "Substantive agreement is applicable only when a twin sample exists and supplies a second reference answer.",
+      "steps": [],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

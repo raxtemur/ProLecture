@@ -1,0 +1,207 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__GlYgs6v2YfU__q07",
+  "role": "full_window",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-26",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q07/full_window0",
+  "budget": {
+    "frames_viewed": 8,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 11,
+    "screen_index_used": false
+  },
+  "violations": [],
+  "notes": "The equality window is usable; its approximately one-second empty tail is immaterial.\nThe author does not state the ordering/argmin conclusion.\nNo dependency is present.",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "group": "windows",
+      "item": "window-can-be-tightened",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1167,
+          "what": "the change-of-base equality is being drawn"
+        },
+        {
+          "kind": "frame",
+          "t": 1168,
+          "what": "the complete equality is legible"
+        },
+        {
+          "kind": "frame",
+          "t": 1176,
+          "what": "the equality remains legible with derivative context"
+        },
+        {
+          "kind": "frame",
+          "t": 1180,
+          "what": "the graph begins transitioning to the loss surface"
+        },
+        {
+          "kind": "frame",
+          "t": 1182,
+          "what": "the loss surface has replaced the graph"
+        }
+      ],
+      "findings": "The equality is available from the start portion of the window through the transition around 1180; only about one second at the tail lacks it before t_end 1183.",
+      "criterion": "Tightening is warranted only for a substantial portion where the answer is no longer available, not one or two seconds of transition slack.",
+      "steps": [
+        {
+          "question": "How much clearly empty tail remains before t_end?",
+          "answer_bool": null,
+          "answer_number": 1,
+          "answer_text": null,
+          "why": "The formula is transitioning at 1180 and fully absent at 1182, one second before 1183."
+        },
+        {
+          "question": "Is that tail large enough to justify a boundary fix?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The protocol treats one or two seconds as immaterial."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "windows",
+      "item": "author-says-answer-in-window",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1168,
+          "what": "the exact equality is shown"
+        },
+        {
+          "kind": "cue",
+          "t": 1166.8,
+          "what": "the narrator says the expressions differ by a constant factor"
+        },
+        {
+          "kind": "cue",
+          "t": 1170.2,
+          "what": "the factor is absorbed in the learning rate"
+        },
+        {
+          "kind": "cue",
+          "t": 1173.4,
+          "what": "natural logs are cleaner for derivatives"
+        }
+      ],
+      "findings": "The stream supplies the formula and constant-factor observation, but it never states the required conclusion that model ordering and the argmin are preserved.",
+      "criterion": "For L2, critical leakage requires the complete finished answer, not raw evidence from which the participant must still derive the conclusion.",
+      "steps": [
+        {
+          "question": "Does the author state both ordering and minimum preservation?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Neither conclusion is spoken or written in the checked horizon."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "event-not-earlier-than-window",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1166,
+          "what": "only −log₂(x) and −ln(x) curves are shown"
+        },
+        {
+          "kind": "frame",
+          "t": 1167,
+          "what": "the explicit equality begins appearing"
+        }
+      ],
+      "findings": "Before 1167 the graph shows the two functions without the explicit equality; the equality animation begins at the window start.",
+      "criterion": "The event window should open when the explicit displayed base-change relation first begins.",
+      "steps": [
+        {
+          "question": "Is the explicit equality already present before 1167?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Frame 1166 has only curve labels."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "depends-on-is-dependency",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [],
+      "findings": "Trigger 0 has no depends_on field and its rubric requires no other trigger answer.",
+      "criterion": "Dependency applies only when a rubric item needs the answer of another trigger.",
+      "steps": [],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "evidence-span-is-last",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1168,
+          "what": "the equality is complete"
+        },
+        {
+          "kind": "cue",
+          "t": 1166.8,
+          "what": "constant-factor explanation runs through 1170.2"
+        }
+      ],
+      "findings": "The final supporting fact is the constant-factor statement ending at 1170.2, and the evidence span ends at 1170.2.",
+      "criterion": "The evidence span must reach the last fact needed to derive the answer, not a later convenience explanation.",
+      "steps": [
+        {
+          "question": "Does evidence_span end at the last needed supporting fact?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Its 1170.2 end matches the constant-factor cue."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ],
+  "window_idx": 0
+}
+

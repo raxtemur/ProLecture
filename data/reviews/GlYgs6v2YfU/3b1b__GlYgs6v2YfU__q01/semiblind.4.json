@@ -1,0 +1,229 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__GlYgs6v2YfU__q01",
+  "role": "semiblind",
+  "iteration": 4,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-26",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q01/semiblind_r4",
+  "budget": {
+    "frames_viewed": 16,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 60.0,
+        "t_end": 65.0
+      }
+    ],
+    "transcript_cues": 23,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The complete transcript and indexed scene description covered 0-79 s.\nScene-change frames sampled the full stretch; a 1 fps dense pass narrowed the only candidate transition.\nNo forbidden material was accessed.",
+  "prior_answer": "It cannot be answered on the merits from the question alone: the question does not identify the two labelled GZIP terms, their exact order, or which document supplies each coloured component, so the exact reversed subtraction and its specific interpretation are missing.",
+  "prior_answer_assumptions": [],
+  "recognized_video": false,
+  "recognized_how": "I did not recognize this particular video or moment before viewing.",
+  "scans": [
+    {
+      "idx": 0,
+      "t_from": 0.0,
+      "t_to": 79.0,
+      "watched": [
+        {
+          "kind": "frame",
+          "t": 3.0,
+          "what": "Paper titled Language Trees and Zipping; no labelled comparison results."
+        },
+        {
+          "kind": "frame",
+          "t": 15.0,
+          "what": "Scattered labelled document icons; no GZIP result pair."
+        },
+        {
+          "kind": "frame",
+          "t": 27.0,
+          "what": "Language-tree labels and branches; no GZIP result pair."
+        },
+        {
+          "kind": "frame",
+          "t": 38.0,
+          "what": "Completed language tree; no GZIP result pair."
+        },
+        {
+          "kind": "frame",
+          "t": 48.0,
+          "what": "Generic GZIP diagram, not the two labelled compressed results."
+        },
+        {
+          "kind": "frame",
+          "t": 52.0,
+          "what": "Blue Document A and green Document B source blocks only."
+        },
+        {
+          "kind": "frame",
+          "t": 56.0,
+          "what": "A blue base and a separated green fragment are being assembled; neither GZIP result label is present."
+        },
+        {
+          "kind": "frame",
+          "t": 59.0,
+          "what": "GZIP(AB) is labelled over a blue base with a green appended fragment; GZIP(A) is absent."
+        },
+        {
+          "kind": "frame",
+          "t": 60.0,
+          "what": "GZIP(AB) remains visible while a blue A block is moving; GZIP(A) is not labelled."
+        },
+        {
+          "kind": "frame",
+          "t": 61.0,
+          "what": "GZIP(AB) remains visible and a file-compression animation runs below; no GZIP(A) label."
+        },
+        {
+          "kind": "frame",
+          "t": 62.0,
+          "what": "GZIP(AB) is complete; the second result is still an animated zipped-file icon without a GZIP(A) label."
+        },
+        {
+          "kind": "frame",
+          "t": 63.0,
+          "what": "Both complete labels are simultaneously visible: GZIP(AB) over blue plus green, and GZIP(A) over blue only; no minus sign yet."
+        },
+        {
+          "kind": "frame",
+          "t": 64.0,
+          "what": "Both labelled results remain visible while the source-document blocks fade and the results begin repositioning."
+        },
+        {
+          "kind": "frame",
+          "t": 66.0,
+          "what": "The later on-screen direction GZIP(AB) minus GZIP(A) is now explicitly formed."
+        },
+        {
+          "kind": "frame",
+          "t": 72.0,
+          "what": "The on-screen subtraction persists with blue-plus-green left and blue-only right."
+        },
+        {
+          "kind": "frame",
+          "t": 76.0,
+          "what": "The same subtraction persists after the appended fragment changes from green to red."
+        },
+        {
+          "kind": "cue",
+          "t": 50.8,
+          "what": "Narration says to append a small snippet of B to A and compress the result."
+        },
+        {
+          "kind": "cue",
+          "t": 57.0,
+          "what": "Narration says to compare that compressed file size with compressing A alone."
+        },
+        {
+          "kind": "cue",
+          "t": 63.1,
+          "what": "Narration explains the ordinary difference as how well a B snippet compresses when the compressor is mostly optimized for A."
+        }
+      ],
+      "candidates": [
+        {
+          "question": "Can the requested reversal be answered at 59.0 s?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Only GZIP(AB) is labelled; the second labelled result required by the visual condition is absent."
+        },
+        {
+          "question": "Can the requested reversal be answered at 62.0 s?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The second result is still represented by an in-progress zipped-file animation and has no complete GZIP(A) label."
+        },
+        {
+          "question": "Can the requested reversal be answered at 63.0 s?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Both labels and both colour compositions are complete and simultaneously visible, while the on-screen minus direction has not yet appeared."
+        },
+        {
+          "question": "Is 66.0 s the earliest valid point?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "It is later than the complete pair at 63.0 s and already shows the direction the question explicitly says not to copy."
+        }
+      ],
+      "t_val": 63.0,
+      "t_val_basis": "At 63.0 s, GZIP(AB) and GZIP(A) are both fully labelled and their bars visibly show blue A plus green B versus blue A alone; prior narration has already defined AB as A with a B snippet appended and the quantity as a compressed-size comparison.",
+      "answer_at_t_val": "The reversed subtraction is GZIP(A) - GZIP(AB). GZIP(A) is the blue A base alone; GZIP(AB) is the same blue A base with the green fragment from B appended. The reversed difference measures how much smaller compressed A alone is than compressed A with the B snippet, equivalently the negative of the B snippet's added compressed size when the compressor is mostly optimized for A.",
+      "confidence": "high"
+    }
+  ],
+  "checks": [
+    {
+      "group": "shortcuts",
+      "item": "solvable-without-video",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 0.0,
+          "what": "Before viewing, the supplied question text names two labelled GZIP results but supplies neither label nor colour composition."
+        }
+      ],
+      "findings": "The question text alone does not identify the two terms or their coloured components, so an exact subtraction cannot be produced without unseen content.",
+      "criterion": "A question is solvable without video only if its text and general knowledge determine the requested concrete terms and relations without filling in screen content.",
+      "steps": [
+        {
+          "question": "Does the question itself name the two GZIP expressions?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "It refers only to two labelled results that will become visible."
+        },
+        {
+          "question": "Can general knowledge determine their exact colour composition?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The documents and colour mapping are contingent visual details."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "video-recognized",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 0.0,
+          "what": "Pre-view self-report: this particular video and moment were not recognized."
+        }
+      ],
+      "findings": "Before opening the transcript or frames, I could not identify the video or recall the requested subtraction from memory.",
+      "criterion": "Recognition fires only when this particular video or moment is known well enough to supply the answer before viewing.",
+      "steps": [
+        {
+          "question": "Could I name the answer from memory of this video before viewing?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "I had no recognition of the video or its specific animation."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

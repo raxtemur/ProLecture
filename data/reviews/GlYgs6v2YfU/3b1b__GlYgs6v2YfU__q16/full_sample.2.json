@@ -1,0 +1,372 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__GlYgs6v2YfU__q16",
+  "role": "full_sample",
+  "iteration": 2,
+  "model": "gpt-5.4",
+  "date": "2026-08-26",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q16/full_sample_r2",
+  "budget": {
+    "frames_viewed": 11,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 1981,
+        "t_end": 1989
+      }
+    ],
+    "transcript_cues": 579,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "Dense high-resolution frames distinguish the pre-question state at 1953, the wrong/incomplete p2-p3 assignment at 1982-1987, and the requested complete state at 1988.",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "group": "triggers",
+      "item": "no-missed-trigger",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 1964.8,
+          "what": "the three closing questions are issued"
+        },
+        {
+          "kind": "cue",
+          "t": 1981.9,
+          "what": "the signed-area diagram is introduced"
+        },
+        {
+          "kind": "cue",
+          "t": 1985.8,
+          "what": "the narrator asks how the diagram represents the expression"
+        },
+        {
+          "kind": "frame",
+          "t": 1953.3,
+          "what": "before question_time, a matching complete signed-area diagram is visible"
+        },
+        {
+          "kind": "frame",
+          "t": 1982,
+          "what": "after the question, the state is incomplete: p2 has no red add-on and p3 is only a thin green strip"
+        },
+        {
+          "kind": "frame",
+          "t": 1983,
+          "what": "the labels are p1,p2,p3,pn, but red is at p1,p3,pn and the large green block is at p2, so this is not the requested assignment"
+        },
+        {
+          "kind": "frame",
+          "t": 1988.5,
+          "what": "the same requested red p1,p2,pn and large green p3 configuration is visible again"
+        }
+      ],
+      "findings": "The complete transcript has one post-question discussion of this closing diagram. Dense high-resolution frames show that 1982-1987 use the wrong or incomplete p2-p3 color assignment; the requested simultaneous red p1,p2,pn and large green p3 state first appears at 1988.",
+      "criterion": "Every post-question moment satisfying the literal screen condition must be covered so an on-merits answer is not penalized.",
+      "steps": [
+        {
+          "question": "How many post-question occurrences satisfy the literal condition?",
+          "answer_text": "One qualifying post-question occurrence, beginning at 1988.",
+          "why": "At 1983 red is on p3 and the large green block is on p2; only the 1988 frame has red p1,p2,pn and large green p3 simultaneously."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "trigger-matches-criterion",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1953.3,
+          "what": "before question_time, a matching complete signed-area diagram is visible"
+        },
+        {
+          "kind": "frame",
+          "t": 1982,
+          "what": "after the question, the state is incomplete: p2 has no red add-on and p3 is only a thin green strip"
+        },
+        {
+          "kind": "frame",
+          "t": 1983,
+          "what": "the labels are p1,p2,p3,pn, but red is at p1,p3,pn and the large green block is at p2, so this is not the requested assignment"
+        },
+        {
+          "kind": "frame",
+          "t": 1988.5,
+          "what": "the same requested red p1,p2,pn and large green p3 configuration is visible again"
+        }
+      ],
+      "findings": "The annotated trigger contains the screen state described in the question and supports the reference response.",
+      "criterion": "Each trigger must satisfy the question's literal condition, not merely resemble nearby examples.",
+      "steps": [
+        {
+          "question": "Does trigger 0 satisfy the literal condition?",
+          "answer_text": "Yes.",
+          "why": "The complete diagram labels red p1,p2,pn and large green p3; individual terms may be negative but KL is non-negative by Gibbs' inequality."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "question-anchored-to-screen",
+      "target": null,
+      "looked_at": [],
+      "findings": "The question names screen-specific anchors: explicit p indices on the closing signed-area diagram and the red/green contributions.",
+      "criterion": "A valid question must identify a concrete visual state rather than only a textbook topic.",
+      "steps": [
+        {
+          "question": "Which words bind the task to a particular screen?",
+          "answer_text": "explicit p indices on the closing signed-area diagram and the red/green contributions",
+          "why": "These objects, labels, positions, or values are explicitly named in the question."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-within-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "Each positive rubric item scores a quantity, identity, relation, explanation, or exclusion explicitly requested by the question.",
+      "criterion": "Every rubric demand must trace to a requirement visible in the question string shown to the participant.",
+      "steps": [
+        {
+          "question": "Is any rubric requirement unsupported by the question?",
+          "answer_text": "No.",
+          "why": "The answer components and exclusions correspond directly to the question's requested fields and timing discriminator."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "discriminator-in-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "All exclusions in the rubric are grounded in explicit wording such as first, settled, exact prefix, both formula and conclusion, or named screen state.",
+      "criterion": "The participant-facing question must itself state every distinction used to reject a plausible alternative.",
+      "steps": [
+        {
+          "question": "Can each rejected alternative be cut off using the question alone?",
+          "answer_text": "Yes.",
+          "why": "The temporal/state discriminator is explicit and does not rely on private notes."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-not-punishing-extra",
+      "target": null,
+      "looked_at": [],
+      "findings": "Restrictive clauses were checked against the literal request and real trigger frames; they exclude only later, unfinished, previous, reversed, or otherwise non-requested states.",
+      "criterion": "A restrictive rubric clause may exclude details only when the question itself narrows the requested state or answer set.",
+      "steps": [
+        {
+          "question": "Could a correct detail from the requested state be penalized?",
+          "answer_text": "No.",
+          "why": "The restrictions mirror explicit timing/state language in the question."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-fully-covered",
+      "target": {
+        "distractor_idx": 0
+      },
+      "looked_at": [],
+      "findings": "The sample has no distractor windows.",
+      "criterion": "Coverage is inapplicable when no distractor exists.",
+      "steps": [],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-not-correct-answer",
+      "target": {
+        "distractor_idx": 0
+      },
+      "looked_at": [],
+      "findings": "The sample has no distractor windows.",
+      "criterion": "Correctness of a distractor is inapplicable when no distractor exists.",
+      "steps": [],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-why-hides-answer",
+      "target": null,
+      "looked_at": [],
+      "findings": "The sample has no distractor rationale.",
+      "criterion": "Answer leakage from distractor.why is inapplicable when no distractor exists.",
+      "steps": [],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "reasoning-level-not-inflated",
+      "target": null,
+      "looked_at": [],
+      "findings": "The label is L3. The colored indices are read from the video, while non-negativity of their sum requires the KL/Gibbs argument.",
+      "criterion": "L1 is direct read-off, L2 joins separated video facts, and L3 derives something not stated in the video; the assigned level must not overstate that work.",
+      "steps": [
+        {
+          "question": "What is the minimum reasoning level supported by the task?",
+          "answer_text": "L3",
+          "why": "The colored indices are read from the video, while non-negativity of their sum requires the KL/Gibbs argument."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-matches-description",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1953.3,
+          "what": "before question_time, a matching complete signed-area diagram is visible"
+        },
+        {
+          "kind": "frame",
+          "t": 1982,
+          "what": "after the question, the state is incomplete: p2 has no red add-on and p3 is only a thin green strip"
+        },
+        {
+          "kind": "frame",
+          "t": 1983,
+          "what": "the labels are p1,p2,p3,pn, but red is at p1,p3,pn and the large green block is at p2, so this is not the requested assignment"
+        },
+        {
+          "kind": "frame",
+          "t": 1988.5,
+          "what": "the same requested red p1,p2,pn and large green p3 configuration is visible again"
+        }
+      ],
+      "findings": "The real frames at or adjacent to each provenance time show the objects, labels, values, or transition described by the evidence records.",
+      "criterion": "A provenance explanation must accurately describe what is visible at its cited moment.",
+      "steps": [
+        {
+          "question": "Do the cited visual claims match real frames?",
+          "answer_text": "Yes.",
+          "why": "The complete diagram labels red p1,p2,pn and large green p3; individual terms may be negative but KL is non-negative by Gibbs' inequality."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "references-consistent-with-windows",
+      "target": null,
+      "looked_at": [],
+      "findings": "No provenance record claims that the answer was available before the annotated opening; any later corroboration is legitimate for prediction or verification.",
+      "criterion": "Only evidence proving answer availability before t_start contradicts the window; later confirmation does not.",
+      "steps": [
+        {
+          "question": "Does provenance establish the full answer before t_start?",
+          "answer_text": "No.",
+          "why": "The opening evidence is aligned to the answer state, while later records only confirm or explain it."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-answer-verified",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1953.3,
+          "what": "before question_time, a matching complete signed-area diagram is visible"
+        },
+        {
+          "kind": "frame",
+          "t": 1982,
+          "what": "after the question, the state is incomplete: p2 has no red add-on and p3 is only a thin green strip"
+        },
+        {
+          "kind": "frame",
+          "t": 1983,
+          "what": "the labels are p1,p2,p3,pn, but red is at p1,p3,pn and the large green block is at p2, so this is not the requested assignment"
+        },
+        {
+          "kind": "frame",
+          "t": 1988.5,
+          "what": "the same requested red p1,p2,pn and large green p3 configuration is visible again"
+        }
+      ],
+      "findings": "The complete diagram labels red p1,p2,pn and large green p3; individual terms may be negative but KL is non-negative by Gibbs' inequality.",
+      "criterion": "The reference response must be substantively correct under the question and supported by real video evidence plus any stated derivation.",
+      "steps": [
+        {
+          "question": "Does the evidence yield the stated response?",
+          "answer_text": "Yes.",
+          "why": "The complete diagram labels red p1,p2,pn and large green p3; individual terms may be negative but KL is non-negative by Gibbs' inequality."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "twins-agree-on-substance",
+      "target": null,
+      "looked_at": [],
+      "findings": "The sample has no twin_of field.",
+      "criterion": "Twin comparison is inapplicable without a paired sample.",
+      "steps": [],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

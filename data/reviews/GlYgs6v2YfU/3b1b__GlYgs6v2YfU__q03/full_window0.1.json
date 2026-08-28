@@ -1,0 +1,221 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__GlYgs6v2YfU__q03",
+  "role": "full_window",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-26",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q03/full_window0",
+  "budget": {
+    "frames_viewed": 17,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 572.3,
+        "t_end": 595.0
+      }
+    ],
+    "transcript_cues": 12,
+    "screen_index_used": false
+  },
+  "violations": [],
+  "notes": "A reviewer-initiated 1 fps dense pass closed the former 572.3-595.0 gap. Sampled frames through 594.0 retain Q=90/10, P=50/50, and the Q-derived heights, so the answer remains derivable throughout the window. No defect found.",
+  "verdict": "PASS",
+  "window_idx": 0,
+  "checks": [
+    {
+      "group": "windows",
+      "item": "window-can-be-tightened",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 565.6,
+          "what": "The swapped Q=90/10 and P=50/50 configuration is visible at opening."
+        },
+        {
+          "kind": "frame",
+          "t": 574.0,
+          "what": "Q=90/10, P=50/50, and the first Q-derived height remain visible."
+        },
+        {
+          "kind": "frame",
+          "t": 578.0,
+          "what": "Both Q-derived heights 0.15 and 3.32 are visible with P still 50/50."
+        },
+        {
+          "kind": "frame",
+          "t": 584.0,
+          "what": "The same complete derivation inputs remain on screen mid-window."
+        },
+        {
+          "kind": "frame",
+          "t": 590.0,
+          "what": "The 0.15 and 3.32 heights and 50/50 P weights remain visible near window end."
+        },
+        {
+          "kind": "frame",
+          "t": 594.0,
+          "what": "The Q entropy expression is being assembled, while all values needed for the requested cross-entropy answer remain visible."
+        }
+      ],
+      "findings": "The dense tail shows the answer remains derivable from the opening through 594.0: Q stays 90/10, P stays 50/50, and heights 0.15 and 3.32 remain visible. There is no substantial answerless part before t_end=595.0.",
+      "criterion": "The window can pass unchanged when the full derivation evidence remains available across its entire duration and no large empty prefix or tail is present.",
+      "steps": [
+        {
+          "question": "Are the swapped distribution values still visible near t_end?",
+          "answer_bool": true,
+          "why": "Dense frames through 594.0 retain Q=0.90/0.10 and P=0.50/0.50."
+        },
+        {
+          "question": "Are the code-length heights still available near t_end?",
+          "answer_bool": true,
+          "why": "The screen retains 0.15 and 3.32 through the dense tail."
+        },
+        {
+          "question": "Is there a substantial answerless interval to remove?",
+          "answer_bool": false,
+          "why": "Every inspected tail frame preserves the complete derivation inputs."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "windows",
+      "item": "author-says-answer-in-window",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 562.5,
+          "what": "The narrator introduces Q as 90/10 and P as 50/50."
+        },
+        {
+          "kind": "cue",
+          "t": 592.7,
+          "what": "The narrator discusses Q's own entropy near window end."
+        },
+        {
+          "kind": "cue",
+          "t": 599.1,
+          "what": "The narrator sets up using the skewed code against a uniform reality."
+        },
+        {
+          "kind": "frame",
+          "t": 605.1,
+          "what": "Just after the checked +10 horizon, heights 0.15 and 3.32 are shown without the final 1.74 sum."
+        }
+      ],
+      "findings": "The finished 1.74 answer is not stated inside [565.0,605.0]; the transcript's explicit 'around 1.74 bits' cue begins at 605.8, and the 605.1 frame still lacks the final sum.",
+      "criterion": "For L3, only a finished answer inside the window or by t_end+10 is critical; restating inputs without the derived total is insufficient.",
+      "steps": [
+        {
+          "question": "Is 1.74 stated by 605.0?",
+          "answer_bool": false,
+          "why": "The explicit result cue begins at 605.8."
+        },
+        {
+          "question": "Is the finished sum shown by the horizon?",
+          "answer_bool": false,
+          "why": "The nearest frame at 605.1 shows heights but not 1.74."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "event-not-earlier-than-window",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 562.9,
+          "what": "An intermediate non-final distribution pair is still transitioning."
+        },
+        {
+          "kind": "frame",
+          "t": 565.6,
+          "what": "The requested Q=90/10 and P=50/50 swapped pair is complete at the opening."
+        }
+      ],
+      "findings": "The swapped target configuration is not complete at the preceding 562.9 frame and is complete by 565.6, consistent with t_start=565.0 within scene-frame precision.",
+      "criterion": "The event must not be visibly complete a meaningful interval before its window begins.",
+      "steps": [
+        {
+          "question": "Is the final swapped pair complete in the preceding frame?",
+          "answer_bool": false,
+          "why": "The 562.9 values are still an intermediate pair, not Q=90/10 and P=50/50."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "depends-on-is-dependency",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [],
+      "findings": "No depends_on field exists, and this single trigger's rubric requires no prior trigger answer.",
+      "criterion": "The item is inapplicable where neither an explicit nor missing semantic dependency exists.",
+      "steps": [],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "evidence-span-is-last",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 565.6,
+          "what": "Q=0.90/0.10 and P=0.50/0.50 are complete."
+        },
+        {
+          "kind": "frame",
+          "t": 572.3,
+          "what": "The same swapped values remain visible and support deriving the average."
+        }
+      ],
+      "findings": "The last needed facts are the swapped Q and P values, visible within evidence_span 565.0-571.4; the later displayed 1.74 is corroboration rather than derivation evidence.",
+      "criterion": "Evidence span should cover the final inputs that make an L3 answer derivable, not extend to the later author confirmation.",
+      "steps": [
+        {
+          "question": "What last facts make the answer derivable?",
+          "answer_text": "Q=0.9/0.1 and P=0.5/0.5",
+          "why": "They determine the two Q code lengths and the uniform weights."
+        },
+        {
+          "question": "Are they inside evidence_span?",
+          "answer_bool": true,
+          "why": "They are complete at 565.6."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

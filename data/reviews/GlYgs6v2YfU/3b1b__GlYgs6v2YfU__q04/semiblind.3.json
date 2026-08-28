@@ -1,0 +1,79 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__GlYgs6v2YfU__q04",
+  "role": "semiblind",
+  "iteration": 3,
+  "model": "GPT-5",
+  "date": "2026-08-26",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q04/semiblind_r3",
+  "budget": {
+    "frames_viewed": 7,
+    "sparse_step": null,
+    "dense_intervals": [{"t_start": 864.0, "t_end": 871.0}],
+    "transcript_cues": 246,
+    "screen_index_used": true
+  },
+  "violations": [{
+    "path": "data/reviews/",
+    "why": "An accidental zero-output rg command named this forbidden directory while I was reading schema definitions.",
+    "what_seen": "No prior-review path or content was displayed; the command output was empty."
+  }],
+  "notes": "The full 0-875 s transcript and supplied screen index were covered. Dense viewing was confined to the visually decisive back-reference animation.",
+  "prior_answer": "The exact current target cannot be determined from the question alone. In general, if those references point to the deleted occurrence, they cannot remain valid: the compressor must encode a surviving occurrence literally or select another earlier match, then retarget/recompute the affected back-references and offsets.",
+  "prior_answer_assumptions": [],
+  "recognized_video": false,
+  "recognized_how": "",
+  "scans": [{
+    "idx": 0,
+    "t_from": 0.0,
+    "t_to": 875.0,
+    "watched": [
+      {"kind": "cue", "t": 860.8, "what": "The narration explains that gzip finds repeated text sequences and replaces later instances with pointers to earlier instances."},
+      {"kind": "frame", "t": 864.0, "what": "All occurrences of dark are green, but no back-reference fan is drawn."},
+      {"kind": "frame", "t": 865.0, "what": "The repeated dark occurrences begin dimming; no completed arrows are visible."},
+      {"kind": "frame", "t": 866.0, "what": "Green source markers appear beside later repeated occurrences, with no complete yellow fan."},
+      {"kind": "frame", "t": 867.0, "what": "Only a partial set of yellow upward arrows is visible near the top repeats."},
+      {"kind": "frame", "t": 868.0, "what": "The full fan of yellow curves links the later repeated dark occurrences back to the initial top green dark occurrence."},
+      {"kind": "frame", "t": 869.0, "what": "The completed fan remains while the text shifts slightly; all later reference markers still converge on the initial target."},
+      {"kind": "frame", "t": 870.0, "what": "The same completed back-reference structure remains visible and stable."}
+    ],
+    "candidates": [
+      {"question": "Is the target relationship answerable when the repeated words are only highlighted?", "answer_bool": false, "why": "At 864-866 s, the frames identify repetitions but do not yet show where the back-references point."},
+      {"question": "Is the partially drawn fan at 867 s sufficient?", "answer_bool": false, "why": "Only the upper subset of arrows is drawn, so the existing reference set requested by the question is incomplete."},
+      {"question": "When is the complete target relationship visible?", "answer_number": 868.0, "why": "At 868 s the full yellow fan is visible and all later markers converge on the initial top green dark."}
+    ],
+    "t_val": 868.0,
+    "t_val_basis": "The full yellow fan is now visible, establishing that the later repeated dark strings use the initial top occurrence as their earlier source.",
+    "answer_at_t_val": "No. The current back-references target the first green dark at the top. Deleting that source invalidates those references (and shifts offsets); gzip would have to emit a surviving dark literally or choose another earlier match, then recompute and retarget the later references.",
+    "confidence": "high"
+  }],
+  "checks": [
+    {
+      "group": "shortcuts",
+      "item": "solvable-without-video",
+      "target": null,
+      "looked_at": [{"kind": "cue", "t": 0.0, "what": "Pre-view step-0 response recorded from the participant-visible question alone, before opening any workspace material."}],
+      "findings": "The question names a deletion counterfactual but does not state what the displayed arrows actually target.",
+      "criterion": "A complete answer without video must identify the current target without assuming unseen visual content.",
+      "steps": [{"question": "Can the current target be identified from the question alone?", "answer_bool": false, "why": "The wording asks for that target but does not explicitly supply it; only the conditional invalidation rule is available from general knowledge."}],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "video-recognized",
+      "target": null,
+      "looked_at": [{"kind": "cue", "t": 0.0, "what": "Pre-view step-0 self-report was recorded before opening the transcript or any frame."}],
+      "findings": "I did not recognize this particular video or moment and could not recall the arrow target from memory.",
+      "criterion": "The item fires only if the exact video and answer-bearing moment were recognized before viewing.",
+      "steps": [{"question": "Was this exact video recognized before any viewing?", "answer_bool": false, "why": "No identifying memory or remembered answer was available before inspecting the workspace."}],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

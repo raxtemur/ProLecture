@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__GlYgs6v2YfU__q13",
+  "role": "probe_frame",
+  "iteration": 3,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q13/probe_frame_r3",
+  "budget": {
+    "frames_viewed": 1,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 0,
+    "screen_index_used": false
+  },
+  "violations": [],
+  "notes": "",
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 1789,
+      "what": "The title 'Coming up in part 3' is above a binary fraction and six levels of nested labelled intervals."
+    }
+  ],
+  "steps": [
+    {
+      "question": "What binary fraction is visible at the top of the frame?",
+      "answer_text": "0.001101010000111",
+      "why": "This exact digit string is printed prominently beneath the preview title."
+    },
+    {
+      "question": "Which interval letters have been selected, from the top level downward?",
+      "answer_text": "c, o, m, p, r, e",
+      "why": "Reading the nested interval levels from top to bottom gives c, o, m, p, r, and the displayed value lies in the e interval at the lowest shown level; i is the neighboring alternative and is not added."
+    }
+  ],
+  "answer": "The binary fraction is 0.001101010000111. The letters selected so far, from the top level down, are c, o, m, p, r, e.",
+  "basis": "The single frame at 1789 s visibly prints the fraction and shows the nested interval labels level by level. I used only those visible labels and did not extend the sequence by word meaning or later animation.",
+  "confidence": "high",
+  "insufficient": false
+}

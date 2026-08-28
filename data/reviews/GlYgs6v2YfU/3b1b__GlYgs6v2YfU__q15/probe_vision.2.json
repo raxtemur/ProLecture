@@ -1,0 +1,68 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__GlYgs6v2YfU__q15",
+  "role": "probe_vision",
+  "iteration": 2,
+  "model": "gpt-5.4",
+  "date": "2026-08-26",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q15/probe_vision_r2",
+  "budget": {
+    "frames_viewed": 3,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 1967.0,
+        "t_end": 1974.0
+      }
+    ],
+    "transcript_cues": null,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The frame-derived screen index was used only to locate the decisive interval. No transcript or audio was used.",
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 1969.0,
+      "what": "The KL difference is visible above the chart while the compact second line is still being written; the p_2 add-on is green."
+    },
+    {
+      "kind": "frame",
+      "t": 1972.0,
+      "what": "The compact line is fully readable as sum_i p_i log_2(p_i/q_i), and the add-on above the labels p_2 and q_2 is green."
+    },
+    {
+      "kind": "frame",
+      "t": 1973.0,
+      "what": "The same fully readable compact KL line remains on screen, while the add-on at index 2 is now red."
+    }
+  ],
+  "steps": [
+    {
+      "question": "Which labelled add-on changes immediately after the compact KL sum becomes readable?",
+      "answer_bool": null,
+      "answer_number": 2.0,
+      "answer_text": null,
+      "why": "At 1972.0 s the add-on aligned with p_2/q_2 is green; at 1973.0 s that same add-on is red."
+    },
+    {
+      "question": "What is the observed colour transition?",
+      "answer_bool": null,
+      "answer_number": null,
+      "answer_text": "green to red",
+      "why": "The pre- and post-transition frames at 1972.0 s and 1973.0 s show the two colours directly."
+    },
+    {
+      "question": "How does one i-term reduce to the displayed logarithmic ratio?",
+      "answer_bool": null,
+      "answer_number": null,
+      "answer_text": "p_i(-log_2 q_i) - p_i(-log_2 p_i) = p_i[-log_2 q_i + log_2 p_i] = p_i[log_2 p_i - log_2 q_i] = p_i log_2(p_i/q_i)",
+      "why": "The first difference and the compact sum are both visible at 1972.0 s; applying log a - log b = log(a/b) fixes the numerator as p_i."
+    }
+  ],
+  "answer": "The changing add-on is at index 2 (the p_2/q_2-labelled bar), and it changes from green to red. Expanding one term gives p_i(-log_2 q_i) - p_i(-log_2 p_i) = p_i[-log_2 q_i + log_2 p_i] = p_i[log_2 p_i - log_2 q_i] = p_i log_2(p_i/q_i). Thus the displayed ratio is p_i/q_i; q_i/p_i would come from the opposite subtraction order.",
+  "basis": "Frames t001972.jpg and t001973.jpg directly show the fully readable compact KL sum and the green-to-red transition at index 2; the log quotient identity is general knowledge applied to the displayed difference.",
+  "confidence": "high",
+  "insufficient": false
+}

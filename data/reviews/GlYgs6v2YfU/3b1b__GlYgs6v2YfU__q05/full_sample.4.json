@@ -1,0 +1,749 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__GlYgs6v2YfU__q05",
+  "role": "full_sample",
+  "iteration": 4,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q05/full_sample_r4",
+  "budget": {
+    "frames_viewed": 82,
+    "sparse_step": 70,
+    "dense_intervals": [
+      {
+        "t_start": 936,
+        "t_end": 956
+      },
+      {
+        "t_start": 958,
+        "t_end": 970
+      },
+      {
+        "t_start": 1704,
+        "t_end": 1722
+      }
+    ],
+    "transcript_cues": 576,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "Targeted race reassessment: keep trigger 0 unchanged, omit [963.0,969.0) as a distractor because it begins only 2.2 s after t_end and can catch an in-window response landing late. Do not extend the trigger: the question says first and the later sequence includes a different red distribution. Add only the separate recap distractor [1706.0,1720.0).",
+  "verdict": "FIX_INTERVALS",
+  "checks": [
+    {
+      "group": "triggers",
+      "item": "no-missed-trigger",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 0,
+          "what": "Beginning of the complete 576-cue transcript pass."
+        },
+        {
+          "kind": "cue",
+          "t": 932.2,
+          "what": "The recap begins immediately before the target visual construction."
+        },
+        {
+          "kind": "cue",
+          "t": 936.1,
+          "what": "The narration defines tokens while the target prefix sequence begins."
+        },
+        {
+          "kind": "cue",
+          "t": 947.5,
+          "what": "The narrator says the function produces a probability distribution over possible tokens."
+        },
+        {
+          "kind": "cue",
+          "t": 954.7,
+          "what": "The narrator explains that the output predicts what might come next."
+        },
+        {
+          "kind": "cue",
+          "t": 1690.7,
+          "what": "The recap section begins and revisits the pre-training example visually."
+        },
+        {
+          "kind": "cue",
+          "t": 1999,
+          "what": "The final transcript section discusses a different distillation/KL example."
+        },
+        {
+          "kind": "frame",
+          "t": 0,
+          "what": "Opening image in the 30-frame whole-video overview."
+        },
+        {
+          "kind": "frame",
+          "t": 70,
+          "what": "GZIP document comparison, unrelated to the required prefix."
+        },
+        {
+          "kind": "frame",
+          "t": 140,
+          "what": "Earlier montage includes a small Once-upon-a-time sequence but not the target full list."
+        },
+        {
+          "kind": "frame",
+          "t": 210,
+          "what": "Information/compression animation, unrelated to the target list."
+        },
+        {
+          "kind": "frame",
+          "t": 280,
+          "what": "Negative-log graph, unrelated to the target list."
+        },
+        {
+          "kind": "frame",
+          "t": 350,
+          "what": "Robot-code average-bits diagram."
+        },
+        {
+          "kind": "frame",
+          "t": 420,
+          "what": "Distribution bar diagrams."
+        },
+        {
+          "kind": "frame",
+          "t": 490,
+          "what": "Cross-entropy formula."
+        },
+        {
+          "kind": "frame",
+          "t": 560,
+          "what": "Two-event cross-entropy diagram."
+        },
+        {
+          "kind": "frame",
+          "t": 630,
+          "what": "Two-event entropy and cross-entropy bars."
+        },
+        {
+          "kind": "frame",
+          "t": 700,
+          "what": "Cross-entropy graph and minimum construction."
+        },
+        {
+          "kind": "frame",
+          "t": 770,
+          "what": "General cross-entropy bar diagram."
+        },
+        {
+          "kind": "frame",
+          "t": 840,
+          "what": "GZIP distance recap."
+        },
+        {
+          "kind": "frame",
+          "t": 910,
+          "what": "Transformer/data-text animation before the target sequence."
+        },
+        {
+          "kind": "frame",
+          "t": 980,
+          "what": "Loss surface after the target list has left the main explanation."
+        },
+        {
+          "kind": "frame",
+          "t": 1050,
+          "what": "Training-data and loss diagram."
+        },
+        {
+          "kind": "frame",
+          "t": 1120,
+          "what": "Per-token information-loss diagram."
+        },
+        {
+          "kind": "frame",
+          "t": 1190,
+          "what": "Average token loss diagram."
+        },
+        {
+          "kind": "frame",
+          "t": 1260,
+          "what": "Token probability and loss illustration with different text."
+        },
+        {
+          "kind": "frame",
+          "t": 1330,
+          "what": "Information graph for a different text example."
+        },
+        {
+          "kind": "frame",
+          "t": 1400,
+          "what": "My-name-is distribution example."
+        },
+        {
+          "kind": "frame",
+          "t": 1470,
+          "what": "Cross-entropy loss over names."
+        },
+        {
+          "kind": "frame",
+          "t": 1540,
+          "what": "Extra-curious mathematical derivation."
+        },
+        {
+          "kind": "frame",
+          "t": 1610,
+          "what": "Code-token prediction example."
+        },
+        {
+          "kind": "frame",
+          "t": 1680,
+          "what": "Distillation text example before the recap montage."
+        },
+        {
+          "kind": "frame",
+          "t": 1750,
+          "what": "Cross-entropy/compression summary diagram."
+        },
+        {
+          "kind": "frame",
+          "t": 1820,
+          "what": "KL-divergence illustration."
+        },
+        {
+          "kind": "frame",
+          "t": 1890,
+          "what": "Talent-page interlude."
+        },
+        {
+          "kind": "frame",
+          "t": 1960,
+          "what": "Asymmetric KL-divergence formulas."
+        },
+        {
+          "kind": "frame",
+          "t": 2030,
+          "what": "Closing credits."
+        },
+        {
+          "kind": "frame",
+          "t": 951,
+          "what": "First full turquoise list for the exact prefix, headed by that 13.9% and in 9.7%."
+        },
+        {
+          "kind": "frame",
+          "t": 965.1,
+          "what": "The exact prefix and the same full list reappear in a later loss illustration."
+        },
+        {
+          "kind": "frame",
+          "t": 1711.2,
+          "what": "A later four-panel recap shows an extended-prefix pre-training list with different leading values."
+        },
+        {
+          "kind": "frame",
+          "t": 963,
+          "what": "A ranked next-token list begins entering beside the exact prefix within the loss illustration."
+        },
+        {
+          "kind": "frame",
+          "t": 964,
+          "what": "The later exact-prefix turquoise list is fully visible, again headed by that 13.9% and in 9.7%."
+        },
+        {
+          "kind": "frame",
+          "t": 968,
+          "what": "The later loss illustration still shows the exact prefix with a different red ranked distribution."
+        },
+        {
+          "kind": "frame",
+          "t": 969,
+          "what": "The ranked list and exact prefix are gone; only the loss surface remains."
+        },
+        {
+          "kind": "frame",
+          "t": 1705,
+          "what": "Only the origins-in-compression panel is visible; the pre-training recap has not entered."
+        },
+        {
+          "kind": "frame",
+          "t": 1706,
+          "what": "The four-panel recap enters and the pre-training panel first shows the prefix and a small output list."
+        },
+        {
+          "kind": "frame",
+          "t": 1719,
+          "what": "The four-panel recap and a full pre-training token list remain visible."
+        },
+        {
+          "kind": "frame",
+          "t": 1720,
+          "what": "The four-panel recap has transitioned away to a different mathematical layout."
+        }
+      ],
+      "findings": "The first full exact-prefix list is visible from 951 s and the narration has moved to the loss-function discussion by 958.6 s; trigger 0 already extends through 960.8 s. A visual reuse begins at 963 s, only 2.2 s later, first repeating the same turquoise list and then switching to a different red distribution through 968 s. Making [963.0,969.0) a distractor would race an answer initiated inside trigger 0, while extending trigger 0 through 969 s would reward answering on a later occurrence and on the different red list, contrary to the literal word first. The recap temptation [1706.0,1720.0) is temporally separate and remains uncovered.",
+      "criterion": "A later candidate should become a distractor only when it is safely separated from valid response landing; the trigger must still reward only the first occurrence required by the literal question.",
+      "steps": [
+        {
+          "question": "Does trigger 0 already cover the first full distribution and its immediate explanatory cue?",
+          "answer_bool": true,
+          "why": "The full list starts at 951 s, remains visible at 958 s, narration turns to loss at 958.6 s, and the window lasts until 960.8 s."
+        },
+        {
+          "question": "Can [963.0, 969.0) safely be marked as a distractor?",
+          "answer_bool": false,
+          "why": "It starts only 2.2 seconds after trigger t_end, so a correct response initiated in-window could land inside it and be penalized."
+        },
+        {
+          "question": "Should trigger 0 instead be extended through 969.0 s?",
+          "answer_bool": false,
+          "why": "The question asks for the first full appearance, while 963–968 is a later reuse and includes a different red distribution."
+        },
+        {
+          "question": "Which later candidate remains a safe missing distractor?",
+          "answer_text": "[1706.0, 1720.0)",
+          "why": "It is a separate recap hundreds of seconds later, with no response-landing race against trigger 0."
+        }
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {
+        "field": "distractor_windows",
+        "value": "[{\"t_start\":1706,\"t_end\":1720,\"why\":\"later four-panel recap reuses the pre-training prefix and cycles through related next-token lists\"}]",
+        "why": "Keep trigger 0 at [951.0,960.8), omit the near-boundary [963.0,969.0) reuse from distractors because of the 2.2-second landing race, and add only the independently separated recap distractor [1706.0,1720.0)."
+      },
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "trigger-matches-criterion",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 950,
+          "what": "The turquoise list is still being assembled and ends after only part of the ranking."
+        },
+        {
+          "kind": "frame",
+          "t": 951,
+          "what": "The complete list is visible for the exact prefix, with that first and in second."
+        },
+        {
+          "kind": "frame",
+          "t": 954,
+          "what": "The complete list remains stable and readable inside the annotated trigger window."
+        }
+      ],
+      "findings": "The trigger begins at 951.0 s, exactly when the exact-prefix output list is first complete; the two top rows read that 13.9% and in 9.7% in that order.",
+      "criterion": "The sole trigger must contain the first fully readable next-token distribution for exactly the prefix named in the question.",
+      "steps": [
+        {
+          "question": "Is the named prefix visible at the trigger?",
+          "answer_bool": true,
+          "why": "The token row reads Once upon a time, there was a tiny pi creature."
+        },
+        {
+          "question": "Is the distribution complete rather than still assembling?",
+          "answer_bool": true,
+          "why": "At 951 s the full ranked column down through the ellipsis is visible."
+        },
+        {
+          "question": "Do the top two displayed entries match the response?",
+          "answer_bool": true,
+          "why": "The first two rows visibly read that 13.9% and in 9.7%."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "question-anchored-to-screen",
+      "target": null,
+      "looked_at": [],
+      "findings": "The question names an exact on-screen prefix, a next-token distribution, the order shown, on-screen percentages, and visible intermediate states that must not trigger an answer.",
+      "criterion": "A screen-grounded question must point to concrete visual text, values, ordering, or state rather than ask only about the lecture topic.",
+      "steps": [
+        {
+          "question": "Which wording identifies a specific visual object?",
+          "answer_text": "the exact prefix and the distribution over the next token",
+          "why": "Both refer to a particular token row and its attached output list."
+        },
+        {
+          "question": "Which wording requires visual reading rather than topic knowledge?",
+          "answer_text": "in the order shown and their on-screen percentages",
+          "why": "The token ranking and numeric percentages must be read from the screen."
+        },
+        {
+          "question": "Does the question identify visible non-answer states?",
+          "answer_bool": true,
+          "why": "It explicitly names prefix-only, empty-black-box, and partially assembled turquoise-list states."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-within-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "Each rubric demand maps to the participant-visible question: two token/value pairs, displayed order, and exclusion of a later example.",
+      "criterion": "Every judging requirement must be entailed by the question string that the participant actually sees.",
+      "steps": [
+        {
+          "question": "What question requirement supports naming that with 13.9%?",
+          "answer_text": "name the top two tokens and their on-screen percentages",
+          "why": "That is the first displayed token/value pair."
+        },
+        {
+          "question": "What question requirement supports naming in with 9.7%?",
+          "answer_text": "name the top two tokens and their on-screen percentages",
+          "why": "In is the second displayed token/value pair."
+        },
+        {
+          "question": "What question requirement supports preserving first and second place?",
+          "answer_text": "in the order shown",
+          "why": "The wording directly requires rank order."
+        },
+        {
+          "question": "What question requirement supports rejecting later-example values?",
+          "answer_text": "when the distribution over the next token first appears in full",
+          "why": "First excludes later reuses and later examples."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "discriminator-in-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "The distractor reason is cut off by the phrases first appears in full and Do not answer while only the prefix tokens, the empty black box or a partially assembled turquoise list are visible. The excluding rubric item is supported by first.",
+      "criterion": "The question itself must state the distinctions that separate the intended moment from every tempting partial or later moment.",
+      "steps": [
+        {
+          "question": "What wording rejects the 936.1–950.0 partial construction?",
+          "answer_text": "Do not answer while only the prefix tokens, the empty black box or a partially assembled turquoise list are visible.",
+          "why": "Those are exactly the states in the supplied distractor reason."
+        },
+        {
+          "question": "What wording rejects the later reuse at 965.1 s?",
+          "answer_text": "first appears in full",
+          "why": "The reuse is complete but is not the first complete occurrence."
+        },
+        {
+          "question": "What wording rejects the later extended-prefix recap?",
+          "answer_text": "For the prefix Once upon a time, there was a tiny pi creature and first appears in full",
+          "why": "The recap has an extended prefix and is later than the first occurrence."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-not-punishing-extra",
+      "target": null,
+      "looked_at": [],
+      "findings": "The only restrictive rubric language is do NOT count values from a later example. It restricts origin/timing, not additional correct detail from the first full list.",
+      "criterion": "A restrictive rubric clause must not reject a detail that also correctly answers the question at the intended event.",
+      "steps": [
+        {
+          "question": "Which rubric item is restrictive?",
+          "answer_text": "do NOT count values from a later example",
+          "why": "It explicitly excludes an origin of values."
+        },
+        {
+          "question": "Could that clause exclude a correct detail from the intended first full list?",
+          "answer_bool": false,
+          "why": "It distinguishes later examples from the first occurrence named in the question and does not ban extra first-list detail."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-fully-covered",
+      "target": {
+        "distractor_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 936,
+          "what": "Only the beginning of the prefix is appearing at question_time."
+        },
+        {
+          "kind": "frame",
+          "t": 937,
+          "what": "The full prefix text is visible but no output distribution is shown."
+        },
+        {
+          "kind": "frame",
+          "t": 942,
+          "what": "The tokenized prefix remains without the model output list."
+        },
+        {
+          "kind": "frame",
+          "t": 944,
+          "what": "The prefix feeds toward the black model box; no list is visible."
+        },
+        {
+          "kind": "frame",
+          "t": 949,
+          "what": "The black box and arrow remain while the output area is still empty."
+        },
+        {
+          "kind": "frame",
+          "t": 950,
+          "what": "A partial turquoise ranked list is visibly assembling."
+        },
+        {
+          "kind": "frame",
+          "t": 951,
+          "what": "Immediately after the distractor window, the full ranked list is visible."
+        }
+      ],
+      "findings": "From question_time through 949 s the target prefix is built and fed into the box without a readable output. At 950 s the list is still only partly assembled. The full list first appears at 951 s, immediately after distractor 0 ends.",
+      "criterion": "The distractor must span the entire pre-answer visual temptation and stop when the first fully readable answer state begins.",
+      "steps": [
+        {
+          "question": "Does the temptation begin before distractor 0 starts?",
+          "answer_bool": false,
+          "why": "The distractor starts at question_time 936.1 s, when the participant first receives the question."
+        },
+        {
+          "question": "Is any full readable list present before 950.0 s?",
+          "answer_bool": false,
+          "why": "Frames through 949 s show no list; at 950 s it is still assembling."
+        },
+        {
+          "question": "Does the temptation continue past distractor 0 as a partial state?",
+          "answer_bool": false,
+          "why": "At 951 s it has become the complete trigger state rather than a partial temptation."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-not-correct-answer",
+      "target": {
+        "distractor_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 937,
+          "what": "The exact prefix is shown without percentages."
+        },
+        {
+          "kind": "frame",
+          "t": 944,
+          "what": "The model box is shown without an output ranking."
+        },
+        {
+          "kind": "frame",
+          "t": 950,
+          "what": "Only a partly assembled list is shown, the state explicitly forbidden by the question."
+        }
+      ],
+      "findings": "Distractor 0 contains only states the question explicitly says not to answer on: prefix-only, empty-output, and partly assembled-list views.",
+      "criterion": "A distractor must be genuinely incorrect under the literal question, not merely an alternate good-faith answer moment.",
+      "steps": [
+        {
+          "question": "Can the requested two complete ranked entries be read in the early distractor?",
+          "answer_bool": false,
+          "why": "The output list is absent through 949 s."
+        },
+        {
+          "question": "Does the question explicitly reject the final state inside the distractor?",
+          "answer_bool": true,
+          "why": "The 950 s frame is a partially assembled turquoise list, which the question expressly excludes."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-why-hides-answer",
+      "target": null,
+      "looked_at": [],
+      "findings": "The distractor explanation describes prefix tokens and an incomplete turquoise output but gives neither of the answer tokens nor either percentage.",
+      "criterion": "A distractor explanation may describe why the interval is tempting but must not disclose the reference answer itself.",
+      "steps": [
+        {
+          "question": "Does distractor.why contain either answer token/value pair?",
+          "answer_bool": false,
+          "why": "It contains no token names and no percentages."
+        },
+        {
+          "question": "Does distractor.why still explain the exclusion?",
+          "answer_bool": true,
+          "why": "It identifies that the output has not settled completely."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "reasoning-level-not-inflated",
+      "target": null,
+      "looked_at": [],
+      "findings": "The answer is obtained by directly reading two adjacent rows and their percentages from one on-screen list; no cross-moment connection or derivation is required.",
+      "criterion": "L1 is appropriate when all answer facts are directly visible together and need only transcription and ordering.",
+      "steps": [
+        {
+          "question": "Are all required facts visible in one frame?",
+          "answer_bool": true,
+          "why": "At 951–955 s both token names, both values, and their rank order are shown together."
+        },
+        {
+          "question": "Must the participant combine distant moments or derive an unstated result?",
+          "answer_bool": false,
+          "why": "The task is direct screen-value grounding."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-matches-description",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 954,
+          "what": "The exact prefix is on the left and the stable ranked output on the right starts with that 13.9% and in 9.7%."
+        },
+        {
+          "kind": "frame",
+          "t": 955,
+          "what": "The same top two entries remain fully visible and readable."
+        }
+      ],
+      "findings": "The real frames nearest provenance time 954.8 show exactly the described two top tokens and percentages.",
+      "criterion": "The cited frame must visually contain the objects and values claimed by the provenance explanation.",
+      "steps": [
+        {
+          "question": "Does the cited visual show that with 13.9 percent?",
+          "answer_bool": true,
+          "why": "That is the first row of the turquoise list."
+        },
+        {
+          "question": "Does the cited visual show in with 9.7 percent?",
+          "answer_bool": true,
+          "why": "In is the second row immediately below that."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "references-consistent-with-windows",
+      "target": null,
+      "looked_at": [],
+      "findings": "The provenance frame time is 954.8 s, while the sole trigger window is 951.0–960.8 s and its evidence span is 951.0–955.8 s.",
+      "criterion": "A provenance reference must not imply that the answer was already available before the annotated trigger window opens.",
+      "steps": [
+        {
+          "question": "Is the provenance time earlier than trigger start 951.0?",
+          "answer_bool": false,
+          "why": "954.8 is 3.8 seconds after the trigger begins."
+        },
+        {
+          "question": "Does the provenance time fall inside the trigger and evidence span?",
+          "answer_bool": true,
+          "why": "954.8 is within both 951.0–960.8 and 951.0–955.8."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-answer-verified",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 951,
+          "what": "The completed list visibly begins with that 13.9% followed by in 9.7%."
+        },
+        {
+          "kind": "frame",
+          "t": 954,
+          "what": "The list remains stable, preserving the same token/value order."
+        },
+        {
+          "kind": "frame",
+          "t": 955,
+          "what": "The final evidence-span frame still shows the same two top entries."
+        }
+      ],
+      "findings": "The supplied response exactly transcribes the first two rows of the full target list, including spelling, percentages, and order.",
+      "criterion": "The reference answer must be independently supported by the video evidence and satisfy every substantive rubric element.",
+      "steps": [
+        {
+          "question": "Is the first token/value pair correct?",
+          "answer_bool": true,
+          "why": "The top row reads that 13.9%."
+        },
+        {
+          "question": "Is the second token/value pair correct?",
+          "answer_bool": true,
+          "why": "The next row reads in 9.7%."
+        },
+        {
+          "question": "Is the order in the response correct?",
+          "answer_bool": true,
+          "why": "That appears above in in the ranked list."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "twins-agree-on-substance",
+      "target": null,
+      "looked_at": [],
+      "findings": "The supplied sample has no twin_of field, so there is no paired reference answer to compare.",
+      "criterion": "Substantive agreement can be tested only when the sample explicitly names a twin sample.",
+      "steps": [],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

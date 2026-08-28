@@ -1,0 +1,75 @@
+{
+  "sample_id": "3b1b__GlYgs6v2YfU__q12",
+  "role": "probe_vision",
+  "iteration": 3,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-26",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q12/probe_vision_r3",
+  "budget": {
+    "frames_viewed": 6,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 1617,
+        "t_end": 1624
+      }
+    ],
+    "transcript_cues": 0,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "Screen-index lines/records reviewed: approximately 25. No audio or transcript was used.",
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 1618,
+      "what": "The first two-distribution scene for 'It was the best' is still settling and is dimmer than the following frame."
+    },
+    {
+      "kind": "frame",
+      "t": 1619,
+      "what": "Settled 'It was the best': top token 'of', 24.5% on the left and 75.5% on the right."
+    },
+    {
+      "kind": "frame",
+      "t": 1620,
+      "what": "'It was a bright': top token 'and', 17.1% on the left and 33.9% on the right."
+    },
+    {
+      "kind": "frame",
+      "t": 1621,
+      "what": "'Happiness can be': top token 'defined', 23.5% on the left and 24.6% on the right."
+    },
+    {
+      "kind": "frame",
+      "t": 1622,
+      "what": "'You never really understand': top token 'a', 18.4% on the left and 47.7% on the right."
+    },
+    {
+      "kind": "frame",
+      "t": 1623,
+      "what": "'It matters not how': top token 'many', 19.8% on the left and 12.1% on the right."
+    }
+  ],
+  "steps": [
+    {
+      "question": "Which frame is the first settled 'It was the best' two-distribution display?",
+      "answer_number": 1619,
+      "why": "Frame 1618 is visibly dim and transitional; frame 1619 presents the fully bright, settled bars and labels."
+    },
+    {
+      "question": "How do the top-token percentages compare before the final display?",
+      "answer_text": "The right larger model leads 75.5% to 24.5%, 33.9% to 17.1%, 24.6% to 23.5%, and 47.7% to 18.4% on frames 1619 through 1622 respectively.",
+      "why": "Those percentages are directly legible beside the top bar in each left and right column."
+    },
+    {
+      "question": "Is there a reversal through the 'It matters not how' display?",
+      "answer_text": "Yes: for prefix 'It matters not how', top token 'many' is 19.8% on the left smaller model and 12.1% on the right larger model.",
+      "why": "Frame 1623 shows the left 'many' bar longer and labels the two values 19.8% and 12.1%."
+    }
+  ],
+  "answer": "No. The larger model leads on the settled displays from 'It was the best' through 'You never really understand', but not on every display. The sole reversal is the prefix 'It matters not how': the top token is 'many', at 19.8% for the left smaller model versus 12.1% for the right larger model.",
+  "basis": "Frames t001619.jpg through t001623.jpg show the successive settled displays and their top-token percentages; t001618.jpg identifies the preceding settling state.",
+  "confidence": "high",
+  "insufficient": false
+}

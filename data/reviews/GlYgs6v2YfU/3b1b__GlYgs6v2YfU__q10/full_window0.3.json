@@ -1,0 +1,298 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__GlYgs6v2YfU__q10",
+  "role": "full_window",
+  "iteration": 3,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q10/full_window0_r3",
+  "budget": {
+    "frames_viewed": 10,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 1455.0,
+        "t_end": 1458.0
+      }
+    ],
+    "transcript_cues": 8,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The trigger is visually recognizable at 1455.0 and its narration starts at 1455.6, both before t_start=1456.0.\nThe window does not expose the finished answer: it omits the three candidate names and the monotonicity counterargument.\nMove t_start and evidence_span together to cover the first recognizable trigger evidence.",
+  "verdict": "FIX_INTERVALS",
+  "checks": [
+    {
+      "group": "windows",
+      "item": "window-can-be-tightened",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1456.0,
+          "what": "The complete title 'Minimal when Q = P' and the weighted log-loss expression are visible."
+        },
+        {
+          "kind": "frame",
+          "t": 1459.7,
+          "what": "The same minimum title and expression remain visible while the distribution animation continues."
+        },
+        {
+          "kind": "cue",
+          "t": 1461.6,
+          "what": "The author explains that the loss is minimized exactly when the model distribution matches the data distribution."
+        },
+        {
+          "kind": "cue",
+          "t": 1465.7,
+          "what": "The explanation of matching the model and data distributions continues through 1469.8."
+        },
+        {
+          "kind": "frame",
+          "t": 1472.3,
+          "what": "At the window end the names example remains, with the heading changed to 'Average Loss'."
+        }
+      ],
+      "findings": "The visual minimum statement is present at the start of the window, and the spoken explanation continues until 1469.8. The window ends only about 2.2 seconds after that spoken explanation.",
+      "criterion": "A boundary change is warranted only when a substantial part of the window cannot support a correct response, rather than for one or two seconds of ordinary response slack.",
+      "steps": [
+        {
+          "question": "Is the required trigger information available at the beginning of the window?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The 1456.0 frame fully shows 'Minimal when Q = P'."
+        },
+        {
+          "question": "How much window time remains after the spoken explanation ends?",
+          "answer_bool": null,
+          "answer_number": 2.2,
+          "answer_text": null,
+          "why": "The explanation ends at 1469.8 and the window ends at 1472.0."
+        },
+        {
+          "question": "Is that right-side slack large enough to justify tightening?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "It is approximately two seconds, within ordinary response latency rather than a large empty tail."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "windows",
+      "item": "author-says-answer-in-window",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 1455.6,
+          "what": "The author begins stating that the formula takes a minimum exactly under a condition."
+        },
+        {
+          "kind": "cue",
+          "t": 1458.4,
+          "what": "The author completes the condition as equality of all P and Q values."
+        },
+        {
+          "kind": "cue",
+          "t": 1473.9,
+          "what": "The author switches to a generic function f for the per-example loss."
+        },
+        {
+          "kind": "cue",
+          "t": 1478.3,
+          "what": "The author begins saying what should hold for the full average loss, without naming the earlier candidates."
+        },
+        {
+          "kind": "frame",
+          "t": 1481.3,
+          "what": "The screen states the generic goal that average loss is minimized when q_i equals p_i."
+        }
+      ],
+      "findings": "From 1455.6 onward the author restates the required minimum at Q=P, and by 1481.3 the generic goal is shown. Neither speech nor frames in [1456,1482] name 1/x-1, the tangent candidate, or Gamma(x)-1, and they do not give the requested reason that decreasing alone is insufficient.",
+      "criterion": "For an L3 sample this check fires only if the stream supplies the finished answer during the window or within ten seconds after it, not merely the event that tells the participant when to answer.",
+      "steps": [
+        {
+          "question": "Are all three non-logarithmic candidate functions supplied in this interval?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "None of the inspected speech or frames names those three functions."
+        },
+        {
+          "question": "Is the insufficiency of monotone decrease explained in this interval?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The interval states the desired minimum but does not contrast it with mere decrease."
+        },
+        {
+          "question": "Does the stream therefore provide the finished reference answer?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Two indispensable parts of the requested answer remain dependent on earlier video context."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "event-not-earlier-than-window",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1455.0,
+          "what": "During the transition, the visible text already reads '...imal when Q = P', making the minimum requirement recognizable."
+        },
+        {
+          "kind": "cue",
+          "t": 1455.6,
+          "what": "The author starts the spoken restatement: it takes on a minimum exactly when a condition holds."
+        },
+        {
+          "kind": "frame",
+          "t": 1456.0,
+          "what": "The title 'Minimal when Q = P' is now fully visible."
+        }
+      ],
+      "findings": "The visual trigger is already semantically readable in the dense 1455.0 frame, and the spoken restatement starts at 1455.6. The counting window opens later, at 1456.0.",
+      "criterion": "An event window should open when the requested event first becomes recognizable; otherwise a participant responding correctly at the event onset is penalized as early.",
+      "steps": [
+        {
+          "question": "What is the first inspected moment at which the visual requirement is recognizable?",
+          "answer_bool": null,
+          "answer_number": 1455.0,
+          "answer_text": null,
+          "why": "The dense frame shows the meaningful phrase ending 'imal when Q = P' despite the ongoing slide transition."
+        },
+        {
+          "question": "Does spoken corroboration also begin before the window?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The relevant cue begins at 1455.6, whereas t_start is 1456.0."
+        },
+        {
+          "question": "Does the event begin earlier than the current window?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Both dense visual evidence and the speech cue precede 1456.0."
+        }
+      ],
+      "result": "fail",
+      "confidence": "medium",
+      "proposal": {
+        "field": "triggers[0].t_start",
+        "value": "1455.0",
+        "why": "Open the window at the first dense frame where the minimum-at-Q=P event is already recognizable."
+      },
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "depends-on-is-dependency",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [],
+      "findings": "Trigger 0 has no depends_on field, and this sample contains no earlier trigger whose answer is required by this window's rubric.",
+      "criterion": "This item applies only when a dependency link exists or when the rubric requires an earlier trigger answer that should be linked.",
+      "steps": [
+        {
+          "question": "Is a depends_on link present on trigger 0?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The supplied trigger object has no depends_on property."
+        },
+        {
+          "question": "Does the rubric require the answer of another trigger in this sample?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "There is only trigger 0, and its rubric asks for candidate names and an explanation rather than another trigger's answer."
+        }
+      ],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "evidence-span-is-last",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1455.0,
+          "what": "The transition already makes the final trigger fact recognizable as a minimum when Q=P."
+        },
+        {
+          "kind": "frame",
+          "t": 1456.0,
+          "what": "The same final fact is fully visible as 'Minimal when Q = P'."
+        },
+        {
+          "kind": "cue",
+          "t": 1455.6,
+          "what": "The spoken restatement of the minimum requirement begins."
+        }
+      ],
+      "findings": "The earlier candidate identities and monotonicity issue precede this scene. The final trigger fact needed for this wait-until question—the repeated minimum-at-Q=P requirement—first becomes recognizable at 1455.0, but evidence_span starts at 1456.0.",
+      "criterion": "The evidence span must include the first moment at which the last fact needed to answer becomes available, rather than starting after that fact has already appeared.",
+      "steps": [
+        {
+          "question": "What is the last new fact needed at this cross-scene trigger?",
+          "answer_bool": null,
+          "answer_number": null,
+          "answer_text": "That the video has again reached the requirement that the average loss be minimal at Q=P.",
+          "why": "The candidate functions and the reason decrease is insufficient come from earlier scenes; this repeated requirement is the wait condition."
+        },
+        {
+          "question": "When does that final fact first become recognizable in the inspected evidence?",
+          "answer_bool": null,
+          "answer_number": 1455.0,
+          "answer_text": null,
+          "why": "The dense transition frame visibly contains the semantically sufficient phrase ending 'imal when Q = P'."
+        },
+        {
+          "question": "Does the current evidence_span cover that moment?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Its left edge is 1456.0, one second after the dense frame."
+        }
+      ],
+      "result": "fail",
+      "confidence": "medium",
+      "proposal": {
+        "field": "triggers[0].evidence_span",
+        "value": "[1455.0, 1456.0]",
+        "why": "Cover the transition frame where the final trigger fact first becomes recognizable and its fully visible completion."
+      },
+      "uncovered": null
+    }
+  ],
+  "window_idx": 0
+}

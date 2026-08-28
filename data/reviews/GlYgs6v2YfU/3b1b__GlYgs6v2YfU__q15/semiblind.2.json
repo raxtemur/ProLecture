@@ -1,0 +1,174 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__GlYgs6v2YfU__q15",
+  "role": "semiblind",
+  "iteration": 2,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-26",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q15/semiblind_r2",
+  "budget": {
+    "frames_viewed": 8,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 1966.0,
+        "t_end": 1974.0
+      }
+    ],
+    "transcript_cues": 568,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The full transcript and supplied screen indexes accounted for 0-1983 s. Real-frame inspection was restricted to the candidate interval identified by them. No distractors were declared.",
+  "prior_answer": "The algebraic part is p_i(-log q_i) - p_i(-log p_i) = p_i(log p_i - log q_i) = p_i log(p_i/q_i), but the changed index and observed colour transition cannot be identified from the question alone, so the complete question is not answerable without the video.",
+  "prior_answer_assumptions": [],
+  "recognized_video": false,
+  "recognized_how": "",
+  "scans": [
+    {
+      "idx": 0,
+      "t_from": 0.0,
+      "t_to": 1983.0,
+      "watched": [
+        {
+          "kind": "frame",
+          "t": 1966.0,
+          "what": "The expanded difference of cross entropy and entropy is visible above the labelled bars; the compact sum has not appeared."
+        },
+        {
+          "kind": "frame",
+          "t": 1967.0,
+          "what": "The expanded difference remains, with no compact KL sum yet visible."
+        },
+        {
+          "kind": "frame",
+          "t": 1968.0,
+          "what": "The compact expression begins being written but is incomplete."
+        },
+        {
+          "kind": "frame",
+          "t": 1969.0,
+          "what": "The compact expression is still finishing its ratio and is not yet in its fully settled readable state."
+        },
+        {
+          "kind": "frame",
+          "t": 1970.0,
+          "what": "The compact sum equals sum_i p_i log_2(p_i/q_i) is fully readable; the second labelled add-on is green."
+        },
+        {
+          "kind": "frame",
+          "t": 1971.0,
+          "what": "The compact sum is highlighted and readable; the p_2 add-on remains green."
+        },
+        {
+          "kind": "frame",
+          "t": 1972.0,
+          "what": "Immediately before the transition, the thin add-on over the p_2-labelled bar is green."
+        },
+        {
+          "kind": "frame",
+          "t": 1973.0,
+          "what": "The add-on over the p_2-labelled bar is now red while the compact p_i/q_i sum remains readable."
+        }
+      ],
+      "candidates": [
+        {
+          "question": "Is the compact KL sum fully readable at 1968 s?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Only the beginning of the compact line has been drawn."
+        },
+        {
+          "question": "Can the compact formula be read at 1970 s?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The full sum and p_i/q_i ratio are visible, but the requested later colour transition has not happened."
+        },
+        {
+          "question": "Has the labelled green-to-red transition happened by 1972 s?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The add-on over p_2 is still green in this frame."
+        },
+        {
+          "question": "Is the full requested transition verifiable at 1973 s?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The p_2 add-on is red, and the preceding 1972 s frame establishes that it changed from green."
+        }
+      ],
+      "t_val": 1973.0,
+      "t_val_basis": "The compact sum is already fully readable and the real frames at 1972 and 1973 s show the add-on above the p_2 label changing from green to red.",
+      "answer_at_t_val": "Index i=2 changes green to red. For one i-term: p_i(-log_2 q_i) - p_i(-log_2 p_i) = -p_i log_2 q_i + p_i log_2 p_i = p_i(log_2 p_i - log_2 q_i) = p_i log_2(p_i/q_i), so the ratio is p_i/q_i, not q_i/p_i.",
+      "confidence": "high"
+    }
+  ],
+  "checks": [
+    {
+      "group": "shortcuts",
+      "item": "solvable-without-video",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 1964.8,
+          "what": "The participant-visible question specifies a visual transition but does not reveal its index."
+        }
+      ],
+      "findings": "Before viewing, the generic logarithm identity was derivable, but the index and colour event needed for a complete answer were absent from the question.",
+      "criterion": "The sample is solvable without video only if every requested quantity and relation can be supplied without guessing unseen screen contents.",
+      "steps": [
+        {
+          "question": "Can the displayed ratio be derived from the named KL difference?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The standard logarithm difference gives log(p_i/q_i)."
+        },
+        {
+          "question": "Can the changed index be identified from the question alone?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The question names no index and supplies no bar configuration."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "video-recognized",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 1964.8,
+          "what": "Pre-view self-report was recorded from the participant-visible question before opening supplied evidence."
+        }
+      ],
+      "findings": "I did not recognize this particular video or remember which labelled add-on changes colour before viewing.",
+      "criterion": "Recognition fires only if the particular video and answer can be recalled before inspecting the supplied evidence.",
+      "steps": [
+        {
+          "question": "Could I name the requested index from memory of this video?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "No video-specific memory or index was available before viewing."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

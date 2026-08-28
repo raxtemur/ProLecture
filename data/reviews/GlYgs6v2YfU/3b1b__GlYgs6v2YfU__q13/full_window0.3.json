@@ -1,0 +1,281 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__GlYgs6v2YfU__q13",
+  "role": "full_window",
+  "iteration": 3,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q13/full_window0_r3",
+  "budget": {
+    "frames_viewed": 11,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 1784.0,
+        "t_end": 1793.0
+      }
+    ],
+    "transcript_cues": 5,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The first-heading snapshot is stable at 1786-1787, then the animation changes the fraction and adds later levels. The current right tail therefore includes states explicitly excluded by the question.",
+  "verdict": "FIX_INTERVALS",
+  "checks": [
+    {
+      "group": "windows",
+      "item": "window-can-be-tightened",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1786.0,
+          "what": "The heading first appears above 0.00110101000011, with selected levels c, o, m, p, r."
+        },
+        {
+          "kind": "frame",
+          "t": 1787.0,
+          "what": "The heading and fraction 0.00110101000011 remain, while candidate segments for the following level are visible below r."
+        },
+        {
+          "kind": "frame",
+          "t": 1788.0,
+          "what": "The displayed fraction has changed to 0.001101010000111 and a later level is being selected."
+        },
+        {
+          "kind": "frame",
+          "t": 1790.0,
+          "what": "The changed fraction remains and additional lower levels are visible beneath r."
+        },
+        {
+          "kind": "frame",
+          "t": 1792.0,
+          "what": "At the current window endpoint the animation shows c, o, m, p, r, e and another lower level."
+        }
+      ],
+      "findings": "The requested first-heading state is visible at 1786 and 1787. Starting at the 1788 frame, the binary fraction differs and the lower-level animation continues through 1792.",
+      "criterion": "The response window should remain open only while the state named by the question is available; a substantial tail showing explicitly excluded later animation states should be removed.",
+      "steps": [
+        {
+          "question": "What is the last inspected frame that still shows the requested first-heading fraction?",
+          "answer_number": 1787.0,
+          "why": "The 1787 frame still reads 0.00110101000011, while the 1788 frame reads 0.001101010000111."
+        },
+        {
+          "question": "Does materially different animation occupy a large part of the present window?",
+          "answer_bool": true,
+          "why": "From 1788 through the 1792 endpoint, the fraction and selected lower levels no longer match the requested first state."
+        },
+        {
+          "question": "What exclusive endpoint preserves the inspected frames of the requested state?",
+          "answer_number": 1788.0,
+          "why": "An endpoint of 1788.0 keeps the 1786-1787 first-heading snapshot and excludes the changed state first seen at 1788."
+        }
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {
+        "field": "triggers[0].t_end",
+        "value": "1788.0",
+        "why": "The intended snapshot is visible through 1787, but by 1788 the fraction has changed and later letter levels are being animated."
+      },
+      "uncovered": null
+    },
+    {
+      "group": "windows",
+      "item": "author-says-answer-in-window",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1786.0,
+          "what": "The visual track displays the complete L1 snapshot answer when the heading appears."
+        },
+        {
+          "kind": "frame",
+          "t": 1796.8,
+          "what": "The preview has changed to a Loss equals Information graphic, with no binary fraction or requested letter sequence."
+        },
+        {
+          "kind": "frame",
+          "t": 1799.7,
+          "what": "The Loss equals Information graphic remains, with no binary fraction or requested letter sequence."
+        },
+        {
+          "kind": "cue",
+          "t": 1785.0,
+          "what": "The narrator introduces a visual compression algorithm."
+        },
+        {
+          "kind": "cue",
+          "t": 1788.4,
+          "what": "The narrator says it will be explored in the next part."
+        },
+        {
+          "kind": "cue",
+          "t": 1791.9,
+          "what": "The narrator begins explaining what understanding this will make clear."
+        },
+        {
+          "kind": "cue",
+          "t": 1796.1,
+          "what": "The narrator says cross-entropy training is equivalent to training a text compressor."
+        },
+        {
+          "kind": "cue",
+          "t": 1801.3,
+          "what": "The narrator begins a statement about a hill from which to view the landscape."
+        }
+      ],
+      "findings": "Across the window and the following ten seconds, the narrator does not speak the binary fraction or letter sequence. The complete answer is deliberately shown visually at 1786 as the L1 alarm state.",
+      "criterion": "A finished answer appearing in or just after the window is disqualifying only for L2 or L3 reasoning; for an L1 alarm, immediate display is the intended signal and is acceptable.",
+      "steps": [
+        {
+          "question": "Is the sample labelled as an L1 alarm?",
+          "answer_bool": true,
+          "why": "The supplied sample declares reasoning_level L1 and asks for direct narration of the visual state."
+        },
+        {
+          "question": "Does the narrator speak the requested fraction and letters by 1802?",
+          "answer_bool": false,
+          "why": "The five transcript cues discuss the next part, cross-entropy, and compression without stating the requested symbols."
+        },
+        {
+          "question": "Does the immediate visual answer invalidate this reasoning level?",
+          "answer_bool": false,
+          "why": "Immediate visual availability is consistent with an L1 alarm task rather than an L2 or L3 inference task."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "event-not-earlier-than-window",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1784.0,
+          "what": "Nested intervals and a shorter fraction are visible, but the Coming up in part 3 heading is absent."
+        },
+        {
+          "kind": "frame",
+          "t": 1785.0,
+          "what": "The interval animation is visible and the heading is still absent."
+        },
+        {
+          "kind": "frame",
+          "t": 1786.0,
+          "what": "Coming up in part 3 is visible for the first inspected time above the nested intervals."
+        }
+      ],
+      "findings": "The named heading is absent at 1784 and 1785 and present at 1786, which is exactly the annotated opening time.",
+      "criterion": "For a heading-appearance event, the window should open when that heading first becomes visible rather than after the event has already begun.",
+      "steps": [
+        {
+          "question": "Is the trigger heading visible in the last inspected frame before the window?",
+          "answer_bool": false,
+          "why": "No Coming up in part 3 heading appears in the 1785 frame."
+        },
+        {
+          "question": "Is the trigger heading visible at the annotated start?",
+          "answer_bool": true,
+          "why": "The heading appears in the 1786 frame above the interval graphic."
+        },
+        {
+          "question": "Does the event begin earlier than t_start 1786.0 in the inspected ladder?",
+          "answer_bool": false,
+          "why": "The transition occurs between the heading-absent 1785 frame and heading-present 1786 frame."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "depends-on-is-dependency",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [],
+      "findings": "The sole trigger has no depends_on field, and there is no earlier trigger in the supplied sample on which it could depend.",
+      "criterion": "This check applies only when a real cross-window dependency is present or required; a single standalone trigger needs no dependency link.",
+      "steps": [
+        {
+          "question": "Does trigger 0 declare a depends_on link?",
+          "answer_bool": false,
+          "why": "No depends_on key appears in the supplied trigger object."
+        },
+        {
+          "question": "Does its rubric require an answer from another trigger?",
+          "answer_bool": false,
+          "why": "All rubric requirements concern the binary fraction and letters in this one visual snapshot."
+        }
+      ],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "evidence-span-is-last",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1785.0,
+          "what": "The target fraction and selected levels are forming, but the question's heading condition has not yet occurred."
+        },
+        {
+          "kind": "frame",
+          "t": 1786.0,
+          "what": "The heading first appears together with fraction 0.00110101000011 and selected levels c, o, m, p, r."
+        },
+        {
+          "kind": "frame",
+          "t": 1787.0,
+          "what": "The same fraction and five selected levels remain visible under the heading."
+        }
+      ],
+      "findings": "The last fact needed to identify the requested snapshot is the heading's first appearance at 1786; at that moment the fraction and five selected levels are simultaneously visible. The declared evidence span is 1786.0-1787.0.",
+      "criterion": "The evidence span must cover when the final necessary fact first makes the answer derivable, which here is the conjunction of heading onset and the already visible snapshot contents.",
+      "steps": [
+        {
+          "question": "What final fact distinguishes the requested state from the preceding animation?",
+          "answer_text": "The first appearance of the Coming up in part 3 heading.",
+          "why": "The question anchors the requested fraction and letters to that first heading appearance."
+        },
+        {
+          "question": "When is that final fact first present with all requested contents?",
+          "answer_number": 1786.0,
+          "why": "The 1786 frame contains the heading, exact fraction, and selected c-o-m-p-r levels together."
+        },
+        {
+          "question": "Does evidence_span 1786.0-1787.0 cover that moment?",
+          "answer_bool": true,
+          "why": "Its left endpoint is the observed first complete-evidence frame at 1786.0."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ],
+  "window_idx": 0
+}

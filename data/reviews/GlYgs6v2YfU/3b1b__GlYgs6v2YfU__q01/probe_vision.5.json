@@ -1,0 +1,65 @@
+{
+  "sample_id": "3b1b__GlYgs6v2YfU__q01",
+  "role": "probe_vision",
+  "iteration": 5,
+  "model": "gpt-5",
+  "date": "2026-08-26",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q01/probe_vision_r5",
+  "budget": {
+    "frames_viewed": 5,
+    "sparse_step": 4.0,
+    "dense_intervals": [],
+    "transcript_cues": 0,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "Used the screen index only to locate the relevant stretch, then answered from the named real frames. No transcript or audio was used.",
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 59.0,
+      "what": "Document A is blue, Document B is green, and GZIP(AB) is drawn as a blue upper/base portion followed by a green lower portion."
+    },
+    {
+      "kind": "frame",
+      "t": 63.0,
+      "what": "The labelled results GZIP(AB) and GZIP(A) are simultaneously visible; GZIP(AB) combines blue and green, while GZIP(A) is blue."
+    },
+    {
+      "kind": "frame",
+      "t": 66.0,
+      "what": "The displayed subtraction is GZIP(AB) minus GZIP(A), with the first term visibly blue plus green and the second term blue only."
+    },
+    {
+      "kind": "frame",
+      "t": 72.0,
+      "what": "The same labelled subtraction remains visible: GZIP(AB) - GZIP(A)."
+    },
+    {
+      "kind": "frame",
+      "t": 76.0,
+      "what": "The appended portion of GZIP(AB) is highlighted against the blue GZIP(A) base, making the subtraction's residual fragment visually explicit."
+    }
+  ],
+  "steps": [
+    {
+      "question": "What construction is actually displayed once both labelled GZIP results are visible?",
+      "answer_text": "GZIP(AB) - GZIP(A).",
+      "why": "Frames t=63, 66, 72, and 76 s show both labels, and t=66 s onward places them as the two subtraction terms."
+    },
+    {
+      "question": "What does exchanging A and B throughout do to the labels and colour roles?",
+      "answer_text": "It changes AB to BA and A to B, so the expression becomes GZIP(BA) - GZIP(B); the base changes from blue A to green B, and the appended fragment changes from green B to blue A.",
+      "why": "At t=59 and 63 s A is consistently blue and B green; applying the requested complete role exchange swaps both the document order and the one-document baseline."
+    },
+    {
+      "question": "What quantity does the swapped subtraction represent?",
+      "answer_text": "The extra compressed length contributed by A when A is appended after B: the information in A not already supplied by B, i.e. a compression-based conditional size of A given B.",
+      "why": "The frames show that subtracting the one-document base from the combined compression isolates the appended fragment; after the role swap that fragment belongs to A rather than B."
+    }
+  ],
+  "answer": "After swapping A and B everywhere, the exact subtraction is GZIP(BA) - GZIP(B). In GZIP(BA), the base is the green compressed result supplied by document B, and the appended fragment is the blue contribution supplied by document A; GZIP(B) is the green B-only base. The difference therefore measures the additional compressed length needed for A once B is already present—the compression-based conditional information/size of A given B (the part of A not already captured by B).",
+  "basis": "Frames t000059.jpg, t000063.jpg, t000066.jpg, t000072.jpg, and t000076.jpg: they establish the blue=A and green=B mapping, the displayed GZIP(AB) - GZIP(A) construction, and that subtraction isolates the appended fragment. The complete A/B exchange is then a direct symbolic and colour-role inference from those frames.",
+  "confidence": "high",
+  "insufficient": false
+}

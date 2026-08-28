@@ -1,0 +1,40 @@
+{
+  "sample_id": "3b1b__GlYgs6v2YfU__q15",
+  "role": "probe_frame",
+  "iteration": 2,
+  "model": "gpt-5",
+  "date": "2026-08-26",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q15/probe_frame_r2",
+  "budget": {
+    "frames_viewed": 1,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 0,
+    "screen_index_used": false
+  },
+  "violations": [],
+  "notes": "The frame supports the displayed algebra but not the requested temporal transition.",
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 1978.0,
+      "what": "A compact KL expression and a bar diagram labelled p_1, p_2, p_3, ..., p_n above q_1, q_2, q_3, ..., q_n. Red labelled add-ons are visible at indices 1, 3, and n, while a green add-on is visible at index 2."
+    }
+  ],
+  "steps": [
+    {
+      "question": "Which labelled add-on changed from green to red?",
+      "answer_text": "The single still does not uniquely identify the transition. It shows red add-ons at indices 1, 3, and n, but supplies no earlier colour state from which to tell which of those changed next; naming one would be a guess.",
+      "why": "A temporal colour change requires comparison with an earlier state, and only the frame at 1978 s was available."
+    },
+    {
+      "question": "Why is the displayed logarithmic ratio p_i/q_i rather than q_i/p_i?",
+      "answer_text": "For one index i, p_i(-log_2 q_i) - p_i(-log_2 p_i) = p_i(log_2 p_i - log_2 q_i) = p_i log_2(p_i/q_i).",
+      "why": "The frame visibly displays the two parenthesized sums in that subtraction order and the resulting compact sum."
+    }
+  ],
+  "answer": "The index of the green-to-red transition cannot be determined from this one frame without guessing: the still shows labelled red add-ons at i=1, i=3, and i=n, but not which one was green immediately before. The ratio is nevertheless directly verifiable term by term: p_i(-log_2 q_i) - p_i(-log_2 p_i) = p_i(log_2 p_i - log_2 q_i) = p_i log_2(p_i/q_i), so the numerator is p_i and the denominator is q_i, not the reverse.",
+  "basis": "Only frame t=1978 s. Its formula gives the subtraction order and ratio algebra, while its static bar colours do not encode the preceding state. I did not recognize the video or recall the transition index; selecting one would be a guess.",
+  "confidence": "high",
+  "insufficient": true
+}

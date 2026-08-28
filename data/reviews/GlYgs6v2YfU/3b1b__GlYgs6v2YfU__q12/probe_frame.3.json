@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.0",
+  "checklist_version": "1.0",
+  "sample_id": "3b1b__GlYgs6v2YfU__q12",
+  "role": "probe_frame",
+  "iteration": 3,
+  "model": "gpt-5.4",
+  "date": "2026-08-26",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q12/probe_frame_r3",
+  "budget": {
+    "frames_viewed": 1,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 0,
+    "screen_index_used": false
+  },
+  "violations": [],
+  "notes": "",
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 1622,
+      "what": "One settled two-distribution display for the prefix 'Whatever our souls are'; the comma is the top token on both sides, at 18.4% on the left and 19.8% on the right."
+    }
+  ],
+  "steps": [
+    {
+      "question": "Which prefix and top-token values are visible in the supplied frame?",
+      "answer_text": "For 'Whatever our souls are', the top token is a comma: 18.4% on the left and 19.8% on the right.",
+      "why": "Those labels and percentages are directly readable in the frame."
+    },
+    {
+      "question": "Does the visible display contain the requested sequence from 'It was the best' through 'It matters not how'?",
+      "answer_bool": false,
+      "why": "The only supplied frame shows a different prefix and contains no record of the one-second replacements."
+    },
+    {
+      "question": "Can the sole reversal and its two percentages be identified from this frame?",
+      "answer_bool": false,
+      "why": "A single unrelated display cannot reveal comparisons across the requested sequence; naming the reversal would be a guess."
+    }
+  ],
+  "answer": "The supplied frame does not show the requested run of displays, so I cannot determine whether the larger model leads on every display or identify the sole reversal, its prefix, top token, and percentages without guessing. The only comparison I can extract is for the unrelated visible prefix 'Whatever our souls are': the comma is top on both sides, with 18.4% on the left smaller model and 19.8% on the right larger model, so the larger model leads in this one frame.",
+  "basis": "The single frame at 1622 s shows only 'Whatever our souls are' and its two current distributions. None of the requested 'It was ...' through 'It matters not how' sequence is present; any claimed reversal would be a guess.",
+  "confidence": "low",
+  "insufficient": true
+}

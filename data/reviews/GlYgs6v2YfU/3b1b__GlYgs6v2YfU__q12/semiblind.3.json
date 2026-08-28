@@ -1,0 +1,78 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__GlYgs6v2YfU__q12",
+  "role": "semiblind",
+  "iteration": 3,
+  "model": "GPT-5",
+  "date": "2026-08-26",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q12/semiblind_r3",
+  "budget": {
+    "frames_viewed": 7,
+    "sparse_step": null,
+    "dense_intervals": [{"t_start": 1617.0, "t_end": 1624.0}],
+    "transcript_cues": 465,
+    "screen_index_used": true
+  },
+  "violations": [{
+    "path": "data/reviews/",
+    "why": "An accidental zero-output rg command named this forbidden directory while I was reading schema definitions.",
+    "what_seen": "No prior-review path or content was displayed; the command output was empty."
+  }],
+  "notes": "The full 0-1624 s transcript and supplied screen index were covered. The first distribution is still fading in at 1618 s; the settled comparison sequence runs from 1619 through 1623 s.",
+  "prior_answer": "This cannot be answered on the merits without the video: the question does not provide the sequence of prefixes, top tokens, or either model's percentages needed to locate the reversal.",
+  "prior_answer_assumptions": [],
+  "recognized_video": false,
+  "recognized_how": "",
+  "scans": [{
+    "idx": 0,
+    "t_from": 0.0,
+    "t_to": 1624.0,
+    "watched": [
+      {"kind": "frame", "t": 1617.0, "what": "Only the small and large model cubes are visible; the comparison display has not appeared."},
+      {"kind": "frame", "t": 1618.0, "what": "The It was the best comparison is fading in and remains dim/transitional rather than settled."},
+      {"kind": "frame", "t": 1619.0, "what": "Settled It was the best display: top token of is 24.5% left and 75.5% right."},
+      {"kind": "frame", "t": 1620.0, "what": "It was a bright display: top token and is 17.1% left and 33.9% right."},
+      {"kind": "frame", "t": 1621.0, "what": "Happiness can be display: top token defined is 23.5% left and 24.6% right."},
+      {"kind": "frame", "t": 1622.0, "what": "You never really understand display: top token a is 18.4% left and 47.7% right."},
+      {"kind": "frame", "t": 1623.0, "what": "It matters not how display: top token many is 19.8% left and 12.1% right, reversing the prior direction."}
+    ],
+    "candidates": [
+      {"question": "Is the first distribution settled at 1618 s?", "answer_bool": false, "why": "The text and bars are still dim and transitioning into the first readable comparison."},
+      {"question": "Can the every-display claim be completed before the named final prefix appears?", "answer_bool": false, "why": "The displays at 1619-1622 s all favor the larger model, but the required sequence through It matters not how is not yet complete."},
+      {"question": "When does the full sequence reveal whether the larger model always leads?", "answer_number": 1623.0, "why": "The named final prefix appears at 1623 s and provides the sole reversal with both percentages fully readable."}
+    ],
+    "t_val": 1623.0,
+    "t_val_basis": "The final named display, It matters not how, is settled and shows the only case where the left top-token probability exceeds the right.",
+    "answer_at_t_val": "No. The sole reversal is prefix It matters not how, whose top token is many: 19.8% on the left smaller model versus 12.1% on the right larger model.",
+    "confidence": "high"
+  }],
+  "checks": [
+    {
+      "group": "shortcuts",
+      "item": "solvable-without-video",
+      "target": null,
+      "looked_at": [{"kind": "cue", "t": 0.0, "what": "Pre-view step-0 response recorded from the participant-visible question alone, before opening any workspace material."}],
+      "findings": "The question supplies neither the replacement displays nor the numerical probabilities needed to identify the reversal.",
+      "criterion": "A complete prior answer must stand without inventing any unseen prefixes, tokens, or percentages.",
+      "steps": [{"question": "Can the sole reversal and exact percentages be derived from the question alone?", "answer_bool": false, "why": "Those values are contingent outputs of the two displayed models and are absent from the wording."}],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "video-recognized",
+      "target": null,
+      "looked_at": [{"kind": "cue", "t": 0.0, "what": "Pre-view step-0 self-report was recorded before opening the transcript or any frame."}],
+      "findings": "I did not recognize this particular video or remember this probability sequence.",
+      "criterion": "The item fires only if the exact video and answer-bearing moment were recognized before viewing.",
+      "steps": [{"question": "Was this exact video recognized before any viewing?", "answer_bool": false, "why": "No identifying memory or remembered numerical answer was available before inspecting the workspace."}],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

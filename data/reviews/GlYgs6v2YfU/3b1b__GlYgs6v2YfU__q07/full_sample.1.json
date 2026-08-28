@@ -1,0 +1,382 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__GlYgs6v2YfU__q07",
+  "role": "full_sample",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-26",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q07/full_sample",
+  "budget": {
+    "frames_viewed": 34,
+    "sparse_step": 70,
+    "dense_intervals": [],
+    "transcript_cues": 576,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "Remove the unrequested positive-rescaling rubric item or explicitly ask for its rationale.\nThe formula and reference conclusion are otherwise correct.\nNo twin or distractor exists.",
+  "verdict": "FIX_QUESTION",
+  "checks": [
+    {
+      "group": "triggers",
+      "item": "no-missed-trigger",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 0,
+          "what": "opening paper footage"
+        },
+        {
+          "kind": "frame",
+          "t": 212,
+          "what": "robot-instruction setup"
+        },
+        {
+          "kind": "frame",
+          "t": 424.8,
+          "what": "Q-distribution bars"
+        },
+        {
+          "kind": "frame",
+          "t": 699.5,
+          "what": "cross-entropy graph"
+        },
+        {
+          "kind": "frame",
+          "t": 981.6,
+          "what": "loss surface"
+        },
+        {
+          "kind": "frame",
+          "t": 1121.1,
+          "what": "completed worst-of-times loss state"
+        },
+        {
+          "kind": "frame",
+          "t": 1404.8,
+          "what": "name examples beside q bars"
+        },
+        {
+          "kind": "frame",
+          "t": 1608.8,
+          "what": "distillation text example"
+        },
+        {
+          "kind": "frame",
+          "t": 1819.5,
+          "what": "cross-entropy diagram"
+        },
+        {
+          "kind": "frame",
+          "t": 2016.3,
+          "what": "closing credits"
+        },
+        {
+          "kind": "cue",
+          "t": 1161.3,
+          "what": "the narrator introduces natural log instead of base 2"
+        },
+        {
+          "kind": "cue",
+          "t": 1166.8,
+          "what": "the two expressions differ by a constant factor"
+        }
+      ],
+      "findings": "The full transcript and sparse visual grid contain one explicit on-screen change-of-base equality; no second first occurrence exists.",
+      "criterion": "Every occurrence satisfying the first explicit displayed change-of-base condition must be represented.",
+      "steps": [
+        {
+          "question": "How many first explicit displayed change-of-base events exist?",
+          "answer_bool": null,
+          "answer_number": 1,
+          "answer_text": null,
+          "why": "The equality appears in the 1167–1176 sequence only."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "trigger-matches-criterion",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1168.5,
+          "what": "graph displays −log₂(x)·ln(2)=−ln(x)"
+        },
+        {
+          "kind": "cue",
+          "t": 1166.8,
+          "what": "the narrator says the expressions differ by a constant factor"
+        }
+      ],
+      "findings": "Trigger 0 contains the exact displayed equality and the narration supplies the constant-factor fact used for the conclusion.",
+      "criterion": "The trigger must be the first explicit displayed base conversion and support both requested parts.",
+      "steps": [
+        {
+          "question": "Does trigger 0 contain the explicit equality?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "It is legible at 1168.5."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "question-anchored-to-screen",
+      "target": null,
+      "looked_at": [],
+      "findings": "The question points to “the loss graph” and requires “the on-screen equality”.",
+      "criterion": "Concrete visible objects or text must anchor the task to a particular frame sequence.",
+      "steps": [
+        {
+          "question": "Which words provide the visual anchor?",
+          "answer_bool": null,
+          "answer_number": null,
+          "answer_text": "“loss graph” and “on-screen equality”",
+          "why": "They require observing a specific displayed graph and formula."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-within-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "The formula and preservation conclusion are explicitly requested, but the rubric separately requires saying that only a positive scale changes; the question says only that formula and conclusion are needed and does not request this rationale.",
+      "criterion": "A judge may require only details the participant-visible question explicitly asks them to provide.",
+      "steps": [
+        {
+          "question": "Is an explicit positive-rescaling explanation requested?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The question asks whether ordering/minimum change, not why, and declares formula plus conclusion sufficient."
+        }
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {
+        "field": "triggers[0].rubric[1]",
+        "value": "remove this item, or add “explain why” to the question",
+        "why": "Do not penalize a correct formula and direct preservation conclusion for omitting an unrequested rationale."
+      },
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "discriminator-in-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "There is no distractor window; the excluding rubric clause rejects the natural-log phrase alone, and the question explicitly says both formula and conclusion are needed.",
+      "criterion": "Any excluded partial answer must be excluded by wording visible to the participant.",
+      "steps": [
+        {
+          "question": "What wording excludes merely naming the natural log?",
+          "answer_bool": null,
+          "answer_number": null,
+          "answer_text": "“Both the formula and the conclusion are needed.”",
+          "why": "A natural-log phrase alone supplies neither complete requirement."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-not-punishing-extra",
+      "target": null,
+      "looked_at": [],
+      "findings": "The restrictive clause excludes only an incomplete natural-log phrase, not a correct extra detail accompanying the required formula and conclusion.",
+      "criterion": "Restrictive rubric language must not reject correct details beyond the expected answer.",
+      "steps": [
+        {
+          "question": "Does the restrictive clause reject a complete answer with added correct detail?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "It only rejects an answer missing the two requested components."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-fully-covered",
+      "target": {
+        "distractor_idx": 0
+      },
+      "looked_at": [],
+      "findings": "No distractor_windows field is present in this sample.",
+      "criterion": "Coverage applies only to an existing distractor interval.",
+      "steps": [],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-not-correct-answer",
+      "target": {
+        "distractor_idx": 0
+      },
+      "looked_at": [],
+      "findings": "No distractor_windows field is present in this sample.",
+      "criterion": "Correctness testing applies only to an existing distractor.",
+      "steps": [],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-why-hides-answer",
+      "target": null,
+      "looked_at": [],
+      "findings": "No distractor explanation exists in this sample.",
+      "criterion": "Answer leakage can be assessed only for an existing distractor why field.",
+      "steps": [],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "reasoning-level-not-inflated",
+      "target": null,
+      "looked_at": [],
+      "findings": "The exact formula is read visually and the preservation conclusion is obtained from the constant-factor relation; L2 is not above the work requested.",
+      "criterion": "The level is inflated only when it exceeds the need to connect or reason over the provided facts.",
+      "steps": [
+        {
+          "question": "Could the entire required answer be copied from one spoken line?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The exact equality is visual and the ordering/minimum conclusion is not spoken verbatim."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-matches-description",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1168.5,
+          "what": "the graph visibly carries −log₂(x)·ln(2)=−ln(x)"
+        }
+      ],
+      "findings": "The cited frame description matches the displayed equality.",
+      "criterion": "The real frame at the provenance moment must contain what the explanation claims.",
+      "steps": [
+        {
+          "question": "Does the inspected evidence show the described equality?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The equality is centered and legible."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "references-consistent-with-windows",
+      "target": null,
+      "looked_at": [],
+      "findings": "The sole evidence time 1168.3 lies inside the 1167.0–1183.0 trigger window.",
+      "criterion": "Provenance must not place answer-bearing evidence before the window opens.",
+      "steps": [
+        {
+          "question": "Is any answer-bearing reference earlier than t_start?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "1168.3 is after 1167.0."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-answer-verified",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1168.5,
+          "what": "exact change-of-base equality"
+        },
+        {
+          "kind": "cue",
+          "t": 1166.8,
+          "what": "expressions differ by a constant factor"
+        }
+      ],
+      "findings": "The equality is correct, ln(2) is positive, and multiplying a loss by a positive constant preserves comparisons and argmin.",
+      "criterion": "The response must be mathematically correct and grounded in the displayed relation.",
+      "steps": [
+        {
+          "question": "Does positive rescaling preserve ordering and argmin?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Multiplication by ln(2)>0 is strictly order-preserving."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "twins-agree-on-substance",
+      "target": null,
+      "looked_at": [],
+      "findings": "The sample has no twin_of field.",
+      "criterion": "Twin agreement is applicable only to a declared twin pair.",
+      "steps": [],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}
+

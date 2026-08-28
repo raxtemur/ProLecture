@@ -1,0 +1,292 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__GlYgs6v2YfU__q10",
+  "role": "full_sample",
+  "iteration": 4,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q10/full_sample_r4",
+  "budget": {
+    "frames_viewed": 35,
+    "sparse_step": null,
+    "dense_intervals": [
+      {"t_start": 1152.8, "t_end": 1153.8}
+    ],
+    "transcript_cues": 576,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The complete transcript was read sequentially and a 30-frame scene pass covered the whole video.\nThe direct frame viewer failed to start its sandbox; temporary contact sheets were made only from indexed frames.\nNo prior reviews or coordinator records were consulted. L2 is neither inflated nor understated.",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "group": "triggers",
+      "item": "no-missed-trigger",
+      "target": null,
+      "looked_at": [
+        {"kind": "cue", "t": 0.0, "what": "The transcript begins with the language-compression example."},
+        {"kind": "cue", "t": 650.8, "what": "The speaker introduces the first minimum property, well before the names example."},
+        {"kind": "cue", "t": 728.7, "what": "The key minimum property is restated before the names example."},
+        {"kind": "cue", "t": 1145.3, "what": "Many decreasing candidate shapes are introduced before their formulas are drawn."},
+        {"kind": "cue", "t": 1329.1, "what": "Decrease is described as only the apparent initial constraint."},
+        {"kind": "cue", "t": 1354.6, "what": "The example 'my name is blank' begins."},
+        {"kind": "cue", "t": 1420.8, "what": "The average loss over names is defined as a P-weighted average."},
+        {"kind": "cue", "t": 1452.2, "what": "The speaker begins recalling the key minimum property after the names example."},
+        {"kind": "cue", "t": 1470.3, "what": "The converse argument begins after the first qualifying statement."},
+        {"kind": "cue", "t": 1544.4, "what": "A later recap says the loss is minimized only when model statistics match data."},
+        {"kind": "cue", "t": 1671.8, "what": "The speaker returns to the names example during distillation, without creating an earlier firing."},
+        {"kind": "cue", "t": 1897.7, "what": "The minimum property is recalled much later in the KL-divergence section."},
+        {"kind": "cue", "t": 2003.2, "what": "The final spoken question concerns using KL divergence instead."},
+        {"kind": "frame", "t": 0.0, "what": "Opening paper imagery."},
+        {"kind": "frame", "t": 320.5, "what": "Information-theory recap screen."},
+        {"kind": "frame", "t": 641.1, "what": "Entropy and cross-entropy plots before the names example."},
+        {"kind": "frame", "t": 960.8, "what": "Generic loss surface in the model-training section."},
+        {"kind": "frame", "t": 1151.2, "what": "The family of decreasing loss candidates is being drawn."},
+        {"kind": "frame", "t": 1300.3, "what": "The candidate curves are recalled before the names example."},
+        {"kind": "frame", "t": 1356.8, "what": "Multiple 'My name is ...' examples are visible."},
+        {"kind": "frame", "t": 1446.9, "what": "Cross Entropy and the names are visible, but no minimum requirement is yet shown."},
+        {"kind": "frame", "t": 1456.5, "what": "The first post-name visual statement 'Minimal when Q = P' is visible."},
+        {"kind": "frame", "t": 1904.0, "what": "The same minimum fact is recalled later in the KL-divergence section."}
+      ],
+      "findings": "Across all 576 transcript cues, minimum-at-Q-equals-P statements occur before the names example at 657.6-667.0, 728.7-745.4, and 768.8-779.0; the names example begins at 1354.6; the first later statement is at 1455.6-1469.8; later recaps occur at 1483.2-1492.9, 1544.4-1555.4, and 1897.7-1908.7. A 30-frame whole-video scene pass plus the five-frame lead-in at 1435.2, 1442.7, 1446.9, 1456.5, and 1459.7 found no earlier post-name visual statement of the minimum requirement.",
+      "criterion": "For a question asking for the first post-name restatement, every moment that could literally be that first restatement must be accounted for, and later or pre-name repetitions must be excluded by the temporal wording.",
+      "steps": [
+        {"question": "When does the names example first appear?", "answer_number": 1354.6, "why": "The transcript starts 'imagine an example like myName is blank' there, corroborated by the 1356.8 frame."},
+        {"question": "What is the first later statement that the average-loss expression is minimal at matching distributions?", "answer_number": 1455.6, "why": "The transcript says it takes on a minimum exactly when P and Q are equal, and the 1456.5 frame displays the same requirement."},
+        {"question": "Did any later qualifying repetition compete with the requested first occurrence?", "answer_bool": false, "why": "The repetitions beginning at 1478.3, 1544.4, and 1897.7 are later and therefore excluded by 'first'."},
+        {"question": "Was any qualifying post-name occurrence left unannotated before the trigger?", "answer_bool": false, "why": "Sequential transcript reading and the visual lead-in show only the average-loss formula and cross-entropy label before the minimum statement appears."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "trigger-matches-criterion",
+      "target": null,
+      "looked_at": [
+        {"kind": "cue", "t": 1354.6, "what": "The names example begins before the trigger."},
+        {"kind": "cue", "t": 1455.6, "what": "The minimum-exactly-when-P-equals-Q statement begins."},
+        {"kind": "frame", "t": 1456.5, "what": "The screen reads 'Minimal when Q = P' alongside the weighted loss expression."}
+      ],
+      "findings": "Trigger 0 opens at 1456.0, after the names example has appeared and while the first post-name minimum requirement is being stated in speech and on screen.",
+      "criterion": "The sole trigger must coincide with the literal first occurrence requested after the stated anchor, rather than with a merely related formula or a later recap.",
+      "steps": [
+        {"question": "Does the trigger occur after the names example?", "answer_bool": true, "why": "1354.6 precedes the 1456.0 trigger start."},
+        {"question": "Is the minimum requirement actually stated at this trigger?", "answer_bool": true, "why": "Speech says minimum exactly when P and Q are equal and the frame displays 'Minimal when Q = P'."},
+        {"question": "Is this the first such statement after the anchor?", "answer_bool": true, "why": "The intervening transcript and frames define average loss and identify cross entropy but do not state its minimizing condition."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "question-anchored-to-screen",
+      "target": null,
+      "looked_at": [],
+      "findings": "The question points to 'the example with the names', 'the video first states' a later requirement, and 'the three ... candidate functions drawn earlier'.",
+      "criterion": "A screen-anchored question must identify observable video events or objects whose timing and identity cannot be replaced by a topic-only textbook prompt.",
+      "steps": [
+        {"question": "Which wording identifies a concrete earlier visual object?", "answer_text": "the three non-logarithmic candidate functions drawn earlier", "why": "It requires recognizing a specific set of curves and labels shown in the video."},
+        {"question": "Which wording fixes a concrete temporal screen sequence?", "answer_text": "After the example with the names appears ... the video first states ... again", "why": "It orders two particular video moments and requests the first later occurrence."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-within-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "Each positive rubric demand maps to naming the three earlier non-log candidates or explaining why monotone decrease is insufficient for the newly stated minimum requirement; the negative item rejects derivative convenience alone as a substitute for that explanation.",
+      "criterion": "Every judging requirement must be demanded by the participant-visible question, including any required condition embedded in a phrase such as 'that requirement'.",
+      "steps": [
+        {"question": "What question requirement supports naming 1/x-1, tan((pi/2)(1-x)), and Gamma(x)-1?", "answer_text": "name the three non-logarithmic candidate functions drawn earlier", "why": "This is an explicit closed naming request."},
+        {"question": "What supports requiring an explanation beyond monotone decrease?", "answer_text": "explain why their being decreasing is not enough for that requirement", "why": "The explanatory contrast is explicit."},
+        {"question": "What supports stating that the weighted average is minimized at q=p?", "answer_text": "the requirement of a minimum of the average loss again", "why": "'That requirement' refers to the requirement the participant has just waited to see, namely the displayed and spoken match condition."},
+        {"question": "What supports rejecting derivative convenience alone?", "answer_text": "why their being decreasing is not enough for that requirement", "why": "Cleaner derivatives do not answer the requested insufficiency or identify the required minimum."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "discriminator-in-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "There are no distractors. The sole excluding rubric condition says derivative convenience alone is insufficient, and the question explicitly asks why monotone decrease does not ensure the newly stated minimum requirement.",
+      "criterion": "Any answer form that the judge excludes must be ruled out by wording visible to the participant, not by an unstated annotator preference.",
+      "steps": [
+        {"question": "Are there distractor rationales requiring textual discrimination?", "answer_bool": false, "why": "The supplied sample has no distractors."},
+        {"question": "Does the question rule out derivative convenience as a complete answer?", "answer_bool": true, "why": "Derivative convenience does not explain why decreasing is insufficient for the minimum-at-match requirement explicitly referenced by the question."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-not-punishing-extra",
+      "target": null,
+      "looked_at": [],
+      "findings": "The question itself asks for exactly three non-logarithmic candidates, and the frame presents exactly those three in addition to the logarithm. The exclusion says not to count derivative convenience alone; it does not reject a correct answer that also mentions derivative convenience.",
+      "criterion": "A closed enumeration or exclusion must not reject an additional detail that is itself a correct response under the question's wording.",
+      "steps": [
+        {"question": "Does the three-function enumeration exclude another qualifying non-log candidate shown in the candidate set?", "answer_bool": false, "why": "The cited candidate frame contains precisely 1/x-1, the tangent expression, and Gamma(x)-1 as the three non-log curves."},
+        {"question": "Does the derivative exclusion punish an answer that gives the required minimum explanation plus an extra true detail?", "answer_bool": false, "why": "Its word 'alone' rejects only using convenience as the entire explanation."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-fully-covered",
+      "target": {"distractor_idx": 0},
+      "looked_at": [],
+      "findings": "The supplied sample contains no distractor objects or distractor intervals.",
+      "criterion": "Coverage can be assessed only when a distractor interval exists whose full tempting event must be enclosed.",
+      "steps": [
+        {"question": "Is there a distractor interval to inspect?", "answer_bool": false, "why": "No distractors field or distractor records are present in the supplied sample."}
+      ],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-not-correct-answer",
+      "target": {"distractor_idx": 0},
+      "looked_at": [],
+      "findings": "The supplied sample contains no distractor answer candidates.",
+      "criterion": "A distractor can be tested for good-faith correctness only if the sample designates a distractor.",
+      "steps": [
+        {"question": "Is there a designated distractor whose correctness could be evaluated?", "answer_bool": false, "why": "No distractor is present in the sample."}
+      ],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-why-hides-answer",
+      "target": null,
+      "looked_at": [],
+      "findings": "There are no distractor.why strings in the supplied sample.",
+      "criterion": "Only an existing distractor rationale can accidentally reveal or encode the intended answer.",
+      "steps": [
+        {"question": "Is any distractor rationale present to inspect for answer leakage?", "answer_bool": false, "why": "The sample supplies no distractors."}
+      ],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "reasoning-level-not-inflated",
+      "target": null,
+      "looked_at": [],
+      "findings": "The function identities are shown around 1152.8, while the relevant minimum condition first appears after the names example around 1456.5. The answer combines those separated scenes; it requires no fact external to the video.",
+      "criterion": "L2 is appropriate when the answer requires connecting materially separated video moments; L1 would fit a direct single-moment read-off and L3 would require an external derivation.",
+      "steps": [
+        {"question": "Can all required facts be read from the trigger moment alone?", "answer_bool": false, "why": "The 1456.5 frame states the minimum condition but does not name the three earlier non-log functions."},
+        {"question": "Must the participant connect separated moments?", "answer_bool": true, "why": "The candidate labels are around 1152.8 and the criterion is around 1456.5, roughly five minutes later."},
+        {"question": "Does the answer require deriving a fact absent from the video?", "answer_bool": false, "why": "Both the candidates and the insufficiency/minimum contrast are presented in the video."},
+        {"question": "Is L2 understated as well as not inflated?", "answer_bool": false, "why": "No off-video mathematical result beyond connecting the two scenes is needed, so L3 is not warranted."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-matches-description",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 1152.8, "what": "The dense frame visibly labels 1/x-1, tan((pi/2)(1-x)), and Gamma(x)-1."},
+        {"kind": "frame", "t": 1456.5, "what": "The frame visibly states 'Minimal when Q = P' beside the weighted cross-entropy expression."}
+      ],
+      "findings": "Both provenance descriptions match their real frames: the earlier one labels all three non-log candidates, and the later one explicitly states the minimizing condition.",
+      "criterion": "Each provenance description must accurately describe the visible content at its cited time rather than relying on screen-index recognition.",
+      "steps": [
+        {"question": "Does the 1152.8 frame show all three described non-log candidates?", "answer_bool": true, "why": "All three formulas are simultaneously legible on the graph."},
+        {"question": "Does the 1456.5 frame explicitly state the described minimum property?", "answer_bool": true, "why": "The bullet reads 'Minimal when Q = P'."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "references-consistent-with-windows",
+      "target": null,
+      "looked_at": [],
+      "findings": "The 1152.8 evidence supplies only the earlier candidate names requested by the cross-scene question. The evidence that supplies the awaited minimum criterion is at 1456.5, inside trigger 0's [1456.0,1472.0) window.",
+      "criterion": "A reference contradicts a window only if it shows that the complete answer condition was available before the window opened; an intentionally earlier premise does not do so when a later required event remains unavailable.",
+      "steps": [
+        {"question": "Does the pre-window evidence at 1152.8 make the full answer available?", "answer_bool": false, "why": "It provides the function names but predates both the names-example anchor and the requested first later minimum statement."},
+        {"question": "Is the evidence for the awaited criterion inside the trigger window?", "answer_bool": true, "why": "1456.5 lies within [1456.0,1472.0)."},
+        {"question": "Does any provenance record imply the full answer was available before 1456.0?", "answer_bool": false, "why": "The cross-scene answer requires both records, and the second is not pre-window."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-answer-verified",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 1152.8, "what": "The three requested non-log functions are visibly labeled."},
+        {"kind": "cue", "t": 1329.1, "what": "The speaker says decrease initially looks like the only constraint."},
+        {"kind": "cue", "t": 1420.8, "what": "The average loss is defined as a P-weighted average over f(q)."},
+        {"kind": "cue", "t": 1455.6, "what": "The speaker states the minimum occurs exactly when all P and Q values match."},
+        {"kind": "cue", "t": 1473.9, "what": "The converse requirement for generic F is stated: average loss is minimized only when model output matches data statistics."},
+        {"kind": "frame", "t": 1456.5, "what": "The visible bullet says 'Minimal when Q = P'."}
+      ],
+      "findings": "The frames verify the three names and q=p minimum, while the transcript explicitly contrasts mere monotone decrease with the stronger requirement that the P-weighted average loss be minimized only at the matching distribution. The reference response expresses that distinction correctly.",
+      "criterion": "The reference answer must contain the correct objects and the correct substantive reason demanded by the question, without substituting a merely convenient property.",
+      "steps": [
+        {"question": "Are the three formulas in the response exactly the three non-log candidates drawn?", "answer_bool": true, "why": "The 1152.8 frame labels 1/x-1, tan((pi/2)(1-x)), and Gamma(x)-1."},
+        {"question": "Does monotone decrease alone mathematically ensure the stated minimum for every P?", "answer_bool": false, "why": "Decrease controls each coordinate separately but does not impose the proper-scoring condition that the constrained weighted sum is uniquely minimized at q=p for every distribution p."},
+        {"question": "Does the response state the required minimizer and uniqueness?", "answer_bool": true, "why": "It says the sum over p_i f(q_i) has a unique minimum at q=p, matching 'exactly when' and 'only when' in speech."},
+        {"question": "Does the response avoid treating derivative convenience as the reason?", "answer_bool": true, "why": "Its explanation is the failure of monotonicity to guarantee the minimum-at-match property."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "twins-agree-on-substance",
+      "target": null,
+      "looked_at": [],
+      "findings": "The supplied sample has no twin_of field and therefore no paired reference response.",
+      "criterion": "Substantive agreement can be compared only when the sample declares a twin.",
+      "steps": [
+        {"question": "Is a twin sample declared for comparison?", "answer_bool": false, "why": "No twin_of field is present in the supplied sample."}
+      ],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

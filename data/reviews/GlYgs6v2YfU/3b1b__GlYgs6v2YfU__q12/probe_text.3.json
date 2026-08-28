@@ -1,0 +1,57 @@
+{
+  "schema_version": "1.0",
+  "checklist_version": "1.0",
+  "sample_id": "3b1b__GlYgs6v2YfU__q12",
+  "role": "probe_text",
+  "iteration": 3,
+  "model": "gpt-5",
+  "date": "2026-08-26",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q12/probe_text_r3",
+  "budget": {
+    "frames_viewed": 0,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 465,
+    "screen_index_used": false
+  },
+  "violations": [],
+  "notes": "The provided transcript stops at 1622.0 s as the distillation setup begins; it contains none of the displayed prefixes, top tokens, or percentages asked for.",
+  "looked_at": [
+    {
+      "kind": "cue",
+      "t": 1106.7,
+      "what": "A smarter model is expected generally to give true next tokens higher probabilities."
+    },
+    {
+      "kind": "cue",
+      "t": 1592.3,
+      "what": "Distillation is introduced as training a relatively small model to approximate a larger, presumably smarter model."
+    },
+    {
+      "kind": "cue",
+      "t": 1614.9,
+      "what": "The narration says the larger model enables a more efficient training approach for the small model; the supplied transcript ends at 1622.0."
+    }
+  ],
+  "steps": [
+    {
+      "question": "Does the transcript provide the successive displayed distributions?",
+      "answer_bool": false,
+      "why": "It ends at 1622.0 while introducing distillation and gives no list of prefixes, top tokens, or paired percentages."
+    },
+    {
+      "question": "Does the general narration establish that the larger model wins every displayed top-token comparison?",
+      "answer_bool": false,
+      "why": "The narration only says a larger model is presumably smarter and that smarter models generally give true next tokens higher probabilities; this neither enumerates the displays nor guarantees every top-token comparison."
+    },
+    {
+      "question": "Can the sole reversal and its two percentages be identified from text?",
+      "answer_text": "No; the prefix, top token, and both percentages are absent from the transcript.",
+      "why": "None of the provided cues states those displayed values."
+    }
+  ],
+  "answer": "The text is not sufficient to decide whether the larger model leads on every display or to identify the sole reversal. It supports only the broad expectation that the larger model is presumably smarter and that smarter models generally assign higher probabilities to true next tokens; that is not an every-display comparison of top-token probabilities. The supplied transcript contains no values for the displays from 'It was the best' through 'It matters not how', so I cannot honestly report the reversal's prefix, top token, or the two percentages without guessing.",
+  "basis": "Transcript [1106.7–1118.2] says a smarter model generally gives true next tokens higher probabilities. Transcript [1592.3–1601.2] describes the small model as approximating a larger, 'presumably much smarter' model. The transcript ends at [1618.9–1622.0] before any of the requested displayed distributions or percentages are spoken. No visual material was used.",
+  "confidence": "high",
+  "insufficient": true
+}

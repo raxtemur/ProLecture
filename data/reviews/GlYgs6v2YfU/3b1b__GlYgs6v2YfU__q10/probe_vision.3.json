@@ -1,0 +1,91 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__GlYgs6v2YfU__q10",
+  "role": "probe_vision",
+  "iteration": 3,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q10/probe_vision_r3",
+  "budget": {
+    "frames_viewed": 7,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 1298.0,
+        "t_end": 1304.0
+      },
+      {
+        "t_start": 1454.0,
+        "t_end": 1458.0
+      }
+    ],
+    "transcript_cues": 0,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "Screen-index excerpts read: 714 lines. No transcript or audio was used. Direct frame viewing used the assigned JPEGs only.",
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 1300.0,
+      "what": "The graph shows the logarithmic reference function -log_2(x)."
+    },
+    {
+      "kind": "frame",
+      "t": 1301.0,
+      "what": "A second decreasing curve labeled 1/x - 1 is drawn beside the logarithmic curve."
+    },
+    {
+      "kind": "frame",
+      "t": 1302.0,
+      "what": "A third curve labeled tan((pi/2)(1-x)) is added."
+    },
+    {
+      "kind": "frame",
+      "t": 1303.0,
+      "what": "The graph simultaneously shows the three non-logarithmic candidates 1/x - 1, tan((pi/2)(1-x)), and Gamma(x) - 1."
+    },
+    {
+      "kind": "frame",
+      "t": 1423.0,
+      "what": "The names example displays Alice, Bob, Charlie, and Dora and defines Average Loss = sum_i p_i f(q_i)."
+    },
+    {
+      "kind": "frame",
+      "t": 1455.0,
+      "what": "During the transition away from the names example, part of the minimum statement and the weighted log-loss display become visible."
+    },
+    {
+      "kind": "frame",
+      "t": 1456.0,
+      "what": "The frame explicitly states 'Minimal when Q = P' beside sum_i p_i(-log_2 q_i)."
+    }
+  ],
+  "steps": [
+    {
+      "question": "Which non-logarithmic candidate functions were drawn earlier?",
+      "answer_text": "1/x - 1, tan((pi/2)(1-x)), and Gamma(x) - 1.",
+      "why": "Their labels and curves are all simultaneously distinguishable in frame t001303.jpg, with the first two also appearing as they are added in t001301.jpg and t001302.jpg."
+    },
+    {
+      "question": "What average-loss quantity does the names example define?",
+      "answer_text": "Average Loss = sum_i p_i f(q_i).",
+      "why": "Frame t001423.jpg shows this formula above the grouped Alice, Bob, Charlie, and Dora outcomes."
+    },
+    {
+      "question": "What requirement is stated again after that example?",
+      "answer_text": "The average loss must be minimal when Q = P.",
+      "why": "Frame t001456.jpg explicitly shows 'Minimal when Q = P' next to the weighted loss sum."
+    },
+    {
+      "question": "Why does monotone decrease alone not guarantee that minimum?",
+      "answer_text": "Decrease controls each outcome separately, but not the optimum of the probability-weighted sum under sum_i q_i = 1; a decreasing loss can therefore prefer Q different from P.",
+      "why": "This follows by general constrained-optimization knowledge applied to the average-loss formula in t001423.jpg and the target condition in t001456.jpg: at an interior optimum p_i f'(q_i) must be equal across i, a condition not implied merely by f'(x) < 0."
+    }
+  ],
+  "answer": "The three non-logarithmic candidates are f(x) = 1/x - 1, f(x) = tan((pi/2)(1-x)), and f(x) = Gamma(x) - 1. Their being decreasing only says that assigning more probability to the outcome that occurs gives that outcome a smaller individual loss. The actual requirement is stronger: the weighted average sum_i p_i f(q_i), with the q_i coupled by sum_i q_i = 1, must attain its minimum at Q = P. Monotonicity alone does not control that coupled tradeoff, so a decreasing candidate can have its optimum at Q != P. Equivalently, an interior optimum requires p_i f'(q_i) to be the same for all i; demanding q_i = p_i for every P forces x f'(x) to be constant (the logarithmic form, up to scale and an additive constant), which the three candidates do not satisfy.",
+  "basis": "Direct visual evidence: t001303.jpg names all three candidates; t001423.jpg shows the names example and Average Loss = sum_i p_i f(q_i); t001456.jpg states 'Minimal when Q = P'. The explanation of why decrease is insufficient is a general constrained-optimization inference from those displayed formulas, not a recalled answer or recognition of the video.",
+  "confidence": "high",
+  "insufficient": false
+}

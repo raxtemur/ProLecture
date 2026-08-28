@@ -1,0 +1,211 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__GlYgs6v2YfU__q06",
+  "role": "full_window",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-26",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q06/full_window0",
+  "budget": {
+    "frames_viewed": 9,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 7,
+    "screen_index_used": false
+  },
+  "violations": [],
+  "notes": "Tighten t_end to 1125: the stable answer state ends at 1124.\nNo full author answer appears in the L2 leakage horizon.\nNo dependency is present.",
+  "verdict": "FIX_INTERVALS",
+  "checks": [
+    {
+      "group": "windows",
+      "item": "window-can-be-tightened",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1121,
+          "what": "completed worst state reads Loss = 11.11"
+        },
+        {
+          "kind": "frame",
+          "t": 1124,
+          "what": "the same complete 11.11 state remains stable"
+        },
+        {
+          "kind": "frame",
+          "t": 1125,
+          "what": "a new animation has started and the loss label is no longer present"
+        },
+        {
+          "kind": "frame",
+          "t": 1126,
+          "what": "the changing display now reads Loss = 10.66"
+        },
+        {
+          "kind": "frame",
+          "t": 1128,
+          "what": "the scene has changed to a single-probability log graph"
+        }
+      ],
+      "findings": "The requested completed 11.11 state is stable from 1121 through 1124. A new animation begins at 1125, three seconds before the current 1128 end, and by 1126 the displayed total is 10.66.",
+      "criterion": "The window should end when the answer-bearing completed state stops being available; more than trivial empty or contradictory tail slack should be removed.",
+      "steps": [
+        {
+          "question": "What is the last inspected second with the stable requested state?",
+          "answer_bool": null,
+          "answer_number": 1124,
+          "answer_text": null,
+          "why": "Frames 1121–1124 all show the complete 11.11 state."
+        },
+        {
+          "question": "Does a materially different animation occupy the current tail?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Frames 1125–1128 transition away and show a different changing total."
+        }
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {
+        "field": "triggers[0].t_end",
+        "value": "1125.0",
+        "why": "End before the next loss animation replaces the completed 11.11 state."
+      },
+      "uncovered": null
+    },
+    {
+      "group": "windows",
+      "item": "author-says-answer-in-window",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1121,
+          "what": "new total 11.11 is visible but previous total and jump are not displayed"
+        },
+        {
+          "kind": "cue",
+          "t": 1118.2,
+          "what": "the narrator describes a poorly trained model as confused"
+        },
+        {
+          "kind": "cue",
+          "t": 1122.1,
+          "what": "the narrator says it gives everything low probability"
+        },
+        {
+          "kind": "cue",
+          "t": 1125.9,
+          "what": "the narrator introduces the negative-log graph"
+        }
+      ],
+      "findings": "Within 1121–1138 the author never states 1.53, 11.11, or 9.58. The frame shows only the new total; the old total must be remembered and the jump computed.",
+      "criterion": "An L2 window is critical only if the stream supplies the complete finished answer inside the window or ten seconds after it.",
+      "steps": [
+        {
+          "question": "Is the complete three-part answer spoken or shown in finished form?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Neither speech nor a single display supplies the previous value and computed jump."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "event-not-earlier-than-window",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1120,
+          "what": "the rebuild is still intermediate and reads Loss = 9.10"
+        },
+        {
+          "kind": "frame",
+          "t": 1121,
+          "what": "the full worst-of-times state is complete at 11.11"
+        }
+      ],
+      "findings": "The full rebuild condition is not satisfied at 1120 and is satisfied at the 1121 window start.",
+      "criterion": "An event window must open when the literal triggering event begins, not after it is already underway.",
+      "steps": [
+        {
+          "question": "Is the completed worst state present before 1121?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The 1120 frame is still an intermediate mixed rebuild."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "depends-on-is-dependency",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [],
+      "findings": "Trigger 0 has no depends_on field, and no rubric item requires another trigger's answer.",
+      "criterion": "A dependency link is applicable only when a rubric requirement cannot be satisfied without a named earlier trigger answer.",
+      "steps": [],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "evidence-span-is-last",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1121,
+          "what": "the final needed new-state value 11.11 first appears"
+        },
+        {
+          "kind": "frame",
+          "t": 1124,
+          "what": "the completed state remains visible until the evidence span ends"
+        }
+      ],
+      "findings": "The last new fact needed for the response is the completed 11.11 state at 1121; the existing span 1121–1125 contains that fact and its stable display.",
+      "criterion": "The evidence span must include the appearance of the last fact that makes the answer derivable, rather than later author corroboration.",
+      "steps": [
+        {
+          "question": "Does the current evidence span cover the last required fact?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Its start is the first completed 11.11 frame."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ],
+  "window_idx": 0
+}
+

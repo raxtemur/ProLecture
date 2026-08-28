@@ -1,0 +1,71 @@
+{
+  "sample_id": "3b1b__GlYgs6v2YfU__q01",
+  "role": "probe_text",
+  "iteration": 5,
+  "model": "gpt-5",
+  "date": "2026-08-26",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q01/probe_text_r5",
+  "budget": {
+    "frames_viewed": 0,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 23,
+    "screen_index_used": false
+  },
+  "violations": [],
+  "notes": "The transcript determines the swapped construction and its interpretation, but gives no colour information.",
+  "looked_at": [
+    {
+      "kind": "cue",
+      "t": 50.8,
+      "what": "Given A and B, append a small snippet of B to the end of A."
+    },
+    {
+      "kind": "cue",
+      "t": 55.4,
+      "what": "Compress the combined result."
+    },
+    {
+      "kind": "cue",
+      "t": 57.0,
+      "what": "Compare that compressed file size with compressing A alone."
+    },
+    {
+      "kind": "cue",
+      "t": 63.1,
+      "what": "The difference says how well a snippet of B compresses when the compressor is mostly optimized for A."
+    },
+    {
+      "kind": "cue",
+      "t": 71.3,
+      "what": "The result is small for similar linguistic patterns and larger for more different patterns."
+    }
+  ],
+  "steps": [
+    {
+      "question": "What is the original construction described in the transcript?",
+      "answer_text": "Append a small snippet of B to A, compress the combined file, and subtract the compressed size of A alone.",
+      "why": "This directly combines the operations stated in the cues from 50.8 through 62.2 seconds."
+    },
+    {
+      "question": "What does exchanging A and B throughout do to the subtraction?",
+      "answer_text": "It makes B the base document and A the source of the appended snippet, giving GZIP(B + snippet(A)) - GZIP(B).",
+      "why": "The requested exchange is applied to the base, appended fragment, and standalone comparison term."
+    },
+    {
+      "question": "What does the swapped difference measure?",
+      "answer_text": "It measures how well a small snippet of A is compressed when the compressor is mostly optimized for B.",
+      "why": "This is the transcript reversed interpretation at 63.1-70.9 seconds with A and B exchanged throughout."
+    },
+    {
+      "question": "Can the colour composition of the resulting terms be recovered from the transcript?",
+      "answer_bool": false,
+      "answer_text": "No colours are named or described in the supplied transcript.",
+      "why": "All 23 supplied cues were read, and none identifies any displayed colour."
+    }
+  ],
+  "answer": "After exchanging A and B throughout, the subtraction is GZIP(B + snippet(A)) - GZIP(B). In the first term, B supplies the base and a small fragment of A is appended; the second term is B alone. The supplied transcript contains no colour information, so I cannot state which displayed colours encode B, the appended A fragment, or the B-only term. The new difference measures how well a snippet of A compresses when the compressor is mostly optimized for B; it should be smaller when A's linguistic patterns resemble B's and larger when they differ.",
+  "basis": "Transcript 50.8-57.0: 'Given two documents, A and B, append a small snippet of B to the end of A, and compress the result'; transcript 57.0-62.2 compares this with compressing A alone; transcript 63.1-70.9 interprets the difference as how well B's snippet compresses when the compressor is optimized for A. Swapping A and B in all three statements yields the answer. No transcript cue specifies colours.",
+  "confidence": "high",
+  "insufficient": true
+}

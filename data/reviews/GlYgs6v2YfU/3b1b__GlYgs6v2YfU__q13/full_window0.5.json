@@ -1,0 +1,308 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__GlYgs6v2YfU__q13",
+  "role": "full_window",
+  "iteration": 5,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q13/full_window0_r5",
+  "budget": {
+    "frames_viewed": 12,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 1784.0,
+        "t_end": 1793.0
+      }
+    ],
+    "transcript_cues": 6,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The local image viewer failed at its sandbox layer, so the approved frames were inspected through an encoded contact sheet and encoded originals. No prior reviews or coordinator records were read.",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "group": "windows",
+      "item": "author-says-answer-in-window",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1786.0,
+          "what": "The heading, the complete requested binary fraction, and the selected c-o-m-p-r levels are simultaneously visible."
+        },
+        {
+          "kind": "frame",
+          "t": 1788.0,
+          "what": "The preview remains on screen, now with an extra binary digit and an additional lower letter level."
+        },
+        {
+          "kind": "frame",
+          "t": 1792.0,
+          "what": "The preview remains visible near the end of the answer window with still more lower levels."
+        },
+        {
+          "kind": "frame",
+          "t": 1796.8,
+          "what": "The display has changed to a chart headed 'Loss = Information from the model's perspective'."
+        },
+        {
+          "kind": "frame",
+          "t": 1799.7,
+          "what": "The information-loss chart remains on screen and does not state the requested binary-and-letters answer."
+        },
+        {
+          "kind": "cue",
+          "t": 1785.0,
+          "what": "The author introduces a visual compression algorithm, without saying the binary fraction or selected letters."
+        },
+        {
+          "kind": "cue",
+          "t": 1788.4,
+          "what": "The author says the algorithm will be explored in the next part, without giving the requested answer."
+        },
+        {
+          "kind": "cue",
+          "t": 1791.9,
+          "what": "The author begins relating the idea to cross-entropy loss, without giving the requested answer."
+        },
+        {
+          "kind": "cue",
+          "t": 1796.1,
+          "what": "The author says training is equivalent to making the best possible text compressor, without stating the visual answer."
+        },
+        {
+          "kind": "cue",
+          "t": 1801.3,
+          "what": "The author begins a broader compression-and-intelligence conclusion, without stating the visual answer."
+        }
+      ],
+      "findings": "The requested answer is displayed in finished form at 1786.0. Across the transcript from the window through the ten-second follow-up, the author discusses the algorithm and cross-entropy but does not speak the fraction or letter sequence.",
+      "criterion": "A finished answer appearing during or shortly after the window is disqualifying only for an L2/L3 task; for an L1 visual alarm, coincidence with the displayed target is expected and allowed.",
+      "steps": [
+        {
+          "question": "Is the finished answer present between 1786.0 and 1802.0?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The 1786.0 frame visibly contains the complete fraction and c-o-m-p-r state."
+        },
+        {
+          "question": "Does the author speak the requested answer in that interval?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "All transcript cues spanning the interval discuss the algorithm and its implications without reading out the fraction or letters."
+        },
+        {
+          "question": "Does the sample's L1 level permit the answer to coincide with the visual alarm?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The sample is labeled L1 and asks the model to report the state when the heading first appears."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "windows",
+      "item": "window-can-be-tightened",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1786.0,
+          "what": "At window opening the heading and complete requested first-appearance state are visible."
+        },
+        {
+          "kind": "frame",
+          "t": 1787.0,
+          "what": "The heading and original fraction remain visible while a new lower letter level has appeared."
+        },
+        {
+          "kind": "frame",
+          "t": 1788.0,
+          "what": "The heading remains visible, but the binary fraction has advanced by one digit."
+        },
+        {
+          "kind": "frame",
+          "t": 1791.0,
+          "what": "The same preview continues with later animation states and additional levels."
+        },
+        {
+          "kind": "frame",
+          "t": 1792.0,
+          "what": "The preview is still on screen at the final sampled second before the window closes."
+        }
+      ],
+      "findings": "The answer is complete at 1786.0. Subsequent frames advance the animation, but the heading and preview persist through 1792.0; the question explicitly asks for the already observed state at first appearance.",
+      "criterion": "A first-appearance question retains its answer after the animation advances, because the remaining window supplies response-generation time; the interval should shrink only for a substantial unusable tail, not below the legal minimum for latency.",
+      "steps": [
+        {
+          "question": "When is the requested first-appearance state fully visible?",
+          "answer_bool": null,
+          "answer_number": 1786.0,
+          "answer_text": null,
+          "why": "The 1786.0 frame contains the heading, exact fraction, and all five requested selected levels."
+        },
+        {
+          "question": "Does later animation erase the model's opportunity to answer about the earlier state?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The first-appearance state has already been observed, and the wording explicitly anchors the response to that state."
+        },
+        {
+          "question": "Is there a large unusable portion that justifies shortening this six-second window?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The preview persists through the window, while the remaining seconds serve as generation latency for the first-appearance answer."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "event-not-earlier-than-window",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1785.0,
+          "what": "The nested intervals and a partial binary display are visible, but the 'Coming up in part 3' heading is absent."
+        },
+        {
+          "kind": "frame",
+          "t": 1786.0,
+          "what": "The 'Coming up in part 3' heading is now visible above the nested intervals."
+        }
+      ],
+      "findings": "The named trigger event is absent in the 1785.0 frame and present in the 1786.0 frame, matching the 1786.0 window opening at the available one-second resolution.",
+      "criterion": "For an appearance event, the answer window must not open after the event has already begun; the first visible heading should coincide with the opening boundary.",
+      "steps": [
+        {
+          "question": "Is the trigger heading visible one second before the window opens?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "No heading appears in the 1785.0 frame."
+        },
+        {
+          "question": "Is the trigger heading visible at the window opening?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The heading is clearly present at 1786.0."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "depends-on-is-dependency",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [],
+      "findings": "Trigger 0 has no depends_on field, and its rubric asks only for facts visible in this same first-appearance state.",
+      "criterion": "A dependency is needed only when satisfying this window's rubric requires an answer from another trigger; with no prior trigger and no cross-window prerequisite, the check is inapplicable.",
+      "steps": [
+        {
+          "question": "Does this trigger declare a depends_on link?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "No depends_on field is present in the supplied trigger object."
+        },
+        {
+          "question": "Does any rubric item require an answer from another trigger?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Every rubric item concerns the binary fraction and selected letters in trigger 0 itself."
+        }
+      ],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "evidence-span-is-last",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1785.0,
+          "what": "The heading that defines the requested first-appearance moment is not yet visible."
+        },
+        {
+          "kind": "frame",
+          "t": 1786.0,
+          "what": "The heading first appears together with the exact binary fraction and selected c-o-m-p-r levels."
+        },
+        {
+          "kind": "frame",
+          "t": 1787.0,
+          "what": "The heading and original fraction remain, while the animation has begun adding a later lower level."
+        }
+      ],
+      "findings": "The heading is the final fact needed to identify the requested state, and it is first visible at 1786.0; at that same moment the fraction and c-o-m-p-r selection are complete. The supplied evidence span is 1786.0–1787.0.",
+      "criterion": "The evidence interval must contain the moment when the last necessary fact becomes observable, rather than later animation or later corroboration.",
+      "steps": [
+        {
+          "question": "What is the last necessary fact for deriving the requested answer?",
+          "answer_bool": null,
+          "answer_number": null,
+          "answer_text": "The appearance of the 'Coming up in part 3' heading that fixes which animation state to report.",
+          "why": "The question asks specifically for the state when that heading first appears."
+        },
+        {
+          "question": "When is that last necessary fact visible with the complete answer state?",
+          "answer_bool": null,
+          "answer_number": 1786.0,
+          "answer_text": null,
+          "why": "At 1786.0 the heading, exact fraction, and c-o-m-p-r levels are simultaneously visible."
+        },
+        {
+          "question": "Does the declared evidence span contain that moment?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The declared span begins at 1786.0 and extends to 1787.0."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ],
+  "window_idx": 0
+}

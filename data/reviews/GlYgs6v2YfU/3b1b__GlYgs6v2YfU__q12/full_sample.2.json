@@ -1,0 +1,332 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__GlYgs6v2YfU__q12",
+  "role": "full_sample",
+  "iteration": 2,
+  "model": "gpt-5.4",
+  "date": "2026-08-26",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q12/full_sample_r2",
+  "budget": {
+    "frames_viewed": 6,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 1617,
+        "t_end": 1621
+      }
+    ],
+    "transcript_cues": 579,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "Independent round-2 review; no existing review or coordinator records were read.",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "group": "triggers",
+      "item": "no-missed-trigger",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 1592.3,
+          "what": "distillation and the small-versus-large setup begin"
+        },
+        {
+          "kind": "cue",
+          "t": 1614.9,
+          "what": "the larger model is introduced as the source of richer predictions"
+        },
+        {
+          "kind": "cue",
+          "t": 1622.3,
+          "what": "the narration moves into the procedure"
+        },
+        {
+          "kind": "frame",
+          "t": 1619,
+          "what": "for 'It was the best', the settled left list has of 24.5% and the right list has of 75.5%"
+        },
+        {
+          "kind": "frame",
+          "t": 1620,
+          "what": "the animation has already advanced to a different prefix and different values"
+        }
+      ],
+      "findings": "All 579 transcript cues were read in sequence; the only post-question occurrence matching the literal screen condition is the annotated event documented by the listed frames.",
+      "criterion": "Every post-question moment satisfying the literal screen condition must be covered so an on-merits answer is not penalized.",
+      "steps": [
+        {
+          "question": "How many post-question occurrences satisfy the literal condition?",
+          "answer_text": "One annotated occurrence; no second qualifying occurrence was found.",
+          "why": "This follows from the complete cue pass and real candidate frames."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "trigger-matches-criterion",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1619,
+          "what": "for 'It was the best', the settled left list has of 24.5% and the right list has of 75.5%"
+        },
+        {
+          "kind": "frame",
+          "t": 1620,
+          "what": "the animation has already advanced to a different prefix and different values"
+        }
+      ],
+      "findings": "The annotated trigger contains the screen state described in the question and supports the reference response.",
+      "criterion": "Each trigger must satisfy the question's literal condition, not merely resemble nearby examples.",
+      "steps": [
+        {
+          "question": "Does trigger 0 satisfy the literal condition?",
+          "answer_text": "Yes.",
+          "why": "At 1619 the smaller left model and larger right model both rank 'of' first, at 24.5% and 75.5% respectively."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "question-anchored-to-screen",
+      "target": null,
+      "looked_at": [],
+      "findings": "The question names screen-specific anchors: the exact prefix 'It was the best', left/right distributions, top tokens, percentages, and smaller/larger roles.",
+      "criterion": "A valid question must identify a concrete visual state rather than only a textbook topic.",
+      "steps": [
+        {
+          "question": "Which words bind the task to a particular screen?",
+          "answer_text": "the exact prefix 'It was the best', left/right distributions, top tokens, percentages, and smaller/larger roles",
+          "why": "These objects, labels, positions, or values are explicitly named in the question."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-within-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "Each positive rubric item scores a quantity, identity, relation, explanation, or exclusion explicitly requested by the question.",
+      "criterion": "Every rubric demand must trace to a requirement visible in the question string shown to the participant.",
+      "steps": [
+        {
+          "question": "Is any rubric requirement unsupported by the question?",
+          "answer_text": "No.",
+          "why": "The answer components and exclusions correspond directly to the question's requested fields and timing discriminator."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "discriminator-in-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "All exclusions in the rubric are grounded in explicit wording such as first, settled, exact prefix, both formula and conclusion, or named screen state.",
+      "criterion": "The participant-facing question must itself state every distinction used to reject a plausible alternative.",
+      "steps": [
+        {
+          "question": "Can each rejected alternative be cut off using the question alone?",
+          "answer_text": "Yes.",
+          "why": "The temporal/state discriminator is explicit and does not rely on private notes."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-not-punishing-extra",
+      "target": null,
+      "looked_at": [],
+      "findings": "Restrictive clauses were checked against the literal request and real trigger frames; they exclude only later, unfinished, previous, reversed, or otherwise non-requested states.",
+      "criterion": "A restrictive rubric clause may exclude details only when the question itself narrows the requested state or answer set.",
+      "steps": [
+        {
+          "question": "Could a correct detail from the requested state be penalized?",
+          "answer_text": "No.",
+          "why": "The restrictions mirror explicit timing/state language in the question."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-fully-covered",
+      "target": {
+        "distractor_idx": 0
+      },
+      "looked_at": [],
+      "findings": "The sample has no distractor windows.",
+      "criterion": "Coverage is inapplicable when no distractor exists.",
+      "steps": [],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-not-correct-answer",
+      "target": {
+        "distractor_idx": 0
+      },
+      "looked_at": [],
+      "findings": "The sample has no distractor windows.",
+      "criterion": "Correctness of a distractor is inapplicable when no distractor exists.",
+      "steps": [],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-why-hides-answer",
+      "target": null,
+      "looked_at": [],
+      "findings": "The sample has no distractor rationale.",
+      "criterion": "Answer leakage from distractor.why is inapplicable when no distractor exists.",
+      "steps": [],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "reasoning-level-not-inflated",
+      "target": null,
+      "looked_at": [],
+      "findings": "The label is L1. The complete answer is read directly from the first settled side-by-side distribution state.",
+      "criterion": "L1 is direct read-off, L2 joins separated video facts, and L3 derives something not stated in the video; the assigned level must not overstate that work.",
+      "steps": [
+        {
+          "question": "What is the minimum reasoning level supported by the task?",
+          "answer_text": "L1",
+          "why": "The complete answer is read directly from the first settled side-by-side distribution state."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-matches-description",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1619,
+          "what": "for 'It was the best', the settled left list has of 24.5% and the right list has of 75.5%"
+        },
+        {
+          "kind": "frame",
+          "t": 1620,
+          "what": "the animation has already advanced to a different prefix and different values"
+        }
+      ],
+      "findings": "The real frames at or adjacent to each provenance time show the objects, labels, values, or transition described by the evidence records.",
+      "criterion": "A provenance explanation must accurately describe what is visible at its cited moment.",
+      "steps": [
+        {
+          "question": "Do the cited visual claims match real frames?",
+          "answer_text": "Yes.",
+          "why": "At 1619 the smaller left model and larger right model both rank 'of' first, at 24.5% and 75.5% respectively."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "references-consistent-with-windows",
+      "target": null,
+      "looked_at": [],
+      "findings": "No provenance record claims that the answer was available before the annotated opening; any later corroboration is legitimate for prediction or verification.",
+      "criterion": "Only evidence proving answer availability before t_start contradicts the window; later confirmation does not.",
+      "steps": [
+        {
+          "question": "Does provenance establish the full answer before t_start?",
+          "answer_text": "No.",
+          "why": "The opening evidence is aligned to the answer state, while later records only confirm or explain it."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-answer-verified",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1619,
+          "what": "for 'It was the best', the settled left list has of 24.5% and the right list has of 75.5%"
+        },
+        {
+          "kind": "frame",
+          "t": 1620,
+          "what": "the animation has already advanced to a different prefix and different values"
+        }
+      ],
+      "findings": "At 1619 the smaller left model and larger right model both rank 'of' first, at 24.5% and 75.5% respectively.",
+      "criterion": "The reference response must be substantively correct under the question and supported by real video evidence plus any stated derivation.",
+      "steps": [
+        {
+          "question": "Does the evidence yield the stated response?",
+          "answer_text": "Yes.",
+          "why": "At 1619 the smaller left model and larger right model both rank 'of' first, at 24.5% and 75.5% respectively."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "twins-agree-on-substance",
+      "target": null,
+      "looked_at": [],
+      "findings": "The sample has no twin_of field.",
+      "criterion": "Twin comparison is inapplicable without a paired sample.",
+      "steps": [],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

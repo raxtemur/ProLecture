@@ -1,0 +1,212 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__GlYgs6v2YfU__q08",
+  "role": "full_window",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-26",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q08/full_window0",
+  "budget": {
+    "frames_viewed": 9,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 13,
+    "screen_index_used": false
+  },
+  "violations": [],
+  "notes": "Move t_start to 1264, where the full alignment is already visible.\nShorten evidence_span to the first complete alignment display.\nL1 author coincidence is allowed.",
+  "verdict": "FIX_INTERVALS",
+  "checks": [
+    {
+      "group": "windows",
+      "item": "window-can-be-tightened",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1266,
+          "what": "model q list and complete one-hot p list are side by side"
+        },
+        {
+          "kind": "frame",
+          "t": 1278,
+          "what": "the alignment and cancellation terms are fully visible"
+        },
+        {
+          "kind": "frame",
+          "t": 1292,
+          "what": "the one-hot list remains visible during the why prompt"
+        },
+        {
+          "kind": "frame",
+          "t": 1294,
+          "what": "the display changes at the annotated end"
+        }
+      ],
+      "findings": "The alignment remains answerable throughout the window and changes scene at approximately the current 1294 end.",
+      "criterion": "A window should be tightened only when a substantial segment no longer supports the answer.",
+      "steps": [
+        {
+          "question": "Is there substantial empty right-tail slack?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The one-hot alignment persists through 1292 and changes at 1294."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "windows",
+      "item": "author-says-answer-in-window",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1266,
+          "what": "who/q1 and p values are directly shown"
+        },
+        {
+          "kind": "cue",
+          "t": 1262.9,
+          "what": "the narrator says all mass is on the one true token"
+        },
+        {
+          "kind": "cue",
+          "t": 1275.4,
+          "what": "the narrator says the zeros cancel other terms"
+        }
+      ],
+      "findings": "The author explains the one-hot construction while the alignment is shown, but this sample is labelled L1.",
+      "criterion": "Author coincidence is acceptable for an L1 alarm-style task; only L2/L3 finished-answer leakage is critical.",
+      "steps": [
+        {
+          "question": "Is the sample L1?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The sample reasoning_level is L1."
+        },
+        {
+          "question": "Does author coincidence invalidate an L1 window?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The protocol explicitly permits it."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "event-not-earlier-than-window",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1264,
+          "what": "the complete who/q1 row, p=1 opposite who, and zeros elsewhere are already visible"
+        },
+        {
+          "kind": "frame",
+          "t": 1266,
+          "what": "the same complete alignment persists after window start"
+        }
+      ],
+      "findings": "All requested alignment facts are already visible at 1264, one second before t_start 1265.",
+      "criterion": "The event window must begin when the concrete one-hot alignment first becomes complete, not after it is already present.",
+      "steps": [
+        {
+          "question": "Is the full triggering alignment present before t_start?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Frame 1264 contains every requested p/q/token fact."
+        }
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {
+        "field": "triggers[0].t_start",
+        "value": "1264.0",
+        "why": "Open when the complete one-hot alignment first appears."
+      },
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "depends-on-is-dependency",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [],
+      "findings": "Trigger 0 has no depends_on field, and its four rubric facts are self-contained.",
+      "criterion": "A dependency exists only when another trigger answer is required by this window's rubric.",
+      "steps": [],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "evidence-span-is-last",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1264,
+          "what": "all alignment facts are already present"
+        },
+        {
+          "kind": "frame",
+          "t": 1278,
+          "what": "later algebra expands the weighted sum but adds no requested alignment fact"
+        }
+      ],
+      "findings": "The current evidence span extends to 1280.6, although the last fact requested by the question is already visible by 1264; later cancellation algebra is not needed for the answer.",
+      "criterion": "The span must identify when the last answer fact appears, not extend to later explanatory animation.",
+      "steps": [
+        {
+          "question": "When is the last requested alignment fact first complete?",
+          "answer_bool": null,
+          "answer_number": 1264,
+          "answer_text": null,
+          "why": "The token, q index, p=1, and remaining zeros are all visible then."
+        },
+        {
+          "question": "Does the current 1280.6 end point to later nonessential material?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "It reaches the cancellation animation rather than the last alignment fact."
+        }
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {
+        "field": "triggers[0].evidence_span",
+        "value": "[1264.0, 1265.0]",
+        "why": "Point at the first complete alignment rather than later algebra."
+      },
+      "uncovered": null
+    }
+  ],
+  "window_idx": 0
+}
+

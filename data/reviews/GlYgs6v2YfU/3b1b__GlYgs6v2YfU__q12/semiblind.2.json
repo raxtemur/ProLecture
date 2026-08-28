@@ -1,0 +1,160 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__GlYgs6v2YfU__q12",
+  "role": "semiblind",
+  "iteration": 2,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-26",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q12/semiblind_r2",
+  "budget": {
+    "frames_viewed": 8,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 1614.0,
+        "t_end": 1624.0
+      }
+    ],
+    "transcript_cues": 471,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The full transcript and supplied screen indexes accounted for 0-1648 s. Real-frame inspection was restricted to the candidate interval identified by them. No distractors were declared.",
+  "prior_answer": "It cannot be answered on the merits from the question alone: the top tokens, their percentages, and the left/right assignment to the small and large models are not specified.",
+  "prior_answer_assumptions": [],
+  "recognized_video": false,
+  "recognized_how": "",
+  "scans": [
+    {
+      "idx": 0,
+      "t_from": 0.0,
+      "t_to": 1648.0,
+      "watched": [
+        {
+          "kind": "frame",
+          "t": 1616.0,
+          "what": "Only the model-cube comparison is visible; the requested prefix distributions are absent."
+        },
+        {
+          "kind": "frame",
+          "t": 1617.0,
+          "what": "The model cubes remain visible, but the requested side-by-side token lists are not yet shown."
+        },
+        {
+          "kind": "frame",
+          "t": 1618.0,
+          "what": "The prefix and two token distributions have appeared, but the display is dim and the left leading percentage is still changing."
+        },
+        {
+          "kind": "frame",
+          "t": 1619.0,
+          "what": "A bright, settled side-by-side display shows 'of' at 24.6% on the left and 'of' at 75.5% on the right."
+        },
+        {
+          "kind": "frame",
+          "t": 1620.0,
+          "what": "The animation has moved to a different prefix and different distributions."
+        },
+        {
+          "kind": "frame",
+          "t": 1621.0,
+          "what": "A later, unrelated prefix and its two distributions are visible."
+        },
+        {
+          "kind": "frame",
+          "t": 1622.0,
+          "what": "A later, unrelated prefix and its two distributions are visible."
+        },
+        {
+          "kind": "frame",
+          "t": 1623.0,
+          "what": "A later, unrelated prefix and its two distributions are visible."
+        }
+      ],
+      "candidates": [
+        {
+          "question": "Are the requested prefix distributions available at 1617 s?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The frame still shows only the two differently sized model cubes."
+        },
+        {
+          "question": "Is the side-by-side state settled and readable at 1618 s?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The lists are dim and the leading left value is in transition, so this is not a fully settled state."
+        },
+        {
+          "question": "Is the requested comparison fully answerable at 1619 s?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Both lists are bright and stable, their top entries are legible, and cube size fixes the small/large side mapping."
+        }
+      ],
+      "t_val": 1619.0,
+      "t_val_basis": "The frame first shows a fully bright and settled pair of distributions for 'It was the best'; the small cube is over the left list and the large cube over the right list.",
+      "answer_at_t_val": "Left, smaller model: 'of' at 24.6%. Right, larger model: 'of' at 75.5%.",
+      "confidence": "high"
+    }
+  ],
+  "checks": [
+    {
+      "group": "shortcuts",
+      "item": "solvable-without-video",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 1592.3,
+          "what": "The participant-visible question asks for on-screen token values and a side assignment that its own text does not supply."
+        }
+      ],
+      "findings": "Before any transcript or frame viewing, the question did not contain either requested percentage, the top token, or the side-to-model mapping.",
+      "criterion": "A complete answer from general knowledge must identify the requested quantities without inventing unseen screen contents.",
+      "steps": [
+        {
+          "question": "Can the exact top tokens and percentages be derived from the question alone?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "They are contingent outputs of two particular models and are omitted from the prompt."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "video-recognized",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 1592.3,
+          "what": "Pre-view self-report was recorded from the participant-visible question before opening supplied evidence."
+        }
+      ],
+      "findings": "I did not recognize this particular video or remember the requested model outputs before viewing.",
+      "criterion": "Recognition fires only if the particular video and answer can be recalled before inspecting the supplied evidence.",
+      "steps": [
+        {
+          "question": "Could I name the requested answer from memory of this video?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "No video-specific memory or answer was available before viewing."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

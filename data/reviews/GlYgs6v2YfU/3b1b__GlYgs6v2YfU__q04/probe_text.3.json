@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.0",
+  "checklist_version": "1.0",
+  "sample_id": "3b1b__GlYgs6v2YfU__q04",
+  "role": "probe_text",
+  "iteration": 3,
+  "model": "gpt-5",
+  "date": "2026-08-26",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q04/probe_text_r3",
+  "budget": {
+    "frames_viewed": 0,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 246,
+    "screen_index_used": false
+  },
+  "violations": [],
+  "notes": "The transcript gives the general pointer rule but does not describe the colored words or individual arrows.",
+  "looked_at": [
+    {
+      "kind": "cue",
+      "t": 860.8,
+      "what": "The algorithm finds repetitions of a text sequence."
+    },
+    {
+      "kind": "cue",
+      "t": 865.2,
+      "what": "Later instances are replaced with pointers to earlier instances."
+    }
+  ],
+  "steps": [
+    {
+      "question": "What does the transcript say a back-reference targets?",
+      "answer_text": "An earlier instance of the repeated text sequence.",
+      "why": "At 860.8–869.7 the narration says repetitions are found and later instances are replaced by pointers to earlier instances."
+    },
+    {
+      "question": "Could pointers to a deleted first occurrence remain valid?",
+      "answer_bool": false,
+      "why": "A pointer cannot continue to identify an occurrence that no longer exists; a surviving earlier occurrence or literal text would be needed."
+    },
+    {
+      "question": "What specific visual target can be identified from the transcript?",
+      "answer_text": "The transcript does not identify the green 'dark' or the individual yellow arrows; the claim that they all target the first 'dark' comes from the question's wording and the general rule, so it remains an inference.",
+      "why": "No transcript cue mentions the word 'dark', colors, or the fan of arrows."
+    }
+  ],
+  "answer": "No. Under the compressor rule stated in the transcript, the later repeated occurrences are back-references to an earlier occurrence; in the scene described by the question, the existing fan is therefore understood to target the first green 'dark' at the top. Deleting that occurrence would leave those existing references without their target. The compressor would have to encode the next surviving 'dark' literally (or otherwise choose a surviving earlier copy), then retarget/recompute the later references—and any position or distance offsets—to that new source. The transcript does not itself identify the colored target or arrow topology, so that scene-specific identification cannot be confirmed from text alone.",
+  "basis": "Transcript [860.8–865.2]: 'find repetitions of a given text sequence'; [865.2–869.7]: 'replace later instances with pointers to earlier instances.' The first-green-'dark' identification is an inference from the participant-visible question plus that rule; no visual material was used.",
+  "confidence": "medium",
+  "insufficient": true
+}

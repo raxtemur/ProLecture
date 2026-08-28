@@ -1,0 +1,77 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__GlYgs6v2YfU__q01",
+  "role": "semiblind",
+  "iteration": 3,
+  "model": "GPT-5",
+  "date": "2026-08-26",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q01/semiblind_r3",
+  "budget": {
+    "frames_viewed": 4,
+    "sparse_step": null,
+    "dense_intervals": [{"t_start": 63.0, "t_end": 67.0}],
+    "transcript_cues": 23,
+    "screen_index_used": true
+  },
+  "violations": [{
+    "path": "data/reviews/",
+    "why": "An accidental zero-output rg command named this forbidden directory while I was reading schema definitions.",
+    "what_seen": "No prior-review path or content was displayed; the command output was empty."
+  }],
+  "notes": "The full 0-79 s transcript and supplied screen index were covered. The decisive information is already complete in narration just before the displayed minus sign.",
+  "prior_answer": "The replacement would be |GZIP(BA)| - |GZIP(B)| (equivalently GZIP(BA) - GZIP(B) in size-valued shorthand). The first term is the compressed size of document B with a small fragment of A appended; the second is the compressed size of B alone, so the difference is the extra compressed size of the A fragment in a compressor conditioned mainly on B.",
+  "prior_answer_assumptions": [],
+  "recognized_video": false,
+  "recognized_how": "",
+  "scans": [{
+    "idx": 0,
+    "t_from": 0.0,
+    "t_to": 79.0,
+    "watched": [
+      {"kind": "cue", "t": 50.8, "what": "The narration defines the directed construction: append a small snippet of B to A and compress the result."},
+      {"kind": "cue", "t": 57.0, "what": "The narration says to compare that file size with compressing A alone; the cue completes at 62.2 s."},
+      {"kind": "frame", "t": 63.0, "what": "Document A and B remain visible together with separate GZIP(AB) and GZIP(A) result labels."},
+      {"kind": "frame", "t": 64.0, "what": "The two labeled compression results move toward the comparison layout, but no minus sign is present."},
+      {"kind": "frame", "t": 65.0, "what": "The GZIP(AB) term is bracketed and GZIP(A) is separate; the subtraction is not yet fully drawn."},
+      {"kind": "frame", "t": 66.0, "what": "Both bracketed terms and the minus sign are fully visible as GZIP(AB) minus GZIP(A)."}
+    ],
+    "candidates": [
+      {"question": "Is the answer complete when only the append-and-compress operation has been narrated?", "answer_bool": false, "why": "Before the comparison cue completes, the baseline term to subtract has not yet been stated."},
+      {"question": "When does the directed subtraction become answerable on the merits?", "answer_number": 62.2, "why": "By the end of the 57.0-62.2 cue, the video has stated both the combined compressed result and the A-alone baseline; swapping roles yields the requested B-based counterfactual."},
+      {"question": "Does the later displayed formula add information required for the counterfactual?", "answer_bool": false, "why": "The 66 s frame confirms the notation visually, but the directed operands and their meanings were already explicit in the narration."}
+    ],
+    "t_val": 62.2,
+    "t_val_basis": "The narration has finished stating that the compressed A-plus-B-fragment result is compared against compressed A alone, completing the directed construction.",
+    "answer_at_t_val": "With B as the base and a small A fragment appended, use |GZIP(BA)| - |GZIP(B)|: compressed B-plus-A-fragment size minus compressed B-alone size; it measures the fragment's extra compressed size under B's context.",
+    "confidence": "high"
+  }],
+  "checks": [
+    {
+      "group": "shortcuts",
+      "item": "solvable-without-video",
+      "target": null,
+      "looked_at": [{"kind": "cue", "t": 0.0, "what": "Pre-view step-0 response recorded from the participant-visible question alone, before opening any workspace material."}],
+      "findings": "The question itself specifies the counterfactual direction, the base document B, and that an A fragment is appended.",
+      "criterion": "A question is preliminarily solvable without video when its requested objects and relation can be derived without inventing unseen frame content.",
+      "steps": [{"question": "Can the exact directed subtraction and both term meanings be derived from the wording?", "answer_bool": true, "why": "Swapping A and B in the stated base-plus-fragment construction directly gives the two size terms and their roles."}],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {"field": "question", "value": "Ask for a visually specific quantity or distinction not already fixed by the counterfactual wording.", "why": "As written, the directed subtraction follows from the question and general compression notation alone."},
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "video-recognized",
+      "target": null,
+      "looked_at": [{"kind": "cue", "t": 0.0, "what": "Pre-view step-0 self-report was recorded before opening the transcript or any frame."}],
+      "findings": "I did not recognize this particular video or moment and could not recall it from memory.",
+      "criterion": "The item fires only if the exact video and answer-bearing moment were recognized before viewing.",
+      "steps": [{"question": "Was this exact video recognized before any viewing?", "answer_bool": false, "why": "There was no title, scene, or remembered answer available to me before inspecting the workspace."}],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

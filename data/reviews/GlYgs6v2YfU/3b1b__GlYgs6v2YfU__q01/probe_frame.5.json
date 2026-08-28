@@ -1,0 +1,45 @@
+{
+  "sample_id": "3b1b__GlYgs6v2YfU__q01",
+  "role": "probe_frame",
+  "iteration": 5,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-26",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q01/probe_frame_r5",
+  "budget": {
+    "frames_viewed": 1,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 0,
+    "screen_index_used": false
+  },
+  "violations": [],
+  "notes": "The requested result follows by exchanging A and B in both labelled GZIP terms and in their colour roles.",
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 71.0,
+      "what": "The frame simultaneously shows GZIP(AB) minus GZIP(A). A is coded blue/purple and B green; the joint result is drawn as a composite coloured stack, while GZIP(A) is a blue block."
+    }
+  ],
+  "steps": [
+    {
+      "question": "What subtraction results when A and B are exchanged throughout?",
+      "answer_text": "GZIP(BA) - GZIP(B).",
+      "why": "The frame shows GZIP(AB) - GZIP(A); substituting B for every A and A for every B changes AB to BA and changes the baseline term from GZIP(A) to GZIP(B)."
+    },
+    {
+      "question": "What is the colour composition after the exchange?",
+      "answer_text": "GZIP(BA) has the green B result as its base and the blue/purple A-associated residual fragment appended to it; GZIP(B) is the same green B base alone.",
+      "why": "The visible labels and blocks identify A with blue/purple and B with green. Exchanging their roles makes B the retained base and A the appended contribution."
+    },
+    {
+      "question": "What does the new difference measure?",
+      "answer_text": "It measures the extra compressed length needed for A once B is already present: the information in A not supplied by B, i.e. a compression-based conditional-information quantity for A given B.",
+      "why": "Subtracting the B-only compressed result from the compressed concatenation BA cancels the B baseline and leaves A's incremental compressed contribution."
+    }
+  ],
+  "answer": "The role-swapped construction is GZIP(BA) - GZIP(B), not GZIP(A) - GZIP(AB). In GZIP(BA), the green B result supplies the base and the blue/purple A-associated residual fragment is appended; GZIP(B) is that green B base by itself. Their difference measures the additional compressed length contributed by A after B is already available—the information in A not provided by B, or compression-based conditional information of A given B.",
+  "basis": "Only the frame at t=71 s plus the standard interpretation of a difference between a joint compressed length and its base compressed length. The frame visibly supplies the exact starting subtraction and the A blue/purple versus B green colour mapping; the requested global role exchange determines BA and the B baseline. I did not recognize or recall this sample beforehand.",
+  "confidence": "high",
+  "insufficient": false
+}

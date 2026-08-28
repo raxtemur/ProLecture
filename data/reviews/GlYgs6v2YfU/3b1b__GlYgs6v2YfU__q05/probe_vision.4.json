@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.0",
+  "checklist_version": "1.0",
+  "sample_id": "3b1b__GlYgs6v2YfU__q05",
+  "role": "probe_vision",
+  "iteration": 4,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q05/probe_vision_r4",
+  "budget": {
+    "frames_viewed": 2,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 948,
+        "t_end": 953
+      }
+    ],
+    "transcript_cues": 0,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The screen index was used only to locate the visual interval. The answer and completion-state distinction were verified on real frames.",
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 950,
+      "what": "The next-token distribution is visibly incomplete: only the upper turquoise rows are settled while lower entries are still flying into place."
+    },
+    {
+      "kind": "frame",
+      "t": 951,
+      "what": "The full turquoise next-token list is visible beside the prefix; its first two rows read 'that 13.9%' and 'in 9.7%' in that order."
+    }
+  ],
+  "steps": [
+    {
+      "question": "Is the distribution already fully assembled at 950 seconds?",
+      "answer_bool": false,
+      "why": "Frame t000950.jpg shows lower turquoise entries still moving into the list, so it is only partially assembled."
+    },
+    {
+      "question": "What are the first two rows once the distribution is fully visible?",
+      "answer_text": "that 13.9%; in 9.7%",
+      "why": "Frame t000951.jpg shows the completed list, whose top two displayed rows are legible in that order."
+    }
+  ],
+  "answer": "The top two tokens are 'that' at 13.9%, followed by 'in' at 9.7%.",
+  "basis": "Real frames t000950.jpg (partial list, excluded) and t000951.jpg (first inspected fully assembled list, with 'that 13.9%' above 'in 9.7%').",
+  "confidence": "high",
+  "insufficient": false
+}

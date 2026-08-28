@@ -1,0 +1,55 @@
+{
+  "sample_id": "3b1b__GlYgs6v2YfU__q04",
+  "role": "probe_vision",
+  "iteration": 3,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-26",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q04/probe_vision_r3",
+  "budget": {
+    "frames_viewed": 2,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 864,
+        "t_end": 871
+      }
+    ],
+    "transcript_cues": 0,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "Screen-index lines/records reviewed: approximately 33. No audio or transcript was used.",
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 868,
+      "what": "The repeated green occurrences of 'dark' are connected by the nearly completed fan of yellow backward arrows near the opening line."
+    },
+    {
+      "kind": "frame",
+      "t": 869,
+      "what": "The completed yellow fan converges on the earliest green 'dark' in the opening 'In the dark, dark', while later green 'dark' occurrences are the sources."
+    }
+  ],
+  "steps": [
+    {
+      "question": "What do the completed yellow back-references currently target?",
+      "answer_text": "They target the first, earliest green occurrence of 'dark' in the opening line.",
+      "why": "In frame 869 the yellow arcs from the later occurrences converge at that opening occurrence."
+    },
+    {
+      "question": "Would the existing references remain valid if that first occurrence were deleted?",
+      "answer_bool": false,
+      "why": "Their current source match would no longer exist, so the stored references to it would not describe the edited text."
+    },
+    {
+      "question": "What would a compressor have to change after the deletion?",
+      "answer_text": "It would have to emit the first surviving 'dark' literally or choose another valid earlier match, then regenerate the later references and their backward distances/offsets.",
+      "why": "Back-references depend on an earlier matching substring and on its location relative to each later occurrence."
+    }
+  ],
+  "answer": "No. The yellow back-references currently point from the later repeated occurrences of 'dark' back to the first green 'dark' in the opening 'In the dark, dark'. If that first occurrence were deleted, their present target would be gone, so the existing references could not simply remain. The compressor would need to encode the first surviving 'dark' literally (or select another valid earlier match), retarget the subsequent references to it, and recompute the affected backward distances/offsets.",
+  "basis": "Frames t000868.jpg and t000869.jpg show the fan and its target; the consequence for backward offsets follows from general knowledge of dictionary/back-reference compression.",
+  "confidence": "high",
+  "insufficient": false
+}

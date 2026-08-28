@@ -1,0 +1,117 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__GlYgs6v2YfU__q01",
+  "role": "full_window",
+  "iteration": 3,
+  "model": "gpt-5",
+  "date": "2026-08-26",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q01/full_window0_r3",
+  "budget": {
+    "frames_viewed": 7,
+    "sparse_step": null,
+    "dense_intervals": [{"t_start": 64.0, "t_end": 79.0}],
+    "transcript_cues": 6,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The counterfactual role swap remains a derived answer; the author explains only the displayed A-as-context direction.",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "group": "windows",
+      "item": "window-can-be-tightened",
+      "target": {"trigger_idx": 0},
+      "looked_at": [
+        {"kind": "frame", "t": 66.0, "what": "The complete GZIP(AB) minus GZIP(A) construction is visible at the window opening."},
+        {"kind": "frame", "t": 71.0, "what": "The same complete construction remains visible while the appended part is highlighted."},
+        {"kind": "frame", "t": 78.0, "what": "The same construction is still on screen during a brief highlight wipe near the window end."}
+      ],
+      "findings": "The directed subtraction is complete at 66.0 and remains the persistent scene through the end of the window; brief highlight wipes do not introduce or remove any required fact after it has appeared.",
+      "criterion": "The legal interval should not contain a substantial initial or trailing region in which a participant lacks the evidence needed to derive the requested counterfactual.",
+      "steps": [
+        {"question": "When is the displayed directed construction first complete?", "answer_number": 66.0, "why": "The 66.0 frame visibly contains both GZIP terms and the minus sign."},
+        {"question": "Does a substantial evidence-free tail occur before 79.0?", "answer_bool": false, "why": "The formula scene persists through the inspected 78.0 frame, and the participant has already observed the complete construction."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "windows",
+      "item": "author-says-answer-in-window",
+      "target": {"trigger_idx": 0},
+      "looked_at": [
+        {"kind": "cue", "t": 63.1, "what": "The author says the displayed difference tells how a snippet of B compresses with a compressor optimized for A."},
+        {"kind": "cue", "t": 71.3, "what": "The author discusses the result being small for similar linguistic patterns and larger for different ones."},
+        {"kind": "cue", "t": 79.3, "what": "The author moves on to a document-distance metric based on co-compression."},
+        {"kind": "frame", "t": 70.0, "what": "Only GZIP(AB) minus GZIP(A), not the requested swapped subtraction, is shown."}
+      ],
+      "findings": "Within 66.0 through 89.0 the author explains the original A-context/B-fragment direction and its use, while the screen shows GZIP(AB) minus GZIP(A). Neither speech nor screen states GZIP(BA) minus GZIP(B) with the swapped term meanings.",
+      "criterion": "For this L2 item, the check fires only if the complete repaired answer is spoken or displayed in finished form inside the window or the following ten seconds.",
+      "steps": [
+        {"question": "Is the exact swapped subtraction shown or spoken?", "answer_bool": false, "why": "All inspected material presents or explains only GZIP(AB) minus GZIP(A)."},
+        {"question": "Are the swapped meanings and incremental A-given-B interpretation supplied as a finished answer?", "answer_bool": false, "why": "They require carrying out the role swap requested by the question."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "event-not-earlier-than-window",
+      "target": {"trigger_idx": 0},
+      "looked_at": [
+        {"kind": "frame", "t": 66.0, "what": "The first inspected legal frame already shows the complete directed subtraction."}
+      ],
+      "findings": "The trigger is the appearance of the first complete on-screen difference, and that complete construction is present at the 66.0 opening.",
+      "criterion": "An event-triggered interval must not open after the triggering event has already begun.",
+      "steps": [
+        {"question": "Is the triggering construction already underway before the window opening?", "answer_bool": false, "why": "The assigned evidence identifies the complete construction at the 66.0 opening rather than a completed event before it."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "depends-on-is-dependency",
+      "target": {"trigger_idx": 0},
+      "looked_at": [],
+      "findings": "The trigger has no depends_on field and is the only trigger in the sample.",
+      "criterion": "A dependency check is inapplicable when no dependency link is declared and no other trigger answer is required by this rubric.",
+      "steps": [
+        {"question": "Does the rubric require an answer from another trigger?", "answer_bool": false, "why": "Every rubric item concerns the single displayed construction and its counterfactual role swap."}
+      ],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "evidence-span-is-last",
+      "target": {"trigger_idx": 0},
+      "looked_at": [
+        {"kind": "frame", "t": 66.0, "what": "The exact displayed construction is complete."},
+        {"kind": "cue", "t": 67.0, "what": "The author identifies the added material as a snippet of B and the base context as A, ending at 70.9."},
+        {"kind": "frame", "t": 71.0, "what": "The construction remains visible as that contextual explanation finishes."}
+      ],
+      "findings": "The formula is visible at 66.0, and the direction-specific explanation needed to interpret its terms completes at 70.9. The declared span 66.0 to 71.0 covers that last required fact.",
+      "criterion": "The evidence span must include the moment when the final fact needed for the answer becomes available, excluding later corroboration.",
+      "steps": [
+        {"question": "What is the last required fact to appear?", "answer_text": "The original direction is B appended to an A-trained/base context.", "why": "That mapping is what must be swapped to derive the requested counterfactual."},
+        {"question": "When has that fact finished arriving?", "answer_number": 70.9, "why": "The relevant transcript cue ends at 70.9 while the formula remains visible."},
+        {"question": "Does the declared evidence span cover that moment?", "answer_bool": true, "why": "Its endpoint is 71.0."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ],
+  "window_idx": 0
+}

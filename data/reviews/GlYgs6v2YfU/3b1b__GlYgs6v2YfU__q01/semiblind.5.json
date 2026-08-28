@@ -1,0 +1,127 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__GlYgs6v2YfU__q01",
+  "role": "semiblind",
+  "iteration": 5,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-26",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q01/semiblind_r5",
+  "budget": {
+    "frames_viewed": 12,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 60.0,
+        "t_end": 64.0
+      }
+    ],
+    "transcript_cues": 23,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The transcript and screen index accounted for the entire 0-79 s stretch. Existing scene frames established the visual sequence, and a 1 fps dense pass over 60-64 s narrowed the first complete two-label frame to 63 s. No distractor information was supplied in the task payload or authorized workspace.",
+  "prior_answer": "It cannot be answered exactly from the question alone. Swapping A and B would mechanically replace every A by B and every B by A, but the question does not state the displayed subtraction, the order of its labelled terms, or the colour assigned to each document, so the exact resulting subtraction and colour composition cannot be recovered without viewing the construction.",
+  "prior_answer_assumptions": [],
+  "recognized_video": false,
+  "recognized_how": "I did not recognize this particular video or moment before viewing.",
+  "scans": [
+    {
+      "idx": 0,
+      "t_from": 0.0,
+      "t_to": 79.0,
+      "watched": [
+        {"kind": "frame", "t": 0.0, "what": "A generic close-up of a book page; no answer-bearing construction is visible."},
+        {"kind": "frame", "t": 48.0, "what": "A GZIP icon points to an abstract compressed block; no A/B subtraction is present."},
+        {"kind": "frame", "t": 52.0, "what": "Document A is a blue block and Document B is a green block."},
+        {"kind": "frame", "t": 56.0, "what": "Blue A is being used as the long base and a green B fragment appears separately; no labelled compressed terms are visible."},
+        {"kind": "frame", "t": 59.0, "what": "Only the first result, GZIP(AB), is labelled; its bar has a blue base and green appended part."},
+        {"kind": "frame", "t": 60.0, "what": "GZIP(AB) remains the sole labelled result while the next construction begins."},
+        {"kind": "frame", "t": 61.0, "what": "GZIP(AB) is labelled and a blue A block is entering a compression icon, but the second output is not labelled."},
+        {"kind": "frame", "t": 62.0, "what": "GZIP(AB) is labelled above a blue-plus-green bar; the second GZIP(A) label and result are still absent."},
+        {"kind": "frame", "t": 63.0, "what": "Both labelled results are simultaneously and fully visible: GZIP(AB), blue with a green appended portion, and GZIP(A), blue only."},
+        {"kind": "frame", "t": 66.0, "what": "The two labelled results are arranged as the subtraction GZIP(AB) minus GZIP(A)."},
+        {"kind": "frame", "t": 72.0, "what": "The displayed subtraction persists, with blue A supplying the common base and green B the extra fragment in GZIP(AB)."},
+        {"kind": "frame", "t": 76.0, "what": "The same labelled subtraction remains while the appended portion is highlighted for explanation."},
+        {"kind": "cue", "t": 50.8, "what": "The narration says to append a small snippet of B to the end of A and compress the result."},
+        {"kind": "cue", "t": 57.0, "what": "The narration says to compare that file size with compressing A on its own."},
+        {"kind": "cue", "t": 63.1, "what": "The narration says the difference tells how well a snippet of B compresses when the compressor is mostly optimized for A."}
+      ],
+      "candidates": [
+        {
+          "question": "Is the requested swapped construction answerable at 59 seconds?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Only GZIP(AB) is labelled; the comparison term GZIP(A) has not appeared, so the complete displayed construction cannot yet be swapped throughout."
+        },
+        {
+          "question": "Is the requested swapped construction answerable at 62 seconds?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The second labelled result is still absent, so the visual condition of two simultaneously visible labelled GZIP results has not been met."
+        },
+        {
+          "question": "Is the requested swapped construction answerable at 63 seconds?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Both GZIP(AB) and GZIP(A) are fully labelled and visible, their blue/green composition is clear, and the narration has already specified append-B-to-A and comparison-with-A."
+        }
+      ],
+      "t_val": 63.0,
+      "t_val_basis": "At 63 s the frame first shows both complete labelled outputs together: GZIP(AB) as blue A base plus green B fragment, and GZIP(A) as blue A alone; earlier dense frames through 62 s lack the second labelled output.",
+      "answer_at_t_val": "After exchanging A and B throughout, the subtraction is GZIP(BA) - GZIP(B). GZIP(BA) consists of the green B base with a blue A fragment appended, while GZIP(B) is the green B base alone. The new difference measures how well a small snippet of A compresses when the compressor is mostly optimized for B; it should be smaller when A's patterns resemble B's and larger when they differ.",
+      "confidence": "high"
+    }
+  ],
+  "checks": [
+    {
+      "group": "shortcuts",
+      "item": "solvable-without-video",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 63.0, "what": "The frame supplies the exact labels and blue/green mapping that the question itself omits."}
+      ],
+      "findings": "Before viewing, the exact displayed subtraction and colour mapping were unavailable from the question. The answer-bearing frame supplies both omitted details.",
+      "criterion": "The question is solvable without video only if its text and general knowledge determine every requested object and relation without guessing unseen display content.",
+      "steps": [
+        {
+          "question": "Did the pre-view answer determine the exact swapped subtraction and colours without assumptions?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "It explicitly could not name them because the original labels, ordering, and colour assignment were not stated in the question."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "video-recognized",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 0.0, "what": "The opening frame is a generic close-up of a book page and did not evoke a remembered video or answer."}
+      ],
+      "findings": "I had no memory of this particular video or its answer before opening the supplied material, and the opening image did not correspond to a recognized moment.",
+      "criterion": "This item fires only when the reviewer already recognizes the particular video and can retrieve the answer from memory rather than from the supplied stretch.",
+      "steps": [
+        {
+          "question": "Could I name the video's answer from memory before viewing?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "I did not recognize the video title, presentation, or this construction in advance."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

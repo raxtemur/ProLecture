@@ -1,0 +1,124 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__GlYgs6v2YfU__q12",
+  "role": "full_window",
+  "iteration": 3,
+  "model": "gpt-5",
+  "date": "2026-08-26",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q12/full_window0_r3",
+  "budget": {
+    "frames_viewed": 8,
+    "sparse_step": null,
+    "dense_intervals": [{"t_start": 1617.0, "t_end": 1625.0}],
+    "transcript_cues": 6,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The five displays are real and the answer is not narrated, but the decisive fifth state arrives at 1623.0, leaving only one second to answer.",
+  "verdict": "FIX_INTERVALS",
+  "checks": [
+    {
+      "group": "windows",
+      "item": "window-can-be-tightened",
+      "target": {"trigger_idx": 0},
+      "looked_at": [
+        {"kind": "frame", "t": 1619.0, "what": "The first settled display, It was the best, is visible; the later four comparisons are not yet known."},
+        {"kind": "frame", "t": 1620.0, "what": "The second distribution pair replaces the first."},
+        {"kind": "frame", "t": 1621.0, "what": "The third distribution pair replaces the second."},
+        {"kind": "frame", "t": 1622.0, "what": "The fourth distribution pair replaces the third."},
+        {"kind": "frame", "t": 1623.0, "what": "The fifth display, It matters not how, first reveals many at 19.8 percent left versus 12.1 percent right."},
+        {"kind": "frame", "t": 1624.0, "what": "A sixth unrelated prefix has already replaced the decisive fifth display at the exclusive endpoint."}
+      ],
+      "findings": "The answer requires comparing five successive states. The first four occupy 1619.0 through 1622.0, and the sole reversal is not visible until 1623.0. Because the legal window ends at 1624.0, only about one second remains after the complete answer becomes derivable.",
+      "criterion": "A fair legal interval must leave enough time after the final required evidence for a streaming model to formulate and emit the complete multi-part answer; a one-second answer tail is materially insufficient.",
+      "steps": [
+        {"question": "When does the last required comparison first appear?", "answer_number": 1623.0, "why": "That frame first shows the fifth prefix and its reversal values."},
+        {"question": "How much legal answer time remains after that evidence?", "answer_number": 1.0, "why": "The half-open interval closes at 1624.0."},
+        {"question": "Can the full verbal answer reliably be emitted in that remainder?", "answer_bool": false, "why": "The response must report the four-state trend, reversal prefix, token, and two percentages."}
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {"field": "t_end", "value": "1628.0", "why": "Keep the monitor opening at 1619.0 but provide several seconds after the decisive 1623.0 state for a complete response."},
+      "uncovered": null
+    },
+    {
+      "group": "windows",
+      "item": "author-says-answer-in-window",
+      "target": {"trigger_idx": 0},
+      "looked_at": [
+        {"kind": "cue", "t": 1618.9, "what": "The author says the larger model makes small-model training more efficient."},
+        {"kind": "cue", "t": 1622.3, "what": "The author describes considering the small model's full prediction distribution at each token."},
+        {"kind": "cue", "t": 1631.0, "what": "The author says the small prediction is compared to the larger model's prediction."},
+        {"kind": "frame", "t": 1623.0, "what": "The reversal values are visible, but no summary that the right model led on exactly the first four is displayed."}
+      ],
+      "findings": "From 1619.0 through 1634.0 the narration explains distillation generically. It does not name the five prefixes, the sole reversal, many, or the 19.8 and 12.1 percent comparison as a finished answer.",
+      "criterion": "For this L2 monitor, the author shortcut fires only if speech or on-screen exposition supplies the complete requested comparison during the window or the following ten seconds.",
+      "steps": [
+        {"question": "Does the author state that the right model leads on the first four displays?", "answer_bool": false, "why": "The cues discuss the training procedure rather than this sequence's outcomes."},
+        {"question": "Does the author name the reversal and both percentages?", "answer_bool": false, "why": "Those particulars appear only in the transient visual distributions and must be compared by the participant."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "event-not-earlier-than-window",
+      "target": {"trigger_idx": 0},
+      "looked_at": [
+        {"kind": "frame", "t": 1618.0, "what": "The first two-distribution display is still animating into place."},
+        {"kind": "frame", "t": 1619.0, "what": "The first settled distribution display is fully legible."}
+      ],
+      "findings": "The monitored five-state sequence begins with the first settled display at 1619.0; at 1618.0 it is still assembling.",
+      "criterion": "A monitor interval must open when the event sequence begins rather than after its first state has already occurred.",
+      "steps": [
+        {"question": "When does the first settled state of the monitored sequence begin?", "answer_number": 1619.0, "why": "The 1619.0 frame is the first inspected frame with the prefix and distributions fully legible."},
+        {"question": "Does that event begin before the declared window?", "answer_bool": false, "why": "Its first settled state coincides with the 1619.0 opening."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "depends-on-is-dependency",
+      "target": {"trigger_idx": 0},
+      "looked_at": [],
+      "findings": "The trigger declares no depends_on relationship and no other trigger exists.",
+      "criterion": "A dependency assessment does not apply when the answer and rubric consume no prior trigger answer.",
+      "steps": [
+        {"question": "Does the response require another trigger's result?", "answer_bool": false, "why": "The answer is derived entirely from the five displays in this trigger."}
+      ],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "evidence-span-is-last",
+      "target": {"trigger_idx": 0},
+      "looked_at": [
+        {"kind": "frame", "t": 1619.0, "what": "The first of five required comparisons is visible."},
+        {"kind": "frame", "t": 1622.0, "what": "The fourth comparison is visible and still has the larger right model leading."},
+        {"kind": "frame", "t": 1623.0, "what": "The fifth comparison supplies the sole reversal and exact percentages."},
+        {"kind": "frame", "t": 1624.0, "what": "The video has advanced to a new, unrequested prefix."}
+      ],
+      "findings": "The final necessary fact arrives at 1623.0 with the fifth state. The declared 1619.0 to 1624.0 evidence span covers all five one-second displays and ends as the next prefix replaces them.",
+      "criterion": "The evidence span should include the last fact needed for the answer, here the fifth comparison that establishes the reversal and its values.",
+      "steps": [
+        {"question": "Which display contains the final required evidence?", "answer_text": "It matters not how, with many at 19.8 percent left and 12.1 percent right.", "why": "Only after it appears can the participant determine the sole reversal across all five states."},
+        {"question": "When does that display appear?", "answer_number": 1623.0, "why": "It is fully visible in the 1623.0 frame."},
+        {"question": "Does the evidence span cover it?", "answer_bool": true, "why": "1623.0 lies inside 1619.0 to 1624.0."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ],
+  "window_idx": 0
+}

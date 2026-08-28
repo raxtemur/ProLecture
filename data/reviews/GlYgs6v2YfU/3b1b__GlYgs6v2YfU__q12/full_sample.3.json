@@ -1,0 +1,259 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__GlYgs6v2YfU__q12",
+  "role": "full_sample",
+  "iteration": 3,
+  "model": "gpt-5.4",
+  "date": "2026-08-26",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q12/full_sample_r3",
+  "budget": {
+    "frames_viewed": 31,
+    "sparse_step": null,
+    "dense_intervals": [{"t_start": 1617.0, "t_end": 1624.0}],
+    "transcript_cues": 576,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The complete transcript, a 24-frame scene-change pass, and all seven one-second states from 1617 through 1623 were checked. The five requested settled displays are 1619-1623; the right/larger top probability leads on the first four, and only the final It matters not how state reverses it. No full-sample defect fired.",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "group": "triggers",
+      "item": "no-missed-trigger",
+      "target": null,
+      "looked_at": [
+        {"kind": "cue", "t": 1592.3, "what": "The author introduces distillation of a smaller model from a larger model."},
+        {"kind": "frame", "t": 1619.0, "what": "The first settled two-distribution display for It was the best is visible."},
+        {"kind": "frame", "t": 1623.0, "what": "The fifth display for It matters not how completes the requested sequence."},
+        {"kind": "cue", "t": 1991.2, "what": "The author later mentions distillation again without replaying the five-state sequence."},
+        {"kind": "frame", "t": 2016.3, "what": "The video ends on supporter credits with no further model comparison."}
+      ],
+      "findings": "The full transcript and scene pass locate one five-state small/large model comparison sequence, from 1619 through 1623 seconds. Later distillation mentions do not repeat the named prefixes or one-second replacements.",
+      "criterion": "Every complete occurrence of the literal five-display monitoring sequence must be represented by a trigger.",
+      "steps": [
+        {"question": "How many complete sequences run from It was the best through It matters not how?", "answer_number": 1.0, "why": "Only the 1619-1623 visual run contains those endpoints and the intervening one-second replacements."},
+        {"question": "Is that complete sequence represented by trigger 0?", "answer_bool": true, "why": "Trigger 0 spans [1619, 1624), exactly containing all five settled states."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "trigger-matches-criterion",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 1618.0, "what": "The first distribution display is still fading in."},
+        {"kind": "frame", "t": 1619.0, "what": "It was the best is settled with probabilities on both sides."},
+        {"kind": "frame", "t": 1620.0, "what": "It was a bright is the second settled display."},
+        {"kind": "frame", "t": 1621.0, "what": "Happiness can be is the third settled display."},
+        {"kind": "frame", "t": 1622.0, "what": "You never really understand is the fourth settled display."},
+        {"kind": "frame", "t": 1623.0, "what": "It matters not how is the fifth settled display."}
+      ],
+      "findings": "Trigger 0 contains the first settled state and each one-second replacement through the named final state, permitting the requested across-state comparison.",
+      "criterion": "The trigger must contain the entire temporally ordered display sequence named in the question, not only one comparison frame.",
+      "steps": [
+        {"question": "Are all five settled states inside trigger 0?", "answer_bool": true, "why": "They occur at consecutive seconds 1619, 1620, 1621, 1622, and 1623."},
+        {"question": "Does the sequence begin and end with the requested prefixes?", "answer_bool": true, "why": "The first is It was the best and the last is It matters not how."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "question-anchored-to-screen",
+      "target": null,
+      "looked_at": [],
+      "findings": "The question names the first settled two-distribution display, two exact visible prefixes, one-second replacements, left and right model positions, top-token probabilities, token text, and percentages.",
+      "criterion": "The wording must direct the participant to particular visible states and screen positions rather than a general fact about model size.",
+      "steps": [
+        {"question": "Which wording anchors the task to specific frames?", "answer_text": "first settled two-distribution display; prefixes It was the best and It matters not how; left and right; percentages", "why": "Those elements identify a bounded visual sequence and values that must be read from it."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-within-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "The question asks whether the larger model leads on every display and requests the sole reversal's prefix, top token, and both percentages. The rubric requires exactly those answers and rejects checking only the initial state because the question says to follow each replacement.",
+      "criterion": "Every scoring component must directly answer an explicit part of the participant-visible question.",
+      "steps": [
+        {"question": "Is the all-displays yes/no conclusion requested?", "answer_bool": true, "why": "The question asks whether the larger model leads on every display."},
+        {"question": "Are prefix, token, and both percentages requested?", "answer_bool": true, "why": "They are listed explicitly in the final sentence."},
+        {"question": "Is an initial-frame-only answer excluded by the wording?", "answer_bool": true, "why": "The participant is told to follow each one-second replacement through the final prefix."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "discriminator-in-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "There are no distractor windows. The excluding rubric item is supported by 'following each one-second replacement through It matters not how' and 'on every display', which rule out an answer based only on It was the best.",
+      "criterion": "Any rubric-based rejection must be foreshadowed by words in the question that distinguish the rejected answer.",
+      "steps": [
+        {"question": "What wording excludes comparing only the initial display?", "answer_text": "following each one-second replacement; on every display", "why": "Both phrases require temporal coverage beyond the first state."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-not-punishing-extra",
+      "target": null,
+      "looked_at": [],
+      "findings": "The restrictive claim is that there is a sole reversal across five displays. Direct inspection shows exactly one reversal, at the fifth display; additional correct observations about the first four would not be penalized.",
+      "criterion": "A closed claim such as 'sole' is safe only if the full requested visual set contains no other qualifying detail.",
+      "steps": [
+        {"question": "How many displays have left top probability greater than right top probability?", "answer_number": 1.0, "why": "Only the 1623 It matters not how frame has 19.8% on the left versus 12.1% on the right."},
+        {"question": "Would naming extra correct first-four comparisons violate the rubric?", "answer_bool": false, "why": "The rubric requires their collective ordering but does not prohibit their individual values."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-fully-covered",
+      "target": {"distractor_idx": 0},
+      "looked_at": [],
+      "findings": "The sample has no distractor_windows entries, so there is no distractor interval whose coverage can be inspected.",
+      "criterion": "Full coverage applies only when an annotated distractor interval exists.",
+      "steps": [],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-not-correct-answer",
+      "target": {"distractor_idx": 0},
+      "looked_at": [],
+      "findings": "No distractor window is present, so no candidate distractor can be tested as a second correct answer.",
+      "criterion": "Correctness of a distractor is applicable only to an existing distractor interval.",
+      "steps": [],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-why-hides-answer",
+      "target": null,
+      "looked_at": [],
+      "findings": "There are no distractor explanations in this sample.",
+      "criterion": "Answer leakage through distractor why text is applicable only when such text exists.",
+      "steps": [],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "reasoning-level-not-inflated",
+      "target": null,
+      "looked_at": [],
+      "findings": "No single display establishes the sole reversal: the participant must retain and compare the top probabilities across five successive frames. The label is L2, and no fact outside the video must be derived.",
+      "criterion": "L2 is appropriate when multiple separated video states must be connected; L3 requires deriving something absent from the video, and L1 would be direct read-off from one state.",
+      "steps": [
+        {"question": "Can one frame prove that the reversal is sole?", "answer_bool": false, "why": "The other four states must be checked to rule out additional reversals."},
+        {"question": "Must any unshown counterfactual be derived?", "answer_bool": false, "why": "All prefixes, tokens, positions, and percentages are visible in the five frames."},
+        {"question": "What level follows?", "answer_text": "L2", "why": "The task connects a short temporal sequence of multiple displays."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-matches-description",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 1619.0, "what": "It was the best is settled; left top is of at 24.5% and right top is of at 75.5%."},
+        {"kind": "frame", "t": 1623.0, "what": "It matters not how is settled; many is 19.8% left and 12.1% right."}
+      ],
+      "findings": "Both provenance descriptions match their cited frames: the first shows the larger right model leading, and the final shows the stated many reversal with the exact percentages.",
+      "criterion": "Each cited frame must visibly contain the state, direction, token, and values claimed in its evidence explanation.",
+      "steps": [
+        {"question": "Does the 1619 frame show a right-model lead?", "answer_bool": true, "why": "The right top probability is 75.5% versus 24.5% on the left."},
+        {"question": "Does the 1623 frame show many at 19.8% left and 12.1% right?", "answer_bool": true, "why": "Those values are legible beside the top bar on each side."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "references-consistent-with-windows",
+      "target": null,
+      "looked_at": [],
+      "findings": "Evidence times 1619.0 and 1623.0 both lie inside trigger 0, [1619.0, 1624.0), and neither places answer evidence before the window opens.",
+      "criterion": "Provenance contradicts the window only when it says the relevant answer evidence existed before t_start.",
+      "steps": [
+        {"question": "Is either evidence time earlier than 1619.0?", "answer_bool": false, "why": "The first equals the start and the second is four seconds later."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-answer-verified",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 1619.0, "what": "Left top 24.5% is below right top 75.5%."},
+        {"kind": "frame", "t": 1620.0, "what": "Left top is 18.1% while right top is 33.9%."},
+        {"kind": "frame", "t": 1621.0, "what": "Left top defined is 23.5% while right top defined is 24.6%."},
+        {"kind": "frame", "t": 1622.0, "what": "Left top a is 18.4% while right top a is 47.7%."},
+        {"kind": "frame", "t": 1623.0, "what": "Left top many is 19.8% while right top many is 12.1%."}
+      ],
+      "findings": "The right/larger model leads on displays 1-4 and loses only on display 5. The fifth prefix is It matters not how, its top token is many on both sides, and the exact values are 19.8% left/smaller and 12.1% right/larger.",
+      "criterion": "The full reference response must be independently verified against every state needed for its temporal comparison, not inferred from the two endpoint descriptions alone.",
+      "steps": [
+        {"question": "Does the right top probability exceed the left on display 1?", "answer_bool": true, "why": "75.5 is greater than 24.5."},
+        {"question": "Does the right top probability exceed the left on display 2?", "answer_bool": true, "why": "33.9 is greater than the left maximum 18.1."},
+        {"question": "Does the right top probability exceed the left on display 3?", "answer_bool": true, "why": "24.6 is greater than 23.5."},
+        {"question": "Does the right top probability exceed the left on display 4?", "answer_bool": true, "why": "47.7 is greater than 18.4."},
+        {"question": "Does the ordering reverse on display 5?", "answer_bool": true, "why": "19.8 on the left is greater than 12.1 on the right."},
+        {"question": "Is display 5 identified correctly in the response?", "answer_bool": true, "why": "Its prefix reads It matters not how and its top token is many."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "twins-agree-on-substance",
+      "target": null,
+      "looked_at": [],
+      "findings": "The sample has no twin_of field and therefore no paired response.",
+      "criterion": "Twin agreement applies only when an explicit twin exists.",
+      "steps": [],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

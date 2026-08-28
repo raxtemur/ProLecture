@@ -1,0 +1,40 @@
+{
+  "sample_id": "3b1b__GlYgs6v2YfU__q05",
+  "role": "probe_frame",
+  "iteration": 4,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q05/probe_frame_r4",
+  "budget": {
+    "frames_viewed": 1,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 0,
+    "screen_index_used": false
+  },
+  "violations": [],
+  "notes": "",
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 956,
+      "what": "The complete turquoise next-token list is visible to the right of the prefix, with token labels and percentages; the top entries read 'that 13.9%' and 'in 9.7%'."
+    }
+  ],
+  "steps": [
+    {
+      "question": "Is the next-token distribution fully visible rather than empty or partially assembled?",
+      "answer_bool": true,
+      "why": "At 956 s the turquoise list contains many labeled rows with percentages and continues to a vertical ellipsis beneath the lower entries."
+    },
+    {
+      "question": "What are the first two displayed tokens and their percentages?",
+      "answer_text": "that — 13.9%; in — 9.7%",
+      "why": "These are the top two rows of the visible turquoise distribution at 956 s, read in their on-screen order."
+    }
+  ],
+  "answer": "The top two tokens are 'that' at 13.9%, followed by 'in' at 9.7%.",
+  "basis": "The single frame at 956 s shows the full turquoise distribution beside the complete prefix. Its first row is 'that' with 13.9%, and its second row is 'in' with 9.7%.",
+  "confidence": "high",
+  "insufficient": false
+}

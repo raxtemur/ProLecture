@@ -1,0 +1,272 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__GlYgs6v2YfU__q04",
+  "role": "full_sample",
+  "iteration": 3,
+  "model": "gpt-5.4",
+  "date": "2026-08-26",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q04/full_sample_r3",
+  "budget": {
+    "frames_viewed": 40,
+    "sparse_step": null,
+    "dense_intervals": [{"t_start": 860.0, "t_end": 873.0}],
+    "transcript_cues": 576,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The full transcript and a 24-frame lecture pass found one occurrence of the completed yellow fan. The deletion consequence is a valid counterfactual but requires L3 derivation, not L2. Distractor 0 ends at 836.7 although the recalled GZIP setup continues and then becomes an even stronger partial-pointer temptation until the fan is complete at 868.",
+  "verdict": "FIX_QUESTION",
+  "checks": [
+    {
+      "group": "triggers",
+      "item": "no-missed-trigger",
+      "target": null,
+      "looked_at": [
+        {"kind": "cue", "t": 0.0, "what": "The complete transcript begins with language trees and file compression."},
+        {"kind": "cue", "t": 860.8, "what": "The author introduces replacement of later repeated sequences by pointers to earlier sequences."},
+        {"kind": "frame", "t": 868.0, "what": "The sole yellow fan from later green dark occurrences to the top green dark is visible."},
+        {"kind": "frame", "t": 1717.3, "what": "The late recap contains topic thumbnails but no repeated-dark pointer fan."},
+        {"kind": "frame", "t": 2016.3, "what": "The closing screen contains credits only."}
+      ],
+      "findings": "All 576 transcript cues and the full-video visual pass contain one concrete repeated-dark animation, around 861-872 seconds, and one completed yellow fan. No other scene satisfies the literal repeated word, color, and fan condition.",
+      "criterion": "Every occurrence of the exact completed visual fan named in the question must be represented as a trigger.",
+      "steps": [
+        {"question": "How many completed yellow fans from repeated dark are present?", "answer_number": 1.0, "why": "Only the 868-872-second scene contains that word, color, and arrow topology together."},
+        {"question": "Is that occurrence represented by trigger 0?", "answer_bool": true, "why": "Trigger 0 covers 868-875 seconds."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "trigger-matches-criterion",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 867.0, "what": "Only the first few yellow pointer curves have appeared."},
+        {"kind": "frame", "t": 868.0, "what": "The yellow fan connects the later green dark occurrences to the top green dark."},
+        {"kind": "frame", "t": 872.0, "what": "The completed fan remains visible."}
+      ],
+      "findings": "Trigger 0 covers the one completed fan and the frames visibly supply the current target needed for the deletion counterfactual.",
+      "criterion": "The trigger event must literally contain the fully drawn yellow fan and its target specified by the question.",
+      "steps": [
+        {"question": "Is the fan incomplete immediately before the trigger?", "answer_bool": true, "why": "At 867 only a small subset of arrows is visible."},
+        {"question": "Does trigger 0 contain the completed fan?", "answer_bool": true, "why": "At 868 and later, arrows from all later marked occurrences converge on the top green dark."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "question-anchored-to-screen",
+      "target": null,
+      "looked_at": [],
+      "findings": "The question identifies a fan of yellow back-references, the repeated word dark, the first green dark at the top, and the later wording.",
+      "criterion": "A screen-anchored task must name visible objects or spatial relations that locate a particular display.",
+      "steps": [
+        {"question": "Which phrases locate a specific visual state?", "answer_text": "fan of yellow back-references; first green dark at the top", "why": "Color, topology, word content, and position all point to one animation."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-within-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "The question asks whether existing references remain valid, what they currently target, and what the compressor must change. These requests support, respectively, invalidation, top-source identification, choosing or encoding a surviving source, and retargeting or recomputing references. The exclusion of a generic repetition answer follows from the detailed requested parts.",
+      "criterion": "Every rubric demand must implement an explicit requirement of the question rather than add a hidden condition.",
+      "steps": [
+        {"question": "Is the current target explicitly requested?", "answer_bool": true, "why": "The question says 'Identify what they currently target'."},
+        {"question": "Are invalidation and remediation explicitly requested?", "answer_bool": true, "why": "It asks whether they remain valid and what the compressor must change."},
+        {"question": "Is a generic repetition answer sufficient under the wording?", "answer_bool": false, "why": "It would omit all three explicitly requested counterfactual parts."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "discriminator-in-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "The distractor's formula-only state is excluded by 'fan of yellow back-references ... fully drawn'. The generic-answer exclusion is supported by the explicit requests for target, validity, and compressor changes.",
+      "criterion": "The participant-visible wording must contain the distinction that rejects each distractor and excluded answer.",
+      "steps": [
+        {"question": "What excludes the recalled formula before the word animation?", "answer_text": "fan of yellow back-references ... fully drawn", "why": "No such fan exists in the distractor's initial formula scene."},
+        {"question": "What excludes merely saying GZIP finds repetition?", "answer_text": "Identify what they target and state what the compressor would have to change", "why": "A generic statement does not answer those explicit clauses."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-not-punishing-extra",
+      "target": null,
+      "looked_at": [],
+      "findings": "The rubric contains positive component requirements and one exclusion of a generic statement; it has no exactly, only, single, no-more-than, or closed-enumeration constraint that would reject a correct additional detail.",
+      "criterion": "A correct detail is at risk only when restrictive rubric wording closes the set of acceptable content.",
+      "steps": [
+        {"question": "Does any rubric item impose a closed answer set?", "answer_bool": false, "why": "Each positive item says what must be included, not what alone may be included."},
+        {"question": "Does the generic-answer exclusion reject a detailed correct response?", "answer_bool": false, "why": "It rejects only a response that merely states repetition and omits the requested counterfactual."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-fully-covered",
+      "target": {"distractor_idx": 0},
+      "looked_at": [
+        {"kind": "frame", "t": 793.3, "what": "The GZIP/language-tree recap has begun."},
+        {"kind": "frame", "t": 816.5, "what": "GZIP(AB) minus GZIP(A) is displayed."},
+        {"kind": "frame", "t": 835.5, "what": "The same subtraction and metric note are still visible just before the distractor ends."},
+        {"kind": "frame", "t": 860.0, "what": "The directed GZIP subtraction is still visible after the annotated distractor end."},
+        {"kind": "frame", "t": 861.0, "what": "The repeated dark passage appears without any back-reference fan."},
+        {"kind": "frame", "t": 867.0, "what": "A partial yellow fan is being drawn and is not yet complete."},
+        {"kind": "frame", "t": 868.0, "what": "The completed fan appears at the trigger start."}
+      ],
+      "findings": "Distractor 0 stops at 836.7, but its formula-only temptation remains on screen through 860. Then the named repeated text appears without arrows and a partial fan develops through 867. These are progressively stronger pre-trigger temptations under the question, ending only when the fan becomes complete at 868.",
+      "criterion": "The distractor coverage must span the full contiguous pre-trigger visual temptation, including partial construction of the exact named event.",
+      "steps": [
+        {"question": "Does the initial formula temptation end at 836.7?", "answer_bool": false, "why": "The subtraction is still visible at 860 seconds."},
+        {"question": "Is there a new partial-event temptation before 868?", "answer_bool": true, "why": "The repeated dark text is visible from 861, and a partial yellow fan is visible at 867."},
+        {"question": "When does the pre-trigger temptation end?", "answer_number": 868.0, "why": "At 868 the fan is complete and trigger 0 begins."}
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {"field": "distractor_windows[0].t_end", "value": "868.0", "why": "The named setup persists and strengthens continuously until the completed-fan trigger begins."},
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-not-correct-answer",
+      "target": {"distractor_idx": 0},
+      "looked_at": [
+        {"kind": "frame", "t": 816.5, "what": "Only the A/B subtraction is shown; no dark text or pointers are present."},
+        {"kind": "frame", "t": 835.5, "what": "Metric details accompany the subtraction, still without the repeated-dark fan."}
+      ],
+      "findings": "The annotated distractor contains no target topology and therefore cannot support the deletion counterfactual requested by the question.",
+      "criterion": "A distractor must be a genuine insufficient temptation, not a second interval where the requested answer is already supportable.",
+      "steps": [
+        {"question": "Can the existing back-reference target be identified in the distractor?", "answer_bool": false, "why": "No repeated-dark text or yellow references are present there."},
+        {"question": "Can deletion consequences be grounded there?", "answer_bool": false, "why": "The concrete source and pointer topology have not appeared."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-why-hides-answer",
+      "target": null,
+      "looked_at": [],
+      "findings": "The explanation mentions only that the A/B difference is shown while the concrete word and pointers are absent. It does not name the top target, invalidation, or required retargeting.",
+      "criterion": "The distractor explanation must describe insufficiency without leaking the substance of the reference response.",
+      "steps": [
+        {"question": "Does the why disclose any required counterfactual conclusion?", "answer_bool": false, "why": "It gives no deletion outcome or compressor remedy."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "reasoning-level-not-inflated",
+      "target": null,
+      "looked_at": [],
+      "findings": "The frames show current arrows, but neither deleting the source nor the resulting invalidation and retargeting occurs in the video. The assigned level is L2.",
+      "criterion": "A task is L3 when its answer centrally requires deriving an unshown counterfactual consequence; L2 only connects facts supplied by video moments.",
+      "steps": [
+        {"question": "Is the deletion operation shown in the video?", "answer_bool": false, "why": "The first green occurrence remains throughout the animation."},
+        {"question": "Are invalidation and remediation shown?", "answer_bool": false, "why": "They must be inferred from the pointer topology and compression mechanics."},
+        {"question": "What reasoning level follows?", "answer_text": "L3", "why": "The decisive answer is a derived event not present in the video."}
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {"field": "reasoning_level", "value": "L3", "why": "The requested deletion consequence and compressor repair are unshown counterfactual derivations."},
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-matches-description",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 868.0, "what": "Yellow arrow curves from later green dark occurrences converge on the first green dark in the top line."}
+      ],
+      "findings": "The evidence frame matches the description: the completed yellow fan visibly targets the first green occurrence of dark at the top.",
+      "criterion": "The cited real frame must show the exact target relation claimed by the provenance explanation.",
+      "steps": [
+        {"question": "Do all visible yellow back-references converge on the claimed top green word?", "answer_bool": true, "why": "Their arrowheads cluster at that occurrence and their tails originate at later green occurrences."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "references-consistent-with-windows",
+      "target": null,
+      "looked_at": [],
+      "findings": "The evidence time is 868.0 and trigger 0 starts at 868.0, so provenance does not place the answer-bearing fan before the window.",
+      "criterion": "A contradiction exists only if provenance says the relevant evidence predates the trigger start.",
+      "steps": [
+        {"question": "Is evidence time 868.0 earlier than start 868.0?", "answer_bool": false, "why": "It is exactly equal to the window start."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-answer-verified",
+      "target": null,
+      "looked_at": [
+        {"kind": "cue", "t": 860.8, "what": "The author says the algorithm replaces later repeated sequences with pointers to earlier instances."},
+        {"kind": "frame", "t": 865.0, "what": "The first green dark at the top and later green dark occurrences are visible before arrows."},
+        {"kind": "frame", "t": 868.0, "what": "The later marked occurrences point to the first green dark at the top."},
+        {"kind": "frame", "t": 872.0, "what": "The same completed source-target fan remains visible."}
+      ],
+      "findings": "The current references all use the first green top occurrence as their source. Removing that source destroys the existing target position; a surviving literal occurrence, including the preceding white dark, must become the source and later references or offsets must be recomputed.",
+      "criterion": "The reference response must accurately combine the verified pointer topology with the explicitly requested deletion counterfactual.",
+      "steps": [
+        {"question": "What do the current arrows target?", "answer_text": "the first green dark in the top line", "why": "Every yellow arrowhead converges there at 868 and 872 seconds."},
+        {"question": "Would the same references remain valid after deleting that target?", "answer_bool": false, "why": "Their referenced source position would no longer contain the target sequence."},
+        {"question": "Is another literal dark available to serve as source?", "answer_bool": true, "why": "A white dark immediately precedes the deleted green one and later occurrences also remain."},
+        {"question": "Must pointers or offsets change?", "answer_bool": true, "why": "Choosing a different surviving source changes the back-reference destination and generally its offset."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "twins-agree-on-substance",
+      "target": null,
+      "looked_at": [],
+      "findings": "The sample declares no twin_of relationship.",
+      "criterion": "Twin response agreement is applicable only to an explicit twin pair.",
+      "steps": [],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

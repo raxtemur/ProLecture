@@ -1,0 +1,268 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__GlYgs6v2YfU__q01",
+  "role": "full_sample",
+  "iteration": 3,
+  "model": "gpt-5.4",
+  "date": "2026-08-26",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q01/full_sample_r3",
+  "budget": {
+    "frames_viewed": 34,
+    "sparse_step": null,
+    "dense_intervals": [{"t_start": 64.0, "t_end": 72.0}],
+    "transcript_cues": 576,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The whole transcript and a 24-frame scene-change pass were checked. The counterfactual is valid and visually grounded, but its label is L2 although the answer must be derived beyond the video. The pre-trigger distractor stops before the subtraction is assembled, and rubric[3] asks what the whole difference measures although the question asks only what each term represents.",
+  "verdict": "FIX_QUESTION",
+  "checks": [
+    {
+      "group": "triggers",
+      "item": "no-missed-trigger",
+      "target": null,
+      "looked_at": [
+        {"kind": "cue", "t": 49.4, "what": "The author begins the only opening A/B co-compression construction."},
+        {"kind": "cue", "t": 793.9, "what": "The author later recalls the same A/B construction rather than introducing another first occurrence."},
+        {"kind": "frame", "t": 66.0, "what": "The opening construction first shows the two bracketed GZIP quantities separated by a minus."},
+        {"kind": "frame", "t": 829.3, "what": "The later reprise shows the same directed subtraction with additional metric detail."},
+        {"kind": "frame", "t": 1717.3, "what": "The late recap contains only a small summary thumbnail of language trees and zipping."}
+      ],
+      "findings": "Across all 576 cues and the full-video scene pass, the directed GZIP(AB) minus GZIP(A) construction first occurs in the opening sequence at 66 seconds. Later appearances are reprises and therefore do not satisfy the question's word 'first'.",
+      "criterion": "Every video moment satisfying the literal first-occurrence condition must be represented, while later repetitions of the same construction are excluded by 'first'.",
+      "steps": [
+        {"question": "Where is the first complete directed subtraction visible?", "answer_number": 66.0, "why": "At 65 seconds the minus is absent; at 66 seconds both terms and the minus are visible."},
+        {"question": "Does any later occurrence create another valid firing?", "answer_bool": false, "why": "The 793.9-second passage is explicitly a recall, and the question selects only the first display."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "trigger-matches-criterion",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 65.0, "what": "GZIP(AB) and GZIP(A) are present but no subtraction sign is yet visible."},
+        {"kind": "frame", "t": 66.0, "what": "The minus appears between the two bracketed GZIP results."},
+        {"kind": "cue", "t": 63.1, "what": "The author begins interpreting the difference at the same opening construction."}
+      ],
+      "findings": "Trigger 0 contains the first completed on-screen directed difference, from which swapping the named A and B roles yields the requested counterfactual.",
+      "criterion": "A trigger belongs only if its event supplies the literal screen construction and role direction named by the question.",
+      "steps": [
+        {"question": "Does trigger 0 contain the first complete subtraction?", "answer_bool": true, "why": "The complete GZIP(AB) minus GZIP(A) display begins at 66 seconds."},
+        {"question": "Does that display provide the role direction needed for the counterfactual?", "answer_bool": true, "why": "AB visibly places B after A and subtracts the A-only base."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "question-anchored-to-screen",
+      "target": null,
+      "looked_at": [],
+      "findings": "The question names the first on-screen difference between two GZIP results, its displayed directed construction, document B as base context, and a fragment of document A appended.",
+      "criterion": "The wording must identify a particular visual display rather than merely a general compression topic.",
+      "steps": [
+        {"question": "Which words bind the task to a particular screen state?", "answer_text": "first on-screen difference, two GZIP results, displayed one", "why": "Those phrases require locating a specific visual construction."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-within-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "Rubric items 0-2 follow from the request for the exact replacement subtraction and meanings of its two terms. Item 4 follows from 'Do not merely copy'. Rubric item 3 additionally requires identifying what the difference as a whole measures, which is not explicitly requested by 'what does each term represent'.",
+      "criterion": "Each scoring requirement must be traceable to an explicit demand in the participant-visible question.",
+      "steps": [
+        {"question": "Are the formula and both operand interpretations requested?", "answer_bool": true, "why": "The question asks for the exact subtraction and what each term represents."},
+        {"question": "Is the meaning of the resulting difference itself requested?", "answer_bool": false, "why": "The wording asks about each term, not what the subtraction as a whole measures."},
+        {"question": "Is copying the displayed formula explicitly excluded?", "answer_bool": true, "why": "The last sentence says not merely to copy it."}
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {"field": "question", "value": "Replace the final clause with: 'what does each term represent, and what does the resulting difference measure? Do not merely copy the formula on screen.'", "why": "This makes rubric[3] an explicit requirement rather than an unannounced scoring condition."},
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "discriminator-in-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "The distractor is excluded by 'when the first on-screen difference ... appears'; the displayed-answer exclusion is explicit in 'counterfactual' and 'Do not merely copy the formula on screen'.",
+      "criterion": "Every reason an offered answer is rejected must be visible in the question wording itself.",
+      "steps": [
+        {"question": "What excludes answering while only documents or operands are visible?", "answer_text": "the first on-screen difference appears", "why": "The condition requires the complete difference, not its ingredients."},
+        {"question": "What excludes GZIP(AB) minus GZIP(A) as the answer?", "answer_text": "counterfactual and Do not merely copy", "why": "Those phrases demand the swapped construction rather than transcription."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-not-punishing-extra",
+      "target": null,
+      "looked_at": [],
+      "findings": "The only restrictive wording is rubric[0]'s 'exactly' and rubric[4]'s exclusion of merely copied GZIP(AB) minus GZIP(A). Neither creates a closed list of otherwise correct visual details.",
+      "criterion": "Restrictive rubric language must not reject additional details that also satisfy the question.",
+      "steps": [
+        {"question": "Does 'exactly' reject an alternative correct counterfactual formula?", "answer_bool": false, "why": "Given the role-swapped directed construction, GZIP(BA) minus GZIP(B) is the uniquely specified subtraction."},
+        {"question": "Could the copy exclusion reject a correct response that also derives the swap?", "answer_bool": false, "why": "It rejects only a response that merely copies instead of answering the counterfactual."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-fully-covered",
+      "target": {"distractor_idx": 0},
+      "looked_at": [
+        {"kind": "frame", "t": 51.7, "what": "Documents A and B are visible without compressed results."},
+        {"kind": "frame", "t": 58.7, "what": "GZIP(AB) is visible while the A-only comparison is absent."},
+        {"kind": "frame", "t": 62.9, "what": "Both GZIP(AB) and GZIP(A) are visible, but no minus sign is present."},
+        {"kind": "frame", "t": 65.0, "what": "The two compressed results remain visible and the minus still has not appeared."},
+        {"kind": "frame", "t": 66.0, "what": "The subtraction becomes complete at the trigger start."}
+      ],
+      "findings": "The documented temptation begins with the A/B construction, but it remains visually incomplete after the distractor ends at 63.1: both operands are on screen from 62.9 through 65, and the minus does not appear until 66.",
+      "criterion": "The distractor interval must cover the entire contiguous pre-trigger state matching its stated temptation, not stop while the same incomplete construction persists.",
+      "steps": [
+        {"question": "Is the directed difference complete at the distractor end?", "answer_bool": false, "why": "At 62.9 and 65 seconds there is still no minus sign."},
+        {"question": "When does this incomplete-display temptation end?", "answer_number": 66.0, "why": "At 66 seconds the minus appears and the trigger condition is met."}
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {"field": "distractor_windows[0].t_end", "value": "66.0", "why": "The same incomplete directed construction persists continuously until the trigger begins."},
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-not-correct-answer",
+      "target": {"distractor_idx": 0},
+      "looked_at": [
+        {"kind": "frame", "t": 58.7, "what": "Only the combined compressed result GZIP(AB) is shown."},
+        {"kind": "frame", "t": 62.9, "what": "The two operands are present but not assembled as a difference."}
+      ],
+      "findings": "Within the distractor, the screen has not yet supplied the complete directed subtraction that the participant must swap.",
+      "criterion": "A distractor must not already contain enough evidence for a good-faith answer under the literal question.",
+      "steps": [
+        {"question": "Can the exact displayed directed construction be read in the distractor?", "answer_bool": false, "why": "Before 63.1 the minus is absent and the two results are not assembled as a subtraction."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-why-hides-answer",
+      "target": null,
+      "looked_at": [],
+      "findings": "The distractor explanation says only that documents and compression are visible while the directed difference is incomplete; it contains neither the swapped formula nor its interpretation.",
+      "criterion": "A distractor explanation may identify the temptation but must not disclose the reference answer.",
+      "steps": [
+        {"question": "Does the why reveal GZIP(BA) minus GZIP(B) or its meaning?", "answer_bool": false, "why": "Neither the counterfactual operands nor the incremental-length interpretation appears there."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "reasoning-level-not-inflated",
+      "target": null,
+      "looked_at": [],
+      "findings": "The video displays GZIP(AB) minus GZIP(A), while the required answer is the unshown role-swapped GZIP(BA) minus GZIP(B) and its conditional interpretation. The label is L2.",
+      "criterion": "L3 applies when a requested fact must be derived beyond what appears in the video; L2 is for connecting video moments without deriving an unshown counterfactual.",
+      "steps": [
+        {"question": "Is the requested counterfactual subtraction present in the video?", "answer_bool": false, "why": "Only the original A-base construction is displayed."},
+        {"question": "Must the participant derive an unshown role swap?", "answer_bool": true, "why": "The exact BA-minus-B expression follows by counterfactual transformation of the display."},
+        {"question": "What level follows from that derivation?", "answer_text": "L3", "why": "The answer includes a fact not in the video that must be derived."}
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {"field": "reasoning_level", "value": "L3", "why": "The central answer is an unshown counterfactual derived from the displayed construction."},
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-matches-description",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 70.0, "what": "The same AB-versus-A subtraction remains on screen during a brief label animation."},
+        {"kind": "frame", "t": 71.0, "what": "GZIP(AB) minus GZIP(A) is fully legible with B appended to the A-colored base block."}
+      ],
+      "findings": "The cited scene shows exactly the directed GZIP(AB) minus GZIP(A) construction described by the provenance explanation.",
+      "criterion": "The real frame at the cited visual scene must contain the object and relation claimed by the evidence description.",
+      "steps": [
+        {"question": "Does the cited scene show AB as the combined result and A alone as the subtracted base?", "answer_bool": true, "why": "At 71 seconds both labels, the minus, and the blue/green blocks are plainly visible."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "references-consistent-with-windows",
+      "target": null,
+      "looked_at": [],
+      "findings": "The sole evidence frame is at 70.3 seconds and trigger 0 spans [66.0, 79.0), so the reference does not claim the answer-bearing construction existed before the window opened.",
+      "criterion": "A provenance reference contradicts a window only when it places answer evidence before that window's start.",
+      "steps": [
+        {"question": "Is evidence time 70.3 before trigger start 66.0?", "answer_bool": false, "why": "70.3 lies inside the trigger interval."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-answer-verified",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 66.0, "what": "The displayed pattern is GZIP(AB) minus GZIP(A)."},
+        {"kind": "cue", "t": 50.8, "what": "The author defines AB as appending a snippet of B to A."},
+        {"kind": "cue", "t": 57.0, "what": "The author compares the combined result against compressing A alone."},
+        {"kind": "cue", "t": 63.1, "what": "The author interprets the difference as compression of B under context optimized for A."}
+      ],
+      "findings": "Swapping A and B in the verified directed pattern yields GZIP(BA) minus GZIP(B). BA is B with A appended, B is the base alone, and the difference is the incremental compressed length of A conditioned on B.",
+      "criterion": "Every substantive component of the reference response must follow from verified video evidence plus the counterfactual operation explicitly requested.",
+      "steps": [
+        {"question": "What is the verified original directed pattern?", "answer_text": "GZIP(AB) minus GZIP(A)", "why": "It is visible at 66 and 71 seconds and explained in the adjacent cues."},
+        {"question": "What exact formula results when the roles are swapped?", "answer_text": "GZIP(BA) minus GZIP(B)", "why": "Replacing base A by B and appended B by A swaps both operands consistently."},
+        {"question": "Does the reference assign the contexts consistently?", "answer_bool": true, "why": "It interprets BA as B with A appended and subtracts B alone."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "twins-agree-on-substance",
+      "target": null,
+      "looked_at": [],
+      "findings": "The sample has no twin_of field, so there is no paired response to compare.",
+      "criterion": "Substantive agreement is applicable only when the sample declares a twin.",
+      "steps": [],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

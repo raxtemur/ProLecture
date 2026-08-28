@@ -1,0 +1,88 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__GlYgs6v2YfU__q10",
+  "role": "probe_text",
+  "iteration": 3,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q10/probe_text_r3",
+  "budget": {
+    "frames_viewed": 0,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 423,
+    "screen_index_used": false
+  },
+  "violations": [],
+  "notes": "The transcript does not verbalize the labels of the three curves; they appear to be screen-only information.",
+  "looked_at": [
+    {
+      "kind": "cue",
+      "t": 1145.3,
+      "what": "The lecturer says many functions have the same general qualitative shape."
+    },
+    {
+      "kind": "cue",
+      "t": 1329.1,
+      "what": "The lecturer says the apparent first constraint is that F be decreasing."
+    },
+    {
+      "kind": "cue",
+      "t": 1333.7,
+      "what": "High loss should correspond to low predicted probability, and low loss to probability near one."
+    },
+    {
+      "kind": "cue",
+      "t": 1340.1,
+      "what": "The lecturer refers to infinitely many functions of this rough shape but does not name the drawn candidates."
+    },
+    {
+      "kind": "cue",
+      "t": 1354.6,
+      "what": "The names example begins with the pattern 'myName is blank'."
+    },
+    {
+      "kind": "cue",
+      "t": 1414.6,
+      "what": "P is defined as the empirical proportion with which each name occurs in the training data."
+    },
+    {
+      "kind": "cue",
+      "t": 1420.8,
+      "what": "The loss over all examples with this pattern is described as an average weighted by P."
+    },
+    {
+      "kind": "cue",
+      "t": 1452.2,
+      "what": "The key requirement is restated: the average loss must attain its minimum exactly when every model probability Q equals the corresponding data probability P."
+    }
+  ],
+  "steps": [
+    {
+      "question": "What are the three non-logarithmic candidate functions drawn before the names example?",
+      "answer_bool": null,
+      "answer_number": null,
+      "answer_text": "Their names or formulas are not spoken anywhere in the supplied transcript, so they cannot be genuinely identified from this modality.",
+      "why": "The cues at 1145.3–1156.3 and 1340.1–1345.1 refer generically to many same-shaped functions without verbalizing any candidate labels."
+    },
+    {
+      "question": "What condition is imposed on the average loss after the names example?",
+      "answer_bool": null,
+      "answer_number": null,
+      "answer_text": "For true name frequencies P and model probabilities Q, the P-weighted average loss must be minimized exactly at Q = P.",
+      "why": "The transcript defines the weighted average at 1420.8–1429.1 and explicitly states the equality-at-the-minimum condition at 1452.2–1469.8."
+    },
+    {
+      "question": "Why does pointwise decrease of the candidate function not guarantee that condition?",
+      "answer_bool": null,
+      "answer_number": null,
+      "answer_text": "Being decreasing only rewards assigning more probability to each observed outcome considered separately. It does not ensure that, under the normalization constraint on Q, the expected P-weighted score is uniquely optimized by reproducing the full distribution P; that stronger property is strict propriety.",
+      "why": "This follows from the transcript distinction between the local monotonic constraint at 1329.1–1339.7 and the later distribution-level minimum requirement, together with general knowledge of proper scoring rules."
+    }
+  ],
+  "answer": "The supplied transcript never states the names or formulas of the three non-logarithmic curves drawn earlier, so I cannot name them without guessing from information that was only on screen. What the transcript does establish is why mere decrease is insufficient: the relevant objective is the P-weighted average of F(Q), and it must have its minimum exactly when the whole predicted distribution Q equals the empirical distribution P. A decreasing F only gives the pointwise preference 'higher probability for the observed token means lower loss'; it does not guarantee this distribution-level, uniquely truthful optimum under the constraint that the Q values sum to one. For example, from general knowledge, the decreasing loss F(q)=1-q would minimize expected loss by concentrating Q on a most frequent outcome rather than by setting Q=P. Thus the needed condition is that the scoring rule be strictly proper, which negative logarithmic loss satisfies.",
+  "basis": "Transcript: [1329.1–1339.7] says only that F initially appears constrained to be decreasing, assigning high loss to low probabilities and low loss near 1; [1340.1–1345.1] mentions infinitely many functions of this shape but gives no names or formulas; [1354.6–1420.3] introduces the names example and defines P as name frequency; [1420.8–1429.1] says the total loss is a P-weighted average; [1452.2–1469.8] states that the minimum occurs exactly when P and Q agree. The linear-loss counterexample and the term 'strictly proper' are general knowledge. The identities of the three drawn candidates are not recoverable from the transcript, and I did not guess them.",
+  "confidence": "high",
+  "insufficient": true
+}

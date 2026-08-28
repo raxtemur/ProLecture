@@ -1,0 +1,378 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__GlYgs6v2YfU__q08",
+  "role": "full_sample",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-26",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q08/full_sample",
+  "budget": {
+    "frames_viewed": 34,
+    "sparse_step": 70,
+    "dense_intervals": [],
+    "transcript_cues": 576,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "All fourteen assigned checks closed without a firing or skip.\nThe one-hot alignment and reference answer are directly visible.\nNo twin or distractor exists.",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "group": "triggers",
+      "item": "no-missed-trigger",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 0,
+          "what": "opening paper footage"
+        },
+        {
+          "kind": "frame",
+          "t": 212,
+          "what": "robot-instruction setup"
+        },
+        {
+          "kind": "frame",
+          "t": 424.8,
+          "what": "Q-distribution bars"
+        },
+        {
+          "kind": "frame",
+          "t": 699.5,
+          "what": "cross-entropy graph"
+        },
+        {
+          "kind": "frame",
+          "t": 981.6,
+          "what": "loss surface"
+        },
+        {
+          "kind": "frame",
+          "t": 1121.1,
+          "what": "completed worst-of-times loss state"
+        },
+        {
+          "kind": "frame",
+          "t": 1404.8,
+          "what": "name examples beside q bars"
+        },
+        {
+          "kind": "frame",
+          "t": 1608.8,
+          "what": "distillation text example"
+        },
+        {
+          "kind": "frame",
+          "t": 1819.5,
+          "what": "cross-entropy diagram"
+        },
+        {
+          "kind": "frame",
+          "t": 2016.3,
+          "what": "closing credits"
+        },
+        {
+          "kind": "cue",
+          "t": 1253,
+          "what": "the narrator introduces a fully skewed target"
+        },
+        {
+          "kind": "cue",
+          "t": 1262.9,
+          "what": "all mass is concentrated on the true next token"
+        },
+        {
+          "kind": "cue",
+          "t": 1275.4,
+          "what": "zeros cancel all other weighted terms"
+        }
+      ],
+      "findings": "The complete transcript and sparse grid show one first concrete one-hot target aligned beside the current model distribution.",
+      "criterion": "Every first appearance satisfying the concrete one-hot alignment wording must be represented.",
+      "steps": [
+        {
+          "question": "How many first concrete one-hot alignments were found?",
+          "answer_bool": null,
+          "answer_number": 1,
+          "answer_text": null,
+          "why": "The who/q1 alignment is the only first construction after the question."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "trigger-matches-criterion",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1264.3,
+          "what": "model bars and one-hot target appear side by side"
+        },
+        {
+          "kind": "frame",
+          "t": 1278.9,
+          "what": "who is q1, opposite target value 1, other target rows 0"
+        }
+      ],
+      "findings": "Trigger 0 shows the current true token who aligned with q1 and a one-hot p list.",
+      "criterion": "The trigger must display the requested token, q index, opposite p value, and remaining p values.",
+      "steps": [
+        {
+          "question": "Are all four requested alignment facts visible in trigger 0?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The side-by-side lists show who/q1, 1, and zeros elsewhere."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "question-anchored-to-screen",
+      "target": null,
+      "looked_at": [],
+      "findings": "The question names a one-hot target “next to the model distribution”, an opposite row, and displayed components.",
+      "criterion": "The wording must identify concrete spatial or textual screen features.",
+      "steps": [
+        {
+          "question": "What anchors the question to the screen?",
+          "answer_bool": null,
+          "answer_number": null,
+          "answer_text": "“next to”, “opposite it”, and the p/q components",
+          "why": "These refer to the layout of two visible distributions."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-within-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "The four rubric items exactly restate the requested token, q index, opposite p value, and remaining p components.",
+      "criterion": "Every rubric requirement must follow directly from the visible question text.",
+      "steps": [
+        {
+          "question": "Does every rubric item map to a requested field?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Each one corresponds one-to-one with a noun phrase in the question."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "discriminator-in-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "No distractor or excluding rubric item exists.",
+      "criterion": "Any distinction used to reject an answer must be stated in the question; no such extra distinction is present.",
+      "steps": [
+        {
+          "question": "Is any unstated discriminator used?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The sample contains no distractor and no exclusion clause."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-not-punishing-extra",
+      "target": null,
+      "looked_at": [],
+      "findings": "All rubric items are positive requirements and none uses exactly, only, single, no-more-than, or a closed exclusion.",
+      "criterion": "Only restrictive rubric language can punish an otherwise correct additional detail.",
+      "steps": [
+        {
+          "question": "Is any rubric item restrictive?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "All four say that a requested fact is stated."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-fully-covered",
+      "target": {
+        "distractor_idx": 0
+      },
+      "looked_at": [],
+      "findings": "No distractor_windows field is present.",
+      "criterion": "Coverage applies only to an existing distractor.",
+      "steps": [],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-not-correct-answer",
+      "target": {
+        "distractor_idx": 0
+      },
+      "looked_at": [],
+      "findings": "No distractor_windows field is present.",
+      "criterion": "Correctness applies only to an existing distractor.",
+      "steps": [],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-why-hides-answer",
+      "target": null,
+      "looked_at": [],
+      "findings": "No distractor explanation exists.",
+      "criterion": "Answer leakage applies only to a distractor why field.",
+      "steps": [],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "reasoning-level-not-inflated",
+      "target": null,
+      "looked_at": [],
+      "findings": "A single completed frame directly shows who, q1, target 1, and the remaining zeros.",
+      "criterion": "L1 is correct when all answer facts can be read directly from one display.",
+      "steps": [
+        {
+          "question": "Can one completed frame supply every answer fact?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Frame 1278.9 contains the two aligned lists in full."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-matches-description",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1278.9,
+          "what": "who is marked q1; target row who is 1 and all other visible rows are 0"
+        }
+      ],
+      "findings": "The inspected frame matches the provenance explanation in substance.",
+      "criterion": "The real evidence frame must show the objects and values claimed by provenance.",
+      "steps": [
+        {
+          "question": "Does the frame show who/q1 and the one-hot values?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The alignment is legible side by side."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "references-consistent-with-windows",
+      "target": null,
+      "looked_at": [],
+      "findings": "The sole evidence time 1280.3 lies inside the 1265.0–1294.0 trigger window.",
+      "criterion": "Answer-bearing provenance must not imply availability before t_start.",
+      "steps": [
+        {
+          "question": "Is the evidence earlier than the trigger?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "1280.3 is inside the interval."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-answer-verified",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1278.9,
+          "what": "who corresponds to q1 and p1=1; other p rows read 0"
+        }
+      ],
+      "findings": "The visible alignment supports every statement in the reference response.",
+      "criterion": "The reference answer must accurately transcribe all requested visual facts.",
+      "steps": [
+        {
+          "question": "Does the reference match the visible token/index/value alignment?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "All named values and the remaining-zero statement agree with the frame."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "twins-agree-on-substance",
+      "target": null,
+      "looked_at": [],
+      "findings": "The sample has no twin_of field.",
+      "criterion": "Twin agreement is applicable only when a twin exists.",
+      "steps": [],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}
+

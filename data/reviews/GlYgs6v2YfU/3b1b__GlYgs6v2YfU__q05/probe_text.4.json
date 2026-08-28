@@ -1,0 +1,63 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__GlYgs6v2YfU__q05",
+  "role": "probe_text",
+  "iteration": 4,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q05/probe_text_r4",
+  "budget": {
+    "frames_viewed": 0,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 271,
+    "screen_index_used": false
+  },
+  "violations": [],
+  "notes": "The requested token labels and percentages are visual details absent from the transcript.",
+  "looked_at": [
+    {
+      "kind": "cue",
+      "t": 936.1,
+      "what": "The transcript says modern language models divide text into tokens, typically words or pieces of words."
+    },
+    {
+      "kind": "cue",
+      "t": 941.2,
+      "what": "The transcript describes a language model as a function taking a sequence of tokens as input."
+    },
+    {
+      "kind": "cue",
+      "t": 947.5,
+      "what": "The transcript says the output is a probability distribution over all possible tokens and a prediction of what might come next."
+    }
+  ],
+  "steps": [
+    {
+      "question": "Does the transcript identify the requested prefix and its fully displayed token list?",
+      "answer_bool": false,
+      "answer_number": null,
+      "answer_text": null,
+      "why": "None of the 271 supplied transcript cues contains the phrase about a tiny pi creature or narrates the tokens in the turquoise list."
+    },
+    {
+      "question": "Does the transcript state the top two next-token labels or their on-screen percentages?",
+      "answer_bool": false,
+      "answer_number": null,
+      "answer_text": null,
+      "why": "The cues at 947.5–957.8 define a next-token probability distribution only in general terms; they give no token names, ranking, or numerical probabilities for the displayed example."
+    },
+    {
+      "question": "What answer can be extracted without guessing missing screen content?",
+      "answer_bool": null,
+      "answer_number": null,
+      "answer_text": "First token: unknown (percentage unknown); second token: unknown (percentage unknown).",
+      "why": "The requested values are not genuinely distinguishable in transcript-only material, and general knowledge cannot determine a particular model's on-screen distribution."
+    }
+  ],
+  "answer": "First token: unknown (percentage unknown); second token: unknown (percentage unknown). The transcript does not name either of the top two tokens or either on-screen percentage.",
+  "basis": "The transcript states only the general mechanism: at [936.1–940.7], \"Modern language models divide text into tokens, which are typically words or pieces of words\"; at [947.5–954.3], a model \"produces as an output a probability distribution over all possible tokens\"; and at [954.7–957.8], that output is its prediction for what might come next. No cue gives the displayed prefix, ranked token labels, or percentages. Supplying specific values would therefore be a guess, not an extraction from the provided material.",
+  "confidence": "high",
+  "insufficient": true
+}

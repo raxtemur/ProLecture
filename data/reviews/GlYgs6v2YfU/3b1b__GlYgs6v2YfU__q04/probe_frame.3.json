@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.0",
+  "checklist_version": "1.0",
+  "sample_id": "3b1b__GlYgs6v2YfU__q04",
+  "role": "probe_frame",
+  "iteration": 3,
+  "model": "gpt-5.4",
+  "date": "2026-08-26",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q04/probe_frame_r3",
+  "budget": {
+    "frames_viewed": 1,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 0,
+    "screen_index_used": false
+  },
+  "violations": [],
+  "notes": "",
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 872,
+      "what": "A completed yellow fan connects each later green occurrence of 'dark' back to the first green 'dark' in the top line."
+    }
+  ],
+  "steps": [
+    {
+      "question": "What do the existing yellow back-references target?",
+      "answer_text": "They converge on the first green 'dark' in the top line.",
+      "why": "All of the yellow curves visibly terminate at that top occurrence."
+    },
+    {
+      "question": "Would those same references remain valid if that occurrence were deleted?",
+      "answer_bool": false,
+      "why": "The displayed source occurrence would no longer exist, so references retaining their present target and encoded distances could not describe the unchanged later words."
+    },
+    {
+      "question": "What would the compressor have to change?",
+      "answer_text": "It would have to re-encode the affected region: preserve or emit a surviving occurrence literally as a new source, retarget the later matches to a surviving earlier occurrence, and recompute their back-reference distances (and any affected match lengths).",
+      "why": "Deleting bytes before or at a match source changes the available source and the relative offsets used by back-references."
+    }
+  ],
+  "answer": "No. The yellow back-references currently target the first green 'dark' in the top line. Deleting that occurrence removes their displayed source and changes the relevant offsets, so the existing references cannot simply remain unchanged. The compressor would have to re-encode the affected sequence: make a surviving 'dark' a literal/new source as needed, retarget the later occurrences to a surviving earlier copy, and recompute the back-reference distances (and any affected lengths).",
+  "basis": "The single frame at 872 s visibly shows the complete yellow fan terminating at the first green 'dark' at the top; the consequence for relative back-references follows from general knowledge of dictionary compression.",
+  "confidence": "high",
+  "insufficient": false
+}

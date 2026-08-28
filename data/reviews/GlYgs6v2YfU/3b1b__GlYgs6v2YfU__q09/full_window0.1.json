@@ -1,0 +1,235 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__GlYgs6v2YfU__q09",
+  "role": "full_window",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-26",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q09/full_window0",
+  "budget": {
+    "frames_viewed": 14,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 1373,
+        "t_end": 1381
+      }
+    ],
+    "transcript_cues": 12,
+    "screen_index_used": false
+  },
+  "violations": [],
+  "notes": "Dense review places the first fully q-labelled simultaneous display at 1378.\nMove t_start and evidence_span to that event.\nNo finished L3 answer is supplied by the author.",
+  "verdict": "FIX_INTERVALS",
+  "checks": [
+    {
+      "group": "windows",
+      "item": "window-can-be-tightened",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1380,
+          "what": "the full list and q-labelled bars are readable"
+        },
+        {
+          "kind": "frame",
+          "t": 1389,
+          "what": "the same sources remain visible as Loss? appears"
+        },
+        {
+          "kind": "frame",
+          "t": 1399,
+          "what": "the q chart and frequency list remain available during the first loss term"
+        },
+        {
+          "kind": "frame",
+          "t": 1403,
+          "what": "the screen still develops the same example"
+        },
+        {
+          "kind": "frame",
+          "t": 1405,
+          "what": "the next contribution animation begins just after t_end"
+        }
+      ],
+      "findings": "The answer-bearing example remains present and develops throughout 1380–1404; the next phase begins immediately after the current end.",
+      "criterion": "Tightening is needed only if a substantial portion of the window lacks the evidence or event context.",
+      "steps": [
+        {
+          "question": "Is there a substantial empty tail before 1404?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The same name/q example remains on screen through 1403."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "windows",
+      "item": "author-says-answer-in-window",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1380,
+          "what": "raw name frequencies and q bars are visible"
+        },
+        {
+          "kind": "cue",
+          "t": 1377.1,
+          "what": "the narrator labels model probabilities Q"
+        },
+        {
+          "kind": "cue",
+          "t": 1383,
+          "what": "the narrator asks for total loss"
+        },
+        {
+          "kind": "cue",
+          "t": 1402.5,
+          "what": "the narrator discusses repeated instances"
+        }
+      ],
+      "findings": "Neither the four normalized p values nor either argmax comparison is spoken or written as a finished answer in the window or following ten seconds.",
+      "criterion": "For L3, critical leakage requires the author to give the finished derived answer, not merely display the raw evidence.",
+      "steps": [
+        {
+          "question": "Does the author provide p=(0.4,0.3,0.2,0.1) and both argmax names?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Only the raw list, bars, and loss setup appear."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "event-not-earlier-than-window",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1374,
+          "what": "the complete frequency list is visible but q bars are not yet formed"
+        },
+        {
+          "kind": "frame",
+          "t": 1375,
+          "what": "all four named bars and the complete list are readable together"
+        },
+        {
+          "kind": "frame",
+          "t": 1377,
+          "what": "the bars persist while q labels start appearing"
+        },
+        {
+          "kind": "frame",
+          "t": 1378,
+          "what": "q_A through q_D labels are complete"
+        },
+        {
+          "kind": "frame",
+          "t": 1380,
+          "what": "the completed simultaneous display persists at t_start"
+        }
+      ],
+      "findings": "The full name list and four model bars become jointly readable by 1375; the explicit q labels are complete by 1378, two seconds before t_start 1380.",
+      "criterion": "A first-simultaneous-display event must open when the required list and q bars first become readable, not after the stable display is already present.",
+      "steps": [
+        {
+          "question": "What is the latest defensible first-complete moment?",
+          "answer_bool": null,
+          "answer_number": 1378,
+          "answer_text": null,
+          "why": "By 1378 all four q labels and the full list are complete."
+        },
+        {
+          "question": "Does the current window open after that event?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "t_start is 1380."
+        }
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {
+        "field": "triggers[0].t_start",
+        "value": "1378.0",
+        "why": "Open when the q-labelled bars and full list first become jointly complete."
+      },
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "depends-on-is-dependency",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [],
+      "findings": "Trigger 0 has no depends_on field and its rubric is self-contained.",
+      "criterion": "Dependency applies only when a rubric item requires another trigger's answer.",
+      "steps": [],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "evidence-span-is-last",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1378,
+          "what": "the final q labels complete the requested simultaneous display"
+        },
+        {
+          "kind": "frame",
+          "t": 1380,
+          "what": "no new answer fact appears; the same display persists"
+        }
+      ],
+      "findings": "The last needed visual fact is complete by 1378, but the current evidence span begins at 1380 and therefore misses the actual completion moment.",
+      "criterion": "The evidence span must cover the moment the last answer-enabling fact appears.",
+      "steps": [
+        {
+          "question": "Does the current evidence span contain the last fact's first appearance?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The q-labelled display is complete two seconds before the span begins."
+        }
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {
+        "field": "triggers[0].evidence_span",
+        "value": "[1378.0, 1379.0]",
+        "why": "Cover the first complete simultaneous list-and-q display."
+      },
+      "uncovered": null
+    }
+  ],
+  "window_idx": 0
+}
+

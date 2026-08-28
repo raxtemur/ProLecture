@@ -1,0 +1,458 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__GlYgs6v2YfU__q09",
+  "role": "full_sample",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-26",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q09/full_sample",
+  "budget": {
+    "frames_viewed": 37,
+    "sparse_step": 70,
+    "dense_intervals": [],
+    "transcript_cues": 576,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "Distractor 0 contains genuinely answerable frames at 1374.4 and 1377.1.\nMove the distractor/trigger boundary to the first simultaneous readable display.\nExact provenance frame 1380.4 was unavailable in the fixed index; no twin exists.",
+  "verdict": "FIX_INTERVALS",
+  "checks": [
+    {
+      "group": "triggers",
+      "item": "no-missed-trigger",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 0,
+          "what": "opening paper footage"
+        },
+        {
+          "kind": "frame",
+          "t": 212,
+          "what": "robot-instruction setup"
+        },
+        {
+          "kind": "frame",
+          "t": 424.8,
+          "what": "Q-distribution bars"
+        },
+        {
+          "kind": "frame",
+          "t": 699.5,
+          "what": "cross-entropy graph"
+        },
+        {
+          "kind": "frame",
+          "t": 981.6,
+          "what": "loss surface"
+        },
+        {
+          "kind": "frame",
+          "t": 1121.1,
+          "what": "completed worst-of-times loss state"
+        },
+        {
+          "kind": "frame",
+          "t": 1404.8,
+          "what": "name examples beside q bars"
+        },
+        {
+          "kind": "frame",
+          "t": 1608.8,
+          "what": "distillation text example"
+        },
+        {
+          "kind": "frame",
+          "t": 1819.5,
+          "what": "cross-entropy diagram"
+        },
+        {
+          "kind": "frame",
+          "t": 2016.3,
+          "what": "closing credits"
+        },
+        {
+          "kind": "cue",
+          "t": 1354.6,
+          "what": "the My name is example is introduced"
+        },
+        {
+          "kind": "cue",
+          "t": 1370.6,
+          "what": "the model produces a next-token distribution"
+        },
+        {
+          "kind": "cue",
+          "t": 1377.1,
+          "what": "the output probabilities are labelled Q"
+        }
+      ],
+      "findings": "The full transcript and whole-video grid show one first names-list/model-bars conjunction; later frames develop the same example rather than introducing another first conjunction.",
+      "criterion": "Every moment that literally qualifies as the first simultaneous readable list and q bars must be represented, with no distinct occurrence omitted.",
+      "steps": [
+        {
+          "question": "Was a second independent first-conjunction event found?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "All later name scenes continue the same example introduced at 1354.6."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "trigger-matches-criterion",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1377.1,
+          "what": "the ten-name list and four labelled q bars are simultaneously legible"
+        },
+        {
+          "kind": "frame",
+          "t": 1389.9,
+          "what": "the q bars and name list remain together as loss construction begins"
+        }
+      ],
+      "findings": "The annotated trigger sequence belongs to the screen where the full list and all four q bars are concurrently readable.",
+      "criterion": "Trigger 0 must concern the first simultaneous readable display named by the question.",
+      "steps": [
+        {
+          "question": "Does the trigger scene contain both required visual sources?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The list and all four labelled q bars occupy the same frame sequence."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "question-anchored-to-screen",
+      "target": null,
+      "looked_at": [],
+      "findings": "The question names the on-screen “My name is …” list and four model q bars, plus their simultaneous readability.",
+      "criterion": "The task must identify concrete visible text, objects, quantities, or layout.",
+      "steps": [
+        {
+          "question": "Which words anchor the question visually?",
+          "answer_bool": null,
+          "answer_number": null,
+          "answer_text": "“list of ‘My name is …’ examples” and “four model q bars”",
+          "why": "They identify a specific displayed list and chart."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-within-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "The rubric requests four p values, the argmax of p, the argmax of q, their comparison, and keeping list frequencies distinct from q; all follow from the question.",
+      "criterion": "Every judge requirement must be supported by an explicit request or distinction in the question.",
+      "steps": [
+        {
+          "question": "Does each rubric item follow from the question?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The question asks for all four p values, both argmax names, and a comparison between empirical p and model q."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "discriminator-in-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "The question explicitly distinguishes empirical p derived from the list from the separate model q bars and requires them readable at the same time.",
+      "criterion": "The participant-visible wording must explain why a distractor or confused source substitution is wrong.",
+      "steps": [
+        {
+          "question": "What wording excludes using list frequencies as q?",
+          "answer_bool": null,
+          "answer_number": null,
+          "answer_text": "“derive the empirical distribution p” versus “compare … with the maximum of q”",
+          "why": "The two sources and symbols are named separately."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-not-punishing-extra",
+      "target": null,
+      "looked_at": [],
+      "findings": "The restrictive clause rejects substituting list frequencies for q, which is an incorrect source swap rather than an additional correct detail.",
+      "criterion": "Restrictive wording must not reject a detail that correctly answers the question.",
+      "steps": [
+        {
+          "question": "Could a correct extra comparison be rejected by this clause?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Only replacing q with p is excluded."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-fully-covered",
+      "target": {
+        "distractor_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1356.8,
+          "what": "unrelated My name is Lisa text"
+        },
+        {
+          "kind": "frame",
+          "t": 1360.5,
+          "what": "the full Alice/Bob/Charlie/Dora frequency list appears alone"
+        },
+        {
+          "kind": "frame",
+          "t": 1370.1,
+          "what": "the frequency list is still shown before the chart is fully paired"
+        }
+      ],
+      "findings": "The distractor begins with the example introduction and covers the separate-list phase; its problem is overextension, assessed separately under correctness.",
+      "criterion": "The distractor must include the whole tempting incomplete phase from its onset.",
+      "steps": [
+        {
+          "question": "Is the initial incomplete names-example phase covered?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The interval starts at introduction and includes the list-only display."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-not-correct-answer",
+      "target": {
+        "distractor_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1374.4,
+          "what": "the complete ten-name list and all four q bars are simultaneously visible"
+        },
+        {
+          "kind": "frame",
+          "t": 1377.1,
+          "what": "the same list and all q bars remain readable together"
+        }
+      ],
+      "findings": "At 1374.4 and 1377.1, both inside distractor 1354.6–1379.9, the full frequency list and four labelled q bars are readable simultaneously; Charlie is visibly the tallest q bar.",
+      "criterion": "No part of a distractor may already satisfy the literal condition and support a good-faith correct answer.",
+      "steps": [
+        {
+          "question": "Does distractor 0 contain frames satisfying the question?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Frames 1374.4 and 1377.1 provide both visual sources at once."
+        }
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {
+        "field": "distractor_windows[0].t_end / triggers[0].t_start",
+        "value": "End distractor before the first simultaneous readable frame and open trigger at that frame (recheck near 1374 s)",
+        "why": "Stop penalizing answers made when the list and q bars already satisfy the literal question."
+      },
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-why-hides-answer",
+      "target": null,
+      "looked_at": [],
+      "findings": "The why field states only that the sources appear separately and the comparison is incomplete; it gives no frequencies, p values, or argmax names.",
+      "criterion": "A distractor explanation may name the exclusion rule but must not leak the protected answer.",
+      "steps": [
+        {
+          "question": "Does the why text reveal any requested value or maximum?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "It contains none of Alice/Bob/Charlie/Dora probabilities or argmax answers."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "reasoning-level-not-inflated",
+      "target": null,
+      "looked_at": [],
+      "findings": "The viewer must count ten list entries, normalize them into four probabilities, and compare with a separate q chart.",
+      "criterion": "L3 is justified when requested quantities must be derived rather than merely read or linked.",
+      "steps": [
+        {
+          "question": "Must p be derived from counts rather than copied?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The screen provides 4,3,2,1 occurrences and the answer converts them to 0.4,0.3,0.2,0.1."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-matches-description",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1370.1,
+          "what": "four Alice, three Bob, two Charlie, one Dora are visible"
+        },
+        {
+          "kind": "frame",
+          "t": 1377.1,
+          "what": "all four q bars are already alongside the list"
+        },
+        {
+          "kind": "frame",
+          "t": 1389.9,
+          "what": "q bars remain visible and Charlie is tallest"
+        }
+      ],
+      "findings": "Real frames support both provenance descriptions in substance, but the exact cited 1380.4 frame was not available in the fixed index and could not be opened without editing the workspace.",
+      "criterion": "A provenance description must be checked against the real frame at its cited time, not inferred solely from an index or nearby frames.",
+      "steps": [
+        {
+          "question": "Was the exact 1380.4 evidence frame inspected?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The fixed frame index jumps from 1377.1 to 1389.9."
+        }
+      ],
+      "result": "skipped",
+      "confidence": "medium",
+      "proposal": null,
+      "uncovered": {
+        "t_start": 1380.3,
+        "t_end": 1380.5
+      }
+    },
+    {
+      "group": "provenance",
+      "item": "references-consistent-with-windows",
+      "target": null,
+      "looked_at": [],
+      "findings": "The 1370.4 evidence supplies only list frequencies, not the model-q maximum; the second evidence at 1380.4 is within the trigger window and supplies the missing q comparison.",
+      "criterion": "A pre-window reference is contradictory only if it implies the complete requested answer was already available.",
+      "steps": [
+        {
+          "question": "Does the pre-window 1370.4 record imply the full answer?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "It describes only the list counts, while the q maximum comes from the in-window record."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-answer-verified",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1370.1,
+          "what": "the list has counts 4,3,2,1 for Alice,Bob,Charlie,Dora"
+        },
+        {
+          "kind": "frame",
+          "t": 1377.1,
+          "what": "Charlie has the tallest q bar"
+        }
+      ],
+      "findings": "Ten examples give p=(0.4,0.3,0.2,0.1), Alice is p's maximum, and Charlie is q's maximum, so the maxima differ.",
+      "criterion": "The reference answer must correctly derive the empirical distribution and identify both visible maxima.",
+      "steps": [
+        {
+          "question": "What p follows from the ten visible names?",
+          "answer_bool": null,
+          "answer_number": null,
+          "answer_text": "(0.4, 0.3, 0.2, 0.1)",
+          "why": "Counts 4,3,2,1 divided by ten give those values."
+        },
+        {
+          "question": "Do the two argmax names coincide?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Alice maximizes p while Charlie is the tallest q bar."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "twins-agree-on-substance",
+      "target": null,
+      "looked_at": [],
+      "findings": "The sample has no twin_of field.",
+      "criterion": "Twin agreement applies only to a declared twin pair.",
+      "steps": [],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}
+

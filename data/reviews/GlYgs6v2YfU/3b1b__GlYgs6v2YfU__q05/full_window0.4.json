@@ -1,0 +1,262 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__GlYgs6v2YfU__q05",
+  "role": "full_window",
+  "iteration": 4,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q05/full_window0_r4",
+  "budget": {
+    "frames_viewed": 16,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 949.0,
+        "t_end": 962.0
+      }
+    ],
+    "transcript_cues": 8,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The full list is visible from 951 s through 958 s. By 959 s the loss scene has replaced it, leaving only a 1.8 s empty tail, which is within the checklist's no-fix tolerance.",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "group": "windows",
+      "item": "window-can-be-tightened",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 950.4,
+          "what": "The turquoise probability list is still being assembled; lower entries overlap and are not yet settled."
+        },
+        {
+          "kind": "frame",
+          "t": 951.0,
+          "what": "The complete ordered turquoise list is readable, headed by that 13.9% and in 9.7%."
+        },
+        {
+          "kind": "frame",
+          "t": 958.0,
+          "what": "The complete list remains visible and readable."
+        },
+        {
+          "kind": "frame",
+          "t": 959.0,
+          "what": "The display has changed to an empty loss-function coordinate scene; the token list is gone."
+        },
+        {
+          "kind": "frame",
+          "t": 960.8,
+          "what": "The loss surface is visible and the token distribution is absent."
+        }
+      ],
+      "findings": "The answer-bearing full list is present at the window start and remains through 958 s. It is gone by 959 s, so the interval has about 1.8 seconds of non-answer-bearing material before its 960.8 s end.",
+      "criterion": "A boundary change is warranted only when a substantial part of the window cannot support the answer; an empty tail of roughly one or two seconds is tolerated.",
+      "steps": [
+        {
+          "question": "What is the first inspected frame in the window with the complete answer-bearing list?",
+          "answer_number": 951.0,
+          "why": "At 951 s every ranked entry is settled and the first two lines are fully readable."
+        },
+        {
+          "question": "What is the last inspected second at which the complete list remains visible?",
+          "answer_number": 958.0,
+          "why": "The 958 s frame still shows the complete list, while the 959 s frame has changed scenes."
+        },
+        {
+          "question": "Is the non-answer-bearing tail large enough to justify tightening?",
+          "answer_bool": false,
+          "why": "The tail from about 959.0 to 960.8 s is only 1.8 seconds, within the stated one-to-two-second tolerance."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "windows",
+      "item": "author-says-answer-in-window",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 951.0,
+          "what": "The finished distribution visibly gives that 13.9% and in 9.7% as its top two lines."
+        },
+        {
+          "kind": "cue",
+          "t": 947.5,
+          "what": "The narrator says the model produces a probability output from a sequence of tokens."
+        },
+        {
+          "kind": "cue",
+          "t": 952.1,
+          "what": "The narrator calls it a distribution over all possible tokens."
+        },
+        {
+          "kind": "cue",
+          "t": 954.7,
+          "what": "The narrator describes the output as a prediction of what might come next."
+        },
+        {
+          "kind": "cue",
+          "t": 958.6,
+          "what": "The narrator begins explaining that training requires a loss function."
+        },
+        {
+          "kind": "cue",
+          "t": 962.0,
+          "what": "The narrator says a loss function quantifies whether predictions are generally good or bad."
+        },
+        {
+          "kind": "cue",
+          "t": 966.3,
+          "what": "The narrator completes the phrase generally bad."
+        },
+        {
+          "kind": "cue",
+          "t": 967.5,
+          "what": "The narrator starts a loose intuition about the graph of a loss function."
+        }
+      ],
+      "findings": "The finished answer is shown visually inside the window, but from 951.0 through 970.8 s the narration discusses probability distributions, predictions, and loss functions without saying either ranked token or either percentage.",
+      "criterion": "A finished answer in or immediately after an L2/L3 window is a critical shortcut, whereas an L1 alarm is allowed to coincide with the displayed or spoken answer.",
+      "steps": [
+        {
+          "question": "Does the stream present the finished answer during the window or the following ten seconds?",
+          "answer_bool": true,
+          "why": "The full distribution is visibly readable at 951 s, though the narrator never verbalizes its top tokens or values."
+        },
+        {
+          "question": "Is this sample an L2 or L3 task for which that presentation would be disqualifying?",
+          "answer_bool": false,
+          "why": "The supplied sample labels the task L1, designed as an alarm at the moment the answer appears."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "event-not-earlier-than-window",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 950.4,
+          "what": "The lower turquoise entries are still overlapping and the list is only partially assembled."
+        },
+        {
+          "kind": "frame",
+          "t": 951.0,
+          "what": "The complete ranked distribution is settled and readable."
+        }
+      ],
+      "findings": "The trigger condition is the distribution first appearing in full. It has not finished at 950.4 s and is fully assembled at the 951.0 s opening frame.",
+      "criterion": "For an event-triggered window, the opening should coincide with the event's beginning rather than lag behind an already-complete occurrence.",
+      "steps": [
+        {
+          "question": "Is the distribution already complete in the last inspected pre-window scene-change frame?",
+          "answer_bool": false,
+          "why": "At 950.4 s the lower part is visibly in motion and several entries overlap."
+        },
+        {
+          "question": "Is the distribution complete at the window opening?",
+          "answer_bool": true,
+          "why": "At 951.0 s all ranked lines are separated and readable."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "depends-on-is-dependency",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [],
+      "findings": "Trigger 0 has no depends_on field, and it is the only trigger in the supplied sample.",
+      "criterion": "A dependency check applies only when another trigger is logically required by this trigger's rubric, or when an existing depends_on link must be tested for necessity.",
+      "steps": [
+        {
+          "question": "Does this trigger declare a depends_on link to another trigger?",
+          "answer_bool": false,
+          "why": "No depends_on field is present in the supplied trigger object."
+        },
+        {
+          "question": "Does its rubric require an answer from another trigger?",
+          "answer_bool": false,
+          "why": "Every rubric item concerns the two names, their percentages, and their displayed order in this same distribution."
+        }
+      ],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "evidence-span-is-last",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 950.4,
+          "what": "The list is still partially assembled, despite the first two values already being visible."
+        },
+        {
+          "kind": "frame",
+          "t": 951.0,
+          "what": "The distribution first appears in full and its ordered top two are readable as that 13.9% and in 9.7%."
+        },
+        {
+          "kind": "frame",
+          "t": 955.0,
+          "what": "The same complete ordered distribution remains visible within the declared evidence span."
+        }
+      ],
+      "findings": "The last required fact is not merely either percentage but that the distribution has reached its first fully assembled state. That condition is satisfied at 951.0 s, which lies inside the declared evidence span [951.0, 955.8].",
+      "criterion": "The evidence span must include the moment when the final fact needed to derive the complete answer first becomes available, without being extended merely to later corroboration.",
+      "steps": [
+        {
+          "question": "What is the last fact required by the wording and rubric?",
+          "answer_text": "That the ranked distribution has appeared in full, with that first at 13.9% and in second at 9.7%.",
+          "why": "The question excludes partial assembly, and the rubric also requires both values and their order."
+        },
+        {
+          "question": "When is that last fact first visible in the inspected frames?",
+          "answer_number": 951.0,
+          "why": "The 950.4 s frame is still assembling, while the 951.0 s frame is complete."
+        },
+        {
+          "question": "Does the declared evidence span cover that moment?",
+          "answer_bool": true,
+          "why": "The supplied interval starts exactly at 951.0 s and continues to 955.8 s."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ],
+  "window_idx": 0
+}

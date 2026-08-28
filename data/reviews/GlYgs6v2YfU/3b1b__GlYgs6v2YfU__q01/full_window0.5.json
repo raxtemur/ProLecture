@@ -1,0 +1,262 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__GlYgs6v2YfU__q01",
+  "role": "full_window",
+  "iteration": 5,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-26",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q01/full_window0_r5",
+  "budget": {
+    "frames_viewed": 11,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 61.0,
+        "t_end": 67.0
+      }
+    ],
+    "transcript_cues": 7,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The two labels first coexist at 63 s; the subtraction finishes animating by 66 s and stays visible through the window. The spoken explanation describes only the displayed A-to-B direction, not the requested role-swapped answer.",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "group": "windows",
+      "item": "window-can-be-tightened",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 63.0,
+          "what": "GZIP(AB) and GZIP(A) are both labelled and visible, with blue A and green B composition visible in GZIP(AB)."
+        },
+        {
+          "kind": "frame",
+          "t": 66.0,
+          "what": "The complete displayed subtraction GZIP(AB) minus GZIP(A) is visible."
+        },
+        {
+          "kind": "frame",
+          "t": 72.0,
+          "what": "The complete labelled subtraction remains on screen."
+        },
+        {
+          "kind": "frame",
+          "t": 79.2,
+          "what": "The complete labelled subtraction is still visible immediately after the window end."
+        }
+      ],
+      "findings": "At 63.0 both named outputs and their colour composition are visible. The layout turns into an explicit subtraction by 66.0, and the same construction remains visible through 79.2.",
+      "criterion": "Tightening is warranted only when a substantial part of the accepted interval lacks the evidence needed for the requested transformation or remains after that evidence has gone away.",
+      "steps": [
+        {
+          "question": "When are both labelled GZIP outputs and their colour composition first visible?",
+          "answer_number": 63.0,
+          "why": "The 62.0 frame has only GZIP(AB), while the 63.0 frame also shows labelled GZIP(A)."
+        },
+        {
+          "question": "Does the opening animation create a substantial evidence-free portion of the window?",
+          "answer_bool": false,
+          "why": "The requested role swap can begin from the two labelled, colour-coded terms at 63.0; the minus sign completes by 66.0 while the response window remains open."
+        },
+        {
+          "question": "Does the relevant construction disappear materially before the right boundary?",
+          "answer_bool": false,
+          "why": "It remains visible at 76.0 and at 79.2, immediately beyond the 79.0 right boundary."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "windows",
+      "item": "author-says-answer-in-window",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 63.1,
+          "what": "The author begins explaining what the displayed difference tells us."
+        },
+        {
+          "kind": "cue",
+          "t": 67.0,
+          "what": "The author says a snippet of B is compressed when the compressor is mostly optimized for A."
+        },
+        {
+          "kind": "cue",
+          "t": 71.3,
+          "what": "The author says the result is small when B's linguistic patterns resemble A's."
+        },
+        {
+          "kind": "cue",
+          "t": 74.9,
+          "what": "The author says the result is larger when B differs more from A."
+        },
+        {
+          "kind": "cue",
+          "t": 79.3,
+          "what": "After the window, the author transitions to a general document-distance metric."
+        },
+        {
+          "kind": "frame",
+          "t": 65.9,
+          "what": "The screen shows GZIP(AB) minus GZIP(A), with a blue A base and green B fragment."
+        },
+        {
+          "kind": "frame",
+          "t": 79.2,
+          "what": "The screen still shows only the original-direction subtraction, not the role-swapped one."
+        }
+      ],
+      "findings": "From 63.1 through 78.6 the author explains the original displayed direction: B compressed with a compressor optimized for A. Neither the speech nor the screen states GZIP(BA) minus GZIP(B), a green B base with appended blue A, or the incremental length of A given B.",
+      "criterion": "For an L3 window this item fires only if the author supplies the requested counterfactual answer in finished form during the window or the following ten seconds, rather than merely supplying the original construction that must be transformed.",
+      "steps": [
+        {
+          "question": "Which direction does the author explain during the response window?",
+          "answer_text": "B given A, corresponding to the displayed GZIP(AB) minus GZIP(A)",
+          "why": "The 63.1-78.6 cues explicitly call B the snippet and A the compressor's main optimization context."
+        },
+        {
+          "question": "Is the requested role-swapped subtraction or interpretation stated in finished form by 89.0?",
+          "answer_bool": false,
+          "why": "The cues after 79.0 move to the general distance metric, and the inspected frames show only the original direction."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "event-not-earlier-than-window",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 61.0,
+          "what": "Only the labelled GZIP(AB) result is present; a second compressed object is still being animated."
+        },
+        {
+          "kind": "frame",
+          "t": 62.0,
+          "what": "Only GZIP(AB) is labelled; GZIP(A) is not yet simultaneously available."
+        },
+        {
+          "kind": "frame",
+          "t": 63.0,
+          "what": "Both GZIP(AB) and GZIP(A) are labelled and simultaneously visible."
+        }
+      ],
+      "findings": "The second labelled result is absent at 62.0 and present together with GZIP(AB) at 63.0, matching the 63.0 window start.",
+      "criterion": "For this visual event, the window should open when the condition named in the question first occurs, not after it has already been occurring.",
+      "steps": [
+        {
+          "question": "Are the two labelled results simultaneously visible before 63.0?",
+          "answer_bool": false,
+          "why": "At both 61.0 and 62.0 only GZIP(AB) has a visible label."
+        },
+        {
+          "question": "Does the named simultaneous-visibility event hold at 63.0?",
+          "answer_bool": true,
+          "why": "The 63.0 frame visibly contains labels for both GZIP(AB) and GZIP(A)."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "depends-on-is-dependency",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [],
+      "findings": "Trigger 0 has no depends_on field, and it is the sample's only trigger.",
+      "criterion": "A dependency judgement applies only when a trigger declares a prerequisite window or when its rubric requires an earlier trigger answer that should have been declared.",
+      "steps": [
+        {
+          "question": "Does this trigger declare a depends_on link?",
+          "answer_bool": false,
+          "why": "No depends_on field appears in trigger 0."
+        },
+        {
+          "question": "Does any rubric requirement rely on an answer from another trigger?",
+          "answer_bool": false,
+          "why": "There is no other trigger, and every rubric item concerns the role swap within this one construction."
+        }
+      ],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "evidence-span-is-last",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 63.0,
+          "what": "Both labelled outputs and the blue/green composition are visible."
+        },
+        {
+          "kind": "frame",
+          "t": 64.0,
+          "what": "The two labelled outputs are moving into a side-by-side subtraction layout."
+        },
+        {
+          "kind": "frame",
+          "t": 65.0,
+          "what": "The terms are aligned but the minus sign is not yet visible."
+        },
+        {
+          "kind": "frame",
+          "t": 66.0,
+          "what": "The minus sign and both labelled terms form the complete original subtraction."
+        }
+      ],
+      "findings": "The identities and colour composition of the two terms are visible at 63.0. Their explicit subtraction relation completes at 66.0 when the minus sign appears; later speech only interprets the original direction.",
+      "criterion": "The evidence span must include the last newly appearing fact needed to derive the requested answer, while excluding later corroboration or explanation that is not needed for derivation.",
+      "steps": [
+        {
+          "question": "What is the last visual fact needed for the exact role-swapped subtraction?",
+          "answer_text": "The explicit minus relation between GZIP(AB) and GZIP(A)",
+          "why": "The labels and colours are already present at 63.0, but the minus sign is first present in the inspected 66.0 frame."
+        },
+        {
+          "question": "Does the annotated evidence span cover that last fact?",
+          "answer_bool": true,
+          "why": "The span [63.0, 66.0] reaches the frame where the complete subtraction is visible."
+        },
+        {
+          "question": "Is any later fact required to derive the reversed answer?",
+          "answer_bool": false,
+          "why": "The later narration interprets the displayed direction but does not add a visual component needed to exchange A and B throughout the construction."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ],
+  "window_idx": 0
+}

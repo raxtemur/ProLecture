@@ -1,0 +1,169 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__GlYgs6v2YfU__q05",
+  "role": "semiblind",
+  "iteration": 4,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q05/semiblind_r4",
+  "budget": {
+    "frames_viewed": 7,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 948.0,
+        "t_end": 955.0
+      }
+    ],
+    "transcript_cues": 271,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The transcript and screen indexes cover the supplied stretch from 0.0 to 960.8 s. The declared distractor was preserved: the 950 s frame is visibly still assembling the turquoise list. The complete list is first confirmed at the 951 s dense frame.",
+  "prior_answer": "It cannot be answered on the merits: the question does not state the next-token distribution, the token labels, or their percentages.",
+  "prior_answer_assumptions": [],
+  "recognized_video": false,
+  "recognized_how": "I did not recognize this specific video or moment before viewing.",
+  "scans": [
+    {
+      "idx": 0,
+      "t_from": 0.0,
+      "t_to": 960.8,
+      "watched": [
+        {
+          "kind": "frame",
+          "t": 948.0,
+          "what": "The complete prefix is visible with an arrow and model cube, but no output distribution is visible."
+        },
+        {
+          "kind": "frame",
+          "t": 949.0,
+          "what": "The complete prefix, arrow, and model cube remain visible with no output list."
+        },
+        {
+          "kind": "frame",
+          "t": 950.0,
+          "what": "A turquoise probability list is visibly in motion and only partially assembled; lower entries are still arriving."
+        },
+        {
+          "kind": "frame",
+          "t": 951.0,
+          "what": "The full turquoise probability list is readable from top to bottom, ending in an ellipsis; the first lines are that 13.9% and in 9.7%."
+        },
+        {
+          "kind": "frame",
+          "t": 952.0,
+          "what": "The same complete probability list remains readable and unchanged."
+        },
+        {
+          "kind": "frame",
+          "t": 953.0,
+          "what": "The complete list remains stable, with that 13.9% and in 9.7% at the top."
+        },
+        {
+          "kind": "frame",
+          "t": 954.0,
+          "what": "The complete list remains stable and fully readable."
+        }
+      ],
+      "candidates": [
+        {
+          "question": "Is the answer available from the prefix-only sequence beginning at 936.1 seconds?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "This is the declared distractor: prefix tokens, an empty output area, and then an assembling list do not yet show the requested settled full distribution."
+        },
+        {
+          "question": "Is the answer available in the 948 and 949 second frames?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Both real frames show the prefix, arrow, and model cube, but no token-probability list."
+        },
+        {
+          "question": "Is the answer available in the 950 second frame?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The turquoise list is only partially assembled and visibly moving; this remains the endpoint transition of the declared distractor rather than a settled full distribution."
+        },
+        {
+          "question": "Is the answer available in the 951 second frame?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The complete list is present from its first line through the lower entries and ellipsis, and the top two lines are fully readable."
+        }
+      ],
+      "t_val": 951.0,
+      "t_val_basis": "At 951.0 s the turquoise next-token distribution is fully assembled and readable; the preceding 950.0 s frame is still partial and in motion.",
+      "answer_at_t_val": "that — 13.9%; in — 9.7%, in the displayed top-to-bottom order.",
+      "confidence": "high"
+    }
+  ],
+  "checks": [
+    {
+      "group": "shortcuts",
+      "item": "solvable-without-video",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 936.1,
+          "what": "The narration only introduces that language models divide text into tokens; it does not state the requested token labels or percentages."
+        }
+      ],
+      "findings": "Before viewing, the question supplied a prefix and a visual timing condition but no values from the requested distribution.",
+      "criterion": "The item fires only if the exact token names and percentages can be derived honestly from the question and general knowledge, without inventing unseen screen content.",
+      "steps": [
+        {
+          "question": "Does the question itself specify the top two tokens and percentages?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "It identifies only the prefix and the moment at which a visual distribution should be read."
+        },
+        {
+          "question": "Can general knowledge uniquely determine this model-specific distribution?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Next-token probabilities depend on the particular model and visualization and are not fixed facts about the prefix."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "video-recognized",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 0.0,
+          "what": "The supplied transcript begins with a discussion of Language Trees and Zipping."
+        }
+      ],
+      "findings": "Before opening any supplied material, I did not recognize the particular video or recall the requested distribution from memory.",
+      "criterion": "The item fires only when prior familiarity with this exact video and moment makes the answer recallable without examining the supplied evidence.",
+      "steps": [
+        {
+          "question": "Did I recognize this exact video and moment before viewing?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "I had no specific memory of the video or of the token-percentage list."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

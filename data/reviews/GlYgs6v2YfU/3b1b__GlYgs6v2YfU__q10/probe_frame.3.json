@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__GlYgs6v2YfU__q10",
+  "role": "probe_frame",
+  "iteration": 3,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q10/probe_frame_r3",
+  "budget": {
+    "frames_viewed": 1,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 0,
+    "screen_index_used": false
+  },
+  "violations": [],
+  "notes": "The three candidate names are not visible in the supplied frame, so they are not guessed.",
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 1464.0,
+      "what": "A slide headed 'Cross Entropy = sum_i p_i(-log(q_i))' shows bars labeled Alice q_A, Bob q_B, Charlie q_C, and Dora q_D, together with repeated name examples grouped by p_A, p_B, p_C, and p_D."
+    }
+  ],
+  "steps": [
+    {
+      "question": "Which of the three earlier non-logarithmic candidate functions are visible here?",
+      "answer_text": "None of them is identifiable in this frame; only the logarithmic loss -log(q_i) is displayed.",
+      "why": "The sole frame contains the cross-entropy formula and the names example, but no earlier candidate-function labels or plots."
+    },
+    {
+      "question": "Why is a candidate loss being decreasing insufficient to guarantee the stated minimum-average-loss requirement?",
+      "answer_text": "Decreasingness only says that assigning more probability to the outcome that occurred lowers that outcome's loss. It does not control the tradeoff among possible outcomes in expectation, so it does not guarantee that the average loss is minimized when the reported distribution q equals the true distribution p.",
+      "why": "This follows from general knowledge of proper scoring rules: the requirement concerns the minimizer of the expected loss, whereas monotonicity is only a pointwise ordering condition."
+    }
+  ],
+  "answer": "The supplied frame does not show the three earlier non-logarithmic candidates, so I cannot name them without guessing. Their being decreasing would not be sufficient anyway: decreasingness only rewards putting more probability on the outcome that actually occurred. The requirement is stronger—under the true distribution p, the average (expected) loss must attain its minimum at the truthful prediction q = p. A decreasing function need not balance the losses across outcomes so that this calibration/properness condition holds.",
+  "basis": "At 1464 s the single frame visibly supplies only the cross-entropy expression sum_i p_i(-log(q_i)) and the Alice/Bob/Charlie/Dora example. The candidate functions and the spoken repetition of the requirement are absent. The explanation of why decreasingness is insufficient comes from general knowledge of expected loss and proper scoring rules; the function names are deliberately left unidentified rather than guessed.",
+  "confidence": "high",
+  "insufficient": true
+}

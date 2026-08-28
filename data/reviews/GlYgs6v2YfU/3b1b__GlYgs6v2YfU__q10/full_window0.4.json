@@ -1,0 +1,313 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__GlYgs6v2YfU__q10",
+  "role": "full_window",
+  "iteration": 4,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q10/full_window0_r4",
+  "budget": {
+    "frames_viewed": 11,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 1455.0,
+        "t_end": 1458.0
+      }
+    ],
+    "transcript_cues": 8,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The direct frame viewer was blocked by the environment sandbox. I inspected only frames named by frames.md, using temporary /tmp copies for the sparse frames and base64 rendering; dense frames came from the prescribed workspace script.",
+  "verdict": "CRITICAL_FAIL",
+  "checks": [
+    {
+      "group": "windows",
+      "item": "window-can-be-tightened",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1456.0,
+          "what": "The complete text 'Minimal when Q = P' is visible with the cross-entropy expression."
+        },
+        {
+          "kind": "frame",
+          "t": 1459.7,
+          "what": "The same minimum condition and cross-entropy expression remain visible."
+        },
+        {
+          "kind": "frame",
+          "t": 1463.2,
+          "what": "The names example and the cross-entropy formula are visible."
+        },
+        {
+          "kind": "frame",
+          "t": 1466.7,
+          "what": "The names example and cross-entropy formula remain visible."
+        },
+        {
+          "kind": "cue",
+          "t": 1461.6,
+          "what": "The narrator says the loss is minimized exactly when the model distribution matches the data distribution."
+        },
+        {
+          "kind": "cue",
+          "t": 1470.3,
+          "what": "The narrator begins explaining that the key implication also goes the other way around."
+        },
+        {
+          "kind": "frame",
+          "t": 1472.3,
+          "what": "Immediately after the window, the same names scene remains while the heading changes to Average Loss."
+        }
+      ],
+      "findings": "At the opening, the complete Q = P minimum condition is visible. Through the remainder of the window the narrator restates and interprets that condition while the formula or names example remains on screen; the transition immediately after 1472 still concerns the same average-loss construction.",
+      "criterion": "A substantial prefix or suffix should be removed only when it provides no usable access to the answer; one or two seconds of ordinary transition slack is not enough by itself.",
+      "steps": [
+        {
+          "question": "From what observed moment is the required minimum condition fully available?",
+          "answer_bool": null,
+          "answer_number": 1456.0,
+          "answer_text": null,
+          "why": "The dense 1456.0 frame already displays the complete statement 'Minimal when Q = P'."
+        },
+        {
+          "question": "Does a large answer-empty suffix occur before 1472.0?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The spoken interpretation continues through 1469.8 and a connected implication begins at 1470.3; the scene remains relevant at the boundary."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "windows",
+      "item": "author-says-answer-in-window",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1456.0,
+          "what": "The screen explicitly states 'Minimal when Q = P' beside the cross-entropy sum."
+        },
+        {
+          "kind": "cue",
+          "t": 1455.6,
+          "what": "The narrator says the formula takes on a minimum exactly when the P and Q values are equal."
+        },
+        {
+          "kind": "cue",
+          "t": 1461.6,
+          "what": "The narrator says the loss is minimized exactly when the model distribution equals the data distribution."
+        },
+        {
+          "kind": "frame",
+          "t": 1475.5,
+          "what": "Within ten seconds after the window, the generic form Average Loss = sum p_i f(q_i) is visible."
+        },
+        {
+          "kind": "frame",
+          "t": 1481.3,
+          "what": "Within ten seconds after the window, the screen states the goal that the generic average loss is minimized when q_i = p_i."
+        }
+      ],
+      "findings": "Inside the window the author gives the exact Q = P minimization requirement. By 1481.3, still inside [t_start, t_end + 10], the video shows both the generic sum p_i f(q_i) and the goal that it be minimized at q_i = p_i. These are the substantive facts needed to explain why mere decrease does not establish the required average-loss minimum; the three earlier candidate names are prior material the streaming participant has already seen.",
+      "criterion": "For an L2 sample, the check fires when the author supplies the finished substantive answer during the response window or its ten-second response horizon, so correct reasoning no longer distinguishes the participant from copying the stream.",
+      "steps": [
+        {
+          "question": "What reasoning level governs the leakage rule for this sample?",
+          "answer_bool": null,
+          "answer_number": null,
+          "answer_text": "L2",
+          "why": "The supplied sample metadata sets reasoning_level to L2."
+        },
+        {
+          "question": "Does the author state the required minimum condition inside the window?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The condition is complete on screen at 1456.0 and spoken across the cues beginning at 1455.6."
+        },
+        {
+          "question": "Is the generic average-loss version also complete by t_end plus ten seconds?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "At 1475.5 the generic sum is shown, and at 1481.3 it is paired with the goal q_i = p_i, before 1482.0."
+        },
+        {
+          "question": "Does that streamed material supply the explanation beyond recalling the earlier candidate names?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "It explicitly supplies the stronger criterion that monotonic decrease alone fails to establish: minimization of the weighted sum at Q = P."
+        }
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {
+        "field": "reasoning_level",
+        "value": "L1",
+        "why": "The question deliberately alarms on the author's first statement of the criterion, so L1 matches the observable task; retaining L2 requires redesigning the question or moving it to a point with substantial slack before the author supplies the answer."
+      },
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "event-not-earlier-than-window",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1455.0,
+          "what": "The transition is already revealing the end of 'Minimal when Q = P', including the fully readable Q = P relation."
+        },
+        {
+          "kind": "cue",
+          "t": 1455.6,
+          "what": "The spoken statement that the formula takes on a minimum begins before the 1456.0 window."
+        },
+        {
+          "kind": "frame",
+          "t": 1456.0,
+          "what": "The minimum statement is fully settled and readable at the window opening."
+        }
+      ],
+      "findings": "The visual event has begun by 1455.0, when the transition already exposes the Q = P minimum text, and the spoken event begins at 1455.6. The annotated window does not open until 1456.0.",
+      "criterion": "For a condition defined by the first occurrence of an event, the window must open when that multimodal event begins rather than after its transition or sentence has already started.",
+      "steps": [
+        {
+          "question": "Had the visual statement begun before 1456.0?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "At 1455.0 the transition already shows the relevant minimum text and Q = P relation."
+        },
+        {
+          "question": "Had the spoken statement begun before 1456.0?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The transcript timestamps the opening of the minimum sentence at 1455.6."
+        },
+        {
+          "question": "What is the earliest directly inspected event time?",
+          "answer_bool": null,
+          "answer_number": 1455.0,
+          "answer_text": null,
+          "why": "The prescribed 1 fps dense pass provides a real frame at 1455.0, but no finer transition timing."
+        }
+      ],
+      "result": "fail",
+      "confidence": "medium",
+      "proposal": {
+        "field": "t_start",
+        "value": "1455.0",
+        "why": "This is the earliest directly verified frame in which the multimodal event has begun; it also covers the spoken onset at 1455.6."
+      },
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "depends-on-is-dependency",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [],
+      "findings": "Trigger 0 has no depends_on field, and the supplied sample contains no other trigger window from which a substantive answer dependency could arise.",
+      "criterion": "This item applies only when a window declares a dependency or when its rubric requires an answer from another window that should have been declared as one.",
+      "steps": [
+        {
+          "question": "Is a depends_on link present on trigger 0?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "No depends_on field appears in the supplied trigger object."
+        },
+        {
+          "question": "Does any rubric item require an answer from another trigger?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The supplied sample has only trigger 0, and every rubric item concerns its single response."
+        }
+      ],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "evidence-span-is-last",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1455.0,
+          "what": "The transition shows only a partially revealed minimum statement before the evidence span begins."
+        },
+        {
+          "kind": "frame",
+          "t": 1456.0,
+          "what": "The complete statement 'Minimal when Q = P' is visible at the start of the evidence span."
+        },
+        {
+          "kind": "cue",
+          "t": 1455.6,
+          "what": "The spoken minimum sentence begins and continues through the next cue, while the complete visual statement is already present."
+        }
+      ],
+      "findings": "The earlier candidate-function identities precede this event by the question's own design. The last new fact needed for the requested explanation is the stronger Q = P minimization requirement, and it is fully visible at 1456.0. The declared evidence_span [1456.0, 1458.4] contains that moment.",
+      "criterion": "The evidence span is correct when it contains the appearance of the final fact needed to derive the answer, even if later speech or visuals repeat and corroborate the same fact.",
+      "steps": [
+        {
+          "question": "What is the last new fact needed after the earlier candidates have appeared?",
+          "answer_bool": null,
+          "answer_number": null,
+          "answer_text": "The average-loss criterion is minimization at Q = P.",
+          "why": "That is the stronger requirement against which mere monotonic decrease must be judged."
+        },
+        {
+          "question": "When is that final fact fully available in an observed frame?",
+          "answer_bool": null,
+          "answer_number": 1456.0,
+          "answer_text": null,
+          "why": "The dense 1456.0 frame displays the complete minimum statement."
+        },
+        {
+          "question": "Does the declared evidence span cover that observed moment?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The span begins at 1456.0 and extends to 1458.4."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ],
+  "window_idx": 0
+}

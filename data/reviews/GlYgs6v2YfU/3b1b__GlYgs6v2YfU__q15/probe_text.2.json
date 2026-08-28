@@ -1,0 +1,75 @@
+{
+  "sample_id": "3b1b__GlYgs6v2YfU__q15",
+  "role": "probe_text",
+  "iteration": 2,
+  "model": "gpt-5",
+  "date": "2026-08-26",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q15/probe_text_r2",
+  "budget": {
+    "frames_viewed": 0,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 568,
+    "screen_index_used": false
+  },
+  "violations": [],
+  "notes": "The full transcript through 1981.3 s was read. No visual material or screen index was used.",
+  "looked_at": [
+    {
+      "kind": "cue",
+      "t": 1895.3,
+      "what": "The lecturer begins defining KL divergence."
+    },
+    {
+      "kind": "cue",
+      "t": 1897.7,
+      "what": "Cross entropy is recalled as attaining its minimum when p and q coincide."
+    },
+    {
+      "kind": "cue",
+      "t": 1905.7,
+      "what": "The minimum cross entropy is identified as the entropy of p."
+    },
+    {
+      "kind": "cue",
+      "t": 1909.1,
+      "what": "KL divergence is introduced as the difference between those two values."
+    },
+    {
+      "kind": "cue",
+      "t": 1953.9,
+      "what": "The lecturer states that KL divergence is asymmetric."
+    },
+    {
+      "kind": "cue",
+      "t": 1967.2,
+      "what": "The lecturer says the expression often appears in a more compact form."
+    },
+    {
+      "kind": "cue",
+      "t": 1975.8,
+      "what": "The compact form is said to hide a difference between cross entropy and entropy."
+    }
+  ],
+  "steps": [
+    {
+      "question": "What does the transcript establish about the compact KL expression?",
+      "answer_text": "It is the difference between cross entropy and the entropy of p, and the order matters because KL divergence is asymmetric.",
+      "why": "At 1897.7–1921.5 the lecturer defines KL from the gap between cross entropy and its entropy-of-p minimum; at 1953.9–1962.3 he states the asymmetry; at 1967.2–1981.3 he describes the compact form."
+    },
+    {
+      "question": "Why does a single compact-sum term contain p_i/q_i rather than q_i/p_i?",
+      "answer_text": "For index i, subtracting entropy from cross entropy gives -p_i log(q_i) - [-p_i log(p_i)] = p_i[log(p_i) - log(q_i)] = p_i log(p_i/q_i).",
+      "why": "The transcript identifies KL as cross entropy minus entropy of p at 1897.7–1921.5 and the compact form as that same difference at 1967.2–1981.3. The logarithm quotient rule is general mathematical knowledge."
+    },
+    {
+      "question": "Which labelled add-on changes colour after the compact sum becomes readable?",
+      "answer_text": "The index and its green-to-red transition cannot be identified from the transcript.",
+      "why": "The final cues at 1962.6–1981.3 mention three things to ponder and the compact expression, but contain no spoken index, label, or colour change. No frames were available under the text-only contract."
+    }
+  ],
+  "answer": "The ratio is p_i/q_i: one term of KL = cross entropy minus entropy is -p_i log(q_i) - [-p_i log(p_i)] = p_i(log(p_i) - log(q_i)) = p_i log(p_i/q_i). Reversing the quotient would reverse the subtraction and correspond to the opposite KL ordering, consistent with the stated asymmetry. However, the transcript does not identify which labelled add-on changes or state any green-to-red transition, so that requested index and colour verification cannot be supplied from the text-only material.",
+  "basis": "Transcript: 1897.7–1908.7 recalls that cross entropy is minimized at p=q and that the minimum is entropy of p; 1909.1–1921.5 defines KL divergence as the difference between these values; 1953.9–1962.3 states that KL is asymmetric; 1967.2–1981.3 says the compact form hides the difference between cross entropy and entropy. General knowledge: the logarithm quotient identity. The transcript contains no spoken index or colour transition, so no visual detail was guessed.",
+  "confidence": "high",
+  "insufficient": true
+}

@@ -1,0 +1,57 @@
+{
+  "sample_id": "3b1b__GlYgs6v2YfU__q13",
+  "role": "probe_text",
+  "iteration": 3,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/GlYgs6v2YfU/3b1b__GlYgs6v2YfU__q13/probe_text_r3",
+  "budget": {
+    "frames_viewed": 0,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 514,
+    "screen_index_used": false
+  },
+  "violations": [],
+  "notes": "Read the complete authorized transcript; no frames or screen-text index were used.",
+  "looked_at": [
+    {
+      "kind": "cue",
+      "t": 1761.6,
+      "what": "The narration says the next step is to explain how to turn a general predictor into a compressor."
+    },
+    {
+      "kind": "cue",
+      "t": 1772.6,
+      "what": "The narration says the resulting bit count approximately matches the text's information content from the model's perspective."
+    },
+    {
+      "kind": "cue",
+      "t": 1785.0,
+      "what": "The narration previews a visual compression algorithm for the next part, but does not speak the displayed binary fraction or letters."
+    }
+  ],
+  "steps": [
+    {
+      "question": "What does the closing narration identify about the preview?",
+      "answer_text": "It previews a very visual compression algorithm that turns a predictor into a compressor.",
+      "why": "The closing cues at 1761.6–1791.7 explicitly describe that topic."
+    },
+    {
+      "question": "Does the transcript state the binary fraction shown above the nested intervals?",
+      "answer_bool": false,
+      "answer_text": "No binary fraction is spoken or otherwise represented in the transcript.",
+      "why": "The complete 0–1792 s transcript was read, including the closing preview."
+    },
+    {
+      "question": "Does the transcript state the letters selected so far, level by level?",
+      "answer_bool": false,
+      "answer_text": "No selected letters or interval labels are spoken or otherwise represented in the transcript.",
+      "why": "The complete 0–1792 s transcript was read, including the closing preview."
+    }
+  ],
+  "answer": "Binary fraction: not stated in the transcript. Letters selected so far from top down: not stated in the transcript. I cannot copy either reliably from the provided text-only material.",
+  "basis": "At 1761.6–1767.2 the narrator says the next step is to turn a predictor into a compressor, and at 1785.0–1791.7 calls it a 'very visual' compression algorithm for the next part. The transcript contains no spoken or transcribed binary fraction and no selected letters. I did not guess them from the apparent arithmetic-coding context.",
+  "confidence": "high",
+  "insufficient": true
+}
