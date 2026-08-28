@@ -1,0 +1,280 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q02",
+  "role": "full_sample",
+  "iteration": 3,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q02/full_sample",
+  "budget": {
+    "frames_viewed": 6,
+    "sparse_step": null,
+    "dense_intervals": [
+      {"t_start": 130.0, "t_end": 141.0}
+    ],
+    "transcript_cues": 1017,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The full 0–1339 s transcript and screen index were scanned; real frames were used for every visual conclusion.\nThe response was recomputed independently: finite differences for -cos(x) at 0 gave -1, 0, and 0.49999999696.\nNo twin_of was supplied. No boundary judgement assigned to full_window was made.",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "group": "triggers",
+      "item": "no-missed-trigger",
+      "target": null,
+      "looked_at": [
+        {"kind": "cue", "t": 14.9, "what": "Beginning of the transcript scan; the lecture introduces Taylor approximation."},
+        {"kind": "cue", "t": 122.7, "what": "The narrator names cosine of x and a quadratic approximation near x=0."},
+        {"kind": "cue", "t": 139.5, "what": "The narrator names the three constants c0, c1, and c2."},
+        {"kind": "frame", "t": 140.0, "what": "The quadratic formula has arrows from 'Free to change' to c0, c1, and c2 simultaneously."},
+        {"kind": "cue", "t": 344.1, "what": "Later narration reviews three degrees of freedom but does not introduce another marked-control event."},
+        {"kind": "cue", "t": 1315.1, "what": "End of the line-by-line transcript scan before closing music."}
+      ],
+      "findings": "Across the complete transcript, the quadratic with c0, c1, c2 is introduced once in the relevant early sequence. The only located real frame with the simultaneous visual marking is 140.0; later speech reviews coefficients without another such on-screen marking event.",
+      "criterion": "Every moment satisfying the literal visual condition—all three controls of the displayed quadratic marked free at once—must be represented by a trigger or excluded as a distractor.",
+      "steps": [
+        {"question": "How many candidate passages introduce the displayed three-coefficient quadratic?", "answer_number": 1, "why": "The full transcript scan contains the relevant introduction at 131.4–145.3; later passages discuss derivatives or higher-degree polynomials."},
+        {"question": "Does the located candidate have a corresponding trigger?", "answer_bool": true, "why": "The three-arrow marking is visible at 140.0 and trigger 0 begins at 140.0."},
+        {"question": "Was another literal simultaneous-marking firing found?", "answer_bool": false, "why": "The full transcript and screen-index scan found no second occurrence, and the later coefficient review is semantically different."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "trigger-matches-criterion",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 138.0, "what": "The full formula P(x)=c0+c1x+c2x^2 is visible, but no free-to-change label or arrows are present."},
+        {"kind": "frame", "t": 140.0, "what": "The same formula is visible with one arrow to each of c0, c1, c2 and the label 'Free to change'."}
+      ],
+      "findings": "At the trigger opening, all three coefficients of the displayed quadratic are simultaneously singled out by arrows under the free-to-change label. The blue cos(x) curve and the axes centered at x=0 remain visible.",
+      "criterion": "Trigger 0 must begin at a moment that literally satisfies the question's on-appearance condition, not merely while the target and quadratic are already present.",
+      "steps": [
+        {"question": "Are all three coefficient controls marked at the trigger opening?", "answer_bool": true, "why": "At 140.0 three arrows point separately to c0, c1, and c2."},
+        {"question": "Is this the displayed degree-two polynomial named by the question?", "answer_bool": true, "why": "The frame shows P(x)=c0+c1x+c2x^2."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "question-anchored-to-screen",
+      "target": null,
+      "looked_at": [],
+      "findings": "The wording points to a displayed quadratic, three coefficient controls, their simultaneous visual marking, a blue target function, and its center shown earlier on the screen.",
+      "criterion": "A participant must have to identify specific screen objects or states rather than solve a standalone textbook problem from topic words alone.",
+      "steps": [
+        {"question": "Which words bind the task to a particular screen state?", "answer_text": "'displayed quadratic', 'coefficient controls', 'simultaneously marked free to change', 'blue target function', and 'center shown earlier on the screen'", "why": "Each phrase refers to an object, color, or temporal display state visible only in this video."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-within-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "The rubric requires the blue target cos(x), center x=0, all three coefficients, the resulting polynomial, and rejection of the unreflected polynomial. Each requirement is requested or implied by an explicit operation in the question.",
+      "criterion": "Every scoring requirement must follow from the participant-visible question string rather than from hidden notes or annotator context.",
+      "steps": [
+        {"question": "What question wording supports identifying cos(x) and x=0?", "answer_text": "'Identify both' referring to the blue target function and its center shown earlier", "why": "The question explicitly requests both screen-derived identities."},
+        {"question": "What wording supports scoring all coefficients and the polynomial?", "answer_text": "'determine all three coefficients and give the resulting polynomial'", "why": "This directly names all four requested outputs."},
+        {"question": "What wording supports rejecting 1-x^2/2?", "answer_text": "'reflect that target across the x-axis'", "why": "Reflection negates the target, so retaining the original cosine quadratic contradicts the requested operation."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "discriminator-in-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "The distractor is excluded by the phrase requiring all three controls to be simultaneously marked free. The wrong-sign polynomial is excluded by the explicit x-axis reflection while retaining center and degree.",
+      "criterion": "The question itself must state the distinctions that separate the accepted response from every tempting or explicitly rejected response.",
+      "steps": [
+        {"question": "Which phrase excludes answering during 130.3–140.0?", "answer_text": "'When all three coefficient controls ... are simultaneously marked free to change'", "why": "The marker and arrows are absent throughout the distractor frames and appear only at 140.0."},
+        {"question": "Which phrase excludes the original cosine approximation 1-x^2/2?", "answer_text": "'reflect that target across the x-axis'", "why": "That operation changes cos(x) to -cos(x), so both nonzero Taylor coefficients reverse sign."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-not-punishing-extra",
+      "target": null,
+      "looked_at": [],
+      "findings": "The rubric's closed list of c0, c1, c2 matches the question's displayed degree-two form and its request for all three coefficients. It does not forbid additional correct explanation of the reflection or derivative calculation.",
+      "criterion": "A restrictive rubric enumeration must not exclude another correct detail that also falls under the question's wording.",
+      "steps": [
+        {"question": "Is the three-coefficient enumeration narrower than the requested object?", "answer_bool": false, "why": "The question fixes the degree and explicitly asks for all three coefficients of the displayed quadratic."},
+        {"question": "Does the rubric forbid extra correct supporting detail?", "answer_bool": false, "why": "It states required content and a wrong-sign rejection, but no 'only' or equivalent prohibition on explanation."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-fully-covered",
+      "target": {"trigger_idx": null, "distractor_idx": 0},
+      "looked_at": [
+        {"kind": "frame", "t": 130.0, "what": "Blue cos(x), axes centered at zero, and a green parabola are visible; no coefficient formula or free-control marker is present."},
+        {"kind": "frame", "t": 132.0, "what": "The polynomial formula begins appearing while the target and center remain visible."},
+        {"kind": "frame", "t": 134.0, "what": "The full formula P(x)=c0+c1x+c2x^2 is visible without any free-control marker."},
+        {"kind": "frame", "t": 136.0, "what": "The formula is in transition and still has no free-to-change label or arrows."},
+        {"kind": "frame", "t": 138.0, "what": "The full formula is again plainly visible without the marker."},
+        {"kind": "frame", "t": 140.0, "what": "The 'Free to change' label and three arrows first appear, immediately after the distractor's half-open end."}
+      ],
+      "findings": "The temptation begins when the blue target, center, and quadratic context are available, and persists while the polynomial formula is drawn. The missing simultaneous three-control marking remains missing through 138.0 and appears at 140.0, exactly outside [130.3,140.0).",
+      "criterion": "The distractor must cover the complete contiguous interval where a participant has the earlier target/center context but the question's decisive simultaneous-control state has not yet appeared.",
+      "steps": [
+        {"question": "What makes the interval tempting from its beginning?", "answer_text": "The blue cos(x), x=0 center, green quadratic, and then its coefficient formula are visible", "why": "These supply nearly all semantic inputs except the requested visual trigger state."},
+        {"question": "When does the missing state first appear in the viewed sequence?", "answer_number": 140.0, "why": "The 140.0 frame is the first viewed frame bearing the label and all three arrows; 138.0 has none."},
+        {"question": "Does distractor 0 end before that state appears?", "answer_bool": true, "why": "Its half-open interval is [130.3,140.0), excluding the 140.0 frame."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-not-correct-answer",
+      "target": {"trigger_idx": null, "distractor_idx": 0},
+      "looked_at": [
+        {"kind": "frame", "t": 134.0, "what": "The target and complete quadratic formula are visible, but no control is marked free."},
+        {"kind": "frame", "t": 138.0, "what": "Immediately before the distractor ends, the free-to-change label and arrows are still absent."},
+        {"kind": "frame", "t": 140.0, "what": "The required simultaneous three-control state appears only at the following boundary."}
+      ],
+      "findings": "Although enough context for an eager model to calculate is present in the distractor, the event named by 'When' has not occurred there. Thus an answer in that interval is premature under the literal participant-visible condition.",
+      "criterion": "A distractor must genuinely fail the question's trigger condition, rather than being another reasonable moment that deserves credit.",
+      "steps": [
+        {"question": "Is the required simultaneous marked-control event present anywhere inside distractor 0?", "answer_bool": false, "why": "Frames through 138.0 show no label or arrows, and the first marked frame is the excluded 140.0 boundary."},
+        {"question": "Would answering there satisfy the question's temporal instruction?", "answer_bool": false, "why": "The question conditions the response on the later on-screen marking, so calculation from earlier context alone is premature."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-why-hides-answer",
+      "target": null,
+      "looked_at": [],
+      "findings": "The distractor reason says only that the earlier target and center are established while the simultaneous three-control state is incomplete. It contains neither cos(x), x=0, the reflected function, nor any coefficient value.",
+      "criterion": "The distractor explanation may identify the temptation and missing condition but must not let a semi-blind reader reconstruct the reference response or a rubric answer.",
+      "steps": [
+        {"question": "Can the original target and center be reconstructed from distractor.why alone?", "answer_bool": false, "why": "They are referred to generically as target and center, without their identities."},
+        {"question": "Can any reflected coefficient or polynomial be reconstructed from distractor.why alone?", "answer_bool": false, "why": "No function name, number, sign, derivative, or polynomial is disclosed."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "reasoning-level-not-inflated",
+      "target": null,
+      "looked_at": [],
+      "findings": "The video supplies the screen identities and trigger state, but it does not display the requested counterfactual reflection's quadratic at that moment. Reflection and Taylor-coefficient derivation are required.",
+      "criterion": "L3 is appropriate only when at least one answer component must be derived for a hypothetical or otherwise unstated situation, rather than merely read or linked across moments.",
+      "steps": [
+        {"question": "Is the polynomial for the reflected target directly shown or spoken?", "answer_bool": false, "why": "The displayed green polynomial concerns cos(x), while the task asks for the counterfactual -cos(x)."},
+        {"question": "What non-video operation is necessary?", "answer_text": "Negate cos(x), evaluate its derivatives at 0, and divide the second derivative by 2!", "why": "Those steps determine c0=-1, c1=0, c2=1/2 and are not read off the trigger frame."},
+        {"question": "Does this justify L3 rather than L2?", "answer_bool": true, "why": "The decisive coefficient signs and value are newly computed under a counterfactual transformation."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-matches-description",
+      "target": null,
+      "looked_at": [
+        {"kind": "cue", "t": 122.7, "what": "The narrator identifies the function as cosine of x and the approximation center as x=0 by 131.3."},
+        {"kind": "frame", "t": 130.0, "what": "The blue curve is labeled cos(x), and its highlighted contact point lies on the y-axis x=0."},
+        {"kind": "frame", "t": 140.0, "what": "The formula P(x)=c0+c1x+c2x^2 has all three coefficients marked free to change."}
+      ],
+      "findings": "The visual and spoken evidence agrees with the provenance description: the target is blue cos(x), the center is x=0, the polynomial is quadratic, and the simultaneous all-coefficient marker appears at the trigger.",
+      "criterion": "Each provenance record must point to material that actually depicts or states the fact it claims to support.",
+      "steps": [
+        {"question": "Does the target/center evidence support cos(x) at x=0?", "answer_bool": true, "why": "The 130.0 frame labels the blue curve cos(x), while the axis and highlighted center are at x=0; the 122.7–131.3 cues state both explicitly."},
+        {"question": "Does the trigger evidence support three freely changeable coefficients of a quadratic?", "answer_bool": true, "why": "The 140.0 frame shows degree two and one arrow to each of c0, c1, and c2 under the label."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "references-consistent-with-windows",
+      "target": null,
+      "looked_at": [],
+      "findings": "The earlier 122.0 target/center reference supplies only prerequisites, not the answer to the counterfactual. The 140.9 trigger-state reference lies inside [140.0,162.3), and the coefficient result comes from a derivation rather than from an earlier video disclosure.",
+      "criterion": "A reference contradicts a window only if it shows that the complete answer was already available before the window opened; earlier prerequisite evidence alone is allowed.",
+      "steps": [
+        {"question": "Does the 122.0 reference disclose the reflected coefficients?", "answer_bool": false, "why": "It establishes only the original blue target and center."},
+        {"question": "Is the simultaneous-control provenance moment inside trigger 0?", "answer_bool": true, "why": "140.9 lies between 140.0 inclusive and 162.3 exclusive."},
+        {"question": "Does any provenance record imply that the counterfactual polynomial was available before 140.0?", "answer_bool": false, "why": "The final coefficients are supported by mathematical recomputation, not by an earlier displayed answer."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-answer-verified",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 130.0, "what": "The original blue target is cos(x), centered at x=0."},
+        {"kind": "frame", "t": 140.0, "what": "The requested polynomial form is c0+c1x+c2x^2, so the retained degree is two."}
+      ],
+      "findings": "Independent recomputation used f(x)=-cos(x): f(0)=-1, f'(0)=sin(0)=0, and f''(0)=cos(0)=1. Therefore c0=-1, c1=0, c2=f''(0)/2!=1/2. A separate finite-difference calculation returned -1.0, 0.0, and 0.4999999969612645, and at x=0.1 the quadratic gives -0.995 versus -cos(0.1)=-0.9950041653.",
+      "criterion": "The counterfactual numerical response must be recomputed independently from the observed target, center, and degree before being compared with the supplied response.",
+      "steps": [
+        {"question": "What function results from reflecting the observed target across the x-axis?", "answer_text": "-cos(x)", "why": "Reflection across the x-axis multiplies every output of cos(x) by -1."},
+        {"question": "What are the degree-zero through degree-two Taylor coefficients at zero?", "answer_text": "c0=-1, c1=0, c2=1/2", "why": "For -cos(x), the first three derivative values at 0 are -1, 0, 1, and Taylor coefficients divide these by 0!, 1!, 2!."},
+        {"question": "Does the independently recomputed polynomial match the reference response?", "answer_bool": true, "why": "Both give P(x)=-1+x^2/2 with the explicit zero linear coefficient."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "twins-agree-on-substance",
+      "target": null,
+      "looked_at": [],
+      "findings": "No twin_of relation was supplied for this sample, so there is no paired response to compare.",
+      "criterion": "Substantive response agreement is checkable only when the sample declares a twin.",
+      "steps": [
+        {"question": "Does this sample declare a twin_of target?", "answer_bool": false, "why": "The supplied sample body contains no twin_of field or paired response."}
+      ],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

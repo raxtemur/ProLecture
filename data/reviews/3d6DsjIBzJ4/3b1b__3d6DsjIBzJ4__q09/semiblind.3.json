@@ -1,0 +1,159 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q09",
+  "role": "semiblind",
+  "iteration": 3,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q09/semiblind",
+  "budget": {
+    "frames_viewed": 40,
+    "sparse_step": null,
+    "dense_intervals": [
+      {"t_start": 592.0, "t_end": 607.0},
+      {"t_start": 610.0, "t_end": 623.8}
+    ],
+    "transcript_cues": 461,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The full transcript and screen index were read across 0–623.8 s.\nScene-change frames covered the prefix; 1 s frames narrowed 592–606 s, and three 6 s tail frames covered 610–622 s.\nNo forbidden material was opened.",
+  "prior_answer": "It cannot be answered on the merits: the question does not specify the marked nonzero center or the blue target curve, so their derivative values and the three shifted-basis coefficients are unknown.",
+  "prior_answer_assumptions": [],
+  "recognized_video": false,
+  "recognized_how": "I did not recognize this particular video or moment before viewing.",
+  "scans": [
+    {
+      "idx": 0,
+      "t_from": 0.0,
+      "t_to": 623.8,
+      "watched": [
+        {"kind": "frame", "t": 0.0, "what": "Black opening frame."},
+        {"kind": "frame", "t": 35.0, "what": "Early introductory animation on a black background."},
+        {"kind": "frame", "t": 65.0, "what": "Pendulum and cosine setup, unrelated to a nonzero shifted basis."},
+        {"kind": "frame", "t": 101.0, "what": "An exponential graph is shown near x=0."},
+        {"kind": "frame", "t": 141.0, "what": "Blue cos(x) and a quadratic in powers of x centered at zero."},
+        {"kind": "frame", "t": 172.0, "what": "Blue cos(x), x=0, and P(x)=1+c1 x+c2 x squared."},
+        {"kind": "frame", "t": 199.0, "what": "Cosine and zero-centered polynomial with adjustable coefficients."},
+        {"kind": "frame", "t": 230.0, "what": "Value and first derivative matching for cosine at x=0."},
+        {"kind": "frame", "t": 251.0, "what": "Second coefficient remains free in the zero-centered quadratic."},
+        {"kind": "frame", "t": 292.0, "what": "Cosine derivatives at zero and a polynomial in powers of x."},
+        {"kind": "frame", "t": 329.0, "what": "Numerical check of the zero-centered cosine quadratic."},
+        {"kind": "frame", "t": 352.0, "what": "Summary of c0, c1, c2 for a polynomial in powers of x."},
+        {"kind": "frame", "t": 386.0, "what": "Transition requesting more terms."},
+        {"kind": "frame", "t": 422.0, "what": "Cubic extension of the cosine polynomial centered at zero."},
+        {"kind": "frame", "t": 448.0, "what": "Fourth-order extension still in powers of x."},
+        {"kind": "frame", "t": 478.0, "what": "Fourth derivative matching for cosine at zero."},
+        {"kind": "frame", "t": 500.0, "what": "Pendulum application of the cosine approximation."},
+        {"kind": "frame", "t": 517.0, "what": "Derivative calculation for a higher power of x."},
+        {"kind": "frame", "t": 541.0, "what": "Cosine derivative list and a polynomial in powers of x."},
+        {"kind": "frame", "t": 562.0, "what": "Higher terms do not affect earlier zero-centered coefficients."},
+        {"kind": "frame", "t": 584.0, "what": "Coefficient-control summary for P(x) in powers of x."},
+        {"kind": "frame", "t": 590.0, "what": "All coefficients tied to derivatives at zero; basis is still powers of x."},
+        {"kind": "frame", "t": 592.0, "what": "Same zero-centered coefficient-control display."},
+        {"kind": "frame", "t": 593.0, "what": "Blue cosine curve, green polynomial, and a marked point beginning to move from zero."},
+        {"kind": "frame", "t": 594.0, "what": "Marked point moves right while no shifted polynomial formula is displayed."},
+        {"kind": "frame", "t": 595.0, "what": "Marked point continues toward pi; no shifted basis is displayed."},
+        {"kind": "frame", "t": 596.0, "what": "Marked point is between zero and pi; no shifted basis is displayed."},
+        {"kind": "frame", "t": 597.0, "what": "Marked point continues moving; blue target remains cosine."},
+        {"kind": "frame", "t": 598.0, "what": "Marked point nears pi, but there is no shifted polynomial formula."},
+        {"kind": "frame", "t": 599.0, "what": "Marked point is near the trough of the blue cosine curve."},
+        {"kind": "frame", "t": 600.0, "what": "Point reaches the trough at pi; the basis formula is still absent."},
+        {"kind": "frame", "t": 601.0, "what": "Pi is marked and a shifted formula begins appearing faintly but is incomplete."},
+        {"kind": "frame", "t": 602.0, "what": "Full P_pi(x)=c0+c1(x-pi)^1+c2(x-pi)^2+c3(x-pi)^3+c4(x-pi)^4 is visible above the blue cosine curve, with pi marked."},
+        {"kind": "frame", "t": 603.0, "what": "The complete shifted-basis formula and marked center pi remain clearly visible."},
+        {"kind": "frame", "t": 604.0, "what": "Shifted-basis display persists, partly obscured during animation."},
+        {"kind": "frame", "t": 605.0, "what": "Complete shifted-basis formula is again fully visible."},
+        {"kind": "frame", "t": 606.0, "what": "Shifted formula and cosine scene continue during character animation."},
+        {"kind": "frame", "t": 610.0, "what": "Shifted basis around pi remains on screen with the blue cosine curve."},
+        {"kind": "frame", "t": 616.0, "what": "Text says plugging in x=pi is very nice; shifted basis remains visible."},
+        {"kind": "frame", "t": 622.0, "what": "Shifted basis around pi and the blue cosine curve persist to the end."},
+        {"kind": "cue", "t": 601.4, "what": "Narration says to write the polynomial in powers of x minus pi."},
+        {"kind": "cue", "t": 610.8, "what": "Narration explains that the point pi is made to behave like zero."}
+      ],
+      "candidates": [
+        {
+          "question": "Is the answer available during 592.5–602 s?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "This is the declared distractor. Frames 593–600 only move the marked point toward pi, and at 601 the new formula is still faint and incomplete."
+        },
+        {
+          "question": "Is 600 s an answerable shifted-basis moment?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The point has reached pi, but the shifted polynomial basis has not yet appeared."
+        },
+        {
+          "question": "Is 601 s an answerable shifted-basis moment?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The new formula is only beginning to fade in and is not yet fully legible; accepting it would require completing unseen content."
+        },
+        {
+          "question": "Is 602 s the first complete answerable moment?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The full powers-of-(x-pi) basis is legible, pi is marked, and the continuing blue curve is the previously labeled cosine target."
+        }
+      ],
+      "t_val": 602.0,
+      "t_val_basis": "At 602 s the full shifted polynomial basis in powers of (x-pi) is visible, pi is marked, and the blue target curve is the continuing cos(x) curve established throughout the preceding scene.",
+      "answer_at_t_val": "The center is a=pi and the blue target is f(x)=cos(x). Thus c0=f(pi)=-1, c1=f'(pi)=-sin(pi)=0, and c2=f''(pi)/2!=-cos(pi)/2=1/2, giving P2(x)=-1+(1/2)(x-pi)^2.",
+      "confidence": "high"
+    }
+  ],
+  "checks": [
+    {
+      "group": "shortcuts",
+      "item": "solvable-without-video",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 602.0, "what": "The marked center pi and the blue cosine target are supplied visually, confirming they were screen-specific quantities absent from the question text."}
+      ],
+      "findings": "Before viewing, the question supplied neither the marked center nor the identity of the blue target curve.",
+      "criterion": "A genuine prior answer must follow from the question and general knowledge without inventing screen-specific quantities.",
+      "steps": [
+        {
+          "question": "Can the requested coefficients be computed from the question alone?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The center and target function needed to evaluate derivatives are deliberately left to the screen."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "video-recognized",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 0.0, "what": "The opening black frame provided no recognition cue; the recognition self-report itself was fixed before any viewing."}
+      ],
+      "findings": "I did not recognize this particular video or moment before opening the transcript or frames.",
+      "criterion": "The recognition flag fires only if the particular video and answer could be recalled from prior memory.",
+      "steps": [
+        {
+          "question": "Was this particular video recognized before viewing?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "No title, moment, or answer came to mind from prior memory."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

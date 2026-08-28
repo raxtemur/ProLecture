@@ -1,0 +1,63 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q02",
+  "role": "probe_vision",
+  "iteration": 2,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q02/probe_vision",
+  "budget": {
+    "frames_viewed": 3,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": null,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The screen index was used only to locate the relevant visual stretch. Numerical conclusions rest on the listed frames and standard Taylor-polynomial reasoning.",
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 122.0,
+      "what": "The blue target is labeled cos(x); the horizontal axis has symmetric marks around the vertical axis."
+    },
+    {
+      "kind": "frame",
+      "t": 130.0,
+      "what": "The blue cosine curve and a downward-opening quadratic approximation meet at the central vertical axis."
+    },
+    {
+      "kind": "frame",
+      "t": 141.0,
+      "what": "The screen shows the blue target cos(x), P(x)=c_0+c_1x+c_2x^2, and arrows marking all three coefficients 'Free to change'; the displayed center is the vertical axis x=0."
+    }
+  ],
+  "steps": [
+    {
+      "question": "What are the displayed target, center, and polynomial degree?",
+      "answer_bool": null,
+      "answer_number": null,
+      "answer_text": "The blue target is cos(x), the center is x=0, and the displayed polynomial has degree 2.",
+      "why": "Frames t000122.jpg and t000141.jpg show the cos(x) label, the central y-axis at x=0, and P(x)=c_0+c_1x+c_2x^2."
+    },
+    {
+      "question": "What is the target after reflection across the x-axis?",
+      "answer_bool": null,
+      "answer_number": null,
+      "answer_text": "The reflected target is -cos(x).",
+      "why": "Reflection across the x-axis changes every function value f(x) to -f(x)."
+    },
+    {
+      "question": "What quadratic at x=0 matches the reflected target to degree 2?",
+      "answer_bool": null,
+      "answer_number": null,
+      "answer_text": "For g(x)=-cos(x), g(0)=-1, g'(0)=0, and g''(0)=1, so c_0=-1, c_1=0, and c_2=g''(0)/2=1/2.",
+      "why": "Using the standard degree-2 Taylor polynomial at the displayed center x=0 gives g(0)+g'(0)x+g''(0)x^2/2."
+    }
+  ],
+  "answer": "The blue target is cos(x), and the displayed center is x=0. Reflecting the target across the x-axis gives -cos(x). Keeping center x=0 and degree 2 gives c_0=-1, c_1=0, c_2=1/2, hence P(x)=-1+(1/2)x^2.",
+  "basis": "Frames t000122.jpg, t000130.jpg, and especially t000141.jpg establish the blue cos(x) target, center x=0, and quadratic form; the reflection and coefficients follow from general knowledge of reflection and the degree-2 Taylor polynomial at x=0.",
+  "confidence": "high",
+  "insufficient": false
+}

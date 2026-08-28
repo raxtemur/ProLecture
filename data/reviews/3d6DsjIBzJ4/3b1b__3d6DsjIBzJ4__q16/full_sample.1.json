@@ -1,0 +1,314 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q16",
+  "role": "full_sample",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/3b1b__3d6DsjIBzJ4__q16/full_sample_r1",
+  "budget": {
+    "frames_viewed": 39,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 1109.0,
+        "t_end": 1118.0
+      }
+    ],
+    "transcript_cues": 1018,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The event, distractor, and trigger set are sound.\nThe only defect is exact-display fidelity: '=1/24' is mathematically true but is not shown beside the term.\nNo twin_of is present.",
+  "verdict": "FIX_QUESTION",
+  "checks": [
+    {
+      "group": "triggers",
+      "item": "no-missed-trigger",
+      "target": null,
+      "looked_at": [
+        {"kind": "cue", "t": 14.9, "what": "Start of the complete line-by-line transcript scan."},
+        {"kind": "frame", "t": 0.0, "what": "Black opening frame."},
+        {"kind": "frame", "t": 58.7, "what": "Pendulum and cosine-height illustration."},
+        {"kind": "frame", "t": 121.7, "what": "Coordinate axes at the start of the cosine approximation discussion."},
+        {"kind": "frame", "t": 174.8, "what": "Cosine graph and polynomial coefficient setup."},
+        {"kind": "frame", "t": 233.3, "what": "Cosine graph, approximation, and tangent comparison."},
+        {"kind": "frame", "t": 297.1, "what": "Cosine derivatives and polynomial graph."},
+        {"kind": "frame", "t": 351.6, "what": "Three coefficient-control illustrations."},
+        {"kind": "frame", "t": 421.8, "what": "Cubic derivative calculation."},
+        {"kind": "frame", "t": 478.3, "what": "Fourth-order cosine polynomial term."},
+        {"kind": "frame", "t": 541.1, "what": "Fourth-order coefficient derivation."},
+        {"kind": "frame", "t": 602.2, "what": "Cosine approximation centered at pi."},
+        {"kind": "frame", "t": 670.0, "what": "Cyclic derivative values for cosine."},
+        {"kind": "frame", "t": 729.0, "what": "Taylor-polynomial graph and derivative list."},
+        {"kind": "frame", "t": 792.3, "what": "General Taylor polynomial centered at a."},
+        {"kind": "frame", "t": 851.8, "what": "Exponential Taylor polynomial terms."},
+        {"kind": "frame", "t": 900.6, "what": "Area-function graph."},
+        {"kind": "frame", "t": 950.3, "what": "Area increment rectangle on graph."},
+        {"kind": "frame", "t": 1007.1, "what": "Area approximation with linear and quadratic pieces."},
+        {"kind": "frame", "t": 1046.1, "what": "Infinite cosine series."},
+        {"kind": "frame", "t": 1078.4, "what": "Non-factorial numerical geometric-series subtotal 0.4444444."},
+        {"kind": "frame", "t": 1104.6, "what": "Symbolic exponential factorial-denominator series before substitution."},
+        {"kind": "frame", "t": 1109.6, "what": "The x=1 substitution and first shown subtotal 2.0000000."},
+        {"kind": "frame", "t": 1113.1, "what": "The x=1 series subtotal 2.6666667 through the cubic term."},
+        {"kind": "frame", "t": 1116.3, "what": "Later x=1 subtotal 2.7166667 through the fifth-power term."},
+        {"kind": "frame", "t": 1119.3, "what": "Still later x=1 subtotal 2.7182540."},
+        {"kind": "frame", "t": 1135.0, "what": "A distinct later substitution x=2 and its graph."},
+        {"kind": "frame", "t": 1171.0, "what": "Exponential-series convergence illustration."},
+        {"kind": "frame", "t": 1201.2, "what": "Natural-log Taylor series within its convergence range."},
+        {"kind": "frame", "t": 1253.5, "what": "Natural-log series divergence and radius illustration."},
+        {"kind": "frame", "t": 1306.4, "what": "Closing supporter screen."},
+        {"kind": "cue", "t": 1338.7, "what": "End of the complete line-by-line transcript scan."}
+      ],
+      "findings": "The complete transcript and a 30-frame scene pass show only one x=1 factorial-denominator subtotal sequence after the question. It starts at 2.0000000, remains below 2.7 through 2.6666667, first exceeds the threshold at 2.7083333, and then continues to later totals. The x=2 sequence at 1135 seconds is a distinct later substitution, and the numerical sequence near 1078 seconds is non-factorial and precedes the question.",
+      "criterion": "Every moment in the video that literally matches the singular x=1 substitution and first-update-above-2.7 condition must be classified as the trigger or an excluded temptation.",
+      "steps": [
+        {"question": "Did the full transcript contain another x=1 factorial-subtotal sequence?", "answer_bool": false, "answer_number": null, "answer_text": null, "why": "The transcript introduces x=1 once at 1108.6 and then moves to x=2 at 1130.1."},
+        {"question": "Did the whole-video scene pass reveal another literal match?", "answer_bool": false, "answer_number": null, "answer_text": null, "why": "Other numerical or factorial scenes either precede the question, use another series, or use the distinct x=2 substitution."},
+        {"question": "Is the first qualifying x=1 crossing already represented?", "answer_bool": true, "answer_number": null, "answer_text": null, "why": "The annotated trigger covers the 2.7083333 update at 1114 seconds."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "trigger-matches-criterion",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 1113.1, "what": "Brace ends through 1^3/3! and subtotal reads 2.6666667."},
+        {"kind": "frame", "t": 1114.0, "what": "Brace first reaches 1^4/4! and subtotal reads 2.7083333."},
+        {"kind": "frame", "t": 1116.0, "what": "Brace reaches the later fifth-power term and subtotal reads 2.7166667."}
+      ],
+      "findings": "The previous subtotal is below 2.7, the annotated update is 2.7083333, and the next update is already 2.7166667. The trigger therefore contains the first strict crossing and not a later one.",
+      "criterion": "The sole trigger must be the first displayed subtotal update after x=1 whose value is strictly greater than 2.7.",
+      "steps": [
+        {"question": "Is the immediately preceding subtotal above 2.7?", "answer_bool": false, "answer_number": null, "answer_text": null, "why": "At 1113.1 it reads 2.6666667."},
+        {"question": "Is the trigger subtotal strictly above 2.7?", "answer_bool": true, "answer_number": null, "answer_text": null, "why": "At 1114.0 it reads 2.7083333."},
+        {"question": "Is the observed crossing earlier than the later 2.7166667 update?", "answer_bool": true, "answer_number": null, "answer_text": null, "why": "2.7083333 appears at 1114.0 and 2.7166667 appears at 1116.0."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "question-anchored-to-screen",
+      "target": null,
+      "looked_at": [],
+      "findings": "The question explicitly names the displayed series, the shown input substitution, the displayed term, and the exact subtotal shown.",
+      "criterion": "A screen-anchored question must identify visible objects or visible state rather than ask only about the underlying mathematical topic.",
+      "steps": [
+        {"question": "Does the wording point to a particular visual presentation?", "answer_bool": true, "answer_number": null, "answer_text": null, "why": "The deictic phrases 'displayed' and 'shown input substitution' require the actual screen."},
+        {"question": "Does the requested answer depend on visible formatting or values?", "answer_bool": true, "answer_number": null, "answer_text": null, "why": "It asks for the term exactly as displayed and the exact subtotal shown."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-within-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "The subtotal, first-crossing, and exclusion requirements all follow from the question. Rubric item 0, however, writes the term as '1⁴/4!=1/24'; the question requires the term exactly as displayed, while the display contains only 1⁴/4! and does not show '=1/24'.",
+      "criterion": "Every rubric demand must be supported by the participant-visible question, including any exact transcription that the judge may require.",
+      "steps": [
+        {"question": "Does rubric item 0 follow from the exact-display request?", "answer_bool": false, "answer_number": null, "answer_text": null, "why": "It adds '=1/24', a computed equivalence not present in the displayed term."},
+        {"question": "Does rubric item 1 follow from the requested exact subtotal?", "answer_bool": true, "answer_number": null, "answer_text": null, "why": "The question explicitly requests the exact subtotal shown."},
+        {"question": "Does rubric item 2 follow from the first-crossing wording?", "answer_bool": true, "answer_number": null, "answer_text": null, "why": "The question says 'At the first update strictly greater than 2.7'."},
+        {"question": "Do rubric items 3 and 4 follow from the threshold and first-update qualifiers?", "answer_bool": true, "answer_number": null, "answer_text": null, "why": "2.6666667 is not strictly above 2.7, while 2.7166667 is later than the first crossing."}
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {
+        "field": "rubric[0]",
+        "value": "the newly included term is exactly 1⁴/4!",
+        "why": "This matches the visible term and preserves the question's explicit exact-display requirement."
+      },
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "discriminator-in-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "The distractor interval is excluded by 'strictly greater than 2.7', and the later 2.7166667 subtotal is excluded by 'the first update'. The final sentence additionally warns against answering at an earlier subtotal.",
+      "criterion": "The question itself must contain every distinction used to reject documented distractors and rubric-listed wrong moments.",
+      "steps": [
+        {"question": "What wording rejects the 1109.0-1113.9 distractor?", "answer_bool": null, "answer_number": null, "answer_text": "strictly greater than 2.7", "why": "Every displayed subtotal in that interval is at most 2.6666667."},
+        {"question": "What wording rejects the later 2.7166667 subtotal?", "answer_bool": null, "answer_number": null, "answer_text": "the first update", "why": "The 2.7083333 crossing has already occurred."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-not-punishing-extra",
+      "target": null,
+      "looked_at": [],
+      "findings": "The restrictive notions are 'exactly as displayed', 'exact subtotal', and the two closed exclusions. At the qualifying update there is one newly included term and one displayed subtotal, so no additional correct screen detail falls inside those requested slots.",
+      "criterion": "A restrictive rubric must not reject another detail that also satisfies the question at the same qualifying moment.",
+      "steps": [
+        {"question": "Is there more than one newly included term at the first crossing?", "answer_bool": false, "answer_number": null, "answer_text": null, "why": "The brace advances from the cubic term to only the fourth-power term."},
+        {"question": "Is there more than one qualifying displayed subtotal at that update?", "answer_bool": false, "answer_number": null, "answer_text": null, "why": "The update shows the single subtotal 2.7083333."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-fully-covered",
+      "target": {"trigger_idx": null, "distractor_idx": 0},
+      "looked_at": [
+        {"kind": "frame", "t": 1109.0, "what": "First post-substitution subtotal reads 2.0000000."},
+        {"kind": "frame", "t": 1110.0, "what": "Subtotal remains 2.0000000."},
+        {"kind": "frame", "t": 1111.0, "what": "Subtotal reads 2.5000000."},
+        {"kind": "frame", "t": 1112.0, "what": "Brace and digits transition toward the cubic-term subtotal."},
+        {"kind": "frame", "t": 1113.0, "what": "Subtotal reads 2.6666667."},
+        {"kind": "frame", "t": 1114.0, "what": "The first qualifying subtotal 2.7083333 has appeared."}
+      ],
+      "findings": "The temptation begins with the first numerical subtotal at 1109.0, continues through all below-threshold updates, and ends immediately before the 1114.0 qualifying update. No earlier numerical subtotal is visible after the x=1 substitution.",
+      "criterion": "The distractor interval must cover the complete continuous run of plausible but still subthreshold subtotal updates without swallowing the true crossing.",
+      "steps": [
+        {"question": "When does the first tempting numerical subtotal appear?", "answer_bool": null, "answer_number": 1109.0, "answer_text": null, "why": "The 1109.0 frame first shows 2.0000000 under the brace."},
+        {"question": "What is the last fully visible subthreshold subtotal?", "answer_bool": null, "answer_number": 2.6666667, "answer_text": null, "why": "It remains visible at 1113.0 and is below 2.7."},
+        {"question": "Does the distractor stop before the true update?", "answer_bool": true, "answer_number": null, "answer_text": null, "why": "Its end is 1113.9, while the true 2.7083333 update is visible at 1114.0."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-not-correct-answer",
+      "target": {"trigger_idx": null, "distractor_idx": 0},
+      "looked_at": [
+        {"kind": "frame", "t": 1109.0, "what": "Subtotal 2.0000000."},
+        {"kind": "frame", "t": 1111.0, "what": "Subtotal 2.5000000."},
+        {"kind": "frame", "t": 1113.0, "what": "Subtotal 2.6666667."}
+      ],
+      "findings": "All stable subtotals in the distractor interval are below 2.7, with 2.6666667 the largest of them.",
+      "criterion": "A distractor must not itself satisfy the literal strict-threshold and first-update condition.",
+      "steps": [
+        {"question": "Does any distractor subtotal exceed 2.7?", "answer_bool": false, "answer_number": null, "answer_text": null, "why": "The observed distractor subtotals top out at 2.6666667."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-why-hides-answer",
+      "target": null,
+      "looked_at": [],
+      "findings": "The distractor explanation says only that earlier subtotals remain below the named threshold; it does not reveal the qualifying term or qualifying subtotal.",
+      "criterion": "A distractor rationale may explain why its own interval is wrong but must not disclose the reference answer.",
+      "steps": [
+        {"question": "Does the why text reveal 1⁴/4! or 2.7083333?", "answer_bool": false, "answer_number": null, "answer_text": null, "why": "Neither the qualifying term nor the qualifying subtotal appears in the rationale."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "reasoning-level-not-inflated",
+      "target": null,
+      "looked_at": [],
+      "findings": "Answering requires retaining successive displayed subtotals and comparing temporally separated updates to identify the first crossing, but it requires no derivation from outside the video.",
+      "criterion": "L2 is appropriate when evidence from multiple moments must be connected; L1 would require a direct single-moment read-off without temporal comparison.",
+      "steps": [
+        {"question": "Can firstness be established from the 2.7083333 frame alone?", "answer_bool": false, "answer_number": null, "answer_text": null, "why": "The preceding 2.6666667 update must be remembered or checked."},
+        {"question": "Is any off-video derivation required?", "answer_bool": false, "answer_number": null, "answer_text": null, "why": "The term and subtotal are displayed, and only temporal comparison is needed."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-matches-description",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 1113.1, "what": "Subtotal is 2.6666667, brace ends at 1^3/3!, and 1^4/4! is the next colored term."},
+        {"kind": "frame", "t": 1114.0, "what": "Brace reaches 1^4/4! and subtotal is 2.7083333."}
+      ],
+      "findings": "Both provenance descriptions match the visible sequence. The dense 1114.0 frame corroborates the event described at the listed 1114.2 reference time.",
+      "criterion": "Each provenance record must accurately describe the visual fact at its cited moment.",
+      "steps": [
+        {"question": "Does the first reference show the stated preceding subtotal and next term?", "answer_bool": true, "answer_number": null, "answer_text": null, "why": "The 1113.1 frame shows 2.6666667 and the next term 1^4/4!."},
+        {"question": "Does the second reference show the stated brace extent and total?", "answer_bool": true, "answer_number": null, "answer_text": null, "why": "The 1114.0 dense frame shows the brace through 1^4/4! and 2.7083333."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "references-consistent-with-windows",
+      "target": null,
+      "looked_at": [],
+      "findings": "The 1114.2 evidence lies inside [1114.0,1119.0). The 1113.1 evidence is explicitly the preceding state and lacks the exact requested subtotal, so it does not imply that the complete answer was available before the window opened.",
+      "criterion": "A provenance record contradicts the window only if it shows or asserts that the complete requested answer was already available before t_start.",
+      "steps": [
+        {"question": "Is the affirmative crossing reference inside the trigger window?", "answer_bool": true, "answer_number": null, "answer_text": null, "why": "1114.2 is greater than or equal to 1114.0 and less than 1119.0."},
+        {"question": "Does the earlier reference contain the exact requested subtotal?", "answer_bool": false, "answer_number": null, "answer_text": null, "why": "At 1113.1 the only displayed subtotal is 2.6666667; 2.7083333 has not appeared."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-answer-verified",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 1114.0, "what": "The newly included term is displayed as 1^4/4!, with no '=1/24' text, and the subtotal is 2.7083333."},
+        {"kind": "frame", "t": 1116.0, "what": "A later update shows subtotal 2.7166667 after the fifth-power term."}
+      ],
+      "findings": "The response identifies the correct first-crossing update and exact subtotal. Its term string is not exact to the display because it appends '=1/24', which is a correct calculation but is absent from the screen.",
+      "criterion": "The reference answer must be correct and must obey explicit response-format constraints in the question, including exact transcription from the display.",
+      "steps": [
+        {"question": "Does the response identify the first threshold crossing?", "answer_bool": true, "answer_number": null, "answer_text": null, "why": "It names the fourth-power update and 2.7083333, before the later 2.7166667 update."},
+        {"question": "Is the subtotal exact to the screen?", "answer_bool": true, "answer_number": null, "answer_text": null, "why": "The screen reads 2.7083333."},
+        {"question": "Is the full term string exact to the screen?", "answer_bool": false, "answer_number": null, "answer_text": null, "why": "The screen shows 1^4/4! but does not display '=1/24'."}
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {
+        "field": "triggers[0].response",
+        "value": "The first subtotal above 2.7 occurs when 1⁴/4! is included, and the displayed subtotal is 2.7083333.",
+        "why": "This preserves the correct mathematics and timing while matching the exact term text visible on screen."
+      },
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "twins-agree-on-substance",
+      "target": null,
+      "looked_at": [],
+      "findings": "The sample has no twin_of field, so there is no paired reference answer to compare.",
+      "criterion": "Substantive agreement can be assessed only when the sample declares a twin.",
+      "steps": [],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

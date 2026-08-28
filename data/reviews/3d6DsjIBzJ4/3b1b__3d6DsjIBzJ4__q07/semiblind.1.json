@@ -1,0 +1,136 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q07",
+  "role": "semiblind",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q07/semiblind",
+  "budget": {
+    "frames_viewed": 15,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 529.0,
+        "t_end": 534.0
+      }
+    ],
+    "transcript_cues": 403,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The entire 0.0-549.4 s prefix was covered through the complete transcript and screen index, with real frames used as evidence. The declared distractor [510.9, 530.7) was not treated as a valid answer moment. A 1 fps dense pass localized the first complete factorial brace to the real frame at 531 s.",
+  "prior_answer": "It cannot be answered on the merits from the question alone: the two factorial products and the coefficient symbol shown on the new screen are not specified.",
+  "prior_answer_assumptions": [],
+  "recognized_video": false,
+  "recognized_how": "I did not recognize this particular video or moment before viewing.",
+  "scans": [
+    {
+      "idx": 0,
+      "t_from": 0.0,
+      "t_to": 549.4,
+      "watched": [
+        {"kind": "frame", "t": 16.0, "what": "Opening Taylor-approximation montage, without the requested linked factorial calculations."},
+        {"kind": "frame", "t": 101.0, "what": "Early exponential approximation scene, unrelated to the requested factorial pair."},
+        {"kind": "frame", "t": 230.0, "what": "Quadratic cosine approximation with c2 still free after matching the first derivative."},
+        {"kind": "frame", "t": 311.0, "what": "Quadratic cosine coefficient has been set to -1/2."},
+        {"kind": "frame", "t": 389.0, "what": "Transition announcing more polynomial terms."},
+        {"kind": "frame", "t": 448.0, "what": "Fourth-order cosine term c4 x^4 has been introduced but its derivative product is not yet displayed."},
+        {"kind": "frame", "t": 472.0, "what": "Earlier nonzero even-power calculation visibly shows d^4P/dx^4 = 1·2·3·4·c4 = 24·c4."},
+        {"kind": "frame", "t": 507.0, "what": "Transition saying Notice a few things."},
+        {"kind": "frame", "t": 514.0, "what": "Isolated c8 x^8 demonstration has only begun its cascading derivatives."},
+        {"kind": "frame", "t": 529.0, "what": "The eighth derivative product 1·2·3·4·5·6·7·8·c8 is visible, but the factorial brace is absent."},
+        {"kind": "frame", "t": 530.0, "what": "The brace and its label are still being drawn; only an incomplete 8 is visible."},
+        {"kind": "frame", "t": 531.0, "what": "The full 1·2·3·4·5·6·7·8 product, complete brace labeled 8!, and coefficient c8 are all clearly visible."},
+        {"kind": "frame", "t": 532.0, "what": "The complete 8! brace persists while a formula beginning Set c8 is being drawn."},
+        {"kind": "frame", "t": 533.0, "what": "The screen explicitly begins setting c8 from a desired derivative value while retaining the factorial-brace context."},
+        {"kind": "frame", "t": 541.0, "what": "The video later returns to the fourth-power cosine calculation, before its derivative line is completed again."},
+        {"kind": "cue", "t": 465.8, "what": "Narration states the fourth-power cascade as 1 times 2 times 3 times 4 times c4."},
+        {"kind": "cue", "t": 522.6, "what": "Narration describes the general cascading product from 1 through n."}
+      ],
+      "candidates": [
+        {
+          "question": "Does the earlier fourth-power calculation already provide the complete requested cross-moment answer?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "At 472 s the real frame supplies 1·2·3·4 and c4, but the later isolated higher-power product and its undetermined coefficient have not appeared yet."
+        },
+        {
+          "question": "Is the isolated higher-power demonstration complete at 529 s?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The product is visible but the factorial brace required by the question is absent, and this moment lies in the declared distractor."
+        },
+        {
+          "question": "Is the complete factorial brace available at 530 s?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The real frame shows the brace and label mid-render, with only an incomplete 8 rather than a clearly readable 8!, and it remains inside the declared distractor."
+        },
+        {
+          "question": "Can the full question be answered from the real frame at 531 s and the already observed earlier calculation?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "At 531 s the isolated screen clearly shows the complete eight-factor product, the 8! brace, and c8; the earlier 472 s frame already clearly supplied the four-factor product."
+        }
+      ],
+      "t_val": 531.0,
+      "t_val_basis": "The 531 s real frame is the first dense frame after the declared distractor where the complete brace labeled 8! is legible beneath 1·2·3·4·5·6·7·8, with c8 visible; the earlier 472 s real frame supplies 1·2·3·4.",
+      "answer_at_t_val": "The isolated higher-power product is 1·2·3·4·5·6·7·8 (8!), the earlier nonzero even-power product is 1·2·3·4 (4!), and the coefficient left undetermined on the new screen is c8.",
+      "confidence": "high"
+    }
+  ],
+  "checks": [
+    {
+      "group": "shortcuts",
+      "item": "solvable-without-video",
+      "target": null,
+      "looked_at": [
+        {"kind": "cue", "t": 510.9, "what": "Before viewing, only the supplied question text was considered; it does not name either displayed product or the coefficient symbol."}
+      ],
+      "findings": "The question describes relations between two screen moments but contains none of the exact factors or coefficient symbol it asks the respondent to report.",
+      "criterion": "The sample would be solvable without video only if those exact requested quantities followed from the wording plus general subject knowledge, without inventing unseen screen content.",
+      "steps": [
+        {
+          "question": "Can both exact products and the coefficient symbol be derived from the question text alone?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Many higher even powers and coefficient notations are possible, and the wording supplies no numerical degree or symbol."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "video-recognized",
+      "target": null,
+      "looked_at": [
+        {"kind": "cue", "t": 510.9, "what": "Before viewing, I checked whether the supplied wording and video identifier evoked a remembered particular video moment; they did not."}
+      ],
+      "findings": "I had no memory of this particular video and moment and could not name the requested screen quantities before viewing.",
+      "criterion": "Recognition fires only when the particular video or moment is remembered well enough to supply its answer without consulting the provided media.",
+      "steps": [
+        {
+          "question": "Did I recognize this particular video moment before opening the transcript or frames?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "No title, scene, or requested quantities were recalled from memory."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

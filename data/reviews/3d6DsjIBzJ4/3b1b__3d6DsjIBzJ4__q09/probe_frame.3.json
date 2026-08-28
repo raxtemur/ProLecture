@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q09",
+  "role": "probe_frame",
+  "iteration": 3,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q09/probe_frame",
+  "budget": {
+    "frames_viewed": 1,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 0,
+    "screen_index_used": false
+  },
+  "violations": [],
+  "notes": "",
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 613.0,
+      "what": "The screen shows P_pi(x) expanded in powers of (x-pi), a yellow marked center at x=pi, and a blue cosine-shaped target curve with a maximum at 0, minimum at pi, and maximum at 2pi."
+    }
+  ],
+  "steps": [
+    {
+      "question": "What is the marked nonzero expansion center?",
+      "answer_text": "pi",
+      "why": "The displayed polynomial is labeled P_pi(x), every basis term is a power of (x-pi), and the yellow marker is at the tick pi."
+    },
+    {
+      "question": "What is the blue target curve?",
+      "answer_text": "f(x) = cos(x)",
+      "why": "The blue graph visibly has the cosine landmarks: a maximum at x=0, a minimum at x=pi, and another maximum at x=2pi."
+    },
+    {
+      "question": "What are the first three shifted-basis coefficients at pi?",
+      "answer_text": "c0 = -1, c1 = 0, c2 = 1/2",
+      "why": "For f(x)=cos(x), c0=f(pi)=-1, c1=f'(pi)=-sin(pi)=0, and c2=f''(pi)/2!=-cos(pi)/2=1/2."
+    },
+    {
+      "question": "What quadratic results in the shifted basis?",
+      "answer_text": "P_pi,2(x) = -1 + (1/2)(x-pi)^2",
+      "why": "Substituting c0=-1, c1=0, and c2=1/2 into c0+c1(x-pi)+c2(x-pi)^2 gives the quadratic."
+    }
+  ],
+  "answer": "The center is pi and the blue target curve is f(x)=cos(x). At x=pi, the first three coefficients are c0=-1, c1=0, and c2=1/2, so the quadratic in the shifted basis is P_pi,2(x)=-1+(1/2)(x-pi)^2.",
+  "basis": "Frame t=613 s: the screen explicitly shows P_pi(x) in powers of (x-pi) and marks pi in yellow; the blue graph's visible values and extrema identify cos(x). The coefficients then follow from the standard Taylor formula c_k=f^(k)(pi)/k!.",
+  "confidence": "high",
+  "insufficient": false
+}

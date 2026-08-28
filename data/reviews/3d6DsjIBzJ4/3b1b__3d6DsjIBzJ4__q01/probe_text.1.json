@@ -1,0 +1,67 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q01",
+  "role": "probe_text",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q01/probe_text",
+  "budget": {
+    "frames_viewed": 0,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 61,
+    "screen_index_used": false
+  },
+  "violations": [],
+  "notes": "The transcript does not state the full on-screen formula or identify R; the attempted answer uses standard pendulum geometry and is therefore flagged insufficient for the text-only modality.",
+  "looked_at": [
+    {
+      "kind": "cue",
+      "t": 39.3,
+      "what": "The lecture identifies the problem as the potential energy of a pendulum."
+    },
+    {
+      "kind": "cue",
+      "t": 41.5,
+      "what": "The needed quantity is the height of the pendulum weight above its lowest point."
+    },
+    {
+      "kind": "cue",
+      "t": 47.9,
+      "what": "The height is said to be proportional to one minus the cosine of the angle."
+    },
+    {
+      "kind": "cue",
+      "t": 50.3,
+      "what": "The angle is specified as the angle between the pendulum and the vertical."
+    },
+    {
+      "kind": "cue",
+      "t": 68.6,
+      "what": "The lecture begins stating a small-angle approximation for cosine of theta, though the automatic transcript garbles the coefficient."
+    }
+  ],
+  "steps": [
+    {
+      "question": "What height relation can be extracted from the transcript?",
+      "answer_text": "The height above the lowest point is proportional to 1 - cos(theta), where theta is the angle from the vertical.",
+      "why": "The cues at 41.5-54.9 s state the measured height and its proportional dependence on one minus the cosine of the angle from the vertical."
+    },
+    {
+      "question": "What exact expression follows if R is the pendulum length and the angle is doubled?",
+      "answer_text": "h_new = R(1 - cos(2 theta)).",
+      "why": "By standard pendulum geometry, h = R - R cos(alpha) = R(1 - cos(alpha)); substituting alpha = 2 theta gives the expression. The identification of the displayed R with pendulum length is a general-knowledge assumption because it is not spoken in the transcript."
+    },
+    {
+      "question": "What is the quadratic small-angle approximation in theta?",
+      "answer_text": "h_new is approximately 2 R theta^2.",
+      "why": "General knowledge: cos x = 1 - x^2/2 + O(x^4), so 1 - cos(2 theta) = 2 theta^2 + O(theta^4)."
+    }
+  ],
+  "answer": "Assuming R is the pendulum length, doubling the shown angle gives the exact height h_new = R(1 - cos(2 theta)); for small theta, h_new = 2R theta^2 + O(theta^4), so the quadratic approximation is h_new approximately 2R theta^2.",
+  "basis": "Transcript: at 41.5-46.3 s the quantity is the pendulum weight's height above its lowest point; at 47.9-54.9 s it is said to be proportional to 1 minus the cosine of the angle from the vertical. General knowledge supplies h = R(1 - cos(theta)) and cos x = 1 - x^2/2 + O(x^4). The transcript does not identify R or state the full displayed expression, so the assumption that R is the pendulum length is a guess based on standard pendulum geometry.",
+  "confidence": "medium",
+  "insufficient": true
+}

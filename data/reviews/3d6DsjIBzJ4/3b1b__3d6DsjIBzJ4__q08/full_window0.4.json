@@ -1,0 +1,266 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q08",
+  "role": "full_window",
+  "iteration": 4,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q08/full_window0",
+  "budget": {
+    "frames_viewed": 11,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 568.0,
+        "t_end": 574.1
+      },
+      {
+        "t_start": 574.0,
+        "t_end": 591.0
+      }
+    ],
+    "transcript_cues": 29,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The 572 s boundary is conservative: the brace is complete there, while the =0 continuation is visible by 573 s. The later coefficient-control montage does not create a conflicting occurrence. No repair is advised.",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "group": "windows",
+      "item": "window-can-be-tightened",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 572.0,
+          "what": "The white underbrace is complete beneath the pink higher-order term; the requested colored and numeric context remains visible."
+        },
+        {
+          "kind": "frame",
+          "t": 573.0,
+          "what": "The underbrace has gained an =0 label and the same polynomial and derivative context remains visible."
+        },
+        {
+          "kind": "frame",
+          "t": 580.0,
+          "what": "The completed annotated calculation is still on screen."
+        },
+        {
+          "kind": "frame",
+          "t": 582.0,
+          "what": "The video has moved to a coefficient-control montage after the triggering state was already observed."
+        },
+        {
+          "kind": "frame",
+          "t": 590.0,
+          "what": "The coefficient-control montage continues near the right boundary without a new occurrence of the trigger cue."
+        }
+      ],
+      "findings": "The completed brace state is present at the opening boundary, becomes fully labelled one second later, remains visible through 580 s, and is then replaced by a related montage. The requested first-appearance details have already been observed and can be retained while an answer is generated.",
+      "criterion": "A first-appearance question may keep its legal answer-generation window after the initiating display changes; tightening is warranted only for substantial unusable slack, not because a model that watched the event is finishing its response after the display advances.",
+      "steps": [
+        {
+          "question": "When is the first stable frame carrying the trigger cue and all requested visual attributes?",
+          "answer_number": 572.0,
+          "why": "At 572 s the brace is complete and the pink coefficient, fraction, evaluation input, and earlier constant are simultaneously legible."
+        },
+        {
+          "question": "Does the later scene change make the already observed first-appearance answer invalid?",
+          "answer_bool": false,
+          "why": "The question concerns the observed state at its first appearance, and the later montage does not revise those observed attributes."
+        },
+        {
+          "question": "Is there a substantial empty portion that should be removed from the legal response window?",
+          "answer_bool": false,
+          "why": "The 18.5-second window supplies response latency after a multi-attribute visual cue and contains no conflicting repeat."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "windows",
+      "item": "author-says-answer-in-window",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 571.1,
+          "what": "The author says the behavior is because x=0 is being plugged in."
+        },
+        {
+          "kind": "cue",
+          "t": 576.0,
+          "what": "The author explains that higher-order terms include an x."
+        },
+        {
+          "kind": "cue",
+          "t": 578.9,
+          "what": "The author says those higher-order contributions wash away."
+        },
+        {
+          "kind": "cue",
+          "t": 587.5,
+          "what": "The author says each derivative at x=0 is controlled by one coefficient."
+        },
+        {
+          "kind": "cue",
+          "t": 592.5,
+          "what": "The author begins a contrast about approximating near an input other than zero."
+        },
+        {
+          "kind": "cue",
+          "t": 599.8,
+          "what": "The author says the polynomial would be written in powers relative to the other input."
+        },
+        {
+          "kind": "frame",
+          "t": 573.0,
+          "what": "The requested answer is a combination of visual color and several displayed numeric attributes."
+        },
+        {
+          "kind": "frame",
+          "t": 590.0,
+          "what": "The later montage labels coefficient-to-derivative control by color but does not state the complete requested response."
+        }
+      ],
+      "findings": "From 572 through 600.5 s the narration explains why higher-order contributions vanish at x=0 and how derivatives are controlled by coefficients. It does not speak the complete requested visual tuple: the pink color together with the displayed fraction, evaluation input, and earlier constant.",
+      "criterion": "For an L3 item this check fires only if the author supplies the answer in finished form during the window or the following ten seconds; partial conceptual corroboration that omits required visual attributes is not the finished answer.",
+      "steps": [
+        {
+          "question": "What parts of the response does the author explicitly say by 600.5 seconds?",
+          "answer_text": "The evaluation at x=0, disappearance of higher-order contributions, and one-coefficient control of each derivative.",
+          "why": "These are the claims in the cues beginning at 571.1, 576.0, 578.9, and 587.5 seconds."
+        },
+        {
+          "question": "Does the narration state the complete requested multi-attribute answer?",
+          "answer_bool": false,
+          "why": "It does not verbalize the pink color and the full set of displayed numeric details as a completed response."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "event-not-earlier-than-window",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 571.0,
+          "what": "A partial stroke of the underbrace is still being animated beneath the pink term."
+        },
+        {
+          "kind": "frame",
+          "t": 572.0,
+          "what": "The white underbrace is complete beneath the pink term and all requested contextual attributes are visible."
+        },
+        {
+          "kind": "frame",
+          "t": 573.0,
+          "what": "The completed brace persists and its =0 continuation is now fully visible."
+        }
+      ],
+      "findings": "At 571 s the cue is only a partial drawing stroke. By 572 s the underbrace itself is complete, which is the distinguishing visible state; the =0 continuation completes by 573 s.",
+      "criterion": "The window should open when the semantic trigger state begins, rather than at the first transient drawing stroke or after the distinguishable state is already established.",
+      "steps": [
+        {
+          "question": "Is the distinguishing trigger state already complete before 572 seconds?",
+          "answer_bool": false,
+          "why": "The 571 s frame shows only an incomplete stroke, whereas the completed underbrace is present at 572 s."
+        },
+        {
+          "question": "Does the 572-second opening conservatively include the cue's completion animation?",
+          "answer_bool": true,
+          "why": "It starts with the completed brace and allows the =0 continuation to settle by the 573 s ideal answer time."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "depends-on-is-dependency",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [],
+      "findings": "The trigger has no depends_on field, so there is no declared dependency link to evaluate.",
+      "criterion": "A dependency-link check is inapplicable when the trigger declares no depends_on relationship.",
+      "steps": [
+        {
+          "question": "Does this trigger declare a depends_on link?",
+          "answer_bool": false,
+          "why": "The supplied trigger metadata explicitly states that depends_on is absent."
+        }
+      ],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "evidence-span-is-last",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 571.0,
+          "what": "The brace is incomplete, although the colored coefficient and numeric context are already visible."
+        },
+        {
+          "kind": "frame",
+          "t": 572.0,
+          "what": "The brace is complete and the pink coefficient, fraction, evaluation input, and earlier constant are all visible."
+        },
+        {
+          "kind": "frame",
+          "t": 573.0,
+          "what": "An =0 continuation appears after all facts required for the requested response were already visible."
+        }
+      ],
+      "findings": "The final fact needed to identify the firing and assemble the requested response is present at 572 s. The =0 shown at 573 s continues the explanation but is not an additional requested attribute.",
+      "criterion": "The evidence span must end at the last moment needed to derive the requested answer, excluding later explanatory corroboration that adds no required answer field.",
+      "steps": [
+        {
+          "question": "When are all requested answer fields and the distinguishing trigger cue first jointly visible?",
+          "answer_number": 572.0,
+          "why": "The 572 s frame contains the completed underbrace and every requested visual attribute."
+        },
+        {
+          "question": "Does the =0 continuation at 573 seconds add a fact required by the answer?",
+          "answer_bool": false,
+          "why": "It corroborates why the term is underbraced but does not change the requested color or numeric fields."
+        },
+        {
+          "question": "Does evidence_span [471.7, 572] reach the last necessary evidence?",
+          "answer_bool": true,
+          "why": "Its endpoint coincides with the first frame containing the completed cue and all required response content."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ],
+  "window_idx": 0
+}

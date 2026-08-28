@@ -1,0 +1,179 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q04",
+  "role": "full_window",
+  "iteration": 2,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q04/full_window0",
+  "budget": {
+    "frames_viewed": 17,
+    "sparse_step": null,
+    "dense_intervals": [
+      {"t_start": 269.0, "t_end": 274.0},
+      {"t_start": 290.0, "t_end": 304.0},
+      {"t_start": 307.0, "t_end": 310.0},
+      {"t_start": 309.6, "t_end": 310.6},
+      {"t_start": 309.95, "t_end": 310.95}
+    ],
+    "transcript_cues": 35,
+    "screen_index_used": true
+  },
+  "violations": [
+    {
+      "path": "data/reviews/** (filenames only)",
+      "why": "An initial rg --files used to locate the missing full_window.md redirect traversed the project before the exclusion pattern was corrected.",
+      "what_seen": "Only review filenames were printed; no review file contents were opened or read."
+    }
+  ],
+  "notes": "The 271/272 boundary was checked in real frames: 271 has only an unfinished '= -', while 272 has the complete target value -1.\nThe coefficient reveal at 309.95 is after the answer window, not leakage inside [272,300), but it lies inside the mandatory t_end+10 check interval.\nThe attempted sub-second dense call was rejected by the workspace tool and added no frames; exact 309.95 was then extracted with a shifted one-second grid.",
+  "verdict": "CRITICAL_FAIL",
+  "checks": [
+    {
+      "group": "windows",
+      "item": "window-can-be-tightened",
+      "target": {"trigger_idx": 0},
+      "looked_at": [
+        {"kind": "frame", "t": 272.0, "what": "The complete blue-target second-derivative row ends in -1, while P(x)=1+0x+c_2x^2 and 'Free to change' are simultaneously readable."},
+        {"kind": "frame", "t": 290.0, "what": "The complete -1 row and the still-free c_2x^2 term remain readable during the curvature illustration."},
+        {"kind": "frame", "t": 298.0, "what": "The complete target row and P(x) remain visible while dP/dx=0+2c_2x is added."},
+        {"kind": "frame", "t": 300.0, "what": "At the right boundary the target row, P(x), and dP/dx are still visible; the coefficient has not been revealed."}
+      ],
+      "findings": "From the first included frame at 272 through the right edge at 300, the displayed -1 and the free quadratic coefficient remain available; later derivative animation does not erase them.",
+      "criterion": "A substantial prefix or suffix should be removed only when the question cannot be answered there; one or two seconds of ordinary animation slack is not a reason to tighten.",
+      "steps": [
+        {
+          "question": "Is the answer-bearing state fully readable at the start of the window?",
+          "answer_bool": true,
+          "why": "The 272.0 frame simultaneously shows the complete -1 row and the free c_2x^2 term."
+        },
+        {
+          "question": "Does any substantial part before t_end lose the facts needed to answer?",
+          "answer_bool": false,
+          "why": "Frames at 290, 298, and the 300 boundary keep the target row and polynomial visible."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "windows",
+      "item": "author-says-answer-in-window",
+      "target": {"trigger_idx": 0},
+      "looked_at": [
+        {"kind": "cue", "t": 300.6, "what": "The author begins stating that the polynomial's second derivative is exactly 2 times c_2."},
+        {"kind": "cue", "t": 307.0, "what": "The author says that this second derivative also equals -1 at x=0 and begins '2 times c_2 has to be'."},
+        {"kind": "frame", "t": 309.95, "what": "Before 310.0, the screen visibly substitutes (-1/2) into the polynomial derivatives, including d^2P/dx^2(x)=2(-1/2)."}
+      ],
+      "findings": "No coefficient is revealed inside [272,300), but at 309.95 the finished coefficient -1/2 is visibly substituted on screen; this is 9.95 seconds after t_end and is supported by the immediately preceding narration.",
+      "criterion": "For an L3 sample, a finished answer shown or spoken anywhere from t_start through ten seconds after t_end makes the task degenerate, even when the reveal is post-window rather than inside the scoring window.",
+      "steps": [
+        {
+          "question": "Is the final coefficient shown inside the answer window [272,300)?",
+          "answer_bool": false,
+          "why": "The 300.0 boundary frame still shows c_2 symbolically and no -1/2 substitution."
+        },
+        {
+          "question": "Is the final coefficient shown before the t_end+10 cutoff at 310.0?",
+          "answer_bool": true,
+          "why": "The exact 309.95 frame visibly contains (-1/2) in the polynomial derivative substitution."
+        },
+        {
+          "question": "Does the L3 rule treat that post-window reveal as critical?",
+          "answer_bool": true,
+          "why": "The check explicitly extends ten seconds past t_end to account for answer-generation latency."
+        }
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {
+        "field": "question",
+        "value": "Relocate or redesign the L3 question so the finished coefficient is not spoken or shown until more than ten seconds after the answer window; alternatively redesign it as a genuine L1 alarm.",
+        "why": "The visible -1/2 substitution at 309.95 falls inside the mandatory post-window leakage interval for an L3 task."
+      },
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "event-not-earlier-than-window",
+      "target": {"trigger_idx": 0},
+      "looked_at": [
+        {"kind": "frame", "t": 271.0, "what": "The second-derivative row ends only with an incomplete '= -'; the numeral 1 is not yet readable, although c_2x^2 is visible."},
+        {"kind": "frame", "t": 272.0, "what": "The row is complete as d^2(cos)/dx^2(0)=-cos(0)=-1 while the free c_2x^2 term is simultaneously readable."}
+      ],
+      "findings": "The question's simultaneous-readability event is not complete at 271 and is complete at 272, matching the window start.",
+      "criterion": "An event-trigger window must open when every condition named in the event first becomes visibly satisfied, not while the decisive value is still being drawn.",
+      "steps": [
+        {
+          "question": "Is the displayed derivative value fully readable at 271.0?",
+          "answer_bool": false,
+          "why": "Only '= -' is visible at the end of the row; the numeral 1 is absent."
+        },
+        {
+          "question": "Are both the complete target value and free quadratic term readable at 272.0?",
+          "answer_bool": true,
+          "why": "The frame shows '= -1' on the target row and c_2x^2 in P(x) at the same time."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "depends-on-is-dependency",
+      "target": {"trigger_idx": 0},
+      "looked_at": [],
+      "findings": "The trigger has no depends_on field, so there is no declared dependency link to validate or remove.",
+      "criterion": "This check applies only when a dependency is declared or when the rubric requires a prior trigger's answer; neither condition exists here.",
+      "steps": [
+        {
+          "question": "Does trigger 0 declare a depends_on link?",
+          "answer_bool": false,
+          "why": "The supplied trigger metadata has depends_on absent/null."
+        },
+        {
+          "question": "Does answering this window require the answer to another trigger?",
+          "answer_bool": false,
+          "why": "The displayed target value and free c_2 term suffice directly for 2c_2=-1."
+        }
+      ],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "evidence-span-is-last",
+      "target": {"trigger_idx": 0},
+      "looked_at": [
+        {"kind": "frame", "t": 272.0, "what": "The complete final needed fact, target value -1, first appears while the free c_2x^2 term is already visible."},
+        {"kind": "frame", "t": 292.0, "what": "The same complete target row and free c_2x^2 term remain visible near the end of evidence_span [272.0,292.3]."}
+      ],
+      "findings": "The last fact needed for the inference first becomes complete at 272.0, and the supplied evidence span begins exactly there and continues while the evidence remains displayed through 292.3.",
+      "criterion": "The evidence span must include the moment when the final necessary fact becomes available; later narration or author corroboration is not part of that derivability evidence.",
+      "steps": [
+        {
+          "question": "When does the final necessary visual fact first become complete?",
+          "answer_number": 272.0,
+          "why": "At 271 the row lacks the numeral 1; at 272 '= -1' is complete while c_2 is free."
+        },
+        {
+          "question": "Does evidence_span [272.0,292.3] cover that final-fact moment?",
+          "answer_bool": true,
+          "why": "Its left endpoint equals 272.0 and the answer-bearing state persists through its end."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ],
+  "window_idx": 0
+}

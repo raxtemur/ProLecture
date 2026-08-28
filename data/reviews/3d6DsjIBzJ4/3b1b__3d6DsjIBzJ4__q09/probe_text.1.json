@@ -1,0 +1,72 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q09",
+  "role": "probe_text",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q09/probe_text",
+  "budget": {
+    "frames_viewed": 0,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 464,
+    "screen_index_used": false
+  },
+  "violations": [],
+  "notes": "The transcript identifies the shifted center, but no text observation can independently verify which on-screen curve is blue; the curve identification is therefore an explicit contextual guess.",
+  "looked_at": [
+    {
+      "kind": "cue",
+      "t": 122.7,
+      "what": "The lecture says, 'let's take a look at that function cosine of x.'"
+    },
+    {
+      "kind": "cue",
+      "t": 434.1,
+      "what": "The lecture states that 1 - 1/2 x^2 is the best quadratic approximation of cosine near zero."
+    },
+    {
+      "kind": "cue",
+      "t": 592.5,
+      "what": "The lecture introduces approximation near a nonzero input, 'like maybe x = pi.'"
+    },
+    {
+      "kind": "cue",
+      "t": 599.8,
+      "what": "The lecture says to write the polynomial in powers of x - pi."
+    },
+    {
+      "kind": "cue",
+      "t": 610.8,
+      "what": "The lecture explains that the point pi is made to look and behave like zero."
+    }
+  ],
+  "steps": [
+    {
+      "question": "What is the nonzero expansion center?",
+      "answer_text": "a = pi",
+      "why": "At 592.5-599.8 s the transcript names x = pi and then specifies powers of x - pi."
+    },
+    {
+      "question": "What is the blue target curve?",
+      "answer_text": "Likely f(x) = cos(x), but this is a guess from the continuing cosine example because the transcript cannot reveal color or verify the on-screen blue curve.",
+      "why": "At 122.7 s the target under discussion is cosine of x, and the transcript continues discussing cosine through the later shift; it never explicitly calls a curve blue."
+    },
+    {
+      "question": "What are the first three shifted-basis coefficients if the target is cosine?",
+      "answer_text": "c0 = cos(pi) = -1, c1 = -sin(pi) = 0, and c2 = (-cos(pi))/2! = 1/2.",
+      "why": "General knowledge of Taylor coefficients gives c_n = f^(n)(pi)/n!; applying it to the contextually inferred f(x) = cos(x) gives these values."
+    },
+    {
+      "question": "What quadratic do those coefficients produce?",
+      "answer_text": "P2(x) = -1 + (1/2)(x - pi)^2.",
+      "why": "Substituting c0 = -1, c1 = 0, and c2 = 1/2 into c0 + c1(x-pi) + c2(x-pi)^2 yields the stated polynomial."
+    }
+  ],
+  "answer": "The marked center is a = pi. The blue target curve is most likely f(x) = cos(x), though that identification is a guess from the transcript's continuing cosine example because text alone cannot verify which curve on screen is blue. On that reading, c0 = -1, c1 = 0, and c2 = 1/2, so the quadratic in the shifted basis is P2(x) = -1 + (1/2)(x - pi)^2.",
+  "basis": "Transcript: [122.7-125.1] 'that function cosine of x'; [592.5-599.8] 'approximating near an input other than zero like maybe x = pi'; [599.8-604.5] 'write your polynomial in terms of powers of x - pi'; [610.8-616.7] 'the point pi looks and behaves like zero.' General knowledge supplies c_n = f^(n)(pi)/n!. The claim that the blue on-screen curve is cosine is explicitly a guess from the uninterrupted cosine context, since color and the screen itself are unavailable.",
+  "confidence": "medium",
+  "insufficient": true
+}

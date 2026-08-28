@@ -1,0 +1,46 @@
+{
+  "role": "probe_vision",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q08",
+  "model": "gpt-5.6-sol",
+  "iteration": 3,
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 548.0,
+      "what": "The polynomial uses the pink coefficient 1/24 on x^4, and the displayed fourth derivative is 1·2·3·4·(1/24) = 24·(1/24), i.e. 1."
+    },
+    {
+      "kind": "frame",
+      "t": 562.0,
+      "what": "The complete caption is visible. In the second-derivative formula, the reused contribution 3·4c_4(0)^2 is shown with 3·4c_4 in pink; the zero factor is yellow."
+    }
+  ],
+  "steps": [
+    {
+      "question": "What color is the reused c_4x^4 contribution?",
+      "answer_text": "Pink.",
+      "why": "Frame t000562 shows the coefficient and its twice-differentiated 3·4c_4 contribution in pink."
+    },
+    {
+      "question": "What is that twice-differentiated contribution at x=1?",
+      "answer_text": "1/2.",
+      "why": "The displayed expression is 3·4c_4x^2; substituting c_4=1/24 and x=1 gives 12/24=1/2."
+    },
+    {
+      "question": "How does it compare with the earlier fourth derivative?",
+      "answer_text": "It is half as large.",
+      "why": "Frame t000548 shows 24·(1/24)=1, so 1/2 is exactly half of that value."
+    }
+  ],
+  "answer": "The reused c_4x^4 term is pink. Twice differentiating gives 12c_4x^2, so at x=1 with c_4=1/24 its contribution is 12·(1/24)=1/2. The earlier fourth-derivative evaluation was 24·(1/24)=1, so the x=1 second-derivative contribution is exactly half as large (smaller by 1/2).",
+  "basis": "Frames t000548.jpg and t000562.jpg; the arithmetic substitution at x=1 uses the twice-differentiated expression visible in t000562.jpg and the displayed c_4=1/24 and fourth-derivative evaluation visible in t000548.jpg.",
+  "confidence": "high",
+  "insufficient": false,
+  "budget": {
+    "frames_viewed": 2,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q08/probe_vision"
+}

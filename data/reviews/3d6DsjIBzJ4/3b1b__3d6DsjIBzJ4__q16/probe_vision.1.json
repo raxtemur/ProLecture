@@ -1,0 +1,87 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q16",
+  "role": "probe_vision",
+  "iteration": 1,
+  "model": "gpt-5",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/3b1b__3d6DsjIBzJ4__q16/probe_vision_r1",
+  "budget": {
+    "frames_viewed": 8,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 1108.0,
+        "t_end": 1117.0
+      }
+    ],
+    "transcript_cues": null,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "Used the frame-derived screen index only to locate the interval, then verified the transition in real frames.",
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 1108.0,
+      "what": "The substituted e^1 factorial-denominator series is displayed; no subtotal is yet visible."
+    },
+    {
+      "kind": "frame",
+      "t": 1109.0,
+      "what": "The brace covers 1 + 1^1/1! and the displayed subtotal is 2.0000000."
+    },
+    {
+      "kind": "frame",
+      "t": 1110.0,
+      "what": "The displayed running subtotal remains 2.0000000 during the update animation."
+    },
+    {
+      "kind": "frame",
+      "t": 1112.0,
+      "what": "The running-total brace is moving across the factorial-denominator terms during an update."
+    },
+    {
+      "kind": "frame",
+      "t": 1113.0,
+      "what": "The brace ends at 1^3/3! and the displayed subtotal is 2.6666667, still below 2.7."
+    },
+    {
+      "kind": "frame",
+      "t": 1114.0,
+      "what": "The brace now includes 1^4/4! and the displayed subtotal is 2.7083333."
+    },
+    {
+      "kind": "frame",
+      "t": 1115.0,
+      "what": "The brace still includes 1^4/4! and the subtotal remains clearly displayed as 2.7083333."
+    },
+    {
+      "kind": "frame",
+      "t": 1116.0,
+      "what": "The next update includes 1^5/5! and displays the later subtotal 2.7166667."
+    }
+  ],
+  "steps": [
+    {
+      "question": "What is the last displayed subtotal before the running total exceeds 2.7?",
+      "answer_text": "2.6666667 after inclusion through 1^3/3!",
+      "why": "Frame t001113.jpg visibly shows the brace through 1^3/3! and subtotal 2.6666667."
+    },
+    {
+      "question": "Which newly included displayed term makes the first subtotal greater than 2.7?",
+      "answer_text": "1^4/4!",
+      "why": "In frames t001114.jpg and t001115.jpg, the brace extends through the displayed term 1^4/4! and the subtotal reads 2.7083333."
+    },
+    {
+      "question": "What exact subtotal is shown at that first greater-than-2.7 update?",
+      "answer_text": "2.7083333",
+      "why": "Frames t001114.jpg and t001115.jpg show 2.7083333; frame t001113.jpg immediately before shows only 2.6666667."
+    }
+  ],
+  "answer": "The newly included term is 1^4/4!, and the exact displayed subtotal is 2.7083333.",
+  "basis": "Frame t001113.jpg shows the preceding subtotal 2.6666667 through 1^3/3!; frames t001114.jpg and t001115.jpg show the newly included 1^4/4! and subtotal 2.7083333.",
+  "confidence": "high",
+  "insufficient": false
+}

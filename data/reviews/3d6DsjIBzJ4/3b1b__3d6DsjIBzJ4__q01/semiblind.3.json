@@ -1,0 +1,149 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q01",
+  "role": "semiblind",
+  "iteration": 3,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q01/semiblind",
+  "budget": {
+    "frames_viewed": 4,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 497.0,
+        "t_end": 500.0
+      }
+    ],
+    "transcript_cues": 11,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The full clipped transcript and both screen-index chunks were read. The index was used only to locate the transition; t_val rests on real frames. The declared distractor [495, 498) was not selected.",
+  "prior_answer": "It cannot be answered on the merits because the question does not state the displayed vertical-height expression. If one assumes the unseen display is the standard pendulum height R(1 - cos(theta)), then doubling the angle gives R(1 - cos(2 theta)), with quadratic small-angle approximation 2 R theta^2.",
+  "prior_answer_assumptions": [
+    "The unseen displayed vertical-height expression is the standard pendulum formula R(1 - cos(theta))."
+  ],
+  "recognized_video": false,
+  "recognized_how": "The title and series were familiar, but I did not remember this particular pendulum moment or its displayed answer before viewing.",
+  "scans": [
+    {
+      "idx": 1,
+      "t_from": 493.0,
+      "t_to": 507.0,
+      "watched": [
+        {
+          "kind": "frame",
+          "t": 497.0,
+          "what": "A pendulum and dotted trajectory are visible, but R, theta, and the vertical-height expression are all absent."
+        },
+        {
+          "kind": "frame",
+          "t": 498.0,
+          "what": "The pendulum now visibly carries theta, R, and R(1 - cos(theta)); the cosine expansion is also visible at right."
+        },
+        {
+          "kind": "frame",
+          "t": 499.0,
+          "what": "The same three pendulum labels are bright and stable, together with the cosine expansion."
+        },
+        {
+          "kind": "frame",
+          "t": 500.0,
+          "what": "The fully labelled pendulum diagram and expansion remain visible without a relevant change."
+        }
+      ],
+      "candidates": [
+        {
+          "question": "Is the requested answer fully available at 497.0 s?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The real frame shows only the pendulum and trajectory; the three required labels are not yet visible, and this moment is inside the declared distractor."
+        },
+        {
+          "question": "Is the requested answer fully available at 498.0 s?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "In the real frame, theta, R, and R(1 - cos(theta)) are all legible, so substituting 2 theta and expanding to quadratic order requires no unseen assumption."
+        },
+        {
+          "question": "Does the complete display remain unambiguous immediately after 498.0 s?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The 499.0 s and 500.0 s real frames show the same complete labels more brightly and stably."
+        }
+      ],
+      "t_val": 498.0,
+      "t_val_basis": "At 498.0 s the real frame first shows all three requested diagram elements together: R, theta, and R(1 - cos(theta)); the 497.0 s frame shows none of those labels.",
+      "answer_at_t_val": "With the angle doubled and R fixed, the exact height is R(1 - cos(2 theta)). Since cos(2 theta) = 1 - (2 theta)^2/2 + O(theta^4), the quadratic small-angle approximation is 2 R theta^2.",
+      "confidence": "high"
+    }
+  ],
+  "checks": [
+    {
+      "group": "shortcuts",
+      "item": "solvable-without-video",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 35.0,
+          "what": "The supplied question refers to a displayed vertical-height expression but does not state that expression in its text."
+        }
+      ],
+      "findings": "Before any viewing, the question named R and theta but omitted the formula that must be transformed; the conditional textbook answer required guessing that unseen formula.",
+      "criterion": "This item fires only if the exact requested result follows from the question text and general subject knowledge without supplying missing visual content.",
+      "steps": [
+        {
+          "question": "Does the question text state the original height expression?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "It refers deictically to 'its vertical height expression' and never writes the expression itself."
+        },
+        {
+          "question": "Can the conditional formula be produced without an assumption about the screen?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "R(1 - cos(theta)) is standard, but selecting it is still an assumption about the unseen display."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "video-recognized",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 35.0,
+          "what": "Before viewing, I assessed whether the supplied title and question recalled this exact video moment."
+        }
+      ],
+      "findings": "The video title and series were familiar, but the specific pendulum scene and its displayed expression were not recalled from memory.",
+      "criterion": "Recognition requires memory of this particular video and moment sufficient to name its answer before opening the supplied transcript or frames.",
+      "steps": [
+        {
+          "question": "Could I name the displayed expression from memory of this exact moment?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Only the general series identity was familiar; no scene-specific visual content was remembered."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

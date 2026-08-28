@@ -1,0 +1,72 @@
+{
+  "schema_version": "1.0",
+  "checklist_version": "1.0",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q14",
+  "role": "probe_text",
+  "iteration": 1,
+  "model": "gpt-5",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/3b1b__3d6DsjIBzJ4__q14/probe_text_r1",
+  "budget": {
+    "frames_viewed": 0,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 780,
+    "screen_index_used": false
+  },
+  "violations": [],
+  "notes": "The transcript gives the three Taylor terms and their geometric meanings, but never names the colors of the pieces or equation terms.",
+  "looked_at": [
+    {
+      "kind": "cue",
+      "t": 946.0,
+      "what": "The extra portion is described as approximately a triangle."
+    },
+    {
+      "kind": "cue",
+      "t": 955.8,
+      "what": "The change from the starting input a to the nudged input x is x - a."
+    },
+    {
+      "kind": "cue",
+      "t": 978.5,
+      "what": "The triangle area is one half times the second derivative of the area function at a times (x - a) squared."
+    },
+    {
+      "kind": "cue",
+      "t": 1007.4,
+      "what": "The approximation includes the area up to a, f(a)."
+    },
+    {
+      "kind": "cue",
+      "t": 1011.1,
+      "what": "The rectangle is the first derivative times x - a."
+    },
+    {
+      "kind": "cue",
+      "t": 1017.2,
+      "what": "The little triangle is one half times the second derivative times (x - a) squared."
+    }
+  ],
+  "steps": [
+    {
+      "question": "What are the three completed Taylor terms?",
+      "answer_text": "f(a), f'(a)(x-a), and (1/2)f''(a)(x-a)^2.",
+      "why": "At 1007.4-1023.4 s the narrator lists the existing area f(a), the rectangle as the first derivative times x-a, and the triangle as one half times the second derivative times (x-a)^2."
+    },
+    {
+      "question": "Which geometric region represents each term?",
+      "answer_text": "The area already accumulated up to a represents f(a); the rectangle represents f'(a)(x-a); the little triangle represents (1/2)f''(a)(x-a)^2.",
+      "why": "The transcript explicitly identifies the rectangle at 1011.1-1017.2 s and the triangle at 1017.2-1023.4 s, after naming the area up to a as f(a)."
+    },
+    {
+      "question": "Can the transcript assign those terms to blue, yellow, and pink?",
+      "answer_bool": false,
+      "why": "No transcript cue names any of the three colors, so the color-to-term correspondence is not distinguishable from this modality."
+    }
+  ],
+  "answer": "The completed three-term Taylor approximation is f(a) + f'(a)(x-a) + (1/2)f''(a)(x-a)^2. Geometrically, f(a) is the area already accumulated up to a, f'(a)(x-a) is the rectangle, and (1/2)f''(a)(x-a)^2 is the little triangle. The transcript does not say which of blue, yellow, or pink corresponds to which one, so an exact color-by-color assignment cannot be made from the provided text.",
+  "basis": "[1007.4-1011.1] says to include the area up to a, 'f of a'; [1011.1-1017.2] calls the rectangle 'the first derivative * x - a'; [1017.2-1023.4] calls the little triangle '1/2 * the second derivative * x - a^2.' The mathematical notation is therefore f(a), f'(a)(x-a), and (1/2)f''(a)(x-a)^2. No cue in the transcript identifies blue, yellow, or pink, so mapping those terms to colors would be a guess.",
+  "confidence": "low",
+  "insufficient": true
+}

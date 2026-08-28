@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q17",
+  "role": "probe_frame",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/3b1b__3d6DsjIBzJ4__q17/probe_frame_r1",
+  "budget": {
+    "frames_viewed": 1,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 0,
+    "screen_index_used": false
+  },
+  "violations": [],
+  "notes": "",
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 1206.0,
+      "what": "The frame shows the blue ln(x) target, the white fourth truncation, and the displayed expansion through the fourth term under the brace."
+    }
+  ],
+  "steps": [
+    {
+      "question": "What are the first four approximants shown by the expanding brace?",
+      "answer_text": "With u=x-1, they are P1=u, P2=u-u^2/2, P3=u-u^2/2+u^3/3, and P4=u-u^2/2+u^3/3-u^4/4.",
+      "why": "These four successive truncations are legible in the formula at the top of the frame."
+    },
+    {
+      "question": "On which side of the blue ln(x) curve is each truncation at the shared probe beyond the right dashed line?",
+      "answer_text": "P1 is above, P2 below, P3 above, and P4 below.",
+      "why": "For u>1, the truncation error D_n=P_n-ln(1+u) has D_n(0)=0 and derivative D_n'=(-1)^(n+1)u^n/(1+u), so its sign alternates positive, negative, positive, negative."
+    }
+  ],
+  "answer": "In order, the first four approximants lie above, below, above, and below the blue curve at the same white probe.",
+  "basis": "At t=1206 the frame visibly gives the four successive truncations of ln(x) about x=1. Comparing those displayed polynomials with the blue ln(x) target at a probe beyond the right dashed boundary gives alternating error signs: positive for the first and third truncations and negative for the second and fourth.",
+  "confidence": "high",
+  "insufficient": false
+}

@@ -1,0 +1,72 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q09",
+  "role": "probe_text",
+  "iteration": 3,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q09/probe_text",
+  "budget": {
+    "frames_viewed": 0,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 461,
+    "screen_index_used": false
+  },
+  "violations": [],
+  "notes": "The blue color itself is not represented in the transcript, but the target curve's identity is recoverable from the repeated spoken references to cosine x.",
+  "looked_at": [
+    {
+      "kind": "cue",
+      "t": 122.7,
+      "what": "The speaker identifies the function under study as cosine of x."
+    },
+    {
+      "kind": "cue",
+      "t": 592.5,
+      "what": "The speaker introduces approximation near a nonzero input."
+    },
+    {
+      "kind": "cue",
+      "t": 594.3,
+      "what": "The nonzero example is explicitly identified as x = pi."
+    },
+    {
+      "kind": "cue",
+      "t": 599.8,
+      "what": "The speaker says the polynomial must be written in powers of x minus pi."
+    },
+    {
+      "kind": "cue",
+      "t": 610.8,
+      "what": "The point pi is said to behave like zero in the shifted basis."
+    }
+  ],
+  "steps": [
+    {
+      "question": "What is the marked nonzero expansion center?",
+      "answer_text": "The center is a = pi.",
+      "why": "At 594.3–599.8 s the transcript says to approximate near x = pi, and at 601.4–604.5 s it specifies powers of x - pi."
+    },
+    {
+      "question": "What function is the target curve?",
+      "answer_text": "The target is f(x) = cos(x).",
+      "why": "The lecture repeatedly identifies cosine x as the function being approximated, including 122.7–131.3 s and 473.6–477.4 s."
+    },
+    {
+      "question": "What are the first three shifted-basis coefficients?",
+      "answer_text": "c0 = cos(pi) = -1, c1 = -sin(pi) = 0, and c2 = (-cos(pi))/2! = 1/2.",
+      "why": "Using the transcript's derivative-matching rule and its instruction at 533.9–538.2 s to divide the nth derivative by n!, the coefficients are f(pi), f'(pi), and f''(pi)/2!. The evaluations are general knowledge."
+    },
+    {
+      "question": "What quadratic results in the shifted basis?",
+      "answer_text": "P2(x) = -1 + (1/2)(x - pi)^2.",
+      "why": "Substitute c0 = -1, c1 = 0, and c2 = 1/2 into c0 + c1(x - pi) + c2(x - pi)^2."
+    }
+  ],
+  "answer": "The marked center is a = pi, and the blue target curve is f(x) = cos(x). In the basis 1, (x - pi), (x - pi)^2, the first three coefficients are c0 = -1, c1 = 0, and c2 = 1/2, so the quadratic is P2(x) = -1 + (1/2)(x - pi)^2.",
+  "basis": "Transcript: 122.7–131.3 s identifies cosine x as the function being approximated; 533.9–538.2 s says coefficients use derivatives divided by the appropriate factorial; 594.3–604.5 s names x = pi and powers of x - pi; 610.8–616.7 s explains that pi behaves like zero in this shifted basis. General knowledge was used only to evaluate cos(pi) = -1, -sin(pi) = 0, and -cos(pi) = 1.",
+  "confidence": "high",
+  "insufficient": false
+}

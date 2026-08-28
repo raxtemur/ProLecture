@@ -1,0 +1,261 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q06",
+  "role": "full_window",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q06/full_window0",
+  "budget": {
+    "frames_viewed": 12,
+    "sparse_step": 4.0,
+    "dense_intervals": [
+      {
+        "t_start": 449.4,
+        "t_end": 455.4
+      },
+      {
+        "t_start": 455.4,
+        "t_end": 476.0
+      }
+    ],
+    "transcript_cues": 21,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The combined visual trigger is first complete at the 450.4-second dense frame. The coefficient itself is not given in finished form through t_end+10; at 475.4 the screen still stops at 24*c4.",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "group": "windows",
+      "item": "window-can-be-tightened",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 450.4,
+          "what": "The complete pink fourth-derivative row d^4(cos)/dx^4(0)=cos(0)=1 is visible together with P(x)=1-(1/2)x^2+c4*x^4."
+        },
+        {
+          "kind": "frame",
+          "t": 455.4,
+          "what": "Both required source expressions remain visible and a new derivation line for d^4P/dx^4 has begun."
+        },
+        {
+          "kind": "frame",
+          "t": 463.4,
+          "what": "The source term and matching derivative row remain visible while the power-rule animation is in progress."
+        },
+        {
+          "kind": "frame",
+          "t": 467.4,
+          "what": "Just after the window end, both source expressions are still visible and the derivative animation shows 1*2*3*4*c4*x^0."
+        }
+      ],
+      "findings": "At the opening frame the order 4, target value 1, and exponent 4 are all readable. They remain readable throughout the sampled window and immediately after its right boundary.",
+      "criterion": "A boundary change is warranted only if a substantial portion of the accepted interval lacks the information needed to answer or extends beyond the relevant visible state.",
+      "steps": [
+        {
+          "question": "When is the first sampled frame containing every requested input?",
+          "answer_number": 450.4,
+          "why": "The 450.4 frame simultaneously shows the completed fourth-order cosine row and the c4*x^4 polynomial term."
+        },
+        {
+          "question": "Does any substantial tail of the window lose those inputs?",
+          "answer_bool": false,
+          "why": "The row and polynomial term persist through the window and are still present at 467.4."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "windows",
+      "item": "author-says-answer-in-window",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 450.0,
+          "what": "The narrator says the fourth derivative of cosine is itself and equals 1 at x=0."
+        },
+        {
+          "kind": "cue",
+          "t": 455.8,
+          "what": "The narrator asks for the fourth derivative of the polynomial with the new term."
+        },
+        {
+          "kind": "cue",
+          "t": 459.3,
+          "what": "The narrator begins explaining repeated application of the power rule."
+        },
+        {
+          "kind": "cue",
+          "t": 465.8,
+          "what": "The narrator gives 1*2*3*4*c4 and then 24*c4, but does not solve for c4."
+        },
+        {
+          "kind": "cue",
+          "t": 473.6,
+          "what": "The narrator begins saying this must match the fourth derivative of cosine, which is 1, but the cue ends before a coefficient is stated."
+        },
+        {
+          "kind": "frame",
+          "t": 471.4,
+          "what": "The screen shows d^4P/dx^4=1*2*3*4*c4=24*c4, without 24*c4=1 or c4=1/24."
+        },
+        {
+          "kind": "frame",
+          "t": 475.4,
+          "what": "Near t_end+10 the screen still shows only the unsolved derivative value 24*c4."
+        }
+      ],
+      "findings": "Within [450.4,476.0], the stream supplies the target derivative value and later derives 24*c4. It never states or displays the finished coefficient c4=1/24 or the complete matching equation 24*c4=1.",
+      "criterion": "For an L3 task this item fires only if the stream gives the requested answer in finished form during the answer window or within ten seconds after it, eliminating the intended computation.",
+      "steps": [
+        {
+          "question": "What finished result does the question require?",
+          "answer_text": "c4=1/24, supported by 4!c4=24c4=1",
+          "why": "The question asks for the coefficient before substitution and requests the matching equation."
+        },
+        {
+          "question": "What is the furthest the author gets by 476.0 seconds?",
+          "answer_text": "24*c4, followed by the statement that it should match 1",
+          "why": "The 465.8 and 473.6 cues plus the 471.4 and 475.4 frames show the derivation but no solved coefficient."
+        },
+        {
+          "question": "Is the requested coefficient presented in finished form by t_end+10?",
+          "answer_bool": false,
+          "why": "Neither c4=1/24 nor an equivalent solved statement appears in the checked transcript or frames through 476.0."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "event-not-earlier-than-window",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 449.4,
+          "what": "The c4*x^4 polynomial term is complete, but the matching fourth-derivative cosine row has not appeared."
+        },
+        {
+          "kind": "frame",
+          "t": 450.4,
+          "what": "The matching fourth-derivative row is now complete, so both parts of the trigger condition are simultaneously satisfied."
+        }
+      ],
+      "findings": "The newly added c4*x^4 term precedes the window, but the required matching colored derivative row is absent at 449.4 and complete at 450.4. Therefore the combined event starts at the window opening, not earlier.",
+      "criterion": "For a conjunctive visual event, the accepted interval should begin when the last required component becomes complete, rather than when only the first component appears.",
+      "steps": [
+        {
+          "question": "Is the complete trigger condition already true in the last sampled frame before the window?",
+          "answer_bool": false,
+          "why": "At 449.4 the polynomial term exists but the fourth-derivative row is still missing."
+        },
+        {
+          "question": "When does the last required component first appear complete?",
+          "answer_number": 450.4,
+          "why": "The dense 450.4 frame is the first checked frame with the complete pink derivative row."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "depends-on-is-dependency",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [],
+      "findings": "This trigger has no depends_on field, and its rubric can be satisfied directly from the order, value, and exponent shown in this same event.",
+      "criterion": "A dependency link is applicable only when answering this window requires the answer produced by a named earlier window.",
+      "steps": [
+        {
+          "question": "Is a prior trigger answer required to compute this coefficient?",
+          "answer_bool": false,
+          "why": "The order 4, target 1, and exponent 4 are all supplied by window 0 itself."
+        },
+        {
+          "question": "Is a depends_on link present to evaluate?",
+          "answer_bool": false,
+          "why": "The supplied trigger metadata explicitly says depends_on is absent."
+        }
+      ],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "evidence-span-is-last",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 449.4,
+          "what": "The polynomial exponent 4 is visible, but the fourth-derivative target row is not yet present."
+        },
+        {
+          "kind": "frame",
+          "t": 450.4,
+          "what": "The complete derivative order 4 and target value 1 appear alongside the already complete c4*x^4 term."
+        },
+        {
+          "kind": "cue",
+          "t": 450.0,
+          "what": "Across the evidence interval the narrator confirms that the fourth derivative of cosine equals 1 at x=0."
+        }
+      ],
+      "findings": "The exponent is available before the evidence span, while the last missing facts—the complete fourth-order derivative row and its value 1—arrive at 450.4. The declared evidence span [450.4,454.2] covers that arrival and the accompanying spoken confirmation.",
+      "criterion": "The evidence interval must include the moment the final fact needed for the answer becomes available; later worked derivation is corroboration rather than required evidence.",
+      "steps": [
+        {
+          "question": "Which requested fact arrives last?",
+          "answer_text": "The completed fourth-derivative row giving order 4 and target value 1",
+          "why": "The c4*x^4 term is already visible at 449.4, whereas the matching row is not."
+        },
+        {
+          "question": "When is that last fact first available?",
+          "answer_number": 450.4,
+          "why": "The row is complete in the 450.4 dense frame."
+        },
+        {
+          "question": "Does the declared evidence span cover that moment without relying on the later coefficient derivation?",
+          "answer_bool": true,
+          "why": "The supplied span starts at 450.4 and ends at 454.2, before the polynomial-derivative working begins."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ],
+  "window_idx": 0
+}

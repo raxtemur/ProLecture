@@ -1,0 +1,288 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q11",
+  "role": "full_sample",
+  "iteration": 2,
+  "model": "gpt-5.4",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/3b1b__3d6DsjIBzJ4__q11/full_sample_r2",
+  "budget": {
+    "frames_viewed": 19,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 789.0,
+        "t_end": 793.0
+      }
+    ],
+    "transcript_cues": 1016,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The full transcript and a sparse visual pass found one old-to-shifted-center transformation. Dense frames at 789-792 s show old, old, partial, then complete states respectively; no twin is declared.",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "group": "triggers",
+      "item": "no-missed-trigger",
+      "target": null,
+      "looked_at": [
+        {"kind": "cue", "t": 15.0, "what": "The lecture introduces Taylor series and function approximation."},
+        {"kind": "cue", "t": 713.8, "what": "The narration begins the general Taylor-polynomial construction around zero."},
+        {"kind": "cue", "t": 782.5, "what": "The narration announces a more general center other than zero."},
+        {"kind": "cue", "t": 788.7, "what": "The new input is named a and the shifted polynomial is introduced."},
+        {"kind": "cue", "t": 791.4, "what": "The narrator specifies powers of x minus a and derivatives evaluated at a."},
+        {"kind": "cue", "t": 801.5, "what": "The completed expression is described as the fullest generality."},
+        {"kind": "cue", "t": 1184.0, "what": "A later example uses a Taylor series centered at x equals 1 without changing an old general formula on screen."},
+        {"kind": "frame", "t": 68.9, "what": "A pendulum and cosine approximation are displayed, not a general-center substitution."},
+        {"kind": "frame", "t": 140.9, "what": "A quadratic with free coefficients is displayed."},
+        {"kind": "frame", "t": 421.8, "what": "A cosine polynomial and third derivative are displayed around zero."},
+        {"kind": "frame", "t": 685.5, "what": "A cosine Taylor polynomial centered at zero is displayed."},
+        {"kind": "frame", "t": 743.9, "what": "The general Taylor polynomial still uses f(0), derivative evaluations at 0, and powers of x."},
+        {"kind": "frame", "t": 792.0, "what": "The general formula simultaneously has f(a), derivative evaluations at a, and powers of x minus a."},
+        {"kind": "frame", "t": 1020.0, "what": "A later geometric second-order formula is already written at center a rather than transformed from the old general formula."},
+        {"kind": "frame", "t": 1151.3, "what": "An exponential Taylor series centered at zero is displayed without the requested old-to-new transition."},
+        {"kind": "frame", "t": 1289.6, "what": "The closing recap shows a cosine graph rather than another formula substitution."}
+      ],
+      "findings": "The full transcript contains one passage that changes the displayed general polynomial from center 0 to center a, at 788.7-799.1 s. The sparse whole-video frames show earlier zero-centered constructions and later examples, but no second display event satisfying the complete wording.",
+      "criterion": "Every visual event in which the displayed general Taylor polynomial changes from the old center notation to all three color-matched new forms must be represented by a trigger or excluded as a distractor.",
+      "steps": [
+        {"question": "How many complete old-center to new-center transformations occur in the transcript and sampled scenes?", "answer_number": 1, "why": "Only the 782.5-801.5 s passage performs that displayed general-form change; later centered formulas are examples already expressed at their centers."},
+        {"question": "Is the one qualifying transformation already represented by a trigger?", "answer_bool": true, "why": "Trigger 0 covers 792.0-813.0, where the complete transformed display appears."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "trigger-matches-criterion",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 789.0, "what": "The displayed general formula still has f(0), derivative evaluations at 0, and powers of x."},
+        {"kind": "frame", "t": 791.0, "what": "The transition is partial: the side derivative list uses a while P(x) still visibly retains old-center material."},
+        {"kind": "frame", "t": 792.0, "what": "The displayed P(x) is fully changed to f(a), derivatives at a, and powers of x minus a, with factorials retained."},
+        {"kind": "cue", "t": 791.4, "what": "The narration says to use powers of x minus a and evaluate all derivatives at a."}
+      ],
+      "findings": "At the trigger opening, the general formula is fully in the new center notation and directly exhibits the requested three categories and unchanged denominators.",
+      "criterion": "The trigger must contain the literal screen event named by the question, not merely discussion of approximation centers or a partial transition.",
+      "steps": [
+        {"question": "Does trigger 0 show a completed change of the displayed general Taylor polynomial?", "answer_bool": true, "why": "The 792.0 frame shows all three new forms together after the 791.0 partial state."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "question-anchored-to-screen",
+      "target": null,
+      "looked_at": [],
+      "findings": "The question explicitly refers to 'the displayed general Taylor polynomial', its change from old to new notation, and simultaneous color-matched substitutions.",
+      "criterion": "The wording must identify a particular on-screen object or event rather than pose a topic-only textbook question.",
+      "steps": [
+        {"question": "Which words tie the task to a specific visual display?", "answer_text": "'displayed general Taylor polynomial', 'changes', and 'simultaneous color-matched substitutions'", "why": "These phrases require observing a particular animated formula transition and its colors."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-within-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "Each rubric item maps to an explicit requested component: function value, derivative evaluations, powers, and what happens to factorial denominators.",
+      "criterion": "Every scoring requirement must follow from something the participant can read in the question string.",
+      "steps": [
+        {"question": "Does the f(0) to f(a) rubric item follow from the question?", "answer_bool": true, "why": "It instantiates the requested substitution affecting the function value."},
+        {"question": "Does the derivative-evaluation rubric item follow from the question?", "answer_bool": true, "why": "The question explicitly asks for the substitution affecting derivative evaluations."},
+        {"question": "Does the power substitution rubric item follow from the question?", "answer_bool": true, "why": "The question explicitly asks for the substitution affecting the powers."},
+        {"question": "Does the unchanged-factorials rubric item follow from the question?", "answer_bool": true, "why": "The question explicitly asks what happens to factorial denominators."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "discriminator-in-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "The distractor is excluded by 'three simultaneous ... substitutions': before 792 s the old formula remains or the animation has completed only part of the three-category change.",
+      "criterion": "The question itself must state the condition that separates the intended event from each tempting near-match.",
+      "steps": [
+        {"question": "What wording excludes the old or partially transitioned formula in distractor 0?", "answer_text": "'exactly the three simultaneous color-matched substitutions'", "why": "An old or partial display does not yet provide all three completed substitutions together."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-not-punishing-extra",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 791.0, "what": "The animation is partial, revealing the same three color-coded categories in progress."},
+        {"kind": "frame", "t": 792.0, "what": "The completed formula shows the three requested substitution categories and unchanged white factorial denominators."}
+      ],
+      "findings": "The restrictive phrase 'exactly the three' counts substitution categories, and the completed display contains those three categories. The factorials are separately requested and remain unchanged rather than constituting a fourth substitution.",
+      "criterion": "A closed enumeration must not reject another correct detail that also falls under the question's wording in the observed event.",
+      "steps": [
+        {"question": "Is there a fourth simultaneous changed category in the completed formula that the answer would need to report?", "answer_bool": false, "why": "The constant value, derivative evaluation points, and power bases are the changing categories; factorial denominators remain visibly the same and are separately accounted for."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-fully-covered",
+      "target": {"trigger_idx": null, "distractor_idx": 0},
+      "looked_at": [
+        {"kind": "frame", "t": 761.6, "what": "The general formula uses f(0), all derivative evaluations at 0, and powers of x."},
+        {"kind": "frame", "t": 785.1, "what": "The same old-center general formula remains visible."},
+        {"kind": "frame", "t": 789.0, "what": "All requested components still use the old center notation."},
+        {"kind": "frame", "t": 790.0, "what": "The old notation is still complete."},
+        {"kind": "frame", "t": 791.0, "what": "The change is only partial: some a labels appear while P(x) retains old terms and powers are being replaced."},
+        {"kind": "frame", "t": 792.0, "what": "All three substitution categories are complete together."}
+      ],
+      "findings": "From question time through 790 s the old formula is the temptation; at 791 s the transition is incomplete. The first dense frame with all requested substitutions complete is 792.0 s, exactly the half-open distractor end.",
+      "criterion": "The distractor interval must cover the entire tempting old or incomplete-display phase and stop when the full requested event becomes true.",
+      "steps": [
+        {"question": "When is the last inspected state that still lacks the complete three-way substitution?", "answer_number": 791.0, "why": "At 791.0 the side labels use a but the formula itself is visibly mid-replacement."},
+        {"question": "Does the distractor cover every incomplete state through that moment?", "answer_bool": true, "why": "Its half-open interval is 761.6-792.0, and the complete state begins at 792.0."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-not-correct-answer",
+      "target": {"trigger_idx": null, "distractor_idx": 0},
+      "looked_at": [
+        {"kind": "frame", "t": 761.6, "what": "Only the old center-0 formula is shown."},
+        {"kind": "frame", "t": 791.0, "what": "The substitution animation is partial and does not yet show the requested completed three-way result."},
+        {"kind": "frame", "t": 792.0, "what": "The complete answer becomes visible only at the distractor's excluded endpoint."}
+      ],
+      "findings": "Inside the distractor, a viewer cannot yet report all three completed substitutions from the display; at most the old state or a partial animation is visible.",
+      "criterion": "A distractor must be genuinely wrong under the question wording, rather than another reasonable occurrence of the requested event.",
+      "steps": [
+        {"question": "Can all three completed substitutions be read from any inspected frame strictly inside distractor 0?", "answer_bool": false, "why": "The final inside frame at 791 s is still mid-transition; completion is at 792 s."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-why-hides-answer",
+      "target": null,
+      "looked_at": [],
+      "findings": "The distractor reason says the old formula is still present or transitioning and that the requested substitutions are incomplete; it does not reveal f(a), evaluation at a, x minus a, or unchanged factorials.",
+      "criterion": "A distractor explanation may identify the temptation and missing condition but must not allow the reference response or a rubric item to be reconstructed.",
+      "steps": [
+        {"question": "Can the actual three substitutions or factorial outcome be reconstructed from the distractor reason?", "answer_bool": false, "why": "The reason names only incompleteness and does not state any new notation or denominator behavior."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "reasoning-level-not-inflated",
+      "target": null,
+      "looked_at": [],
+      "findings": "All four answer components are directly readable from one completed displayed formula; no connection across distant moments or external derivation is needed.",
+      "criterion": "L1 is appropriate when the answer can be read directly from a single local display, even if the formula itself is mathematically sophisticated.",
+      "steps": [
+        {"question": "Does answering require combining distant evidence or deriving an unstated fact?", "answer_bool": false, "why": "The 792 s display directly shows each replacement and the unchanged factorial denominators."},
+        {"question": "Is L1 therefore the non-inflated label?", "answer_bool": true, "why": "The task is direct visual transcription and comparison."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-matches-description",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 761.6, "what": "The displayed general polynomial has f(0), derivative evaluations at 0, and powers x to n."},
+        {"kind": "frame", "t": 792.0, "what": "The completed colored formula has f(a), derivative evaluations at a, powers of x minus a, and the same factorials."},
+        {"kind": "frame", "t": 808.5, "what": "The shifted-center formula remains visible while the marked point on the graph has moved."}
+      ],
+      "findings": "Each of the three provenance frame descriptions matches the corresponding real frame, including the old form, completed shifted form, and persistence while the point moves.",
+      "criterion": "Each provenance record must describe what its cited frame actually shows, without importing details absent from that frame.",
+      "steps": [
+        {"question": "Do all three cited frame descriptions match their visual contents?", "answer_bool": true, "why": "Direct inspection at 761.6, 792.0, and 808.5 confirms every described feature."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "references-consistent-with-windows",
+      "target": null,
+      "looked_at": [],
+      "findings": "The 761.6 reference documents the old contrast state rather than the answer. The first reference documenting the completed answer is 792.0, equal to trigger 0's start; 808.5 is later inside the trigger.",
+      "criterion": "A provenance record is contradictory only if it indicates that the completed answer was available before the trigger opened.",
+      "steps": [
+        {"question": "Does any provenance record place the completed requested substitutions before 792.0?", "answer_bool": false, "why": "The earlier 761.6 evidence explicitly shows only the old center notation; completion is cited at 792.0."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-answer-verified",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 789.0, "what": "Before the change, the formula reads f(0), derivatives at 0, x powers, and factorial denominators."},
+        {"kind": "frame", "t": 792.0, "what": "After the change, the formula reads f(a), derivatives at a, powers of x minus a, with 1! and 2! still in place."},
+        {"kind": "frame", "t": 808.5, "what": "The same shifted-center formula persists clearly enough to verify the notation."}
+      ],
+      "findings": "Independent comparison of the old and new frames yields exactly f(0) to f(a), every derivative evaluation at 0 to the same derivative at a, and x^n to (x-a)^n; the n! denominators do not change. This agrees with the supplied response.",
+      "criterion": "The reference response must be independently recoverable and correct on the merits from the video evidence.",
+      "steps": [
+        {"question": "What function-value replacement is independently visible?", "answer_text": "f(0) becomes f(a)", "why": "The blue constant term changes between 789 and 792 s."},
+        {"question": "What derivative-evaluation replacement is independently visible?", "answer_text": "each derivative evaluated at 0 becomes the corresponding derivative evaluated at a", "why": "The color-matched derivative arguments change from (0) to (a)."},
+        {"question": "What power replacement is independently visible?", "answer_text": "x^n becomes (x-a)^n", "why": "The power numerators change from x to powers of the shifted base x-a."},
+        {"question": "What happens to the factorial denominators?", "answer_text": "they remain unchanged", "why": "The displayed 1!, 2!, and the factorial pattern stay in the same denominator positions."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "twins-agree-on-substance",
+      "target": null,
+      "looked_at": [],
+      "findings": "The supplied sample has no twin_of field, so there is no paired reference answer to compare.",
+      "criterion": "Substantive agreement is applicable only when the sample declares a twin whose response can be compared.",
+      "steps": [],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

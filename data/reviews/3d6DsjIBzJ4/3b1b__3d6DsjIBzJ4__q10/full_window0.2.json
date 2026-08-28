@@ -1,0 +1,286 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q10",
+  "role": "full_window",
+  "iteration": 2,
+  "model": "gpt-5.6",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/3b1b__3d6DsjIBzJ4__q10/full_window0_r2",
+  "budget": {
+    "frames_viewed": 22,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 741.0,
+        "t_end": 752.0
+      },
+      {
+        "t_start": 778.0,
+        "t_end": 783.0
+      }
+    ],
+    "transcript_cues": 39,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The generic formula was already fully visible at the first permitted dense frame, 741.0, so the exact earlier replacement onset lies outside this workspace. The frame-viewer sandbox failed; the exact indexed JPEG bytes were opened read-only as base64 instead.",
+  "verdict": "FIX_INTERVALS",
+  "checks": [
+    {
+      "group": "windows",
+      "item": "window-can-be-tightened",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 747.0,
+          "what": "The color-matched generic derivative column and Taylor formula are fully visible."
+        },
+        {
+          "kind": "frame",
+          "t": 761.6,
+          "what": "The same generic column and formula remain visible while a tangent illustration is added below."
+        },
+        {
+          "kind": "frame",
+          "t": 772.5,
+          "what": "At the right boundary the generic column and formula are still visible."
+        }
+      ],
+      "findings": "From the first stable sampled frame inside the window through its right boundary, the generic derivative-to-power correspondence stays on screen; later graph animations do not remove it.",
+      "criterion": "A boundary should be tightened only when a substantial portion of the window lacks the information needed to answer, rather than merely because the surrounding illustration changes.",
+      "steps": [
+        {
+          "question": "Is the requested generic correspondence visible near the beginning of the window?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "It is fully legible at 747.0, immediately after the 746.0 opening."
+        },
+        {
+          "question": "Does a substantial empty tail occur before the 772.5 endpoint?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The column and formula remain visible at 761.6 and 772.5."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "windows",
+      "item": "author-says-answer-in-window",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 743.6,
+          "what": "The author introduces the abstract formula and says it is common in texts and courses."
+        },
+        {
+          "kind": "cue",
+          "t": 758.1,
+          "what": "The author explains that the next term makes the polynomial slope match the function slope at zero."
+        },
+        {
+          "kind": "cue",
+          "t": 766.6,
+          "what": "The author explains that the following term matches the rate at which slope changes."
+        },
+        {
+          "kind": "cue",
+          "t": 779.8,
+          "what": "The author says that using more terms makes the polynomial more complicated."
+        },
+        {
+          "kind": "frame",
+          "t": 747.0,
+          "what": "The screen shows symbolic derivative values at zero and generic power slots, without the cosine-specific numeric values or their signs."
+        },
+        {
+          "kind": "frame",
+          "t": 778.0,
+          "what": "After the window the screen still shows only symbolic derivative labels and the generic formula."
+        },
+        {
+          "kind": "frame",
+          "t": 782.0,
+          "what": "Near t_end plus ten seconds the display remains symbolic and contains no zero, negative, or positive cosine mapping."
+        }
+      ],
+      "findings": "Across 746.0–782.5 the narration explains the role of successive Taylor terms, while the display gives symbolic derivative slots. Neither modality supplies the finished cosine-specific statement that x and x cubed vanish, x squared is negative, and x to the fourth is positive.",
+      "criterion": "For an L2 question this item fires only if the author supplies the requested completed answer during the counting window or within the following ten seconds, allowing a streaming respondent to echo it.",
+      "steps": [
+        {
+          "question": "Does the narration state which two requested cosine slots vanish?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The transcript discusses generic derivative matching and never names the odd cosine terms as zero."
+        },
+        {
+          "question": "Does the narration or display state both remaining signs?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "No inspected cue or frame states a negative x-squared slot and positive x-to-the-fourth slot."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "event-not-earlier-than-window",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 741.0,
+          "what": "The general color-matched Taylor formula and symbolic derivative column are already fully visible."
+        },
+        {
+          "kind": "frame",
+          "t": 743.9,
+          "what": "The same completed generic formula and derivative column remain visible more than two seconds before the window."
+        },
+        {
+          "kind": "frame",
+          "t": 745.0,
+          "what": "The completed generic display remains visible one second before t_start."
+        },
+        {
+          "kind": "frame",
+          "t": 747.0,
+          "what": "The display after t_start is substantively the same generic formula and derivative column."
+        }
+      ],
+      "findings": "The visual replacement named by the question has already occurred by 741.0, the earliest frame available in this workspace, and the completed generic display persists across 743.9, 745.0, and 747.0. The counting window does not open until 746.0.",
+      "criterion": "When the trigger is a visual replacement event, its window must begin with that event rather than several seconds after the replacement is already complete.",
+      "steps": [
+        {
+          "question": "Is the replacement event already complete before the 746.0 opening?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The generic formula and matching derivative column are complete at 741.0, 743.9, and 745.0."
+        },
+        {
+          "question": "Can the exact replacement onset be located inside the assigned workspace?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The workspace begins at 741.0 with the replacement already complete."
+        }
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {
+        "field": "triggers[0].t_start",
+        "value": "the actual generic-formula replacement onset, which is earlier than 741.0",
+        "why": "The current 746.0 opening is at least five seconds late; an earlier-boundary scan is needed to recover the exact onset."
+      },
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "depends-on-is-dependency",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [],
+      "findings": "The only trigger has no depends_on field, so there is no declared dependency link to test for necessity or superfluity.",
+      "criterion": "This check applies only when a window declares a dependency link whose earlier answer is required by its own rubric, or when a multiwindow rubric implies a missing link.",
+      "steps": [
+        {
+          "question": "Does trigger zero declare a depends_on link?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "No depends_on field is present in the supplied trigger."
+        },
+        {
+          "question": "Is there another trigger whose answer this window's rubric requires?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The supplied sample contains only trigger zero."
+        }
+      ],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "evidence-span-is-last",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 741.0,
+          "what": "The generic formula maps derivative order to power slots and the matching derivative column includes orders one through four."
+        },
+        {
+          "kind": "frame",
+          "t": 743.9,
+          "what": "The completed generic display is still fully legible before the annotated evidence span begins."
+        },
+        {
+          "kind": "frame",
+          "t": 747.0,
+          "what": "The same generic display remains visible inside the annotated evidence span."
+        }
+      ],
+      "findings": "The generic derivative-to-power mapping—the last new information needed after the earlier cosine derivative values—is already present by 741.0. The annotated evidence span begins at 746.0 and therefore does not cover the appearance of that last evidence.",
+      "criterion": "The evidence span must include when the final fact needed to derive the answer first appears, not merely a later time when the same display persists.",
+      "steps": [
+        {
+          "question": "What is the last new fact needed after the preceding cosine derivative-value column?",
+          "answer_text": "The generic correspondence between derivative order at zero and the x, x-squared, x-cubed, and x-to-the-fourth coefficient slots.",
+          "answer_bool": null,
+          "answer_number": null,
+          "why": "Combining that correspondence with the earlier values yields the requested zeros and signs."
+        },
+        {
+          "question": "Is that final fact already visible before 746.0?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "It is present in the inspected frames at 741.0 and 743.9."
+        },
+        {
+          "question": "Does the current evidence span cover the fact's appearance?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Its lower bound is 746.0, later than every inspected pre-window frame where the complete mapping is already displayed."
+        }
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {
+        "field": "triggers[0].evidence_span",
+        "value": "an interval covering the actual generic-formula replacement onset, which is earlier than 741.0",
+        "why": "The current [746.0, 761.6] span begins after the last needed mapping has appeared; synchronize it to the earlier onset found when correcting t_start."
+      },
+      "uncovered": null
+    }
+  ],
+  "window_idx": 0
+}

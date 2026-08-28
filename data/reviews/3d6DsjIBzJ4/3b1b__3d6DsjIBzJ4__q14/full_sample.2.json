@@ -1,0 +1,266 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q14",
+  "role": "full_sample",
+  "iteration": 2,
+  "model": "gpt-5",
+  "date": "2026-08-27",
+  "workspace": "/workspace-SR004.nfs2/rahmatullaev/rand_exps/PoC_for_rand_ideas/manim_play/.review_ws/3d6DsjIBzJ4/3b1b__3d6DsjIBzJ4__q14/full_sample_r2",
+  "budget": {
+    "frames_viewed": 30,
+    "sparse_step": 45.0,
+    "dense_intervals": [],
+    "transcript_cues": 1018,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The complete transcript and a 30-frame whole-video sparse pass found one matching firing.\nThe distractor and provenance were checked in real frames at 972.7, 993.0, 1007.1, 1020.0 and 1026.9.\nNo twin_of is declared.",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "group": "triggers",
+      "item": "no-missed-trigger",
+      "looked_at": [
+        {"kind": "frame", "t": 0.0, "what": "black opening frame"},
+        {"kind": "frame", "t": 54.7, "what": "pendulum geometry"},
+        {"kind": "frame", "t": 101.4, "what": "function approximation near zero"},
+        {"kind": "frame", "t": 140.9, "what": "cosine and quadratic polynomial"},
+        {"kind": "frame", "t": 191.1, "what": "value-matching cosine construction"},
+        {"kind": "frame", "t": 236.2, "what": "slope-matching cosine construction"},
+        {"kind": "frame", "t": 281.3, "what": "second-derivative cosine construction"},
+        {"kind": "frame", "t": 335.3, "what": "numerical cosine approximation"},
+        {"kind": "frame", "t": 386.3, "what": "request for more Taylor terms"},
+        {"kind": "frame", "t": 443.4, "what": "higher cosine derivatives"},
+        {"kind": "frame", "t": 497.0, "what": "pendulum interlude"},
+        {"kind": "frame", "t": 541.1, "what": "fourth-order cosine term"},
+        {"kind": "frame", "t": 590.5, "what": "coefficient-to-derivative controls"},
+        {"kind": "frame", "t": 644.1, "what": "cosine graph at the expansion point"},
+        {"kind": "frame", "t": 685.5, "what": "cosine Taylor polynomial"},
+        {"kind": "frame", "t": 736.7, "what": "general Taylor formula at zero"},
+        {"kind": "frame", "t": 777.0, "what": "general Taylor approximation graph"},
+        {"kind": "frame", "t": 816.3, "what": "new exponential-function axes"},
+        {"kind": "frame", "t": 860.9, "what": "exponential Taylor polynomial"},
+        {"kind": "frame", "t": 900.6, "what": "area function before colored decomposition"},
+        {"kind": "frame", "t": 938.3, "what": "area increment shown as a yellow strip"},
+        {"kind": "frame", "t": 972.7, "what": "yellow rectangle and pink triangle labeled geometrically"},
+        {"kind": "frame", "t": 993.0, "what": "three colored geometric icons with no lower three-term equation"},
+        {"kind": "frame", "t": 1007.1, "what": "lower equation begun with only the blue term"},
+        {"kind": "frame", "t": 1020.0, "what": "blue, yellow, and pink pieces plus the complete color-matched equation"},
+        {"kind": "frame", "t": 1026.9, "what": "complete color-matched equation remains after diagram leaves"},
+        {"kind": "frame", "t": 1087.2, "what": "unrelated convergent geometric series"},
+        {"kind": "frame", "t": 1151.3, "what": "exponential-series convergence graph"},
+        {"kind": "frame", "t": 1233.5, "what": "logarithm Taylor series and graph"},
+        {"kind": "frame", "t": 1306.4, "what": "closing supporter card"},
+        {"kind": "cue", "t": 14.9, "what": "transcript begins and was read sequentially through 1338.7"},
+        {"kind": "cue", "t": 877.0, "what": "speaker introduces a geometric view of the second-order Taylor term"},
+        {"kind": "cue", "t": 1029.2, "what": "speaker says the terms have meanings that can be pointed to on the diagram"}
+      ],
+      "findings": "Across the full transcript and sparse visual pass, the only scene containing the blue area, yellow rectangle, pink correction, and a jointly complete matching three-term equation is the area-function scene at 1020 seconds. Earlier Taylor formulas lack these geometric pieces, and later material concerns series convergence.",
+      "criterion": "Any additional moment satisfying the question's simultaneous-completeness condition would need its own trigger or an explicit exclusion; topic similarity alone is insufficient.",
+      "steps": [
+        {"question": "Where does the video enter the geometric area interpretation?", "answer_number": 877.0, "why": "The transcript explicitly introduces the geometric view there, confirmed by the surrounding sparse frames."},
+        {"question": "How many visually verified moments satisfy the full simultaneous condition?", "answer_number": 1, "why": "Only the 1020.0 frame contains all three colored pieces and the complete corresponding equation together."},
+        {"question": "Do other Taylor-formula scenes satisfy the geometric-pieces condition?", "answer_bool": false, "why": "The earlier general formulas and later convergence examples do not contain the requested blue/yellow/pink geometric decomposition."}
+      ],
+      "result": "ok",
+      "confidence": "high"
+    },
+    {
+      "group": "triggers",
+      "item": "trigger-matches-criterion",
+      "looked_at": [
+        {"kind": "frame", "t": 1020.0, "what": "all three colored pieces and all three matching colored Taylor terms are complete"},
+        {"kind": "cue", "t": 1005.7, "what": "speaker begins enumerating the accumulated area, rectangle, and triangle contributions"}
+      ],
+      "findings": "At the trigger start, the blue accumulated region, yellow rectangle, and pink triangular correction are visible together with the complete three-term color-matched equation.",
+      "criterion": "The annotated trigger must literally coincide with the screen state named by the question: three specified colors, geometric pieces, and the matching complete three-term equation at once.",
+      "steps": [
+        {"question": "Are all three requested geometric colors visible at 1020.0?", "answer_bool": true, "why": "The frame visibly contains the blue area, yellow rectangle, and pink triangular cap."},
+        {"question": "Is the matching equation complete at the same moment?", "answer_bool": true, "why": "The lower equation visibly contains the blue constant, yellow first-order, and pink second-order terms."}
+      ],
+      "result": "ok",
+      "confidence": "high"
+    },
+    {
+      "group": "shortcuts",
+      "item": "question-anchored-to-screen",
+      "looked_at": [],
+      "findings": "The question names blue, yellow, and pink geometric pieces, their matching three-term equation, and the state in which both representations are simultaneously complete.",
+      "criterion": "A screen-anchored question must identify visible objects or layout/state cues rather than ask only about the mathematical topic in general.",
+      "steps": [
+        {"question": "Which words identify visible screen objects?", "answer_text": "blue, yellow, and pink geometric pieces; matching three-term equation", "why": "These phrases describe the colors and representations displayed on screen."},
+        {"question": "Which words identify the target screen state?", "answer_text": "simultaneously complete", "why": "This phrase requires a particular stage of the on-screen assembly."}
+      ],
+      "result": "ok",
+      "confidence": "high"
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-within-question",
+      "looked_at": [],
+      "findings": "The three rubric items respectively require the exact Taylor term associated with blue, yellow, and pink; the question explicitly asks for the exact term represented by each of those three colors.",
+      "criterion": "Each scoring requirement must follow from a demand in the participant-visible question, without relying on hidden annotation context.",
+      "steps": [
+        {"question": "What question requirement supports the blue rubric item?", "answer_text": "narrate the exact Taylor term represented by blue", "why": "Blue is one of the three colors explicitly enumerated in the question."},
+        {"question": "What question requirement supports the yellow rubric item?", "answer_text": "narrate the exact Taylor term represented by yellow", "why": "Yellow is one of the three colors explicitly enumerated in the question."},
+        {"question": "What question requirement supports the pink rubric item?", "answer_text": "narrate the exact Taylor term represented by pink", "why": "Pink is one of the three colors explicitly enumerated in the question."}
+      ],
+      "result": "ok",
+      "confidence": "high"
+    },
+    {
+      "group": "rubric",
+      "item": "discriminator-in-question",
+      "looked_at": [],
+      "findings": "The distractor says the equation and pieces are still being assembled before 1020.0. The question itself requires that both be simultaneously complete, which excludes those partial states.",
+      "criterion": "The participant-visible wording must state the distinction that makes each distractor incorrect, especially when the same objects appear in partial form.",
+      "steps": [
+        {"question": "Which wording excludes the pre-1020 partial assembly?", "answer_text": "simultaneously complete", "why": "A state with at least one missing mapping cannot satisfy simultaneous completeness."},
+        {"question": "Does the question also name both representations that must be complete?", "answer_bool": true, "why": "It explicitly names the geometric pieces and the matching three-term equation."}
+      ],
+      "result": "ok",
+      "confidence": "high"
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-not-punishing-extra",
+      "looked_at": [],
+      "findings": "All rubric entries are positive mapping requirements. None says only, exactly one, no more than, or otherwise forbids an additional correct detail.",
+      "criterion": "A rubric should not reject correct information beyond the requested answer through an unwarranted closed or exclusive formulation.",
+      "steps": [
+        {"question": "How many rubric items impose an exclusive or closed-answer restriction?", "answer_number": 0, "why": "Each item only says that one named color-to-term mapping must be present."},
+        {"question": "Would a correct geometric gloss in addition to the three mappings be penalized?", "answer_bool": false, "why": "No rubric item excludes supplementary correct detail."}
+      ],
+      "result": "ok",
+      "confidence": "high"
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-fully-covered",
+      "target": {"distractor_idx": 0},
+      "looked_at": [
+        {"kind": "frame", "t": 972.7, "what": "triangle and rectangle geometry is present before the question time"},
+        {"kind": "frame", "t": 993.0, "what": "distractor starts with colored icons but no completed lower equation"},
+        {"kind": "frame", "t": 1007.1, "what": "only the blue lower-equation term has appeared"},
+        {"kind": "frame", "t": 1020.0, "what": "the first inspected frame where the full equation and pieces are complete together"},
+        {"kind": "cue", "t": 993.1, "what": "speaker begins connecting the geometric construction to the Taylor polynomial"}
+      ],
+      "findings": "At question issuance, the colored geometric summary is present but the lower equation has not been filled. At 1007.1 only its blue first term is present; by 1020.0 all three terms are complete. Earlier geometry precedes question issuance.",
+      "criterion": "The distractor interval must cover the entire post-question temptation during which related but incomplete screen states could elicit a premature answer.",
+      "steps": [
+        {"question": "When does the legal post-question temptation begin?", "answer_number": 993.0, "why": "This is question_time and the relevant colored construction is already on screen."},
+        {"question": "What is the last verified incomplete state before the trigger?", "answer_number": 1007.1, "why": "The equation still shows only the blue term in that frame."},
+        {"question": "Does the annotated distractor cover from question issuance to the complete state?", "answer_bool": true, "why": "Its interval is exactly [993.0, 1020.0), adjoining the trigger."}
+      ],
+      "result": "ok",
+      "confidence": "high"
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-not-correct-answer",
+      "target": {"distractor_idx": 0},
+      "looked_at": [
+        {"kind": "frame", "t": 993.0, "what": "colored piece icons are present but the matching lower equation is absent"},
+        {"kind": "frame", "t": 1007.1, "what": "the matching lower equation contains only the blue term"},
+        {"kind": "frame", "t": 1020.0, "what": "all three matching terms have appeared only at the trigger boundary"}
+      ],
+      "findings": "Throughout the distractor, at least one requested equation mapping remains unavailable on screen; the complete three-color correspondence is first visible at its right boundary.",
+      "criterion": "A distractor must not itself be a good-faith fulfillment of the literal condition stated in the question.",
+      "steps": [
+        {"question": "Does the 993.0 distractor frame satisfy simultaneous completeness?", "answer_bool": false, "why": "The matching three-term equation is not yet shown."},
+        {"question": "Does the 1007.1 distractor frame satisfy simultaneous completeness?", "answer_bool": false, "why": "Only the blue term is present in the lower equation."}
+      ],
+      "result": "ok",
+      "confidence": "high"
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-why-hides-answer",
+      "looked_at": [
+        {"kind": "cue", "t": 993.1, "what": "the relevant passage begins relating the construction to a Taylor polynomial"}
+      ],
+      "findings": "The distractor reason states only that the colored pieces and equation are still being assembled and at least one mapping is incomplete; it does not disclose any of the three actual terms.",
+      "criterion": "A distractor explanation may identify the temptation and missing condition, but must not let a semi-blind reviewer reconstruct the reference answer or a rubric item.",
+      "steps": [
+        {"question": "Can the blue term be reconstructed from the distractor reason alone?", "answer_bool": false, "why": "No mathematical expression or blue mapping is named."},
+        {"question": "Can the yellow or pink terms be reconstructed from it?", "answer_bool": false, "why": "The reason only says a mapping is incomplete and gives neither derivative order nor formula."}
+      ],
+      "result": "ok",
+      "confidence": "high"
+    },
+    {
+      "group": "labels",
+      "item": "reasoning-level-not-inflated",
+      "looked_at": [],
+      "findings": "The requested answer is a direct transcription of three color-matched terms visible together in one completed screen state; no distant moments or external derivation are needed.",
+      "criterion": "L1 is appropriate when the answer can be read directly from a single moment; L2 or L3 would require cross-time connection or derivation beyond the video.",
+      "steps": [
+        {"question": "Must facts from separated moments be connected?", "answer_bool": false, "why": "All three mappings are simultaneously visible in the target frame."},
+        {"question": "Must any unseen quantity be derived?", "answer_bool": false, "why": "Each exact expression is printed and color-matched on screen."},
+        {"question": "What level follows from these requirements?", "answer_text": "L1", "why": "The answer is direct read-off narration."}
+      ],
+      "result": "ok",
+      "confidence": "high"
+    },
+    {
+      "group": "provenance",
+      "item": "reference-matches-description",
+      "looked_at": [
+        {"kind": "frame", "t": 1020.0, "what": "blue area, yellow rectangle, pink triangle, and three corresponding colored equation terms are jointly visible"}
+      ],
+      "findings": "The cited frame displays exactly the four elements named by the evidence explanation: all three colored regions and their complete color-matched Taylor expression.",
+      "criterion": "A provenance record must point to real evidence that visibly matches its written description, not merely to a nearby related scene.",
+      "steps": [
+        {"question": "Does the 1020.0 frame contain all three described colored regions?", "answer_bool": true, "why": "Blue accumulated area, yellow rectangle, and pink triangular cap are all visible."},
+        {"question": "Is their matching three-term equation jointly visible?", "answer_bool": true, "why": "The complete color-coded formula appears above the diagram."}
+      ],
+      "result": "ok",
+      "confidence": "high"
+    },
+    {
+      "group": "provenance",
+      "item": "references-consistent-with-windows",
+      "looked_at": [],
+      "findings": "The sole provenance frame is timestamped 1020.0, and the sole trigger window begins at 1020.0. The reference does not claim the answer was available before the window.",
+      "criterion": "A contradiction exists only when a provenance record implies answer availability earlier than its trigger's left boundary; evidence at or after that boundary is consistent.",
+      "steps": [
+        {"question": "What is the provenance evidence time?", "answer_number": 1020.0, "why": "The sample contains one frame evidence record at t=1020.0."},
+        {"question": "What is the trigger start?", "answer_number": 1020.0, "why": "The sample's only trigger has t_start=1020.0."},
+        {"question": "Does the provenance precede the trigger start?", "answer_bool": false, "why": "The two timestamps are equal."}
+      ],
+      "result": "ok",
+      "confidence": "high"
+    },
+    {
+      "group": "provenance",
+      "item": "reference-answer-verified",
+      "looked_at": [
+        {"kind": "frame", "t": 1020.0, "what": "the complete color-coded equation independently exposes each color-to-term mapping"},
+        {"kind": "cue", "t": 1007.4, "what": "speaker identifies accumulated area, rectangle, and triangle as the three contributions"}
+      ],
+      "findings": "Reading the frame independently gives blue f_area(a), yellow (df_area/dx)(a)(x-a), and pink one half times (d^2 f_area/dx^2)(a)(x-a)^2. These are the same three mappings stated in the response and rubric.",
+      "criterion": "The reference answer must be correct on the merits when recomputed from the video evidence, rather than merely internally consistent with the annotation.",
+      "steps": [
+        {"question": "What exact term is colored blue in the completed equation?", "answer_text": "f_area(a)", "why": "The blue formula term and blue accumulated region share the same color in the 1020.0 frame."},
+        {"question": "What exact term is colored yellow?", "answer_text": "(df_area/dx)(a)(x-a)", "why": "The yellow first-derivative term is color-matched to the rectangle."},
+        {"question": "What exact term is colored pink?", "answer_text": "(1/2)(d^2 f_area/dx^2)(a)(x-a)^2", "why": "The pink second-order term is color-matched to the triangular correction."},
+        {"question": "Do the independently read mappings agree with the recorded response?", "answer_bool": true, "why": "All three expressions and color assignments coincide in substance."}
+      ],
+      "result": "ok",
+      "confidence": "high"
+    },
+    {
+      "group": "provenance",
+      "item": "twins-agree-on-substance",
+      "looked_at": [],
+      "findings": "The supplied sample has no twin_of field, so there is no paired reference answer to compare.",
+      "criterion": "Substantive agreement is applicable only when the sample explicitly declares a twin whose response can be compared.",
+      "steps": [
+        {"question": "Does this sample declare twin_of?", "answer_bool": false, "why": "No twin_of field appears in the supplied sample JSON."}
+      ],
+      "result": "na",
+      "confidence": "high"
+    }
+  ]
+}

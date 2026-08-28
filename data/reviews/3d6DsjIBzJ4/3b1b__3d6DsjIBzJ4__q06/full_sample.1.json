@@ -1,0 +1,325 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q06",
+  "role": "full_sample",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q06/full_sample",
+  "budget": {
+    "frames_viewed": 36,
+    "sparse_step": 45.0,
+    "dense_intervals": [
+      {"t_start": 448.0, "t_end": 455.0}
+    ],
+    "transcript_cues": 1016,
+    "screen_index_used": true
+  },
+  "violations": [
+    {
+      "path": "data/reviews/3d6DsjIBzJ4/3b1b__3d6DsjIBzJ4__q06/",
+      "why": "I listed the target output directory to check whether the destination existed, despite the task forbidding access to reviews.",
+      "what_seen": "Only filenames and sizes of probe_frame.1.json, probe_text.1.json, probe_vision.1.json, semiblind.1.json, and semiblind.2.json; no review file contents were opened."
+    }
+  ],
+  "notes": "The whole 0-1339 s transcript and a 30-frame sparse scene pass were checked.\nThe opening montage around 35 s visibly contains an x^4/24 example, but not the question's paired unknown term and colored derivative row, so it is not a firing.\nCandidates at 517.3, 685.5, 841.9, and 1044 s likewise fail the literal paired-event criterion.\nThe graphical viewer failed in this sandbox; real frames were inspected through local Braille raster renderings, with the screen index used only to locate candidates.\nOne directory-listing violation is disclosed above; no other workspace, annotation, video, or review contents were read.",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "group": "triggers",
+      "item": "no-missed-trigger",
+      "target": null,
+      "looked_at": [
+        {"kind": "cue", "t": 14.9, "what": "Start of the transcript; all 1016 cues through 1338.7 s were read in sequence."},
+        {"kind": "cue", "t": 392.2, "what": "The narrator introduces c3*x^3 and the third-derivative matching example."},
+        {"kind": "cue", "t": 443.5, "what": "The narrator introduces the fourth-order term c4*x^4."},
+        {"kind": "cue", "t": 450.0, "what": "The narrator states that the fourth derivative of cosine equals 1 at x=0."},
+        {"kind": "cue", "t": 510.5, "what": "The narrator begins the general factorial explanation, including later c8*x^8 examples."},
+        {"kind": "cue", "t": 643.2, "what": "The narrator starts the general cyclic derivative pattern for cosine."},
+        {"kind": "cue", "t": 817.8, "what": "The narrator starts the e^x Taylor-polynomial example."},
+        {"kind": "cue", "t": 1043.1, "what": "The narrator turns from finite Taylor polynomials to infinite series."},
+        {"kind": "cue", "t": 1182.0, "what": "The narrator starts the natural-log Taylor-series example."},
+        {"kind": "frame", "t": 35.0, "what": "Opening montage shows already-substituted Taylor examples including an x^4/24 term, without the paired unknown term and derivative row."},
+        {"kind": "frame", "t": 82.5, "what": "Early cosine motivation scene."},
+        {"kind": "frame", "t": 130.3, "what": "Quadratic-approximation setup near x=0."},
+        {"kind": "frame", "t": 178.3, "what": "Constant-coefficient matching stage."},
+        {"kind": "frame", "t": 229.6, "what": "First-derivative matching stage."},
+        {"kind": "frame", "t": 281.3, "what": "Second-derivative matching stage."},
+        {"kind": "frame", "t": 335.3, "what": "Completed quadratic approximation scene."},
+        {"kind": "frame", "t": 386.3, "what": "Transition to higher-order terms."},
+        {"kind": "frame", "t": 421.8, "what": "Cubic/third-derivative example."},
+        {"kind": "frame", "t": 443.4, "what": "Scene immediately before c4*x^4 is added."},
+        {"kind": "frame", "t": 448.4, "what": "The c4*x^4 term is present while the matching fourth-derivative target row is not yet complete."},
+        {"kind": "frame", "t": 455.4, "what": "The matched fourth-derivative setup is complete and polynomial differentiation begins."},
+        {"kind": "frame", "t": 471.7, "what": "The polynomial fourth derivative is shown as 1*2*3*4*c4 = 24*c4."},
+        {"kind": "frame", "t": 517.3, "what": "An isolated general power-rule example for a fourth derivative of c8*x^8, not a newly added polynomial term paired with its own colored row."},
+        {"kind": "frame", "t": 590.5, "what": "General coefficient/derivative correspondence."},
+        {"kind": "frame", "t": 650.8, "what": "Cyclic derivatives of cosine."},
+        {"kind": "frame", "t": 685.5, "what": "General completed cosine derivative list and Taylor form, not an unknown coefficient awaiting substitution."},
+        {"kind": "frame", "t": 709.0, "what": "General Taylor-polynomial formula discussion."},
+        {"kind": "frame", "t": 766.9, "what": "Interpretation of successive general Taylor terms."},
+        {"kind": "frame", "t": 830.4, "what": "Beginning of the e^x derivative example."},
+        {"kind": "frame", "t": 841.9, "what": "e^x derivative rows and Taylor construction; coefficients are direct factorial terms, not an unknown newly added coefficient before substitution."},
+        {"kind": "frame", "t": 880.3, "what": "Transition to the geometric interpretation."},
+        {"kind": "frame", "t": 930.0, "what": "Area-function/rectangle scene."},
+        {"kind": "frame", "t": 981.2, "what": "Triangle correction for the second-order term."},
+        {"kind": "frame", "t": 1035.2, "what": "End of geometric Taylor interpretation."},
+        {"kind": "frame", "t": 1087.2, "what": "Infinite-series convergence example."},
+        {"kind": "frame", "t": 1141.4, "what": "e^x series convergence scene."},
+        {"kind": "frame", "t": 1187.9, "what": "Natural-log derivative/Taylor example."},
+        {"kind": "frame", "t": 1239.4, "what": "Natural-log divergence discussion."},
+        {"kind": "frame", "t": 1279.9, "what": "Closing conceptual summary."},
+        {"kind": "frame", "t": 1317.0, "what": "Credits/music scene."},
+        {"kind": "frame", "t": 1336.0, "what": "Final music/credits frame."}
+      ],
+      "findings": "Across the full transcript and sparse visual pass, only the 443.5-454.2 sequence combines a newly added unknown even-power term c4*x^4 with its matching colored fourth-derivative target row. Other x^4 appearances are already-substituted examples or general formulas; the c8*x^8 scene is an isolated power-rule illustration.",
+      "criterion": "Every moment must be included if it literally presents one newly added unknown even-power polynomial term and completes the corresponding colored derivative row from which its coefficient is to be computed before substitution.",
+      "steps": [
+        {"question": "Does the opening x^4/24 montage satisfy the paired-event wording?", "answer_bool": false, "answer_number": null, "answer_text": null, "why": "It shows a finished example with the coefficient already substituted and no matching colored derivative row."},
+        {"question": "Does the c8*x^8 power-rule illustration at 517.3 satisfy the paired-event wording?", "answer_bool": false, "answer_number": null, "answer_text": null, "why": "It is not introduced as a new polynomial term with a matching target-value row and no coefficient substitution follows from it."},
+        {"question": "Do the later general cosine and e^x formulas create another qualifying unknown coefficient event?", "answer_bool": false, "answer_number": null, "answer_text": null, "why": "They display general or already-evaluated Taylor coefficients rather than an unknown newly added term awaiting calculation."},
+        {"question": "How many literal firings remain after excluding those candidates?", "answer_bool": null, "answer_number": 1.0, "answer_text": null, "why": "Only the c4*x^4/fourth-derivative construction has all named conditions."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "trigger-matches-criterion",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 448.0, "what": "The new c4*x^4 term is complete on the polynomial side."},
+        {"kind": "frame", "t": 450.0, "what": "The fourth-derivative cosine row reaches cos(0)=1 as it completes."},
+        {"kind": "frame", "t": 452.0, "what": "Both c4*x^4 and d^4(cos)/dx^4(0)=cos(0)=1 are simultaneously visible."},
+        {"kind": "cue", "t": 443.5, "what": "The narrator explicitly calls c4*x^4 a fourth-order term being added."},
+        {"kind": "cue", "t": 450.0, "what": "The narrator gives the fourth derivative and its value 1 at x=0."}
+      ],
+      "findings": "The annotated firing presents a newly added even-power term c4*x^4 and completes the corresponding fourth-derivative cosine row with target value 1 at x=0 before c4 is replaced by 1/24.",
+      "criterion": "The trigger must satisfy each literal screen condition in the question at the same event: new even-power term complete, matching colored derivative row complete, and coefficient still unknown.",
+      "steps": [
+        {"question": "Is a new even-power term complete?", "answer_bool": true, "answer_number": null, "answer_text": null, "why": "The screen shows the newly added c4*x^4 term."},
+        {"question": "Is its matching derivative row complete?", "answer_bool": true, "answer_number": null, "answer_text": null, "why": "The screen shows the fourth derivative of cosine at zero equal to 1."},
+        {"question": "Has c4 already been substituted into the polynomial?", "answer_bool": false, "answer_number": null, "answer_text": null, "why": "The polynomial still contains the symbol c4 at the firing."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "question-anchored-to-screen",
+      "target": null,
+      "looked_at": [],
+      "findings": "The question explicitly says to read the derivative order, target value, and term exponent from the screen and identifies a newly added even-power term together with its matching colored derivative row.",
+      "criterion": "A screen-anchored question must name visible objects or relations that identify a particular display rather than merely naming a textbook topic.",
+      "steps": [
+        {"question": "Which words point to a particular visual state?", "answer_bool": null, "answer_number": null, "answer_text": "newly added even-power term; matching colored derivative row; read ... from the screen; before it is substituted into the polynomial", "why": "These phrases require locating and reading a specific evolving layout."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-within-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "The expected response requires the three quantities named in the question, the coefficient calculation, and a matching equation; it adds no independent content requirement.",
+      "criterion": "Each judged requirement must be traceable to an explicit request in the question shown to the participant.",
+      "steps": [
+        {"question": "What supports naming derivative order, target value, and exponent?", "answer_bool": null, "answer_number": null, "answer_text": "The question explicitly requests all three to be read from the screen.", "why": "They are enumerated in the question."},
+        {"question": "What supports requiring c4 and its value?", "answer_bool": null, "answer_number": null, "answer_text": "The question asks to compute that term's coefficient.", "why": "The coefficient is the requested conclusion."},
+        {"question": "What supports requiring the displayed algebraic relation?", "answer_bool": null, "answer_number": null, "answer_text": "The final sentence says to include the matching equation.", "why": "The equation requirement is explicit."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "discriminator-in-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "The distractor is excluded by the phrase 'as soon as ... are both complete': during 443.5-450.4 the new term is appearing but the matching derivative row is not yet complete. The phrase 'before it is substituted' also excludes later already-solved displays.",
+      "criterion": "The question itself must contain words that distinguish the intended firing from every tempting early or late screen state.",
+      "steps": [
+        {"question": "Which phrase rejects the early distractor?", "answer_bool": null, "answer_number": null, "answer_text": "are both complete", "why": "The derivative row is incomplete in the distractor."},
+        {"question": "Which phrase rejects later appearances of 1/24*x^4?", "answer_bool": null, "answer_number": null, "answer_text": "before it is substituted into the polynomial", "why": "Later displays already contain the numerical coefficient."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-not-punishing-extra",
+      "target": null,
+      "looked_at": [],
+      "findings": "No restrictive 'only', 'exactly', single-answer, or closed-enumeration rule was supplied; the expected response specifies necessary facts and equations without forbidding additional correct algebra.",
+      "criterion": "A rubric must not reject truthful detail that still answers the screen-anchored request unless the question explicitly narrows the permitted answer.",
+      "steps": [
+        {"question": "Does the expected response impose a closed or exclusive answer form?", "answer_bool": false, "answer_number": null, "answer_text": null, "why": "It names required quantities and equations but does not say that no other correct detail may appear."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-fully-covered",
+      "target": {"trigger_idx": null, "distractor_idx": 0},
+      "looked_at": [
+        {"kind": "frame", "t": 443.4, "what": "The display immediately before the new c4*x^4 term begins to appear."},
+        {"kind": "frame", "t": 448.0, "what": "The c4*x^4 term is complete while the target derivative row is still incomplete."},
+        {"kind": "frame", "t": 448.4, "what": "The same early temptation remains: term visible, paired row not yet complete."},
+        {"kind": "frame", "t": 450.0, "what": "The target row is in its completion transition just before the 450.4 boundary."},
+        {"kind": "cue", "t": 443.5, "what": "The narration starts 'adding on a fourth order term c4*x^4'."},
+        {"kind": "cue", "t": 448.0, "what": "The narration begins 'The fourth derivative of cosine is...'."}
+      ],
+      "findings": "The temptation begins with the introduction of c4*x^4 at 443.5 and persists until the matching derivative target reaches its completed value at about 450.4; the supplied distractor spans exactly that pre-completion phase.",
+      "criterion": "A distractor must cover the whole continuous interval in which a reasonable viewer might fire on a partial match, from the first tempting cue until the required condition becomes complete.",
+      "steps": [
+        {"question": "When does the partial-match temptation begin?", "answer_number": 443.5, "answer_bool": null, "answer_text": null, "why": "The narrator and screen introduce the new fourth-order term there."},
+        {"question": "When does the missing paired condition become complete?", "answer_number": 450.4, "answer_bool": null, "answer_text": null, "why": "The fourth-derivative cosine row reaches its value 1 at x=0 there."},
+        {"question": "Does the distractor cover that entire pre-completion interval?", "answer_bool": true, "answer_number": null, "answer_text": null, "why": "Its supplied bounds are [443.5,450.4)."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-not-correct-answer",
+      "target": {"trigger_idx": null, "distractor_idx": 0},
+      "looked_at": [
+        {"kind": "frame", "t": 448.0, "what": "The unknown c4*x^4 term is visible but the matching fourth-derivative target row is not complete."},
+        {"kind": "frame", "t": 450.0, "what": "The derivative row is still at its final completion transition."},
+        {"kind": "cue", "t": 448.0, "what": "The sentence giving the fourth derivative has only just begun."}
+      ],
+      "findings": "Inside the distractor, a viewer has only the newly added term or a partially stated derivative fact, not both completed screen elements demanded by the question.",
+      "criterion": "A distractor is legitimate only if answering there fails an explicit condition in the question rather than merely differing from annotator intent.",
+      "steps": [
+        {"question": "Are both required screen elements complete anywhere strictly before 450.4?", "answer_bool": false, "answer_number": null, "answer_text": null, "why": "The matching derivative row reaches its completed target value only at the boundary."},
+        {"question": "Would firing in the distractor satisfy 'as soon as ... both complete'?", "answer_bool": false, "answer_number": null, "answer_text": null, "why": "It would fire on a partial match."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-why-hides-answer",
+      "target": null,
+      "looked_at": [],
+      "findings": "The supplied distractor rationale is temporal and structural: it identifies that the term appears before the matching row is complete. It does not need to reveal c4=1/24 or the equation 24c4=1.",
+      "criterion": "A distractor explanation may state why a moment is tempting or excluded, but should not disclose the numerical reference answer that the participant is meant to derive.",
+      "steps": [
+        {"question": "Can the distractor be explained without stating the coefficient?", "answer_bool": true, "answer_number": null, "answer_text": null, "why": "The exclusion is fully explained by the incomplete paired row."},
+        {"question": "Does the stated rationale expose the reference equation or c4 value?", "answer_bool": false, "answer_number": null, "answer_text": null, "why": "It describes only the pre-completion condition."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "reasoning-level-not-inflated",
+      "target": null,
+      "looked_at": [],
+      "findings": "The screen supplies derivative order 4, target value 1, and exponent 4, but it does not yet supply the coefficient. The participant must differentiate c4*x^4 four times and solve 24c4=1.",
+      "criterion": "L3 is warranted when the requested answer requires a derivation beyond reading visible facts or merely joining facts from separated moments.",
+      "steps": [
+        {"question": "Is c4=1/24 directly readable at the firing?", "answer_bool": false, "answer_number": null, "answer_text": null, "why": "The term still contains unknown c4 and the polynomial derivative has not yet been worked out."},
+        {"question": "What extra operation is required?", "answer_bool": null, "answer_number": null, "answer_text": "Apply the power rule four times, obtain 4!c4=24c4, and solve 24c4=1.", "why": "That computation produces the requested coefficient from the visible order, value, and exponent."},
+        {"question": "Does this go beyond L2 retrieval/connection?", "answer_bool": true, "answer_number": null, "answer_text": null, "why": "It requires an unstated calculus/algebra derivation."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-matches-description",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 450.0, "what": "The new term is c4*x^4 and the matching row shows the fourth derivative of cosine at 0 equals 1 as it completes."},
+        {"kind": "frame", "t": 452.0, "what": "Both the complete target row and c4*x^4 are simultaneously visible."},
+        {"kind": "frame", "t": 471.7, "what": "The later corroborating frame shows 1*2*3*4*c4 = 24*c4."},
+        {"kind": "cue", "t": 465.8, "what": "The narrator states 1*2*3*4*c4, which is 24*c4."},
+        {"kind": "cue", "t": 473.6, "what": "The narrator says this must match the fourth derivative of cosine, which is 1."}
+      ],
+      "findings": "The cited trigger evidence matches the described visible derivative order, value, and exponent, and the later 471.7 corroboration matches the polynomial derivative calculation 24c4.",
+      "criterion": "Each provenance reference must visibly or audibly contain the fact its description claims, rather than merely occurring near the topic.",
+      "steps": [
+        {"question": "Does the trigger reference show order 4, target 1, and exponent 4?", "answer_bool": true, "answer_number": null, "answer_text": null, "why": "Those quantities appear in the completed cosine derivative row and c4*x^4 term."},
+        {"question": "Does the later reference show the claimed factorial derivative relation?", "answer_bool": true, "answer_number": null, "answer_text": null, "why": "It displays 1*2*3*4*c4 = 24*c4."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "references-consistent-with-windows",
+      "target": null,
+      "looked_at": [],
+      "findings": "The trigger evidence begins at 450.4, the same time as the required window [450.4,466). The 471.7 corroboration is later than the predict window, which is allowed; no provenance claims the full answer was available before the window opened.",
+      "criterion": "A provenance contradiction exists only when a reference establishes that the answer was already available before t_start; later corroboration is expected for prediction tasks.",
+      "steps": [
+        {"question": "Is any cited trigger evidence earlier than the 450.4 window start?", "answer_bool": false, "answer_number": null, "answer_text": null, "why": "The evidence span starts at 450.4."},
+        {"question": "Does the 471.7 reference contradict a predict window ending at 466?", "answer_bool": false, "answer_number": null, "answer_text": null, "why": "It is later corroboration, not evidence that the answer was available too early."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-answer-verified",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 452.0, "what": "The screen gives cos^(4)(0)=cos(0)=1 and the term c4*x^4."},
+        {"kind": "frame", "t": 471.7, "what": "The later screen gives the fourth derivative of c4*x^4 as 24*c4."},
+        {"kind": "cue", "t": 477.4, "what": "The narrator concludes that c4 has to be 1/24."}
+      ],
+      "findings": "The reference response is mathematically correct: cosine's fourth derivative at 0 is 1; differentiating c4*x^4 four times gives 4!c4=24c4; matching gives 24c4=1 and c4=1/24.",
+      "criterion": "The reference answer must follow correctly from the visible facts and valid mathematics, including every requested equation and numerical conclusion.",
+      "steps": [
+        {"question": "What is the target derivative value?", "answer_number": 1.0, "answer_bool": null, "answer_text": null, "why": "cos^(4)(x)=cos(x), so cos^(4)(0)=1, matching the screen."},
+        {"question": "What is the fourth derivative of c4*x^4?", "answer_bool": null, "answer_number": null, "answer_text": "4*3*2*1*c4 = 24c4", "why": "Four power-rule applications multiply by 4!."},
+        {"question": "What coefficient solves the matching equation?", "answer_number": 0.041666666666666664, "answer_bool": null, "answer_text": null, "why": "24c4=1 implies c4=1/24."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "twins-agree-on-substance",
+      "target": null,
+      "looked_at": [],
+      "findings": "No twin_of relation was supplied for this sample, so there is no paired reference answer to compare.",
+      "criterion": "Substantive agreement can be checked only when the sample names a twin whose response is available for comparison.",
+      "steps": [],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

@@ -1,0 +1,166 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q14",
+  "role": "semiblind",
+  "iteration": 1,
+  "model": "gpt-5",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/3b1b__3d6DsjIBzJ4__q14/semiblind_r1",
+  "budget": {
+    "frames_viewed": 12,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 1004.0,
+        "t_end": 1022.0
+      }
+    ],
+    "transcript_cues": 780,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The full supplied stretch was covered by the complete transcript and screen index. An exact-grid recheck established that 1020 s already contains both complete representations. A finer-than-one-second extraction had collided with whole-second filenames; the affected derived frames were regenerated before correction.",
+  "prior_answer": "It cannot be answered on the merits from the question alone: the Taylor expansion, its expansion point, and the color-to-term correspondence are not stated.",
+  "prior_answer_assumptions": [],
+  "recognized_video": false,
+  "recognized_how": "Before viewing, I did not recognize this specific video or this moment and could not name its color mapping from memory.",
+  "scans": [
+    {
+      "idx": 0,
+      "t_from": 0.0,
+      "t_to": 1030.9,
+      "watched": [
+        {
+          "kind": "cue",
+          "t": 15.0,
+          "what": "The narration introduces Taylor series; the full transcript then develops Taylor polynomials through the final geometric interpretation."
+        },
+        {
+          "kind": "cue",
+          "t": 877.0,
+          "what": "The narration announces a geometric interpretation of the second-order Taylor term."
+        },
+        {
+          "kind": "cue",
+          "t": 1007.4,
+          "what": "The narrator begins assembling the area approximation as the area up to a plus a rectangle plus a triangle."
+        },
+        {
+          "kind": "frame",
+          "t": 1004.0,
+          "what": "Blue area, yellow rectangle, and pink triangle are visible, but the matching lower Taylor equation is absent."
+        },
+        {
+          "kind": "frame",
+          "t": 1007.0,
+          "what": "The lower equation has only f(a) followed by a plus sign."
+        },
+        {
+          "kind": "frame",
+          "t": 1012.0,
+          "what": "The yellow linear term is still being drawn and the pink quadratic term is absent from the lower equation."
+        },
+        {
+          "kind": "frame",
+          "t": 1018.0,
+          "what": "Blue f(a) and yellow f'(a)(x-a) are complete; a trailing plus remains with no complete pink term."
+        },
+        {
+          "kind": "frame",
+          "t": 1019.0,
+          "what": "The pink quadratic term is faint and still being rendered."
+        },
+        {
+          "kind": "frame",
+          "t": 1020.0,
+          "what": "All three colored shapes and the full color-matched three-term Taylor equation are simultaneously clear and legible."
+        },
+        {
+          "kind": "frame",
+          "t": 1021.0,
+          "what": "The exact-grid frame is almost entirely black after the complete 1020 s presentation; it is not needed to establish the earliest answer moment."
+        }
+      ],
+      "candidates": [
+        {
+          "question": "At 1004 s, are both the colored pieces and their matching three-term equation complete?",
+          "answer_bool": false,
+          "why": "The three geometric pieces are visible, but the matching lower Taylor equation has not appeared."
+        },
+        {
+          "question": "At 1007 s, can every color be mapped to an exact Taylor term?",
+          "answer_bool": false,
+          "why": "Only the blue constant term f(a) has appeared in the lower equation; this is immediately before and leads into the declared distractor."
+        },
+        {
+          "question": "During the declared distractor through 1019 s, is the requested mapping complete?",
+          "answer_bool": false,
+          "why": "At 1018 s only the blue and yellow terms are complete, and at 1019 s the pink term is still faint and being rendered."
+        },
+        {
+          "question": "At 1020 s, are both representations complete enough to narrate all mappings exactly?",
+          "answer_bool": true,
+          "why": "The frame clearly shows all three mappings; no requested term or color correspondence is absent or illegible."
+        }
+      ],
+      "t_val": 1020.0,
+      "t_val_basis": "At 1020 s the blue, yellow, and pink geometric pieces coexist with a fully rendered equation whose corresponding terms use the same colors.",
+      "answer_at_t_val": "Blue is the constant term f(a); yellow is the first-order term (df/dx)(a)(x-a); pink is the second-order term (1/2)(d^2f/dx^2)(a)(x-a)^2.",
+      "confidence": "high"
+    }
+  ],
+  "checks": [
+    {
+      "group": "shortcuts",
+      "item": "solvable-without-video",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1020.0,
+          "what": "The completed frame supplies the equation and color correspondence that are absent from the question text."
+        }
+      ],
+      "findings": "Before viewing, the question named three colors and requested exact terms but supplied neither the expansion nor any term-color mapping.",
+      "criterion": "The item fires only if the requested quantities and relations can be derived from the question and general knowledge without inventing screen content.",
+      "steps": [
+        {
+          "question": "Does the question itself specify the three Taylor terms?",
+          "answer_bool": false,
+          "why": "It refers to a matching equation but does not reproduce that equation."
+        },
+        {
+          "question": "Can general Taylor-series knowledge determine which color denotes which term?",
+          "answer_bool": false,
+          "why": "Color choices are presentation-specific and cannot be inferred from the mathematics alone."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high"
+    },
+    {
+      "group": "shortcuts",
+      "item": "video-recognized",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 15.0,
+          "what": "The supplied transcript identifies the subject as Taylor series, but this was opened only after the pre-view recognition answer was fixed."
+        }
+      ],
+      "findings": "Before opening any supplied material, I did not recognize the video ID or the described moment and could not recall the requested mapping.",
+      "criterion": "The item fires only when this particular video and moment were recognized from memory before viewing, strongly enough to name the answer.",
+      "steps": [
+        {
+          "question": "Could I name the exact color-to-term mapping from memory before viewing?",
+          "answer_bool": false,
+          "why": "I had no memory of this specific geometric scene or its color assignments."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high"
+    }
+  ]
+}

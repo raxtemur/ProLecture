@@ -1,0 +1,129 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q08",
+  "role": "full_window",
+  "iteration": 5,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q08/full_window0",
+  "budget": {
+    "frames_viewed": 12,
+    "sparse_step": 2.0,
+    "dense_intervals": [
+      {"t_start": 571.0, "t_end": 576.0},
+      {"t_start": 592.0, "t_end": 601.0}
+    ],
+    "transcript_cues": 29,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "Checked only window 0 and its ten-second post-window guard.\nThe repaired evidence end covers the completed zero by 573 s.\nNo finished compound response appears in speech or frames through 600.5 s.",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "group": "windows",
+      "item": "window-can-be-tightened",
+      "target": {"trigger_idx": 0, "distractor_idx": null},
+      "looked_at": [
+        {"kind": "frame", "t": 572.0, "what": "The higher-order term is bracketed, but the '=0' result has not yet appeared."},
+        {"kind": "frame", "t": 573.0, "what": "The '=0' is complete beneath the pink c4 contribution while the earlier coefficients remain visible."},
+        {"kind": "frame", "t": 580.0, "what": "The completed equation and zero contribution remain on screen."},
+        {"kind": "frame", "t": 590.0, "what": "The general coefficient-to-derivative color mapping remains visible immediately before t_end."}
+      ],
+      "findings": "The decisive zero finishes within about one second of the opening. The completed equation persists for several seconds, and the subsequent general mapping retains the coefficient colors through the end of the window.",
+      "criterion": "A boundary change is warranted only when a substantial part of the counting window cannot support a correct streaming answer; roughly one second of opening animation is tolerated, and later animation does not erase evidence already observed.",
+      "steps": [
+        {"question": "When is the last visible change needed for the current zero result complete?", "answer_number": 573.0, "why": "The zero is absent at 572 s and visibly complete at 573 s."},
+        {"question": "Is there a large unusable tail before the exclusive end at 590.5 s?", "answer_bool": false, "why": "The answer-bearing equation persists and is followed by a color-coded generalization; a streaming model retains the earlier facts."},
+        {"question": "Does the small opening slack justify tightening this window?", "answer_bool": false, "why": "It is about one second, which is below the prompt's threshold for an interval fix and provides response latency."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "windows",
+      "item": "author-says-answer-in-window",
+      "target": {"trigger_idx": 0, "distractor_idx": null},
+      "looked_at": [
+        {"kind": "cue", "t": 568.3, "what": "The author says higher-order terms do not affect the second coefficient."},
+        {"kind": "cue", "t": 571.1, "what": "The author explains that this happens because x=0 is substituted."},
+        {"kind": "cue", "t": 584.1, "what": "The author says each derivative at x=0 is controlled by one coefficient."},
+        {"kind": "cue", "t": 594.3, "what": "The author changes to approximation at an input other than zero, using pi."},
+        {"kind": "frame", "t": 573.0, "what": "The screen shows the pink c4 term contributing zero and the earlier constant 1, but not x1=1/2."},
+        {"kind": "frame", "t": 590.0, "what": "The screen shows a generalized colored coefficient-to-derivative mapping, not the compound response."},
+        {"kind": "frame", "t": 600.0, "what": "The screen shows a graph near pi and still does not show the compound response."}
+      ],
+      "findings": "From 572.0 through 600.5 s the narration explains vanishing higher-order contributions and derivative control, then changes to expansion near pi. The screen identifies the pink coefficient and shows the earlier 1, but neither speech nor screen supplies x1=1/2 together with those facts as a finished response.",
+      "criterion": "For an L3 item this check fires only if the author speaks or displays the complete answer during the window or within ten seconds after it, so that ordinary answer-generation latency yields the answer directly.",
+      "steps": [
+        {"question": "Is the coefficient color available in the guarded interval?", "answer_bool": true, "why": "The c4 term is visibly pink in the equation and generalized mapping."},
+        {"question": "Is x1=1/2 spoken or displayed from 572.0 through 600.5 s?", "answer_bool": false, "why": "The inspected cues and frames discuss x=0 and later pi; none presents x1=1/2."},
+        {"question": "Is the entire compound answer delivered in finished form?", "answer_bool": false, "why": "One required historical fact must still be retained from the earlier provenance rather than copied from the guarded interval."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "event-not-earlier-than-window",
+      "target": {"trigger_idx": 0, "distractor_idx": null},
+      "looked_at": [
+        {"kind": "frame", "t": 571.0, "what": "The higher-order expression is present without a zero result beneath its brace."},
+        {"kind": "frame", "t": 572.0, "what": "The brace is visible at the window opening but the zero has not completed."},
+        {"kind": "frame", "t": 573.0, "what": "The zero result is now complete beneath the brace."}
+      ],
+      "findings": "The visible completion of the higher-order contribution as zero occurs after the 572.0 s window opening; the decisive '=0' is not present in the preceding 571.0 s frame.",
+      "criterion": "An event window must not open after the triggering event has already begun; the relevant event here is the on-screen completion of the contribution as zero.",
+      "steps": [
+        {"question": "Is the completed zero event visible before 572.0 s?", "answer_bool": false, "why": "At 571 s the brace has no '=0' beneath it."},
+        {"question": "Does the event begin no earlier than this window?", "answer_bool": true, "why": "Its visible completion develops at the opening and is complete by 573 s."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "depends-on-is-dependency",
+      "target": {"trigger_idx": 0, "distractor_idx": null},
+      "looked_at": [],
+      "findings": "Trigger 0 has no depends_on link, so there is no declared cross-window dependency to test for necessity or superfluity.",
+      "criterion": "This item applies only when a trigger declares depends_on; without such a link, no dependency edge can be validated.",
+      "steps": [
+        {"question": "Does trigger 0 declare a depends_on window?", "answer_bool": false, "why": "No depends_on value is present for this trigger in the supplied sample description."}
+      ],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "evidence-span-is-last",
+      "target": {"trigger_idx": 0, "distractor_idx": null},
+      "looked_at": [
+        {"kind": "frame", "t": 572.0, "what": "The current higher-order term is bracketed but its zero result is not yet complete."},
+        {"kind": "frame", "t": 573.0, "what": "The current higher-order contribution is fully marked '=0'."},
+        {"kind": "frame", "t": 574.0, "what": "The completed '=0' remains visible with the colored coefficients."}
+      ],
+      "findings": "The earlier coefficient fact is supplied at 478.3 s, while the last newly needed fact in this window is the completed current zero, visible by 573 s and still present at 574 s. The repaired evidence_span is [478.3, 574.0].",
+      "criterion": "The evidence interval must include the last fact required to derive the response, rather than stopping at the earlier provenance or extending to later corroborating explanation.",
+      "steps": [
+        {"question": "Which required fact appears last?", "answer_text": "The current pink higher-order contribution completing as zero", "why": "The earlier coefficient and its x1 provenance precede this window; the zero is the final new fact."},
+        {"question": "By what observed time is that final fact complete?", "answer_number": 573.0, "why": "The '=0' is visibly complete in the 573 s frame."},
+        {"question": "Does evidence_span ending at 574.0 cover that last fact without relying on later corroboration?", "answer_bool": true, "why": "The completed result is visible by 573 s and at 574 s; later narration only explains the already derivable result."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ],
+  "window_idx": 0
+}

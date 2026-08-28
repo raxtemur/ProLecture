@@ -1,0 +1,216 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q01",
+  "role": "semiblind",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q01/semiblind",
+  "budget": {
+    "frames_viewed": 13,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 61,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The full 0.0–79.8 s transcript and screen indexes were covered. Screen indexes were used only to locate candidates; all reported visual candidates were checked in real frames. The declared distractor [35.0, 54.7) was excluded from t_val selection.",
+  "prior_answer": "It cannot be answered on the merits from the question text alone because the referenced on-screen vertical height expression is not stated. Assuming the standard pendulum height h(theta) = R(1 - cos(theta)), doubling the angle would give h(2 theta) = R(1 - cos(2 theta)) = 2R sin^2(theta), with quadratic small-angle approximation 2R theta^2.",
+  "prior_answer_assumptions": [
+    "The unseen diagram uses the standard pendulum vertical-height expression h(theta) = R(1 - cos(theta))."
+  ],
+  "recognized_video": false,
+  "recognized_how": "The title and question did not evoke a memory of this particular video or moment before viewing.",
+  "scans": [
+    {
+      "idx": 0,
+      "t_from": 0.0,
+      "t_to": 79.8,
+      "watched": [
+        {
+          "kind": "frame",
+          "t": 0.0,
+          "what": "Black opening frame; no pendulum diagram or requested labels."
+        },
+        {
+          "kind": "frame",
+          "t": 16.0,
+          "what": "Graph of exp(-x^2) near zero; no pendulum diagram."
+        },
+        {
+          "kind": "frame",
+          "t": 26.0,
+          "what": "Graph and linear approximation for exp(x); no pendulum diagram."
+        },
+        {
+          "kind": "frame",
+          "t": 35.0,
+          "what": "Only the support line and an unlabelled slanted pendulum rod have begun to appear."
+        },
+        {
+          "kind": "frame",
+          "t": 40.0,
+          "what": "Pendulum rod, bob, and trajectory are visible, but R, theta, and height expression are absent."
+        },
+        {
+          "kind": "frame",
+          "t": 44.0,
+          "what": "Pendulum geometry is visible but the required full labelled construction is not yet present."
+        },
+        {
+          "kind": "frame",
+          "t": 48.0,
+          "what": "The pendulum shows theta and R, but the vertical-height expression is not yet visible."
+        },
+        {
+          "kind": "frame",
+          "t": 52.0,
+          "what": "R, theta, and the vertical-height expression R(1 - cos(theta)) are all clearly visible, inside the declared distractor."
+        },
+        {
+          "kind": "frame",
+          "t": 55.0,
+          "what": "R, theta, and R(1 - cos(theta)) remain clearly visible after the declared distractor ends."
+        },
+        {
+          "kind": "frame",
+          "t": 59.0,
+          "what": "The expression is being split visually into R(1 - and cos(theta)); the earlier complete formula is no longer contiguous."
+        },
+        {
+          "kind": "frame",
+          "t": 65.0,
+          "what": "Pendulum labels remain while the cosine term is separated and a spring comparison appears."
+        },
+        {
+          "kind": "frame",
+          "t": 69.0,
+          "what": "The screen explicitly shows cos(theta) approximately 1 - theta^2/2 next to the pendulum."
+        },
+        {
+          "kind": "frame",
+          "t": 77.0,
+          "what": "The pendulum shows R, theta, and the original-angle approximation R theta^2/2."
+        },
+        {
+          "kind": "cue",
+          "t": 36.1,
+          "what": "The narration introduces a physics problem involving a pendulum."
+        },
+        {
+          "kind": "cue",
+          "t": 41.5,
+          "what": "The narration asks for the weight's height above its lowest point."
+        },
+        {
+          "kind": "cue",
+          "t": 47.9,
+          "what": "The narration states that the result is proportional to one minus the cosine of the angle from vertical."
+        },
+        {
+          "kind": "cue",
+          "t": 68.6,
+          "what": "The narration introduces the small-angle cosine approximation."
+        }
+      ],
+      "candidates": [
+        {
+          "question": "Is the question answerable from the diagram at 35.0 seconds?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Only an unlabelled rod is visible, and this moment is also inside the declared distractor."
+        },
+        {
+          "question": "Is the question answerable from the diagram at 48.0 seconds?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "R and theta are visible, but the vertical-height expression has not appeared; it is also inside the declared distractor."
+        },
+        {
+          "question": "Can the complete 52.0-second diagram establish a legal t_val?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The frame visibly contains all required information, but 52.0 lies inside the declared distractor [35.0, 54.7), which must not be selected."
+        },
+        {
+          "question": "Is the question answerable from the diagram at 55.0 seconds?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "After the distractor has ended, the frame clearly shows R, theta, and R(1 - cos(theta)); substituting 2 theta and expanding cosine determines both requested expressions."
+        }
+      ],
+      "t_val": 55.0,
+      "t_val_basis": "At 55.0 s the real frame clearly shows the complete pendulum geometry with R, theta, and the vertical height R(1 - cos(theta)), and it is outside the declared distractor.",
+      "answer_at_t_val": "With the angle doubled, the exact height is R(1 - cos(2 theta)) = 2R sin^2(theta). For small theta, this is 2R theta^2 + O(theta^4), so the quadratic approximation is 2R theta^2.",
+      "confidence": "high"
+    }
+  ],
+  "checks": [
+    {
+      "group": "shortcuts",
+      "item": "solvable-without-video",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 35.0,
+          "what": "Before viewing, the supplied question referred to an on-screen vertical height expression without stating that expression."
+        }
+      ],
+      "findings": "The question text names R and theta but withholds the actual vertical-height formula that is to be transformed.",
+      "criterion": "The shortcut fires only if the exact requested result follows from the question and general knowledge without inventing unseen diagram content.",
+      "steps": [
+        {
+          "question": "Does the question text specify the starting height expression?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "It points to a displayed expression but does not reproduce it."
+        },
+        {
+          "question": "Does the prior computed formula require an assumption about the unseen diagram?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "It requires assuming the standard formula R(1 - cos(theta)), recorded explicitly in prior_answer_assumptions."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "video-recognized",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 35.0,
+          "what": "Before viewing, only the supplied title and question wording were considered for recognition."
+        }
+      ],
+      "findings": "Neither the title nor the wording evoked a memory of this particular video moment or its displayed formula.",
+      "criterion": "Recognition fires only if the particular video and answer can be recalled before any transcript, index, or frame is opened.",
+      "steps": [
+        {
+          "question": "Could the answer be named from memory of this particular video?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "No memory of this specific video or moment was available before viewing."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

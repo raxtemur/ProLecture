@@ -1,0 +1,300 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q18",
+  "role": "full_sample",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": "/workspace-SR004.nfs2/rahmatullaev/rand_exps/PoC_for_rand_ideas/manim_play/.review_ws/3d6DsjIBzJ4/3b1b__3d6DsjIBzJ4__q18/full_sample_r1",
+  "budget": {
+    "frames_viewed": 36,
+    "sparse_step": 60.0,
+    "dense_intervals": [
+      {"t_start": 1239.4, "t_end": 1253.5},
+      {"t_start": 1254.5, "t_end": 1256.5}
+    ],
+    "transcript_cues": 1017,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The distractor rationale is slightly imprecise because the unlabeled bracket appears around 1245, but the distractor remains valid: its requested exact label is unavailable until the trigger. The sparse whole-video pass and full transcript found no second firing under the temporal anchor.",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "group": "triggers",
+      "item": "no-missed-trigger",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 0.0, "what": "black opening frame"},
+        {"kind": "frame", "t": 58.7, "what": "pendulum and cosine scene"},
+        {"kind": "frame", "t": 121.7, "what": "cosine axes scene"},
+        {"kind": "frame", "t": 178.3, "what": "quadratic approximation scene"},
+        {"kind": "frame", "t": 236.2, "what": "derivative matching scene"},
+        {"kind": "frame", "t": 299.8, "what": "second-derivative scene"},
+        {"kind": "frame", "t": 361.4, "what": "polynomial coefficient scene"},
+        {"kind": "frame", "t": 421.8, "what": "cubic coefficient scene"},
+        {"kind": "frame", "t": 478.3, "what": "fourth-order coefficient scene"},
+        {"kind": "frame", "t": 541.1, "what": "Taylor coefficient scene"},
+        {"kind": "frame", "t": 602.2, "what": "expansion around pi scene"},
+        {"kind": "frame", "t": 670.0, "what": "cyclic derivative scene"},
+        {"kind": "frame", "t": 729.0, "what": "earlier bracket labeled Taylor polynomial"},
+        {"kind": "frame", "t": 788.3, "what": "general Taylor formula scene"},
+        {"kind": "frame", "t": 847.2, "what": "exponential polynomial scene"},
+        {"kind": "frame", "t": 907.3, "what": "area-under-curve scene"},
+        {"kind": "frame", "t": 964.4, "what": "geometric height and base scene"},
+        {"kind": "frame", "t": 1023.4, "what": "geometric Taylor formula scene"},
+        {"kind": "frame", "t": 1081.1, "what": "geometric-series partial sum scene"},
+        {"kind": "frame", "t": 1138.7, "what": "exponential-series graph scene"},
+        {"kind": "frame", "t": 1198.5, "what": "logarithm Taylor graph before divergence callout"},
+        {"kind": "frame", "t": 1239.4, "what": "Diverges callout visible with no lower bracket label"},
+        {"kind": "frame", "t": 1289.6, "what": "closing recap scene"},
+        {"kind": "frame", "t": 1336.0, "what": "end-screen scene"},
+        {"kind": "cue", "t": 1236.6, "what": "narration begins explaining the divergent case"},
+        {"kind": "cue", "t": 1252.6, "what": "narrator names the radius of convergence"}
+      ],
+      "findings": "The transcript was read sequentially through 1338.7 seconds and a 24-frame scene pass covered the lecture. Earlier brackets and labels occur before the Diverges anchor. After that anchor, only the lower-axis bracket labeled Radius of convergence appears before the scene changes.",
+      "criterion": "Every moment satisfying the full temporal and visual wording must be represented as a trigger or distractor so a correct response is never penalized.",
+      "steps": [
+        {"question": "Did any earlier bracketed label satisfy the after-Diverges condition?", "answer_bool": false, "why": "The earlier bracketed examples precede the Diverges callout and therefore fail the explicit temporal anchor."},
+        {"question": "Was there another qualifying bracketed label after the callout?", "answer_bool": false, "why": "The transcript and scene pass show only Radius of convergence before the graph scene disappears."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "trigger-matches-criterion",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 1254.0, "what": "Diverges remains visible and the lower bracket reads Radius of convergence"}
+      ],
+      "findings": "At 1254.0, the prior Diverges callout is still visible, and below the x-axis a bracket spans from the yellow point to the right dashed line with the requested label beneath it.",
+      "criterion": "Each annotated trigger must literally instantiate the temporal anchor, the bracketed-label event, and the requested endpoint relation in the question.",
+      "steps": [
+        {"question": "Is the Diverges callout already visible at the trigger?", "answer_bool": true, "why": "It remains visible at the upper right of the graph."},
+        {"question": "Does the requested bracketed label appear below the x-axis?", "answer_bool": true, "why": "The lower brace and Radius of convergence text are visible beneath the axis."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "question-anchored-to-screen",
+      "target": null,
+      "looked_at": [],
+      "findings": "The question names the visible Diverges callout, a bracketed label below the x-axis, and two marked visual locations joined by that bracket.",
+      "criterion": "A screen-grounded question must identify concrete visible objects, positions, or labels rather than ask only about the mathematical topic.",
+      "steps": [
+        {"question": "Which words identify a particular screen state?", "answer_text": "Diverges callout; bracketed label; below the x-axis; two marked visual locations", "why": "All four phrases point to visible layout and marks in one animation state."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-within-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "The four rubric items require the exact label, the left endpoint, the right endpoint, and rejection of the already-named Diverges callout.",
+      "criterion": "Every scoring requirement must follow from an explicit requirement or contrast in the participant-visible question.",
+      "steps": [
+        {"question": "What question phrase supports the exact-label item?", "answer_text": "Report its exact text", "why": "This directly asks for the exact bracket label."},
+        {"question": "What supports identifying the yellow-point endpoint?", "answer_text": "which two marked visual locations the bracket connects", "why": "The yellow point is one of the bracket's two visibly marked endpoints."},
+        {"question": "What supports identifying the right dashed boundary?", "answer_text": "which two marked visual locations the bracket connects", "why": "The right dashed line is the other visibly marked endpoint."},
+        {"question": "What supports excluding the Diverges text as the answer?", "answer_text": "After the Diverges callout is already visible, wait for the bracketed label that appears below the x-axis", "why": "The wording casts Diverges as the prior cue and separately locates the requested label below the axis."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "discriminator-in-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "The distractor is excluded by the instruction to wait for the later bracketed label, and Diverges is excluded as an answer because it is the already-visible callout rather than the later label below the x-axis.",
+      "criterion": "The question itself must state the distinction that separates every tempting but incorrect moment or label from the intended answer.",
+      "steps": [
+        {"question": "Which wording excludes answering during the distractor?", "answer_text": "wait for the bracketed label that appears below the x-axis", "why": "Before that label appears, the requested exact text is unavailable."},
+        {"question": "Which wording excludes Diverges as the bracket label?", "answer_text": "After the Diverges callout is already visible", "why": "It explicitly makes Diverges the prior referent, not the later requested object."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-not-punishing-extra",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 1254.0, "what": "complete lower label, its two endpoints, and separate Diverges callout visible together"}
+      ],
+      "findings": "The restrictive requirements are exact label wording and the instruction not to count Diverges. The frame contains one qualifying lower-axis bracket label, while Diverges is visibly a separate arrow callout.",
+      "criterion": "A restrictive rubric must not reject additional details that also correctly satisfy the question's wording in the answer scene.",
+      "steps": [
+        {"question": "Is there another correct lower-axis bracket label that exactness would suppress?", "answer_bool": false, "why": "Only Radius of convergence labels the qualifying lower bracket."},
+        {"question": "Could Diverges correctly be reported as that bracket label?", "answer_bool": false, "why": "It is an arrow callout above and right of the axis and is explicitly the earlier cue."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-fully-covered",
+      "target": {"trigger_idx": null, "distractor_idx": 0},
+      "looked_at": [
+        {"kind": "frame", "t": 1239.0, "what": "Diverges visible without the lower bracket"},
+        {"kind": "frame", "t": 1241.0, "what": "same Diverges-only temptation"},
+        {"kind": "frame", "t": 1243.0, "what": "same Diverges-only temptation"},
+        {"kind": "frame", "t": 1245.0, "what": "unlabeled lower bracket first visible"},
+        {"kind": "frame", "t": 1247.0, "what": "lower bracket visible but unlabeled"},
+        {"kind": "frame", "t": 1249.0, "what": "lower bracket visible but unlabeled"},
+        {"kind": "frame", "t": 1251.0, "what": "lower bracket remains without requested text"},
+        {"kind": "frame", "t": 1253.0, "what": "Radius of convergence text is beginning its reveal"}
+      ],
+      "findings": "The temptation begins when Diverges is visible at question time, changes at about 1245 when the still-unlabeled lower bracket appears, and continues until the requested text begins to reveal at the trigger boundary. The distractor spans this entire pre-answer interval.",
+      "criterion": "A distractor window should cover every contiguous pre-answer state that tempts an early response, including changes in how the temptation is presented.",
+      "steps": [
+        {"question": "When does the early-answer temptation begin?", "answer_number": 1239.4, "why": "The question is issued with Diverges already visible and the requested label absent."},
+        {"question": "Does the temptation persist through the unlabeled-bracket phase?", "answer_bool": true, "why": "Frames from 1245 through 1251 show the bracket but no exact label text."},
+        {"question": "Is any pre-answer portion outside the distractor interval?", "answer_bool": false, "why": "The distractor runs continuously from question_time to trigger start."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-not-correct-answer",
+      "target": {"trigger_idx": null, "distractor_idx": 0},
+      "looked_at": [
+        {"kind": "frame", "t": 1239.0, "what": "only Diverges callout supplies text"},
+        {"kind": "frame", "t": 1245.0, "what": "bracket endpoints are visible but its label is absent"},
+        {"kind": "frame", "t": 1251.0, "what": "bracket remains unlabeled"},
+        {"kind": "frame", "t": 1253.0, "what": "requested label is only beginning to reveal"}
+      ],
+      "findings": "During the distractor, the scene may reveal the bracket endpoints, but it does not yet provide the fully presented exact bracket label required by the question. Diverges is a separate callout and cannot satisfy the requested object.",
+      "criterion": "A distractor must lack at least one material fact explicitly requested by the question, rather than merely differ by annotator preference.",
+      "steps": [
+        {"question": "Can the exact requested bracket label be reported throughout the distractor?", "answer_bool": false, "why": "It is absent through 1251 and only begins its transition at the final sampled instant."},
+        {"question": "Does the visible Diverges text satisfy the requested label?", "answer_bool": false, "why": "The question identifies it as the earlier callout and asks for a later label below the axis."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-why-hides-answer",
+      "target": null,
+      "looked_at": [],
+      "findings": "The distractor rationale says only that the divergence callout is present while the bracket and its own label have not yet appeared; it states neither the correct label text nor either endpoint.",
+      "criterion": "A distractor explanation may describe the temptation and missing cue but must not let a semi-blind reviewer reconstruct the reference response or a rubric fact.",
+      "steps": [
+        {"question": "Can the exact answer text be reconstructed from the why field?", "answer_bool": false, "why": "Radius of convergence is never named there."},
+        {"question": "Can either bracket endpoint be reconstructed from the why field?", "answer_bool": false, "why": "Neither the yellow point nor the right dashed boundary is disclosed."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "reasoning-level-not-inflated",
+      "target": null,
+      "looked_at": [],
+      "findings": "The exact label and both connected locations can be read directly from one answer frame; no external derivation or long-range combination is needed.",
+      "criterion": "L1 is appropriate when all answer facts are directly available in one local visual state, even if the question uses an earlier cue to tell the viewer when to wait.",
+      "steps": [
+        {"question": "Must facts from far-apart moments be combined to form the answer?", "answer_bool": false, "why": "The answer frame simultaneously shows the label, yellow point, and right dashed boundary."},
+        {"question": "Must any fact absent from the video be derived?", "answer_bool": false, "why": "All requested facts are visually explicit."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-matches-description",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 1253.5, "what": "label transition reads Radius of convergence under a bracket from the yellow point to the right dashed line"}
+      ],
+      "findings": "The cited 1253.5 frame shows the lower label in its reveal transition and the bracket spanning from the yellow x-axis point to the right vertical dashed boundary, matching the evidence description.",
+      "criterion": "A provenance frame must visibly contain the objects and relation asserted by its accompanying description.",
+      "steps": [
+        {"question": "Does the cited frame contain the named label?", "answer_bool": true, "why": "Radius of convergence is visible beneath the lower brace during its transition."},
+        {"question": "Does the bracket have the described endpoints?", "answer_bool": true, "why": "Its left edge aligns with the yellow point and its right edge aligns with the right dashed vertical line."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "references-consistent-with-windows",
+      "target": null,
+      "looked_at": [],
+      "findings": "The sole provenance record is a frame at 1253.5, exactly equal to the trigger's 1253.5 start, and therefore does not assert that the answer was available before the window opened.",
+      "criterion": "A provenance reference contradicts the window only when it places the answer strictly before the trigger start.",
+      "steps": [
+        {"question": "What is the provenance frame time?", "answer_number": 1253.5, "why": "The sample's evidence record explicitly gives t=1253.5."},
+        {"question": "Is that time earlier than the trigger start?", "answer_bool": false, "why": "It equals, rather than precedes, t_start=1253.5."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-answer-verified",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 1254.0, "what": "fully revealed Radius of convergence label and its lower brace"}
+      ],
+      "findings": "Independent reading of the 1254.0 frame yields the text Radius of convergence. The brace starts directly beneath the yellow point on the x-axis and ends at the right dashed vertical line.",
+      "criterion": "The response must be recomputed independently from primary video evidence and then agree in substance with the stored reference answer.",
+      "steps": [
+        {"question": "What exact text is independently visible under the bracket?", "answer_text": "Radius of convergence", "why": "The complete phrase is legible in the 1254.0 frame."},
+        {"question": "What two marked locations does the bracket independently connect?", "answer_text": "the yellow x-axis point and the right dashed vertical boundary", "why": "The brace endpoints align visually with those two marks."},
+        {"question": "Does this independent answer agree with the stored response?", "answer_bool": true, "why": "The label and both endpoints match in substance."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "twins-agree-on-substance",
+      "target": null,
+      "looked_at": [],
+      "findings": "The supplied sample has no twin_of field, so there is no paired reference answer to compare.",
+      "criterion": "Substantive agreement is applicable only when the sample explicitly identifies a twin whose response can be compared.",
+      "steps": [
+        {"question": "Does this sample identify a twin?", "answer_bool": false, "why": "No twin_of field appears in the supplied sample JSON."}
+      ],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

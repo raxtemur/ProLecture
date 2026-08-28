@@ -1,0 +1,72 @@
+{
+  "schema_version": "1.0",
+  "checklist_version": "1.0",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q13",
+  "role": "probe_text",
+  "iteration": 1,
+  "model": "gpt-5",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/3b1b__3d6DsjIBzJ4__q13/probe_text_r1",
+  "budget": {
+    "frames_viewed": 0,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 707,
+    "screen_index_used": false
+  },
+  "violations": [],
+  "notes": "The geometric object is inferable, but the transcript does not explicitly state the on-screen endpoint labels or bind a and x to the new area diagram.",
+  "looked_at": [
+    {
+      "kind": "cue",
+      "t": 788.7,
+      "what": "The base input for the general Taylor polynomial is called a, and the polynomial is written in powers of x-a."
+    },
+    {
+      "kind": "cue",
+      "t": 891.0,
+      "what": "The accumulated-area function is defined as area under a graph between a fixed left point and a variable right point."
+    },
+    {
+      "kind": "cue",
+      "t": 900.4,
+      "what": "The speaker distinguishes the area function from the function defining the graph itself."
+    },
+    {
+      "kind": "cue",
+      "t": 907.0,
+      "what": "The speaker says focusing on the area will make the second-order term appear geometrically."
+    },
+    {
+      "kind": "cue",
+      "t": 915.0,
+      "what": "The graph being accumulated is the derivative of the area function."
+    },
+    {
+      "kind": "cue",
+      "t": 919.9,
+      "what": "A small shift of the right bound adds approximately a strip whose area is graph height times dx."
+    }
+  ],
+  "steps": [
+    {
+      "question": "What interval supplies the first-order strip's width?",
+      "answer_text": "Using the transcript's nearby Taylor symbols, moving from the base point a to the endpoint x gives width x-a.",
+      "why": "At 788.7-794.4 the expansion is based at a and uses x-a; at 891.0-898.1 the area runs from a fixed left point to a variable right point."
+    },
+    {
+      "question": "What additional shape captures the graph's changing height across that interval?",
+      "answer_text": "A triangular wedge above or below the first-order rectangle.",
+      "why": "The transcript identifies the first-order addition as a height-times-width strip and says the second-order term becomes geometric; by general knowledge, linearly changing the strip height adds a triangle."
+    },
+    {
+      "question": "What are the triangle's base and height in the inferred symbols?",
+      "answer_text": "Its base is x-a. Its signed height is the change f(x)-f(a), approximated to first order by f'(a)(x-a), so its area is approximately one half f'(a)(x-a)^2.",
+      "why": "By the fundamental theorem statement at 912.3-919.9, the accumulated graph is the area function's derivative; general knowledge linearizes that graph about a."
+    }
+  ],
+  "answer": "The extra piece should be a triangular wedge attached to the first-order rectangular strip. Using a for the base point and x for the endpoint, its base is x-a. Its signed height is the change in the white graph, f(x)-f(a), which near a is determined by the slope there: f'(a)(x-a). Thus the triangle contributes approximately (1/2)f'(a)(x-a)^2 (below the rectangle if that change is negative).",
+  "basis": "Transcript: at 788.7-794.4 the nearby general Taylor notation uses base point a and displacement x-a; at 891.0-904.9 the speaker defines and distinguishes the accumulated-area function; at 907.0-919.9 the speaker says its second-order term has a geometric interpretation and that the white graph is its derivative; at 919.9-930.1 a small endpoint shift adds a height-times-dx strip. The triangular-wedge construction and height f(x)-f(a) approximately f'(a)(x-a) use general knowledge. Because the transcript never explicitly states the symbols drawn on the new screen, identifying those displayed symbols as a and x is a guess.",
+  "confidence": "medium",
+  "insufficient": true
+}

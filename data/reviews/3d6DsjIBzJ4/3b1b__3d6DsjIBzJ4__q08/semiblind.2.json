@@ -1,0 +1,57 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q08",
+  "role": "semiblind",
+  "iteration": 2,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q08/semiblind",
+  "budget": {"frames_viewed": 8, "sparse_step": null, "dense_intervals": [{"t_start": 550.0, "t_end": 574.0}], "transcript_cues": 435, "screen_index_used": true},
+  "violations": [],
+  "notes": "Iteration 2 targeted the repaired 572/573 boundary. The declared distractor [550.1, 573.0) remains clean: the current result is not visibly complete before 573 s.",
+  "prior_answer": "It cannot be answered on the merits from the question alone: the reused term, derivative orders, center, and displayed numerical evaluations are not specified.",
+  "prior_answer_assumptions": [],
+  "recognized_video": false,
+  "recognized_how": "Before viewing, I did not recognize the particular video moment or remember the displayed derivative results.",
+  "scans": [{
+    "idx": 0, "t_from": 0.0, "t_to": 590.5,
+    "watched": [
+      {"kind": "frame", "t": 455.0, "what": "The earlier fourth-derivative calculation has begun for P(x)=1-(1/2)x^2+c_4x^4, but its polynomial-side result is not yet drawn."},
+      {"kind": "frame", "t": 478.0, "what": "The earlier calculation shows d^4P/dx^4 = 1*2*3*4*(1/24) = 24*(1/24), which evaluates to 1."},
+      {"kind": "frame", "t": 550.0, "what": "The polynomial is being rebuilt and stops after the plus sign; neither c_4x^4 nor the caption is complete."},
+      {"kind": "frame", "t": 560.0, "what": "The caption 'Doesn't affect previous terms' is visible over c_4x^4, but no current derivative evaluation is displayed yet."},
+      {"kind": "frame", "t": 568.0, "what": "The second derivative at zero is displayed as 2(-1/2)+3*4c_4(0)^2, with no evaluated result for the c_4 term."},
+      {"kind": "frame", "t": 572.0, "what": "An underbrace has appeared beneath 3*4c_4(0)^2, but the value under the brace is still absent."},
+      {"kind": "frame", "t": 573.0, "what": "The value '=0' is now visibly written beneath the underbraced 3*4c_4(0)^2 term."},
+      {"kind": "frame", "t": 574.0, "what": "The '=0' result remains visible while the surrounding expression begins transitioning away."}
+    ],
+    "candidates": [
+      {"question": "Is the comparison answerable at 560 seconds when the caption is visible?", "answer_bool": false, "answer_number": null, "answer_text": null, "why": "The caption and reused c_4x^4 term are visible, but the current second-derivative evaluation has not appeared. This lies in the declared distractor."},
+      {"question": "Is the comparison answerable at 572 seconds?", "answer_bool": false, "answer_number": null, "answer_text": null, "why": "The current contribution 3*4c_4(0)^2 is underbraced, but its displayed result is still missing; inferring zero would answer before the requested displayed evaluation is complete."},
+      {"question": "Is the comparison answerable at 573 seconds?", "answer_bool": true, "answer_number": null, "answer_text": null, "why": "The underbraced current c_4 contribution now visibly reads '=0', and the earlier fourth-derivative frame visibly supplies 24*(1/24)=1."}
+    ],
+    "t_val": 573.0,
+    "t_val_basis": "At 573 s the current second-derivative contribution of the reused c_4x^4 term first visibly receives the result '=0'; the earlier fourth-derivative calculation at 478 s shows 24*(1/24)=1.",
+    "answer_at_t_val": "Currently, taking two derivatives of (1/24)x^4 and evaluating at x=0 gives 3*4*(1/24)*(0)^2=0. Earlier, taking four derivatives gave 1*2*3*4*(1/24)=1. Two derivatives leave an x^2 factor, which vanishes at x=0; four derivatives remove the x power entirely, leaving the nonzero constant 24*(1/24)=1.",
+    "confidence": "high"
+  }],
+  "checks": [
+    {
+      "group": "shortcuts", "item": "solvable-without-video", "target": null,
+      "looked_at": [{"kind": "cue", "t": 0.0, "what": "Pre-view response recorded from the supplied question alone, before opening the transcript or frames."}],
+      "findings": "The question names displayed evaluations but supplies neither the reused term nor either displayed formula or result.",
+      "criterion": "The shortcut fires only if the exact requested results and comparison follow from the question plus general knowledge without inventing unseen screen content.",
+      "steps": [{"question": "Can both displayed results be determined from the question text alone?", "answer_bool": false, "answer_number": null, "answer_text": null, "why": "Their values depend on the unspecified term and derivative evaluations shown in this particular scene."}],
+      "result": "ok", "confidence": "high", "proposal": null, "uncovered": null
+    },
+    {
+      "group": "shortcuts", "item": "video-recognized", "target": null,
+      "looked_at": [{"kind": "cue", "t": 0.0, "what": "Pre-view recognition self-report recorded before opening the transcript or frames."}],
+      "findings": "I had no memory of this particular scene or its two displayed derivative results before viewing.",
+      "criterion": "Recognition fires only if the particular video moment and answer can be named from memory before inspecting the supplied material.",
+      "steps": [{"question": "Could I name both displayed results from memory before viewing?", "answer_bool": false, "answer_number": null, "answer_text": null, "why": "I did not recognize the particular moment or remember its numerical evaluations."}],
+      "result": "ok", "confidence": "high", "proposal": null, "uncovered": null
+    }
+  ]
+}

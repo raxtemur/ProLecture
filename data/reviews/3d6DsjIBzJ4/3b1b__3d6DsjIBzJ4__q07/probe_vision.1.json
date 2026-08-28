@@ -1,0 +1,51 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q07",
+  "role": "probe_vision",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q07/probe_vision",
+  "budget": {
+    "frames_viewed": 2,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": null,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The screen index was used only to locate the two moments; 137 matching/range lines were returned or read. No transcript or audio was used.",
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 472.0,
+      "what": "The cosine coefficient calculation shows d^4P/dx^4(x) = 1·2·3·4·c_4 and = 24·c_4."
+    },
+    {
+      "kind": "frame",
+      "t": 531.0,
+      "what": "The isolated eighth-power calculation shows d^8/dx^8(c_8x^8) = 1·2·3·4·5·6·7·8·c_8, with a brace labelled 8! under the complete numerical product."
+    }
+  ],
+  "steps": [
+    {
+      "question": "What factorial product is visible in the earlier nonzero even-power coefficient calculation?",
+      "answer_bool": null,
+      "answer_number": null,
+      "answer_text": "1·2·3·4 = 24",
+      "why": "Frame t000472.jpg displays 1·2·3·4·c_4 and the next line 24·c_4."
+    },
+    {
+      "question": "What complete factorial product and coefficient symbol are visible in the isolated higher-power demonstration?",
+      "answer_bool": null,
+      "answer_number": null,
+      "answer_text": "1·2·3·4·5·6·7·8 = 8!, multiplying c_8",
+      "why": "Frame t000531.jpg shows the full product under a brace labelled 8!, followed by c_8."
+    }
+  ],
+  "answer": "The earlier calculation shows 1·2·3·4 = 24, while the isolated higher-power screen shows 1·2·3·4·5·6·7·8 = 8!. The coefficient left undetermined on the new screen is c_8.",
+  "basis": "Frames t000472.jpg (the c_4 calculation and 1·2·3·4 = 24) and t000531.jpg (the complete 8! brace and c_8).",
+  "confidence": "high",
+  "insufficient": false
+}

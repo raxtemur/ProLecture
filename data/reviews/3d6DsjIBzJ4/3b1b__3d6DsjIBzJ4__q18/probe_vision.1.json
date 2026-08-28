@@ -1,0 +1,62 @@
+{
+  "schema_version": "1.0",
+  "checklist_version": "1.0",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q18",
+  "role": "probe_vision",
+  "iteration": 1,
+  "model": "gpt-5",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/3b1b__3d6DsjIBzJ4__q18/probe_vision_r1",
+  "budget": {
+    "frames_viewed": 4,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 1237.0,
+        "t_end": 1257.0
+      }
+    ],
+    "transcript_cues": null,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The frame-derived screen index was used only to locate the relevant stretch; the answer rests on the named frames.",
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 1245.0,
+      "what": "The Diverges callout is visible; a bracket begins at the yellow point on the x-axis and extends right to the vertical dotted line, but its label has not yet appeared."
+    },
+    {
+      "kind": "frame",
+      "t": 1253.0,
+      "what": "The bracket remains under the x-axis while its gray label is still being drawn and is only partially legible."
+    },
+    {
+      "kind": "frame",
+      "t": 1254.0,
+      "what": "The complete gray label \"Radius of convergence\" is visible below the bracket, which spans from the yellow x-axis point to the right-hand vertical dotted line."
+    },
+    {
+      "kind": "frame",
+      "t": 1256.0,
+      "what": "During the transition, \"Radius of convergence\" and the bracket are still visible below the x-axis, confirming the completed wording."
+    }
+  ],
+  "steps": [
+    {
+      "question": "What exact text appears beneath the bracket after the Diverges callout?",
+      "answer_text": "Radius of convergence",
+      "why": "The full phrase is clearly legible in frame t001254.jpg and remains visible in t001256.jpg."
+    },
+    {
+      "question": "Which two marked visual locations are joined by the bracket?",
+      "answer_text": "The yellow point on the x-axis and the right-hand vertical dotted line",
+      "why": "Frames t001245.jpg and t001254.jpg show the bracket beginning directly beneath the yellow point and ending at the dotted vertical marker to its right."
+    }
+  ],
+  "answer": "The label reads \"Radius of convergence\". The bracket connects the yellow marked point on the x-axis to the right-hand vertical dotted line.",
+  "basis": "Frames t001245.jpg (1245 s) and t001254.jpg (1254 s), with the completed label also visible in t001256.jpg (1256 s).",
+  "confidence": "high",
+  "insufficient": false
+}

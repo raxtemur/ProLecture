@@ -1,0 +1,405 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q15",
+  "role": "full_sample",
+  "iteration": 1,
+  "model": "gpt-5",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/3b1b__3d6DsjIBzJ4__q15/full_sample_r1",
+  "budget": {
+    "frames_viewed": 35,
+    "sparse_step": 50.0,
+    "dense_intervals": [
+      {
+        "t_start": 1087.0,
+        "t_end": 1087.1
+      }
+    ],
+    "transcript_cues": 1016,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "Whole transcript and a 29-frame whole-video visual pass found no earlier all-numeric infinite series. Pinpoint frames confirm the annotated series and limit. No twin_of is present.",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "group": "triggers",
+      "item": "no-missed-trigger",
+      "looked_at": [
+        {"kind": "frame", "t": 0.0, "what": "Opening frame; no numerical infinite series."},
+        {"kind": "frame", "t": 51.8, "what": "Pendulum geometry and cosine expression, not a numerical infinite series."},
+        {"kind": "frame", "t": 101.4, "what": "Function graph introduction, not a numerical infinite series."},
+        {"kind": "frame", "t": 162.3, "what": "Cosine and polynomial graphs, not a numerical infinite series."},
+        {"kind": "frame", "t": 209.5, "what": "Derivative matching display, not a numerical infinite series."},
+        {"kind": "frame", "t": 251.2, "what": "Curvature illustration, not a numerical infinite series."},
+        {"kind": "frame", "t": 299.8, "what": "Polynomial derivative display, not a numerical infinite series."},
+        {"kind": "frame", "t": 351.6, "what": "Coefficient illustration, not a numerical infinite series."},
+        {"kind": "frame", "t": 400.1, "what": "Cubic polynomial derivative display, not a numerical infinite series."},
+        {"kind": "frame", "t": 448.4, "what": "Fourth-order polynomial display, not a numerical infinite series."},
+        {"kind": "frame", "t": 497.0, "what": "Pendulum illustration, not a numerical infinite series."},
+        {"kind": "frame", "t": 550.1, "what": "Finite polynomial terms, not a numerical infinite series."},
+        {"kind": "frame", "t": 602.2, "what": "Polynomial centered at pi, not a numerical infinite series."},
+        {"kind": "frame", "t": 650.8, "what": "Cosine derivative cycle, not a numerical infinite series."},
+        {"kind": "frame", "t": 709.0, "what": "Taylor polynomial in symbolic x, not a numerical infinite series."},
+        {"kind": "frame", "t": 751.4, "what": "General symbolic Taylor polynomial, not a numerical infinite series."},
+        {"kind": "frame", "t": 801.1, "what": "General symbolic expansion about a, not a numerical infinite series."},
+        {"kind": "frame", "t": 851.8, "what": "Taylor polynomial for e^x with symbolic x, not a numerical infinite series."},
+        {"kind": "frame", "t": 900.6, "what": "Area-function graph, not a numerical infinite series."},
+        {"kind": "frame", "t": 950.3, "what": "Area increment diagram, not a numerical infinite series."},
+        {"kind": "frame", "t": 1007.1, "what": "Geometric area decomposition, not a numerical infinite series."},
+        {"kind": "frame", "t": 1048.8, "what": "Cosine series in symbolic x; it is not an all-numeric infinite series."},
+        {"kind": "frame", "t": 1078.4, "what": "First all-numeric infinite series is visible as 1/3 + 1/9 + 1/27 + 1/81 + 1/243 + ellipsis."},
+        {"kind": "frame", "t": 1109.6, "what": "Later e^1 numerical series, after the first series named in the question."},
+        {"kind": "frame", "t": 1157.2, "what": "e^x convergence graph, after the first numerical series."},
+        {"kind": "frame", "t": 1207.3, "what": "Natural-log Taylor series in symbolic x, after the first numerical series."},
+        {"kind": "frame", "t": 1258.6, "what": "Closing characters, no new qualifying first-series event."},
+        {"kind": "frame", "t": 1306.4, "what": "Credits/support frame, no numerical infinite series."},
+        {"kind": "frame", "t": 1336.0, "what": "End-screen characters, no numerical infinite series."},
+        {"kind": "cue", "t": 15.0, "what": "Transcript begins the Taylor-series lesson; the full transcript was read line by line through 1338.7."},
+        {"kind": "cue", "t": 1047.4, "what": "Author introduces adding infinitely many terms, shortly before the numerical example."},
+        {"kind": "cue", "t": 1103.8, "what": "Author moves on to the e^x example after explaining convergence."},
+        {"kind": "cue", "t": 1315.1, "what": "Final transcript cue is music; no further qualifying display is introduced."}
+      ],
+      "findings": "Across the full 0–1339 s transcript and sparse visual pass, earlier displays are graphs or Taylor polynomials containing variables. The all-numeric geometric series at 1078.4 is the first qualifying display; later numerical examples occur only after it.",
+      "criterion": "A missed firing would be an earlier moment satisfying the singular condition 'the first displayed numerical infinite series' or another unannotated moment that the wording could treat as that first event.",
+      "steps": [
+        {
+          "question": "Does any display before the annotated geometric example show an all-numeric infinite series?",
+          "answer_bool": false,
+          "why": "The whole-video sparse pass shows symbolic polynomials and graph formulas before 1077, while the transcript introduces the numerical convergence example only there."
+        },
+        {
+          "question": "Does the singular word 'first' create any later firing after that example?",
+          "answer_bool": false,
+          "why": "Later e and logarithm series are subsequent examples and therefore cannot be the first displayed numerical infinite series."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high"
+    },
+    {
+      "group": "triggers",
+      "item": "trigger-matches-criterion",
+      "looked_at": [
+        {"kind": "frame", "t": 1078.4, "what": "The series 1/3 + 1/9 + 1/27 + 1/81 + 1/243 + ellipsis is fully visible."},
+        {"kind": "frame", "t": 1087.0, "what": "The same series is visible together with the label 'Converges to 1/2'."}
+      ],
+      "findings": "At the sole trigger, the first all-numeric infinite series is on screen and its labelled limit 1/2 is jointly visible, supplying the displayed facts needed for the counterfactual calculation.",
+      "criterion": "The trigger belongs only if its moment literally is the completion of the first displayed numerical infinite series with the ratio-readable terms and labelled limit available.",
+      "steps": [
+        {
+          "question": "Is the displayed series numerical and infinite at this moment?",
+          "answer_bool": true,
+          "why": "Its visible terms are numerical fractions and the ellipsis denotes continuation."
+        },
+        {
+          "question": "Is the labelled limit jointly visible at the trigger?",
+          "answer_bool": true,
+          "why": "The exact 1087.0 frame reads 'Converges to 1/2' above the series."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high"
+    },
+    {
+      "group": "shortcuts",
+      "item": "question-anchored-to-screen",
+      "looked_at": [],
+      "findings": "The question explicitly names 'the first displayed numerical infinite series', asks to read values 'from the screen', and refers to 'that displayed ratio' and 'the displayed limit'.",
+      "criterion": "A screen-anchored question must identify visible content or its on-screen relation rather than asking only a general textbook fact.",
+      "steps": [
+        {
+          "question": "Which phrases tie the task to a particular video display?",
+          "answer_text": "'first displayed numerical infinite series', 'read ... from the screen', 'that displayed ratio', and 'displayed limit'",
+          "why": "These phrases require identifying values and order on this screen rather than supplying an arbitrary geometric-series example."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high"
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-within-question",
+      "looked_at": [],
+      "findings": "Each positive rubric demand maps to an explicit clause: retained ratio to 'retaining that displayed ratio', new sum to 'compute the new infinite sum', and numerical comparison to 'compare it quantitatively with the displayed limit'. The exclusion of 1/2 as the new sum follows from replacing the first term before computing the new sum.",
+      "criterion": "Every scoring requirement, including an exclusion, must follow from a requirement or distinction visible in the participant's question string.",
+      "steps": [
+        {
+          "question": "What question requirement supports identifying the ratio 1/3?",
+          "answer_text": "Read the common ratio from the screen and retain that displayed ratio.",
+          "why": "The first two clauses explicitly request and preserve the ratio."
+        },
+        {
+          "question": "What question requirement supports computing 3/8?",
+          "answer_text": "Replace only the first term by 1/4 and compute the new infinite sum.",
+          "why": "This is stated directly in the counterfactual instruction."
+        },
+        {
+          "question": "What question requirement supports saying 1/8 below 1/2?",
+          "answer_text": "Compare the new sum quantitatively with the displayed limit.",
+          "why": "A signed or directional numerical difference directly fulfills this clause."
+        },
+        {
+          "question": "What wording supports not accepting 1/2 as the new sum?",
+          "answer_text": "The requested sum is after replacing only the first term by 1/4.",
+          "why": "Returning the unchanged displayed limit does not perform the explicitly requested replacement."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high"
+    },
+    {
+      "group": "rubric",
+      "item": "discriminator-in-question",
+      "looked_at": [],
+      "findings": "The distractor is excluded by 'labelled limit from the screen' and 'displayed limit': before 1087 the series is shown, but its limit label is absent. The rubric's rejection of 1/2 as the counterfactual sum is grounded by 'replace only its first term by 1/4' and 'compute the new infinite sum'.",
+      "criterion": "Every distinction used to penalize an early or wrong answer must be expressible from wording shown to the participant, not only from annotation notes.",
+      "steps": [
+        {
+          "question": "Which words exclude answering while only the terms are visible?",
+          "answer_text": "'labelled limit from the screen' and 'displayed limit'",
+          "why": "Those clauses require the limit to have appeared as a label, not merely to be mathematically inferable."
+        },
+        {
+          "question": "Which words exclude using the unmodified limit as the new sum?",
+          "answer_text": "'replace only its first term by 1/4' and 'compute the new infinite sum'",
+          "why": "They explicitly define a changed series whose sum must be recomputed."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high"
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-not-punishing-extra",
+      "looked_at": [
+        {"kind": "frame", "t": 1087.0, "what": "The label 'Converges to 1/2' and the unchanged geometric series are jointly visible."}
+      ],
+      "findings": "The only restrictive rubric language is 'do NOT count 1/2, which is the limit of the unmodified displayed series'. The expected response itself mentions 1/2 for comparison, so the restriction distinguishes the new sum from the old one rather than forbidding a correct mention of the displayed limit.",
+      "criterion": "Restrictive wording must reject an incorrect substitution without penalizing additional correct details that fit the question and visible evidence.",
+      "steps": [
+        {
+          "question": "Is 1/2 a correct value to mention in answering the comparison clause?",
+          "answer_bool": true,
+          "why": "It is visibly the displayed limit and is the baseline against which 3/8 must be compared."
+        },
+        {
+          "question": "Does the restrictive item reject that correct mention?",
+          "answer_bool": false,
+          "why": "Its explanatory phrase identifies 1/2 as the unmodified limit, and the reference response includes 1/2 while reserving 3/8 for the new sum."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high"
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-fully-covered",
+      "target": {"distractor_idx": 0},
+      "looked_at": [
+        {"kind": "frame", "t": 1068.0, "what": "The screen still shows the symbolic cosine Taylor series and no numerical geometric series."},
+        {"kind": "frame", "t": 1072.3, "what": "The symbolic cosine series remains; the numerical geometric series has not appeared."},
+        {"kind": "frame", "t": 1078.4, "what": "The numerical geometric series is fully visible, but no labelled limit is present."},
+        {"kind": "frame", "t": 1081.1, "what": "A partial-sum animation is visible without any limit label."},
+        {"kind": "frame", "t": 1084.6, "what": "The full geometric series and partial-sum decimal are visible, still without a limit label."},
+        {"kind": "frame", "t": 1087.0, "what": "At the distractor's exclusive end, 'Converges to 1/2' appears and the valid trigger begins."},
+        {"kind": "cue", "t": 1067.0, "what": "The author begins warning about the idea of an infinite series."},
+        {"kind": "cue", "t": 1077.7, "what": "The author begins explaining that adding more terms can approach a specific value."}
+      ],
+      "findings": "The visual temptation starts when the numerical series appears around 1077 and persists while partial sums approach a value. Throughout the pre-1087 portion the label is absent; at exactly 1087 the label appears and the trigger begins. The annotated distractor [1068,1087) covers the whole tempting fragment and additional lead-in.",
+      "criterion": "A distractor must span the entire interval in which the decoy state described by its why is present, including its earliest tempting frame and ending where the missing condition appears.",
+      "steps": [
+        {
+          "question": "When does the tempting numerical series first appear?",
+          "answer_number": 1077.0,
+          "why": "The scene changes from the symbolic cosine display to the numerical geometric series at about 1077."
+        },
+        {
+          "question": "When does the missing labelled limit first appear?",
+          "answer_number": 1087.0,
+          "why": "The exact 1087 frame adds the label 'Converges to 1/2'."
+        },
+        {
+          "question": "Does the annotated distractor cover that entire half-open temptation interval?",
+          "answer_bool": true,
+          "why": "[1068,1087) begins before the numerical display and ends exactly when the label appears."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high"
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-not-correct-answer",
+      "target": {"distractor_idx": 0},
+      "looked_at": [
+        {"kind": "frame", "t": 1078.4, "what": "The geometric terms are visible but the screen has no labelled limit."},
+        {"kind": "frame", "t": 1084.6, "what": "The screen shows a partial-sum decimal 0.4979424, not the labelled limit requested by the question."},
+        {"kind": "frame", "t": 1087.0, "what": "The labelled limit first appears at the trigger boundary, outside the half-open distractor."}
+      ],
+      "findings": "Inside [1068,1087), a viewer can infer the ratio from the terms and can see changing partial sums, but cannot read the requested labelled limit from the screen. The label arrives only at the distractor's end.",
+      "criterion": "A decoy is legitimate only if a good-faith reading of the question still leaves some required on-screen condition unmet throughout the distractor.",
+      "steps": [
+        {
+          "question": "Can the common ratio be read during the tempting part of the distractor?",
+          "answer_bool": true,
+          "why": "Successive visible terms 1/3, 1/9, and 1/27 establish a factor of 1/3."
+        },
+        {
+          "question": "Can the labelled limit be read from the screen before 1087?",
+          "answer_bool": false,
+          "why": "Only partial-sum decimals appear before the boundary; the 'Converges to 1/2' label is absent."
+        },
+        {
+          "question": "Is an answer during the distractor fully correct under the literal question?",
+          "answer_bool": false,
+          "why": "It would anticipate rather than read the labelled limit required by the wording."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high"
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-why-hides-answer",
+      "looked_at": [],
+      "findings": "The distractor why states only that the numerical series and its labelled limit are not yet jointly complete. It gives neither the ratio, the displayed limit, the changed sum, nor the quantitative difference.",
+      "criterion": "A distractor explanation may describe the temptation and missing condition but must not let a semi-blind reviewer reconstruct the reference response or a scoring item.",
+      "steps": [
+        {
+          "question": "Can the retained ratio 1/3 be reconstructed from the distractor why?",
+          "answer_bool": false,
+          "why": "No numerical ratio or series terms are included in the why."
+        },
+        {
+          "question": "Can the displayed limit 1/2, new sum 3/8, or difference 1/8 be reconstructed from it?",
+          "answer_bool": false,
+          "why": "The why names only the absence of joint completeness and contains none of those values."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high"
+    },
+    {
+      "group": "labels",
+      "item": "reasoning-level-not-inflated",
+      "looked_at": [],
+      "findings": "The screen supplies the original terms and labelled limit, but it never displays the series obtained by changing only the first term to 1/4 or its sum and difference. Those quantities must be derived counterfactually.",
+      "criterion": "L3 is warranted when answering requires deriving a fact not presented in the video, rather than merely reading one moment or linking separated moments.",
+      "steps": [
+        {
+          "question": "Is the counterfactual series with first term 1/4 shown in the video?",
+          "answer_bool": false,
+          "why": "The displayed example retains first term 1/3; the replacement exists only in the question."
+        },
+        {
+          "question": "Must the participant derive its sum and numerical comparison?",
+          "answer_bool": true,
+          "why": "Computing a/(1-r) and subtracting from the displayed limit are required and not read off screen."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high"
+    },
+    {
+      "group": "provenance",
+      "item": "reference-matches-description",
+      "looked_at": [
+        {"kind": "frame", "t": 1078.4, "what": "The frame visibly reads 1/3 + 1/9 + 1/27 + 1/81 + 1/243 + ellipsis."},
+        {"kind": "frame", "t": 1087.0, "what": "The same series is visible with the label 'Converges to 1/2'."}
+      ],
+      "findings": "Both frame evidence descriptions match the actual frames: 1078.4 contains the listed geometric terms, and 1087.0 jointly contains that series and its labelled limit 1/2. The non-frame evidence gives the applicable geometric-sum formula.",
+      "criterion": "Each provenance record must accurately describe what its cited frame or derivation actually establishes.",
+      "steps": [
+        {
+          "question": "Does the 1078.4 frame match its term-list description?",
+          "answer_bool": true,
+          "why": "All five stated fractions and the continuation ellipsis are legible."
+        },
+        {
+          "question": "Does the 1087.0 frame match its joint-series-and-limit description?",
+          "answer_bool": true,
+          "why": "The exact frame visibly adds 'Converges to 1/2' above the same series."
+        },
+        {
+          "question": "Does the 'other' evidence describe a valid derivation?",
+          "answer_bool": true,
+          "why": "For a geometric series, a/(1-r) with a=1/4 and r=1/3 is the correct formula."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high"
+    },
+    {
+      "group": "provenance",
+      "item": "references-consistent-with-windows",
+      "looked_at": [],
+      "findings": "The 1078.4 reference establishes the terms but not the requested labelled limit; it therefore does not claim the full answer was available before t_start. The 1087.0 reference establishes joint availability exactly at t_start, and the counterfactual derivation is not a video-time claim.",
+      "criterion": "A contradiction occurs only if provenance says the complete answer was available or stated before the answer window opened.",
+      "steps": [
+        {
+          "question": "Does the 1078.4 evidence imply the full answer was available before 1087?",
+          "answer_bool": false,
+          "why": "Its description contains the series terms only and does not claim the labelled limit is visible."
+        },
+        {
+          "question": "When does provenance say the series and labelled limit are jointly visible?",
+          "answer_number": 1087.0,
+          "why": "That is the cited time and it equals the trigger start."
+        },
+        {
+          "question": "Does the mathematical other-record create an earlier video availability claim?",
+          "answer_bool": false,
+          "why": "It is an external counterfactual computation, not an assertion that the changed sum appeared in the video."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high"
+    },
+    {
+      "group": "provenance",
+      "item": "reference-answer-verified",
+      "looked_at": [
+        {"kind": "frame", "t": 1078.4, "what": "Visible successive terms show the retained common ratio is (1/9)/(1/3) = 1/3."},
+        {"kind": "frame", "t": 1087.0, "what": "The displayed comparison baseline is labelled 1/2."}
+      ],
+      "findings": "Independent exact-rational recomputation used a=1/4 and r=1/3: a/(1-r) = (1/4)/(2/3) = 3/8. Subtracting from the displayed limit gives 1/2 - 3/8 = 1/8, so the new sum is 1/8 below the displayed limit.",
+      "criterion": "The reference response must agree with an independent exact computation based on the verified screen values, including direction and magnitude of the comparison.",
+      "steps": [
+        {
+          "question": "What retained common ratio follows from the displayed terms?",
+          "answer_text": "1/3",
+          "why": "Dividing 1/9 by 1/3, or 1/27 by 1/9, gives 1/3."
+        },
+        {
+          "question": "What is the exact new infinite sum for first term 1/4 and ratio 1/3?",
+          "answer_text": "3/8",
+          "why": "Exact rational arithmetic gives (1/4)/(1-1/3) = (1/4)/(2/3) = 3/8."
+        },
+        {
+          "question": "What is the signed quantitative comparison with the displayed limit 1/2?",
+          "answer_text": "The new sum is 1/8 below 1/2.",
+          "why": "Exact rational subtraction gives 1/2 - 3/8 = 1/8."
+        },
+        {
+          "question": "Does the independently computed result agree with the reference response?",
+          "answer_bool": true,
+          "why": "The ratio, new sum, comparison magnitude, and direction all coincide."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high"
+    },
+    {
+      "group": "provenance",
+      "item": "twins-agree-on-substance",
+      "looked_at": [],
+      "findings": "The supplied sample has no twin_of field, so there is no paired reference answer to compare.",
+      "criterion": "Substantive agreement can be checked only when the sample explicitly names a twin sample.",
+      "steps": [],
+      "result": "na",
+      "confidence": "high"
+    }
+  ]
+}

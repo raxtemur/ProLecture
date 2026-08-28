@@ -1,0 +1,121 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q17",
+  "role": "semiblind",
+  "iteration": 1,
+  "model": "gpt-5",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/3b1b__3d6DsjIBzJ4__q17/semiblind_r1",
+  "budget": {
+    "frames_viewed": 14,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 1194.0,
+        "t_end": 1208.0
+      }
+    ],
+    "transcript_cues": 920,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The transcript and screen index accounted for the complete 0–1208 s stretch; real-frame inspection was concentrated on the only relevant end scene. The extraction tool rounds frame names to whole seconds, so the boundary is localized to the first complete sampled frame at 1204 s.",
+  "prior_answer": "It cannot be answered on the merits: the question does not specify the four approximants' displayed positions relative to the blue curve at the white probe.",
+  "prior_answer_assumptions": [],
+  "recognized_video": false,
+  "recognized_how": "I did not recognize this exact video or moment and could not name the four-way comparison sequence from memory.",
+  "scans": [
+    {
+      "idx": 0,
+      "t_from": 0.0,
+      "t_to": 1208.0,
+      "watched": [
+        {"kind": "frame", "t": 1194.0, "what": "Natural-log Taylor formula and blue target curve are visible, but no successive brace/approximant pass has begun."},
+        {"kind": "frame", "t": 1195.0, "what": "Blue natural-log target remains without the requested brace sequence."},
+        {"kind": "frame", "t": 1196.0, "what": "Two dashed vertical lines appear around the convergence interval; no approximant sequence is yet complete."},
+        {"kind": "frame", "t": 1197.0, "what": "Blue curve, dashed lines, and probe setup are visible before the first approximant."},
+        {"kind": "frame", "t": 1198.0, "what": "Brace covers only the first term and the yellow linear approximant lies above the blue curve at the right dashed probe."},
+        {"kind": "frame", "t": 1199.0, "what": "The first yellow approximant remains on screen; the required sequence is incomplete."},
+        {"kind": "frame", "t": 1200.0, "what": "Brace covers two terms and the green quadratic approximant lies below the blue curve at the right dashed probe."},
+        {"kind": "frame", "t": 1201.0, "what": "The second green approximant remains; only two requested comparisons have appeared."},
+        {"kind": "frame", "t": 1202.0, "what": "Transition to the red cubic stage is underway and the brace has not yet reached four terms."},
+        {"kind": "frame", "t": 1203.0, "what": "Brace covers the first three terms; the red cubic approximant lies above the blue curve at the right dashed probe, but the fourth is absent."},
+        {"kind": "frame", "t": 1204.0, "what": "Brace reaches the first four terms and the pink quartic approximant is fully visible below the blue curve at the right dashed probe."},
+        {"kind": "frame", "t": 1205.0, "what": "A later higher-order approximant is shown after the requested four-curve sequence."},
+        {"kind": "frame", "t": 1206.0, "what": "Another later approximant is shown after the requested first four."},
+        {"kind": "frame", "t": 1207.0, "what": "The brace extends farther and a later approximant appears; this is later than the first complete four-curve answer."}
+      ],
+      "candidates": [
+        {
+          "question": "Is the answer available at 1198 s?",
+          "answer_bool": false,
+          "why": "This lies in the declared distractor and shows only the first yellow approximant, so three comparisons are still missing."
+        },
+        {
+          "question": "Is the answer available at 1200 s?",
+          "answer_bool": false,
+          "why": "This lies in the declared distractor and shows only the first two approximants."
+        },
+        {
+          "question": "Is the answer available at 1203 s?",
+          "answer_bool": false,
+          "why": "The frame is outside the declared distractor but the brace reaches only the first three terms and the fourth curve has not appeared."
+        },
+        {
+          "question": "Is the answer available at 1204 s?",
+          "answer_bool": true,
+          "why": "The brace spans the first four terms and the fourth pink curve is fully drawn, while all four probe-side relations were visible across the immediately preceding stages."
+        }
+      ],
+      "t_val": 1204.0,
+      "t_val_basis": "At 1204 s the brace first visibly spans the first four Taylor approximants and the fourth pink curve is fully drawn; at 1203 s only the first three are present.",
+      "answer_at_t_val": "In order, the first four approximants lie above, below, above, and below the blue curve at the common white probe/right dashed position.",
+      "confidence": "high"
+    }
+  ],
+  "checks": [
+    {
+      "group": "shortcuts",
+      "item": "solvable-without-video",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 1204.0, "what": "The four requested relations depend on colored curves and a probe position that are not specified in the question text."}
+      ],
+      "findings": "The question names four visually presented approximants, a blue curve, and a probe but supplies none of their relative positions.",
+      "criterion": "A blind answer must follow from the question and general knowledge without inventing the missing visual configuration.",
+      "steps": [
+        {
+          "question": "Does the question itself determine the four above/below relations?",
+          "answer_bool": false,
+          "why": "Those relations are contingent on the displayed approximants at the displayed probe and are absent from the wording."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "video-recognized",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 1194.0, "what": "The natural-log Taylor-series scene was not recognized as a particular remembered video moment before review."}
+      ],
+      "findings": "Before opening the transcript or frames, I did not recognize the video ID or know the requested sequence from memory.",
+      "criterion": "Recognition fires only if this particular video and moment were identifiable well enough to recall the answer before viewing.",
+      "steps": [
+        {
+          "question": "Could I name the requested sequence from memory before viewing?",
+          "answer_bool": false,
+          "why": "I had no memory of this exact scene or its four probe comparisons."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

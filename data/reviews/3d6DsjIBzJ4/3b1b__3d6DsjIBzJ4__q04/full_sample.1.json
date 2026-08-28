@@ -1,0 +1,277 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q04",
+  "role": "full_sample",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q04/full_sample",
+  "budget": {
+    "frames_viewed": 49,
+    "sparse_step": 45.0,
+    "dense_intervals": [
+      {"t_start": 244.2, "t_end": 300.0},
+      {"t_start": 268.0, "t_end": 276.0},
+      {"t_start": 281.3, "t_end": 282.4}
+    ],
+    "transcript_cues": 1018,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The 1 s pinpoint pass places earliest simultaneous readability at t=272, not 281.3.\nAt t=271 the terminal -1 is incomplete; at t=272 it is readable while c2 remains Free to change.\nRepair trigger[0].t_start and distractor[0].t_end together, then re-run per-window boundary review.",
+  "verdict": "FIX_INTERVALS",
+  "checks": [
+    {
+      "group": "triggers",
+      "item": "no-missed-trigger",
+      "target": null,
+      "looked_at": [
+        {"kind": "cue", "t": 14.9, "what": "Start of the full transcript pass."},
+        {"kind": "cue", "t": 1315.1, "what": "Last substantive transcript cue before closing music."},
+        {"kind": "frame", "t": 271.0, "what": "The second-derivative row is still drawing and its terminal value is incomplete; c2 is free."},
+        {"kind": "frame", "t": 272.0, "what": "The blue cosine second-derivative row reads through = -1 while P(x)=1+0x+c2x^2 and Free to change remain visible."},
+        {"kind": "frame", "t": 405.0, "what": "A later cosine derivative tableau has c3, not c2, as the free term."},
+        {"kind": "frame", "t": 810.0, "what": "Later generic Taylor formula uses a different target and no still-free cosine quadratic term."},
+        {"kind": "frame", "t": 1305.0, "what": "Closing material contains no recurrence of the requested state."}
+      ],
+      "findings": "The full transcript and 45 s scene pass show one relevant cosine/c2 construction. Within it, the requested simultaneous state is already complete at 272.0 s, but the sole trigger starts at 281.3 s.",
+      "criterion": "Every moment satisfying the literal single-event condition must be assigned to the trigger rather than left unmarked or placed in a distractor.",
+      "steps": [
+        {"question": "What is the earliest complete simultaneous state on the 1 s grid?", "answer_number": 272.0, "why": "At 271 the final value is incomplete; at 272 the row ends in -1 and the c2 term is still explicitly free."},
+        {"question": "Does the current trigger include that earliest valid state?", "answer_bool": false, "why": "The trigger begins at 281.3, leaving 272.0 through 281.3 outside it."},
+        {"question": "Is there another later scene satisfying the same c2-specific condition?", "answer_bool": false, "why": "Later scenes fix c2 at -1/2, free higher-order terms, or present a generic Taylor formula."}
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {"field": "triggers[0].t_start and distractors[0].t_end", "value": "272.0", "why": "Move the shared boundary to the first 1 s frame where -1 and the still-free c2 term are simultaneously readable."},
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "trigger-matches-criterion",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 281.3, "what": "The blue target row reads d2(cos)/dx2(0)=-cos(0)=-1 and the right side shows P(x)=1+0x+c2x2 with Free to change."},
+        {"kind": "frame", "t": 289.0, "what": "The same target value and still-free c2 state remain readable inside trigger 0."}
+      ],
+      "findings": "Frames inside trigger 0 do satisfy the literal visual condition: the blue target's centered second-derivative value is -1 and c2 remains unassigned.",
+      "criterion": "Each annotated trigger must itself display all objects and relations named by the question.",
+      "steps": [
+        {"question": "Is the target second-derivative value readable in trigger 0?", "answer_bool": true, "why": "The left row visibly terminates in -1."},
+        {"question": "Is the quadratic coefficient still free at that same moment?", "answer_bool": true, "why": "The right formula retains symbolic c2 and the label Free to change."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "question-anchored-to-screen",
+      "target": null,
+      "looked_at": [],
+      "findings": "The wording names a blue target row, a displayed center, a shown row value, and a simultaneously readable still-free quadratic term.",
+      "criterion": "A screen-anchored question must identify visible objects or layout whose particular content cannot be replaced by topic knowledge alone.",
+      "steps": [
+        {"question": "Which phrases bind the task to this screen?", "answer_text": "blue target's second-derivative row; displayed center; target value shown in that row; still-free quadratic term; simultaneously readable", "why": "These phrases require identifying a particular displayed state and its color/layout."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-within-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "The rubric asks for the displayed derivative -1, equation 2c2=-1, coefficient -1/2, use of the displayed derivative, and rejection of -1 as the coefficient.",
+      "criterion": "Every positive or excluding rubric requirement must follow from an explicit request or distinction in the question string.",
+      "steps": [
+        {"question": "Does the question ask for the displayed derivative value?", "answer_bool": true, "why": "It explicitly says State the displayed derivative value."},
+        {"question": "Does the question ask for the matching equation?", "answer_bool": true, "why": "It explicitly asks for the matching equation."},
+        {"question": "Does the question ask for the coefficient derived from the row value?", "answer_bool": true, "why": "It says use the target value shown in that row to determine and state the coefficient."},
+        {"question": "Does the question support rejecting -1 as the coefficient?", "answer_bool": true, "why": "The wording distinguishes the displayed target value from the coefficient and separately asks for both."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "discriminator-in-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "The only distractor is the pre-trigger interval, and the question requires both the complete target row value and the still-free quadratic term to be readable simultaneously.",
+      "criterion": "The question must itself state the feature that excludes a tempting but incorrect observation or answer.",
+      "steps": [
+        {"question": "Which wording is intended to exclude an early partial row?", "answer_text": "As soon as ... simultaneously readable", "why": "This requires completion of both visual ingredients, not merely the beginning of the second-derivative discussion."},
+        {"question": "Which wording excludes reporting -1 as c2?", "answer_text": "use the target value shown in that row to determine the coefficient", "why": "This explicitly makes -1 an input to the calculation rather than the requested coefficient."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-not-punishing-extra",
+      "target": null,
+      "looked_at": [],
+      "findings": "The rubric requires the three requested outputs and their displayed origin; it does not impose a closed enumeration or forbid additional correct derivation details.",
+      "criterion": "A rubric must not reject a true detail that also falls under the question unless the wording narrows the requested response accordingly.",
+      "steps": [
+        {"question": "Is any correct extra detail prohibited?", "answer_bool": false, "why": "The exclusion concerns only the mathematically wrong identification of -1 as c2."},
+        {"question": "Is the displayed-origin requirement narrower than the question?", "answer_bool": false, "why": "The question explicitly says to use the target value shown in that row."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-fully-covered",
+      "target": {"distractor_idx": 0},
+      "looked_at": [
+        {"kind": "frame", "t": 244.0, "what": "The symbolic c2 term is free before the target's second-derivative value has appeared."},
+        {"kind": "frame", "t": 268.0, "what": "The second-derivative row is present but still lacks the final numeric value; c2 remains free."},
+        {"kind": "frame", "t": 271.0, "what": "The terminal part of the target row is still being drawn."},
+        {"kind": "frame", "t": 272.0, "what": "The terminal -1 becomes readable while the distractor is still active."}
+      ],
+      "findings": "The distractor starts before the partial second-derivative construction and covers the full pre-value temptation, but it continues beyond the point at which the correct value becomes readable.",
+      "criterion": "A distractor should cover the complete tempting-but-insufficient state, from its onset through the last frame before it becomes a valid answer.",
+      "steps": [
+        {"question": "Does the distractor begin before the tempting partial state?", "answer_bool": true, "why": "At 244 c2 is free and the second-derivative computation has not yet supplied its target value."},
+        {"question": "Does it remain active through the last incomplete frame?", "answer_bool": true, "why": "The interval includes t=271, where the terminal value is incomplete."},
+        {"question": "Is its excess coverage a completeness failure?", "answer_bool": false, "why": "It fully covers the temptation; the excess is separately a correct-answer contamination failure."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-not-correct-answer",
+      "target": {"distractor_idx": 0},
+      "looked_at": [
+        {"kind": "frame", "t": 271.0, "what": "The target row is not yet fully readable; this is a legitimate distractor state."},
+        {"kind": "frame", "t": 272.0, "what": "The target row now reads through = -1 and c2 is still symbolic with Free to change."},
+        {"kind": "frame", "t": 279.0, "what": "The same complete -1 row and still-free c2 remain visible inside the distractor."}
+      ],
+      "findings": "Distractor 0 contains a good-faith correct-answer interval from about 272.0 until its current end at 281.3.",
+      "criterion": "No part of a distractor may satisfy the literal question, because a correct proactive response there would be penalized.",
+      "steps": [
+        {"question": "Does t=272 satisfy the question's simultaneous-readability condition?", "answer_bool": true, "why": "Both the complete target value -1 and the still-free c2 term are clearly readable."},
+        {"question": "Is t=272 inside distractor 0?", "answer_bool": true, "why": "The distractor is annotated as [244.2,281.3)."}
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {"field": "distractors[0].t_end", "value": "272.0", "why": "End the distractor when the final -1 first becomes readable and align trigger[0].t_start to the same boundary."},
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-why-hides-answer",
+      "target": null,
+      "looked_at": [],
+      "findings": "No distractor rationale text containing the numeric response was included in the supplied sample description; the interval alone reveals no answer.",
+      "criterion": "Distractor metadata must not disclose the target value, equation, or coefficient to a participant or judge shortcut.",
+      "steps": [
+        {"question": "Does the supplied distractor description reveal -1, 2c2=-1, or -1/2?", "answer_bool": false, "why": "It supplies only the interval [244.2,281.3) and no answer-bearing rationale text."}
+      ],
+      "result": "ok",
+      "confidence": "medium",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "reasoning-level-not-inflated",
+      "target": null,
+      "looked_at": [],
+      "findings": "The frame supplies -1 and the polynomial with symbolic c2, but the participant must differentiate c2x2 to obtain P''(0)=2c2 and then solve the equation.",
+      "criterion": "L3 is warranted when the answer requires a derivation not directly presented in the available trigger material; reading a displayed answer would be L1.",
+      "steps": [
+        {"question": "Is the coefficient -1/2 directly displayed during the trigger?", "answer_bool": false, "why": "The trigger ends before the later substitution of -1/2; c2 remains symbolic."},
+        {"question": "What non-displayed reasoning is required?", "answer_text": "Differentiate P(x)=1+0x+c2x2 twice to get 2c2, equate it to -1, and solve.", "why": "Those operations supply the equation and coefficient beyond the visible target value."},
+        {"question": "Does that support L3?", "answer_bool": true, "why": "A mathematical derivation beyond direct reading is essential."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-matches-description",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 281.3, "what": "The cited frame visibly contains the completed blue cosine second-derivative row ending -1 and the still-free c2 polynomial."}
+      ],
+      "findings": "The provenance frame at 281.3 matches its description: it visibly supplies target value -1 beside the still-free quadratic coefficient.",
+      "criterion": "A provenance reference must visibly show the fact its description claims, not merely fall near the relevant discussion.",
+      "steps": [
+        {"question": "Does frame 281.3 show the claimed target value?", "answer_bool": true, "why": "The left second-derivative row ends with = -1."},
+        {"question": "Does it show the still-free quadratic term?", "answer_bool": true, "why": "The right formula contains symbolic c2 and Free to change."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "references-consistent-with-windows",
+      "target": null,
+      "looked_at": [],
+      "findings": "The supplied provenance time is 281.3 and trigger 0 also starts at 281.3; the reference does not claim availability before the annotated window.",
+      "criterion": "A reference contradicts a window only when it places answer-bearing evidence earlier than that window's start.",
+      "steps": [
+        {"question": "Is the provenance time earlier than trigger 0 start?", "answer_bool": false, "why": "Both are exactly 281.3 seconds."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-answer-verified",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 281.3, "what": "The target second derivative equals -1 and the polynomial remains P(x)=1+0x+c2x2."},
+        {"kind": "frame", "t": 315.0, "what": "The later worked display confirms substitution c2=-1/2 and P''=2(-1/2)."},
+        {"kind": "cue", "t": 300.6, "what": "Narration states that the polynomial's second derivative is exactly 2 times c2."}
+      ],
+      "findings": "Differentiating the displayed polynomial gives P''(0)=2c2; matching the displayed target value -1 yields 2c2=-1 and c2=-1/2. A later frame visually confirms -1/2.",
+      "criterion": "The reference answer must follow correctly from the cited video facts and any stated derivation, with each rubric value verified.",
+      "steps": [
+        {"question": "What derivative value is displayed?", "answer_number": -1.0, "why": "The blue target row visibly ends in -1."},
+        {"question": "What is the polynomial's second derivative at zero?", "answer_text": "2c2", "why": "Twice differentiating c2x2 removes x and brings down 2."},
+        {"question": "What matching equation follows?", "answer_text": "2c2=-1", "why": "The polynomial's second derivative must equal the displayed target derivative."},
+        {"question": "What coefficient solves the equation?", "answer_number": -0.5, "why": "Dividing both sides by 2 gives c2=-1/2."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "twins-agree-on-substance",
+      "target": null,
+      "looked_at": [],
+      "findings": "The supplied sample has no twin_of relation, so there is no paired response to compare.",
+      "criterion": "Substantive agreement is applicable only when a twin sample exists.",
+      "steps": [],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

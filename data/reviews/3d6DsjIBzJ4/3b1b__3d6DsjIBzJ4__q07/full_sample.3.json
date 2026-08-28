@@ -1,0 +1,286 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q07",
+  "role": "full_sample",
+  "iteration": 3,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q07/full_sample",
+  "budget": {
+    "frames_viewed": 34,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 1019,
+    "screen_index_used": false
+  },
+  "violations": [],
+  "notes": "The complete transcript and a 30-frame scene pass found one literal matching event.\nThe author never gives the finished color-plus-minus-two counterfactual answer; the arithmetic was recomputed independently.\nThe L2 label is not inflated, although the new target-value calculation makes it conservative.",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "group": "triggers",
+      "item": "no-missed-trigger",
+      "target": null,
+      "looked_at": [
+        {"kind": "cue", "t": 14.9, "what": "Beginning of the complete 0-1339 s transcript scan."},
+        {"kind": "cue", "t": 443.5, "what": "The author begins the earlier fourth-order c4 example."},
+        {"kind": "cue", "t": 510.5, "what": "The author introduces the general factorial observation."},
+        {"kind": "cue", "t": 529.8, "what": "The narration moves from the completed cascade to coefficient normalization."},
+        {"kind": "cue", "t": 1302.3, "what": "The mathematical lecture ends; only thanks and music follow."},
+        {"kind": "frame", "t": 421.8, "what": "Earlier cubic derivative matching is on screen, not the isolated c8 demonstration."},
+        {"kind": "frame", "t": 510.9, "what": "The isolated yellow/gold c8 x^8 term has appeared by itself."},
+        {"kind": "frame", "t": 530.7, "what": "The isolated eighth derivative has reached the complete product and 8! brace."},
+        {"kind": "frame", "t": 584.3, "what": "The lecture has moved on to coefficient control in a general polynomial."},
+        {"kind": "frame", "t": 1253.5, "what": "A later scene concerns logarithm-series divergence, not c8."}
+      ],
+      "findings": "The line-by-line transcript and scene-frame pass show one isolated higher-power demonstration using c8 x^8, beginning at 510.9 s and completing its factorial brace at 530.7 s. Other higher-order passages use c3, c4, generic n, exponential, or logarithm terms.",
+      "criterion": "Every video moment that literally satisfies the question's isolated c8/x^8 demonstration and complete-factorial-brace condition must be represented by a trigger or excluded as a distractor.",
+      "steps": [
+        {"question": "How many scenes use the specific isolated c8 x^8 term?", "answer_number": 1, "why": "The complete transcript and 30-frame scene pass show only the 510.9-533.9 s isolated c8 sequence."},
+        {"question": "Does that scene contain an unannotated second completion of the 8! brace?", "answer_bool": false, "why": "The brace first appears complete at 530.7 s; subsequent material gives the normalization formula rather than a new completion event."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "trigger-matches-criterion",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 510.9, "what": "An isolated yellow/gold c8 x^8 term is visible."},
+        {"kind": "frame", "t": 530.7, "what": "Its eighth derivative equals 1*2*3*4*5*6*7*8*c8 with a complete brace labelled 8!."},
+        {"kind": "frame", "t": 533.9, "what": "The completed brace remains while the coefficient-setting formula is added above."}
+      ],
+      "findings": "At 530.7 s the isolated c8 x^8 demonstration has exactly reached the complete factorial brace named in the question; the c8 term and surviving c8 factor share yellow/gold coloring.",
+      "criterion": "The required trigger must be the on-screen completion of the specifically named isolated c8/x^8 factorial demonstration, not a merely related factorial explanation.",
+      "steps": [
+        {"question": "Is the displayed power specifically c8 x^8?", "answer_bool": true, "why": "Both the original term and final surviving factor visibly carry c8."},
+        {"question": "Is the factorial brace complete at the trigger?", "answer_bool": true, "why": "The full product 1 through 8 is underbraced and labelled 8! at 530.7 s."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "question-anchored-to-screen",
+      "target": null,
+      "looked_at": [],
+      "findings": "The question names an isolated higher-power demonstration, its complete factorial brace, and the screen color shared by two displayed c8 elements.",
+      "criterion": "A screen-anchored question must identify visible objects or relations that cannot be supplied from the mathematical topic alone.",
+      "steps": [
+        {"question": "Which words require the particular screen?", "answer_text": "isolated higher-power demonstration, complete factorial brace, screen color shared by the c8 x^8 term and surviving c8 factor", "why": "Those descriptions refer to a particular animation state and color encoding."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-within-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "The rubric requires yellow/gold, 4!=24, 8!=40320, the equation 40320c8=-2, and c8=-1/20160, while rejecting an answer that performs only blind arithmetic and omits the requested color.",
+      "criterion": "Each scored requirement must follow from an explicit request in the participant-visible question.",
+      "steps": [
+        {"question": "What supports the color requirement?", "answer_text": "first identify the screen color shared by the c8 x^8 term and the surviving c8 factor", "why": "The question explicitly makes color the first requested component."},
+        {"question": "What supports both factorial values?", "answer_text": "connect it to the earlier nonzero fourth-order coefficient calculation, report both factorial multipliers shown", "why": "This explicitly calls for the fourth- and eighth-order multipliers."},
+        {"question": "What supports the equation and solved c8 value?", "answer_text": "counterfactually make c8 match a target eighth derivative of -2 and compute it", "why": "Matching an eighth derivative requires writing and solving 8!c8=-2."},
+        {"question": "Is rejecting an answer that omits color supported?", "answer_bool": true, "why": "Such an answer fails the question's explicit first instruction."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "discriminator-in-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "The question distinguishes the valid moment by saying the isolated demonstration reaches its complete factorial brace and distinguishes a complete answer by explicitly requesting the shared screen color before the calculation.",
+      "criterion": "Every reason a tempting response is rejected must be signalled by wording available to the participant.",
+      "steps": [
+        {"question": "Which phrase excludes the partial derivative cascade?", "answer_text": "reaches its complete factorial brace", "why": "Before 530.7 s the product is still incomplete and no 8! brace is present."},
+        {"question": "Which phrase excludes a colorless textbook calculation?", "answer_text": "first identify the screen color shared by the c8 x^8 term and the surviving c8 factor", "why": "It explicitly makes the visual color part of correctness."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-not-punishing-extra",
+      "target": null,
+      "looked_at": [],
+      "findings": "The rubric accepts the visible hue as yellow or gold and asks for the named fourth- and eighth-order factorial multipliers; it does not impose an exclusive color word or forbid additional correct explanation.",
+      "criterion": "A restrictive scoring clause must not reject another accurate detail that falls under the question's wording.",
+      "steps": [
+        {"question": "Does the color clause force one unnecessarily exact name?", "answer_bool": false, "why": "It accepts both ordinary descriptions, yellow and gold, of the visible hue."},
+        {"question": "Does the requested pair of factorial multipliers hide another multiplier satisfying the same wording?", "answer_bool": false, "why": "The question's link between the earlier fourth-order calculation and the current eighth-order demonstration identifies 4! and 8! specifically."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-fully-covered",
+      "target": {"trigger_idx": null, "distractor_idx": 0},
+      "looked_at": [
+        {"kind": "frame", "t": 507.4, "what": "The preceding scene still shows the pi characters and a 'Notice a few things' speech bubble."},
+        {"kind": "frame", "t": 510.9, "what": "The isolated c8 x^8 term first appears."},
+        {"kind": "frame", "t": 513.6, "what": "The first derivative is shown as 8*c8*x^7."},
+        {"kind": "frame", "t": 517.3, "what": "The third derivative is shown as 6*7*8*c8*x^5."},
+        {"kind": "frame", "t": 530.7, "what": "The full eighth derivative and 8! brace have appeared."}
+      ],
+      "findings": "The temptation begins when the isolated c8 x^8 term replaces the preceding scene at 510.9 s, continues through the partial derivative cascade, and ends when the complete 1-through-8 product and 8! brace appear at 530.7 s.",
+      "criterion": "The distractor must span the entire visually tempting but still-incomplete version of the target event, from its first appearance until the completion condition becomes true.",
+      "steps": [
+        {"question": "What is the first frame belonging to the temptation?", "answer_number": 510.9, "why": "At 507.4 s the prior scene remains; at 510.9 s the isolated c8 x^8 term is present."},
+        {"question": "What ends the incomplete state?", "answer_number": 530.7, "why": "That frame first shows the complete product and brace labelled 8!."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-not-correct-answer",
+      "target": {"trigger_idx": null, "distractor_idx": 0},
+      "looked_at": [
+        {"kind": "frame", "t": 510.9, "what": "Only the isolated c8 x^8 term is present."},
+        {"kind": "frame", "t": 513.6, "what": "Only the first derivative stage is present."},
+        {"kind": "frame", "t": 517.3, "what": "Only a partial 6*7*8 cascade is present."},
+        {"kind": "frame", "t": 530.7, "what": "The complete brace appears only at the excluded right boundary."}
+      ],
+      "findings": "Throughout [510.9,530.7) the isolated term or a partial derivative cascade is visible, but the question's complete 8! brace condition has not yet been met.",
+      "criterion": "A distractor is genuinely incorrect when an explicit condition in the question is still absent throughout its half-open interval.",
+      "steps": [
+        {"question": "Can the requested complete brace be observed inside the distractor?", "answer_bool": false, "why": "The available scene frames show only the original term and partial products before 530.7 s."},
+        {"question": "Would answering there satisfy 'when ... reaches its complete factorial brace'?", "answer_bool": false, "why": "The completion is exactly what has not happened yet."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-why-hides-answer",
+      "target": null,
+      "looked_at": [],
+      "findings": "The distractor rationale identifies the preceding partial/incomplete derivative cascade as the temptation and does not disclose yellow/gold, 40320, or -1/20160.",
+      "criterion": "The semi-blind rationale may explain what is tempting and what condition is missing, but must not let the reference response or rubric values be reconstructed.",
+      "steps": [
+        {"question": "Can the color answer be reconstructed from the rationale?", "answer_bool": false, "why": "The rationale names incompleteness rather than the visible hue."},
+        {"question": "Can the counterfactual numerical answer be reconstructed from it?", "answer_bool": false, "why": "It does not state 8!, the target equation, or the solved coefficient."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "reasoning-level-not-inflated",
+      "target": null,
+      "looked_at": [],
+      "findings": "The answer combines a visible color and eighth-order display around 530.7 s with the earlier fourth-order calculation around 471.7 s, then applies the stated target derivative -2.",
+      "criterion": "L2 is not inflated when answering requires connecting evidence separated in time; a level is inflated only when all answer facts are directly available together without such a connection.",
+      "steps": [
+        {"question": "Must the participant connect separated moments?", "answer_bool": true, "why": "The question explicitly links the completed c8 display to the earlier nonzero fourth-order coefficient calculation."},
+        {"question": "Is every requested fact stated in one utterance or frame?", "answer_bool": false, "why": "The earlier 24 multiplier and later c8 color/8! display occur roughly one minute apart, and the -2 substitution is counterfactual."},
+        {"question": "Is L2 higher than the minimum supported reasoning burden?", "answer_bool": false, "why": "At minimum, cross-moment connection is required; the additional counterfactual arithmetic makes L2 conservative rather than inflated."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-matches-description",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 471.7, "what": "The fourth derivative display ends in 1*2*3*4*c4 = 24*c4."},
+        {"kind": "frame", "t": 530.7, "what": "The eighth derivative display ends in 1*2*3*4*5*6*7*8*c8 with an 8! brace; both c8 instances are yellow/gold."},
+        {"kind": "frame", "t": 533.9, "what": "The same complete display remains with 'Set c8 = Desired derivative value / 8!' above it."}
+      ],
+      "findings": "The cited frames contain the described fourth-order 24*c4 calculation and the completed eighth-order yellow/gold c8 factorial display. The added mathematical provenance corresponds to the displayed 8! coefficient rule.",
+      "criterion": "Each provenance record must point to content that actually exhibits the object or calculation its description claims.",
+      "steps": [
+        {"question": "Does 471.7 s show the claimed earlier multiplier?", "answer_bool": true, "why": "The frame explicitly displays 24*c4."},
+        {"question": "Does 530.7 s show the claimed color and complete eighth factorial?", "answer_bool": true, "why": "Both c8 elements are yellow/gold and the complete product is underbraced as 8!."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "references-consistent-with-windows",
+      "target": null,
+      "looked_at": [],
+      "findings": "The 530.7 s visual reference coincides with the trigger opening at 530.7 s, the 471.7 s reference is explicitly earlier context requested by the question, and the independent math reference is a counterfactual derivation rather than a claim that the author said the final answer early.",
+      "criterion": "Provenance contradicts a window only when it says the complete answer itself was available or pronounced before that window opened; earlier supporting context and counterfactual derivation do not create that contradiction.",
+      "steps": [
+        {"question": "Does any reference claim the finished composite answer was given before 530.7 s?", "answer_bool": false, "why": "The earlier reference supplies only 4!=24, one deliberately recalled component."},
+        {"question": "Does the trigger-frame reference precede the window?", "answer_bool": false, "why": "Both are at 530.7 s."},
+        {"question": "Does the author ever state the color-plus-minus-two counterfactual answer?", "answer_bool": false, "why": "The transcript explains factorial normalization but never introduces the target eighth derivative -2 or solves that requested case."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-answer-verified",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 471.7, "what": "The earlier display gives 1*2*3*4*c4 = 24*c4."},
+        {"kind": "frame", "t": 530.7, "what": "The later display gives the complete product 1 through 8 times c8, an 8! brace, and yellow/gold c8 elements."},
+        {"kind": "frame", "t": 533.9, "what": "The displayed rule says c8 equals desired derivative value divided by 8!."},
+        {"kind": "cue", "t": 465.8, "what": "The author says the fourth cascade is 1*2*3*4*c4, or 24*c4."},
+        {"kind": "cue", "t": 529.8, "what": "The author says coefficients must be divided by the appropriate factorial; no target value -2 is supplied."}
+      ],
+      "findings": "Independent recomputation from the frames gives 4!=24 and 8!=40320. Substituting the question's counterfactual target gives 40320*c8=-2, hence c8=-2/40320=-1/20160. The visible shared hue is yellow/gold, matching the reference response.",
+      "criterion": "The reference must agree with an independent visual identification and symbolic recomputation, especially for a counterfactual numerical answer not finished by the author.",
+      "steps": [
+        {"question": "What color do the original and surviving c8 share?", "answer_text": "yellow/gold", "why": "Both c8 glyphs are rendered in the same yellow-gold hue at 530.7 s."},
+        {"question": "What is the earlier factorial multiplier?", "answer_number": 24, "why": "1*2*3*4 equals 24, also shown explicitly as 24*c4 at 471.7 s."},
+        {"question": "What is the eighth-order factorial multiplier?", "answer_number": 40320, "why": "1*2*3*4*5*6*7*8 = 40320."},
+        {"question": "What equation matches the target eighth derivative -2?", "answer_text": "40320*c8 = -2", "why": "The eighth derivative of c8*x^8 at the completed cascade is 8!*c8."},
+        {"question": "What coefficient solves that equation?", "answer_text": "c8 = -1/20160", "why": "Dividing -2 by 40320 and reducing by two gives -1/20160."},
+        {"question": "Did the author give this finished composite counterfactual answer?", "answer_bool": false, "why": "The lecture supplies the general factorial rule but never supplies target -2 or the resulting coefficient, and color is not spoken."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "twins-agree-on-substance",
+      "target": null,
+      "looked_at": [],
+      "findings": "No twin_of relationship was supplied for this sample, so there is no paired reference response to compare.",
+      "criterion": "Substantive agreement can be checked only when the sample names a twin whose response represents the timing variant.",
+      "steps": [],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

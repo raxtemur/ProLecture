@@ -1,0 +1,291 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q10",
+  "role": "full_window",
+  "iteration": 3,
+  "model": "gpt-5.4",
+  "date": "2026-08-27",
+  "workspace": "/workspace-SR004.nfs2/rahmatullaev/rand_exps/PoC_for_rand_ideas/manim_play/.review_ws/3d6DsjIBzJ4/3b1b__3d6DsjIBzJ4__q10/full_window0_r3",
+  "budget": {
+    "frames_viewed": 16,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 733.0,
+        "t_end": 742.0
+      }
+    ],
+    "transcript_cues": 47,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The corrected workspace covers the full window and the required ten-second author-answer tail. The opening was inspected densely; visual facts are recorded without proposing a left-boundary change, whose admissible point is owned by the semiblind review.",
+  "verdict": "FIX_INTERVALS",
+  "checks": [
+    {
+      "group": "windows",
+      "item": "window-can-be-tightened",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 736.7,
+          "what": "The generic derivative formula and derivative labels are visible after the replacement."
+        },
+        {
+          "kind": "frame",
+          "t": 743.9,
+          "what": "The generic formula remains visible while a speech bubble and pi characters appear."
+        },
+        {
+          "kind": "frame",
+          "t": 751.4,
+          "what": "The generic formula and derivative labels are again clearly visible."
+        },
+        {
+          "kind": "frame",
+          "t": 761.6,
+          "what": "The generic formula remains visible while the linear term is underlined and its tangent line is drawn."
+        },
+        {
+          "kind": "frame",
+          "t": 766.9,
+          "what": "The generic formula remains visible while the quadratic term is included in the underline."
+        },
+        {
+          "kind": "frame",
+          "t": 772.5,
+          "what": "At the annotated right boundary, the generic formula and derivative labels are still visible."
+        }
+      ],
+      "findings": "The answer-bearing generic state is present at 736.7 and remains visible in reviewed frames across the window through the 772.5 boundary. Later animation underlines successive terms and changes approximation curves, but it does not erase the observed mapping state.",
+      "criterion": "The window should be tightened only when a substantial portion no longer supports the answer; continued explanatory animation does not invalidate an answer about the already observed replacement state.",
+      "steps": [
+        {
+          "question": "What is the last reviewed time at which the answer-bearing generic state is still present?",
+          "answer_number": 772.5,
+          "why": "The indexed real frame at the annotated boundary still shows the generic formula and derivative labels."
+        },
+        {
+          "question": "Is there a substantial empty tail before the right boundary?",
+          "answer_bool": false,
+          "why": "Frames at 761.6, 766.9, and 772.5 retain the formula while the explanation advances."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "windows",
+      "item": "author-says-answer-in-window",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 736.7,
+          "what": "The screen shows symbolic generic derivative slots but no finished zero/negative/positive mapping."
+        },
+        {
+          "kind": "cue",
+          "t": 737.4,
+          "what": "The author says each coefficient uses the nth derivative evaluated at zero."
+        },
+        {
+          "kind": "cue",
+          "t": 740.0,
+          "what": "The author adds that the derivative value is divided by n factorial."
+        },
+        {
+          "kind": "cue",
+          "t": 743.6,
+          "what": "The author calls the displayed expression an abstract formula."
+        },
+        {
+          "kind": "cue",
+          "t": 750.2,
+          "what": "The author says this formula appears in treatments of Taylor polynomials."
+        },
+        {
+          "kind": "cue",
+          "t": 754.0,
+          "what": "The author starts discussing what the constant term ensures."
+        },
+        {
+          "kind": "cue",
+          "t": 760.7,
+          "what": "The author says the next term makes the polynomial slope match the function slope at zero."
+        },
+        {
+          "kind": "cue",
+          "t": 766.6,
+          "what": "The author says the following term matches the rate at which the slope changes."
+        },
+        {
+          "kind": "frame",
+          "t": 777.0,
+          "what": "The generic symbolic formula remains on screen with no numeric cosine sign-and-zero mapping."
+        },
+        {
+          "kind": "cue",
+          "t": 779.8,
+          "what": "The author says adding terms makes the polynomial more complicated."
+        }
+      ],
+      "findings": "From 736.7 through 782.5, the author explains the generic derivative-over-factorial rule, then the matching of value, slope, and rate of slope change, and finally the complexity trade-off. Neither speech nor reviewed frames give the finished cosine mapping that the odd slots vanish, x-squared is negative, and x-fourth is positive.",
+      "criterion": "For this L2 sample, a finished spoken or displayed answer anywhere from window start through ten seconds after window end is a critical failure, so that whole interval must be covered.",
+      "steps": [
+        {
+          "question": "Is the finished requested sign-and-zero mapping given anywhere through 782.5?",
+          "answer_bool": false,
+          "why": "The full transcript tail explains generic term matching and complexity, while the reviewed frames retain symbolic derivative slots rather than cosine values."
+        },
+        {
+          "question": "Was the full author-answer check through 782.5 reviewed?",
+          "answer_bool": true,
+          "why": "The corrected transcript covers through the cue ending at 782.5 and indexed frames cover the interval around it."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "event-not-earlier-than-window",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 734.0,
+          "what": "The concrete color-coded polynomial with numeric coefficients 1, 0, -1, 0, 1 is intact."
+        },
+        {
+          "kind": "frame",
+          "t": 735.0,
+          "what": "The display is in transition away from the concrete polynomial."
+        },
+        {
+          "kind": "frame",
+          "t": 736.0,
+          "what": "The generic f-derivative formula is fully visible."
+        },
+        {
+          "kind": "frame",
+          "t": 736.7,
+          "what": "The same generic f-derivative formula is stable at the annotated window opening."
+        }
+      ],
+      "findings": "The visual morph begins before the window: the concrete polynomial is intact at 734.0, transitioning at 735.0, and the generic formula is visible around 736.0-736.7. This is a ground question about the completed matching state, not an alarm asking the model to report the animation onset; the independently supplied semiblind admissible point is 737.0.",
+      "criterion": "An earlier animation onset fires this item only when the trigger condition is that event itself. For a ground question keyed to the completed replacement state, onset frames do not constitute an earlier answer event, and left-edge answerability is resolved by the semiblind scan.",
+      "steps": [
+        {
+          "question": "What is the last reviewed frame with the concrete polynomial intact?",
+          "answer_number": 734.0,
+          "why": "At 734.0 the full numeric polynomial and its label remain visible."
+        },
+        {
+          "question": "What is the first reviewed frame showing the replacement underway?",
+          "answer_number": 735.0,
+          "why": "At 735.0 the concrete state is visibly transitioning away."
+        },
+        {
+          "question": "Does the question ask the model to report the onset of the morph itself?",
+          "answer_bool": false,
+          "why": "It asks for the derivative-slot mapping once the matching general formula replaces the concrete one."
+        },
+        {
+          "question": "Is there a distinct answer event that begins before this ground-state window?",
+          "answer_bool": false,
+          "why": "The earlier frames show only the transition into the state; admissibility of the completed answer state is a left-boundary question owned by the semiblind scan."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "depends-on-is-dependency",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [],
+      "findings": "Trigger 0 has no depends_on field, so there is no declared dependency link to evaluate.",
+      "criterion": "This check applies only when a trigger declares that satisfying its rubric requires the answer from another trigger, or when such a prerequisite is present but omitted.",
+      "steps": [
+        {
+          "question": "Does this trigger declare a depends_on link?",
+          "answer_bool": false,
+          "why": "The supplied trigger object contains no depends_on member."
+        },
+        {
+          "question": "Does the rubric require an answer produced by another window?",
+          "answer_bool": false,
+          "why": "The only trigger's rubric asks directly for four derivative-slot mappings and does not refer to another trigger's result."
+        }
+      ],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "evidence-span-is-last",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 734.0,
+          "what": "The preceding concrete polynomial visibly contains the color-coded nonconstant values 0, -1, 0, and 1."
+        },
+        {
+          "kind": "frame",
+          "t": 736.7,
+          "what": "The generic formula shows the x, x-squared, and x-cubed derivative slots, with a fourth-derivative label at left."
+        },
+        {
+          "kind": "frame",
+          "t": 761.6,
+          "what": "The same generic formula is present, now with only the linear term underlined and a tangent line drawn."
+        }
+      ],
+      "findings": "At 734.0 the concrete nonconstant values 0, -1, 0, and 1 are visible. By 736.7 the matching generic derivative slots and fourth-derivative label are visible, which supplies the final binding needed for the mapping. At the current evidence endpoint 761.6, the only new visual emphasis is an underline on the linear term and its tangent line; no final mapping fact first appears there.",
+      "criterion": "The evidence span should terminate at the appearance of the last fact needed to derive the answer, not at a later explanatory highlight that merely revisits an already available term.",
+      "steps": [
+        {
+          "question": "When is the final generic binding needed for the four-value mapping visibly available?",
+          "answer_number": 736.7,
+          "why": "At 736.7 the generic formula and color-matched derivative labels have replaced the concrete expression; the fourth-derivative label plus the established term pattern identifies the x-fourth slot."
+        },
+        {
+          "question": "Does a new required mapping fact first appear at 761.6?",
+          "answer_bool": false,
+          "why": "That frame only emphasizes the already visible linear term and tangent-line interpretation."
+        }
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {
+        "field": "triggers[0].evidence_span",
+        "value": "[736.7, 737.0]",
+        "why": "End the span at the completed replacement state containing the last needed generic binding; 761.6 adds only later corroborating explanation."
+      },
+      "uncovered": null
+    }
+  ],
+  "window_idx": 0
+}

@@ -1,0 +1,281 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q04",
+  "role": "full_sample",
+  "iteration": 3,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q04/full_sample",
+  "budget": {
+    "frames_viewed": 45,
+    "sparse_step": 45.0,
+    "dense_intervals": [
+      {"t_start": 244.0, "t_end": 300.0}
+    ],
+    "transcript_cues": 1016,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "Full transcript and a 30-frame global scene pass were completed.\nThe later original c2=-1/2 is visible after the trigger window and is not a completed counterfactual answer.\nNo twin_of was supplied; no prior reviews, annotations, other workspaces, bundles, or video were opened.",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "group": "triggers",
+      "item": "no-missed-trigger",
+      "target": null,
+      "looked_at": [
+        {"kind": "cue", "t": 14.9, "what": "Start of the complete 0-1339 s transcript pass."},
+        {"kind": "cue", "t": 233.6, "what": "The narration says c2 remains free before the curvature row is completed."},
+        {"kind": "cue", "t": 271.3, "what": "The narration supplies the target curvature value -1."},
+        {"kind": "cue", "t": 294.4, "what": "The narration begins deriving the polynomial second derivative after the on-appearance event."},
+        {"kind": "cue", "t": 430.3, "what": "Later narration states the original polynomial 1-1/2 x^2."},
+        {"kind": "cue", "t": 1315.1, "what": "Final transcript cue; the complete transcript pass ends at 1338.7 s."},
+        {"kind": "frame", "t": 0.0, "what": "Black opening frame in the 45 s global scene pass."},
+        {"kind": "frame", "t": 270.0, "what": "Target second-derivative row is not yet numerically complete while c2 is free."},
+        {"kind": "frame", "t": 315.0, "what": "Later screen contains the original coefficient -1/2, after the trigger window."},
+        {"kind": "frame", "t": 675.0, "what": "Later summary concerns derivative information near a point, not a new first appearance."},
+        {"kind": "frame", "t": 1305.0, "what": "Closing supporter graphic in the global scene pass."}
+      ],
+      "findings": "All 1016 transcript cues were read in sequence and 30 sparse frames covered the whole video at 45 s spacing. The only first simultaneous appearance after question_time is around 272-273 s. Later displays repeat the original derivation or show already-fixed coefficients.",
+      "criterion": "Every moment that literally satisfies the question's first simultaneous-readable condition must already be classified as the trigger, while later repetitions excluded by 'as soon as' are not additional firings.",
+      "steps": [
+        {"question": "Where is the first simultaneous readable target row and free quadratic term?", "answer_number": 273.0, "why": "The 273 s frame visibly contains both complete elements; 271 s does not."},
+        {"question": "Does any earlier or later segment create another firing under 'as soon as'?", "answer_bool": false, "why": "Earlier frames lack the completed value, and later occurrences are repetitions after the first appearance."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "trigger-matches-criterion",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 271.0, "what": "The left row ends with an unfinished equals sign; the target value is not readable yet."},
+        {"kind": "frame", "t": 273.0, "what": "The full left row reads d2(cos)/dx2(0)=-cos(0)=-1 and the right side still marks c2 free to change."}
+      ],
+      "findings": "The sole trigger [272,300) contains the first fully readable conjunction required by the question, with the clean simultaneous frame at 273 s.",
+      "criterion": "Each trigger must contain a moment satisfying the question literally: complete target curvature at the displayed center and the still-free quadratic term must be readable together.",
+      "steps": [
+        {"question": "Is the target curvature complete inside trigger 0?", "answer_bool": true, "why": "At 273 s the row ends in -1."},
+        {"question": "Is the quadratic coefficient still free at that same moment?", "answer_bool": true, "why": "At 273 s P(x)=1+0x+c2x^2 and 'Free to change' remain on screen."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "question-anchored-to-screen",
+      "target": null,
+      "looked_at": [],
+      "findings": "The question names the blue target's displayed second-derivative row, the displayed center, the still-free quadratic term, and the displayed target value.",
+      "criterion": "A screen-anchored question must identify visible objects or inscriptions rather than ask only a textbook topic question.",
+      "steps": [
+        {"question": "Which words point to a particular screen state?", "answer_text": "blue target, displayed center, second-derivative row, still-free quadratic term, displayed target value", "why": "These phrases require recognition of the particular simultaneous on-screen layout."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-within-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "The rubric requires the displayed value -1, its doubled value -2, the altered equation 2c2=-2, and the new coefficient c2=-1; it rejects substituting the later original c2=-1/2 for the altered answer.",
+      "criterion": "Every scored requirement or exclusion must follow from an explicit request or distinction in the question string seen by the participant.",
+      "steps": [
+        {"question": "What question requirement supports reporting -1?", "answer_text": "read the displayed target value", "why": "The first sentence directly requests that value."},
+        {"question": "What supports reporting -2 and the altered equation?", "answer_text": "double that curvature and state the altered matching equation", "why": "The counterfactual instruction explicitly requests both."},
+        {"question": "What supports reporting c2=-1 and rejecting original -1/2 as the altered answer?", "answer_text": "state the new quadratic coefficient", "why": "The word new refers to the doubled-curvature counterfactual, not the later baseline derivation."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "discriminator-in-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "The phrase 'Counterfactually double that curvature' separates the requested altered result from the video's later baseline equation and coefficient.",
+      "criterion": "The wording itself must tell a participant why the tempting original-video answer is not the requested answer.",
+      "steps": [
+        {"question": "Which phrase excludes the later original coefficient -1/2?", "answer_text": "Counterfactually double that curvature", "why": "Doubling -1 changes the matching right-hand side from -1 to -2, so the baseline coefficient cannot be the new one."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-not-punishing-extra",
+      "target": null,
+      "looked_at": [],
+      "findings": "The exclusion of c2=-1/2 applies when it is offered as the finished altered coefficient. It does not make a correct supporting mention of the baseline coefficient wrong when the requested altered equation and c2=-1 are also supplied.",
+      "criterion": "A restrictive rubric may reject a competing final answer but must not punish an additional true detail that fits the question and accompanies the required answer.",
+      "steps": [
+        {"question": "Does the exclusion forbid all mention of the baseline -1/2?", "answer_bool": false, "why": "It distinguishes the later original result from the required new coefficient; the finished answer remains judged by the altered equation and coefficient."},
+        {"question": "Is any other visible detail required to be omitted?", "answer_bool": false, "why": "No closed enumeration or single-detail-only restriction was supplied."}
+      ],
+      "result": "ok",
+      "confidence": "medium",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-fully-covered",
+      "target": {"trigger_idx": null, "distractor_idx": 0},
+      "looked_at": [
+        {"kind": "frame", "t": 244.0, "what": "Free c2 is readable, but the target second-derivative row is absent."},
+        {"kind": "frame", "t": 249.0, "what": "Free c2 remains visible while the narration introduces downward curvature."},
+        {"kind": "frame", "t": 254.0, "what": "Free c2 remains visible and no numerical second-derivative target is shown."},
+        {"kind": "frame", "t": 259.0, "what": "The derivative discussion continues without a completed second-derivative row."},
+        {"kind": "frame", "t": 264.0, "what": "The second-derivative row begins as d2(cos)/dx2(0)=-cos(0), without the target value."},
+        {"kind": "frame", "t": 269.0, "what": "The same incomplete row and free c2 remain visible."},
+        {"kind": "frame", "t": 271.0, "what": "An equals sign starts appearing, but the value is still not readable."},
+        {"kind": "frame", "t": 272.0, "what": "The value -1 begins completing at the distractor's excluded endpoint."}
+      ],
+      "findings": "The temptation begins at question_time with the free c2 already visible and continues while the target curvature row is introduced. The value remains unavailable through the last in-interval frame at 271 s and begins at the excluded 272 s endpoint.",
+      "criterion": "The distractor must cover the entire tempting precondition stretch and stop when the missing requested evidence first appears.",
+      "steps": [
+        {"question": "When does the tempting free-coefficient state begin?", "answer_number": 244.2, "why": "It is already present at question_time and on the 244 s frame."},
+        {"question": "What is the last observed in-distractor missing condition?", "answer_text": "the numerical target value is incomplete at 271 s", "why": "The row ends at an equals sign without -1."},
+        {"question": "When does the missing value start to appear?", "answer_number": 272.0, "why": "The 272 s frame begins completing -1, matching the half-open endpoint."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-not-correct-answer",
+      "target": {"trigger_idx": null, "distractor_idx": 0},
+      "looked_at": [
+        {"kind": "frame", "t": 244.0, "what": "Only the free quadratic term and earlier value/slope rows are readable."},
+        {"kind": "frame", "t": 271.0, "what": "The target row is still missing its numerical value at the final observed in-distractor second."},
+        {"kind": "frame", "t": 273.0, "what": "The complete -1 target appears only after the distractor."}
+      ],
+      "findings": "Inside [244.2,272), a viewer cannot read the requested displayed target value and therefore cannot complete the counterfactual answer from the specified on-appearance evidence.",
+      "criterion": "A distractor must be a genuine tempting near-miss, not another time at which the question can be correctly answered on its own terms.",
+      "steps": [
+        {"question": "Can the displayed target value be read inside distractor 0?", "answer_bool": false, "why": "It is absent or incomplete through 271 s."},
+        {"question": "Can the full requested counterfactual be grounded there?", "answer_bool": false, "why": "The curvature to double has not yet become numerically readable."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-why-hides-answer",
+      "target": null,
+      "looked_at": [],
+      "findings": "The supplied distractor rationale identifies the tempting pre-value interval and the missing simultaneous readability; it does not state -1, -2, 2c2=-2, or c2=-1.",
+      "criterion": "A distractor explanation may describe the temptation and missing condition, but must not let a semi-blind reviewer reconstruct the reference answer or a scored rubric value.",
+      "steps": [
+        {"question": "Can the reference answer be reconstructed from distractor.why alone?", "answer_bool": false, "why": "The rationale names timing and missing evidence without supplying any of the numerical answer components."}
+      ],
+      "result": "ok",
+      "confidence": "medium",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "reasoning-level-not-inflated",
+      "target": null,
+      "looked_at": [],
+      "findings": "The video supplies the baseline curvature -1 and the free quadratic form, but never supplies the counterfactual doubled equation or its new coefficient as the requested result.",
+      "criterion": "L3 is warranted when the answer requires deriving a counterfactual quantity that is not itself presented in the video.",
+      "steps": [
+        {"question": "Are all requested answer components directly displayed or spoken?", "answer_bool": false, "why": "The doubled curvature, altered equation, and new coefficient must be derived."},
+        {"question": "Does the task require a counterfactual computation?", "answer_bool": true, "why": "It asks to double the displayed curvature while holding center and degree fixed."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-matches-description",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 272.0, "what": "The left second-derivative row reaches its -1 completion at the cited second while c2 remains free on the right."},
+        {"kind": "frame", "t": 273.0, "what": "The immediately following frame cleanly shows the complete cited row and free c2 together."}
+      ],
+      "findings": "The cited frame-272 evidence corresponds to the appearance of the target value -1; the supplied mathematical provenance then doubles it and solves the fixed-degree matching equation.",
+      "criterion": "Each provenance record must point to material that actually has the object or fact its description claims, with mathematical evidence accurately characterizing the derivation.",
+      "steps": [
+        {"question": "Does the cited visual moment show the baseline curvature value?", "answer_bool": true, "why": "The -1 completion appears at 272 s and is fully stable by 273 s."},
+        {"question": "Does the math described follow from the visible quadratic term?", "answer_bool": true, "why": "For c2 x^2, the second derivative is 2c2."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "references-consistent-with-windows",
+      "target": null,
+      "looked_at": [],
+      "findings": "The visual provenance is at 272 s, exactly the start of trigger 0 [272,300), not before it. The counterfactual mathematical result is intentionally not stated in the source video.",
+      "criterion": "A provenance reference is contradictory only if it establishes that the answer was already available before the trigger opened; same-boundary evidence is consistent.",
+      "steps": [
+        {"question": "Is the cited frame earlier than trigger 0's t_start?", "answer_bool": false, "why": "Both are at 272 s."},
+        {"question": "Does the mathematical provenance improperly claim an earlier video answer?", "answer_bool": false, "why": "It records the off-video counterfactual derivation rather than an earlier source moment."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-answer-verified",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 273.0, "what": "The displayed baseline target value is -1 and the free polynomial term is c2 x^2."},
+        {"kind": "frame", "t": 299.0, "what": "The polynomial derivative row shows 0+2c2 x while c2 is still symbolic."},
+        {"kind": "frame", "t": 315.0, "what": "The later baseline derivation fixes the original coefficient at -1/2, confirming it is not the doubled-curvature result."}
+      ],
+      "findings": "Independent exact rational recomputation gave original curvature -1, doubled curvature -2, matching equation 2*c2=-2, and solution c2=-1. This agrees with the supplied response and distinguishes it from the later original c2=-1/2.",
+      "criterion": "For an L3 counterfactual numerical answer, independently recompute every scored number and equation from the observed baseline rather than trusting the reference text.",
+      "steps": [
+        {"question": "What baseline curvature is independently read from the target row?", "answer_number": -1.0, "why": "The 273 s frame reads -cos(0)=-1."},
+        {"question": "What is twice that curvature?", "answer_number": -2.0, "why": "Exact rational computation evaluated 2*(-1)=-2."},
+        {"question": "What matching equation follows for c2 x^2?", "answer_text": "2c2=-2", "why": "Two derivatives of c2 x^2 give 2c2 while center and degree remain fixed."},
+        {"question": "What new coefficient solves that equation?", "answer_number": -1.0, "why": "Exact rational computation divided both sides by 2."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "twins-agree-on-substance",
+      "target": null,
+      "looked_at": [],
+      "findings": "No twin_of relationship was supplied for this sample.",
+      "criterion": "Substantive answer agreement can only be compared when the sample names a twin.",
+      "steps": [],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

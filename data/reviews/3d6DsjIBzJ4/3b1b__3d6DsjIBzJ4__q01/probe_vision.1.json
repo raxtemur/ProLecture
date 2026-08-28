@@ -1,0 +1,73 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q01",
+  "role": "probe_vision",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q01/probe_vision",
+  "budget": {
+    "frames_viewed": 5,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": null,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The screen index was used only to locate the relevant frames; the answer rests on direct frame inspection and elementary trigonometry.",
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 48.0,
+      "what": "Pendulum diagram with the angle theta and radius R visibly labelled."
+    },
+    {
+      "kind": "frame",
+      "t": 52.0,
+      "what": "The pendulum shows theta, R, and the vertical height expression R(1-cos(theta)) together."
+    },
+    {
+      "kind": "frame",
+      "t": 65.0,
+      "what": "The same pendulum diagram remains visible while the cosine expression is being rearranged on screen."
+    },
+    {
+      "kind": "frame",
+      "t": 69.0,
+      "what": "The screen clearly shows cos(theta) approximately equal to 1-theta^2/2."
+    },
+    {
+      "kind": "frame",
+      "t": 77.0,
+      "what": "The diagram shows the resulting small-angle height R theta^2/2 alongside the cosine approximation."
+    }
+  ],
+  "steps": [
+    {
+      "question": "What height formula is displayed for an angle theta?",
+      "answer_bool": null,
+      "answer_number": null,
+      "answer_text": "h(theta)=R(1-cos(theta))",
+      "why": "All three requested labels are simultaneously distinguishable in frame t000052.jpg."
+    },
+    {
+      "question": "What is the exact height after replacing theta by twice theta?",
+      "answer_bool": null,
+      "answer_number": null,
+      "answer_text": "h(2theta)=R(1-cos(2theta))",
+      "why": "Substitute 2theta for theta in the displayed exact height formula while keeping R fixed."
+    },
+    {
+      "question": "What is the quadratic small-angle term in theta?",
+      "answer_bool": null,
+      "answer_number": null,
+      "answer_text": "h(2theta) is approximately 2R theta^2",
+      "why": "Frame t000069.jpg shows cos(theta) approximately 1-theta^2/2; hence cos(2theta) approximately 1-(2theta)^2/2, so R[1-cos(2theta)] approximately 2R theta^2."
+    }
+  ],
+  "answer": "With the angle doubled and R fixed, the exact height is h=R(1-cos(2theta)). For small theta, its quadratic approximation is h approximately 2R theta^2.",
+  "basis": "Frame t000052.jpg shows theta, R, and R(1-cos(theta)); frame t000069.jpg shows cos(theta) approximately 1-theta^2/2, and frame t000077.jpg confirms the original-angle height approximation R theta^2/2. The doubling substitution and simplification are elementary trigonometry.",
+  "confidence": "high",
+  "insufficient": false
+}

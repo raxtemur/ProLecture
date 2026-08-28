@@ -1,0 +1,296 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q08",
+  "role": "full_sample",
+  "iteration": 4,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q08/full_sample",
+  "budget": {
+    "frames_viewed": 41,
+    "sparse_step": 46.0,
+    "dense_intervals": [
+      {"t_start": 572.0, "t_end": 576.0}
+    ],
+    "transcript_cues": 1017,
+    "screen_index_used": true
+  },
+  "violations": [
+    {
+      "path": "data/annotations/partial/3d6DsjIBzJ4.full.jsonl",
+      "why": "An initial recursive metadata search included the handed sample's annotation despite the task's narrower source restriction.",
+      "what_seen": "The q08 annotation line, substantively identical to the complete sample metadata supplied in the task payload."
+    },
+    {
+      "path": "data/reviews/",
+      "why": "The same initial recursive search traversed review paths before the no-reviews restriction was enforced locally.",
+      "what_seen": "Prior-review filenames plus isolated identity/workspace match lines; no prior q08 findings, check results, reasoning, or verdicts were opened."
+    }
+  ],
+  "notes": "The L3 repair is correct and the response/rubric are mathematically verified. Corpus search found no duplicate question/event. Outside this role, the accepted window also avoids item 2.5 because the author never supplies the x=1 counterfactual or the two-vs-four-derivative comparison. The sole fired item is provenance precision: frame 572 does not yet display '=0', and frame 471.7 does not yet display c4=1/24.",
+  "verdict": "FIX_INTERVALS",
+  "checks": [
+    {
+      "group": "triggers",
+      "item": "no-missed-trigger",
+      "target": null,
+      "looked_at": [
+        {"kind": "cue", "t": 14.9, "what": "Start of the complete line-by-line transcript scan."},
+        {"kind": "cue", "t": 443.5, "what": "The author introduces the fourth-order c4 x^4 term."},
+        {"kind": "cue", "t": 551.1, "what": "The author begins the sole explanation that the new c4 term does not alter earlier terms."},
+        {"kind": "cue", "t": 571.1, "what": "The author explains that substitution of x=0 washes out the higher-order contribution."},
+        {"kind": "cue", "t": 1315.1, "what": "End of the complete transcript scan, followed only by music."},
+        {"kind": "frame", "t": 552.0, "what": "The reused pink c4 x^4 term is present, before the complete caption and zero evaluation."},
+        {"kind": "frame", "t": 574.0, "what": "The caption and the evaluated '=0' state are complete."},
+        {"kind": "frame", "t": 598.0, "what": "The video has moved to a different graph scene."}
+      ],
+      "findings": "The full transcript and 30-frame whole-video pass contain one caption-plus-zero episode for the reused c4 term, at the annotated event; later material changes to general Taylor-polynomial topics.",
+      "criterion": "Every screen episode satisfying both conditions literally named in the question must be represented by a trigger or distractor.",
+      "steps": [
+        {"question": "How many caption-plus-zero episodes occur?", "answer_number": 1, "why": "The only matching transcript sequence is 551.1-589.8, and the whole-video frame pass shows no repetition."},
+        {"question": "Is the sole episode represented?", "answer_bool": true, "why": "It is represented by trigger 0 and its preceding distractor 0."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "trigger-matches-criterion",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 573.0, "what": "The full caption, pink c4 x^4 term, twice-differentiated expression, and emerging zero are visible."},
+        {"kind": "frame", "t": 574.0, "what": "The zero result is fully rendered under the pink higher-order contribution."}
+      ],
+      "findings": "The annotated trigger corresponds to the unique screen state named in the question: caption and center evaluation are present together for the reused pink c4 term.",
+      "criterion": "Each trigger must be an instance of the event described by the question itself, rather than merely related Taylor-series material.",
+      "steps": [
+        {"question": "Does trigger 0 show the named caption?", "answer_bool": true, "why": "The caption is complete in the inspected frames."},
+        {"question": "Does it show the reused contribution evaluated to zero at the center?", "answer_bool": true, "why": "The second-derivative line contains 3*4*c4*(0)^2 with '=0' complete by 574."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "question-anchored-to-screen",
+      "target": null,
+      "looked_at": [],
+      "findings": "The question names a literal caption, a displayed zero evaluation, a screen color, and an earlier displayed coefficient and derivative evaluation.",
+      "criterion": "A screen-anchored question must point to identifiable visual objects or inscriptions rather than only asking a textbook question about the topic.",
+      "steps": [
+        {"question": "Which wording anchors the task to a screen?", "answer_text": "The quoted caption, 'displayed zero evaluation', 'screen color', and 'earlier displayed c4=1/24'.", "why": "All are observable properties of a particular animation state."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-within-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "All seven rubric requirements map to explicit requests: color; the same twice-differentiated contribution and its shown zero; use of c4=1/24; evaluation at x=1; comparison to the fourth derivative; and an explanation of that comparison.",
+      "criterion": "Every scoring requirement must follow from a demand visible in the question string shown to the participant.",
+      "steps": [
+        {"question": "What supports the color item?", "answer_text": "'identify that term's screen color'", "why": "It directly requests pink/magenta identification."},
+        {"question": "What supports the 12c4x^2 and center-zero item?", "answer_text": "'the displayed zero evaluation ... Then counterfactually evaluate the same twice-differentiated contribution'", "why": "The term and its displayed center evaluation are the named object of the task."},
+        {"question": "What supports use of c4=1/24 and value 1/2?", "answer_text": "'at x=1 using the earlier displayed c4=1/24'", "why": "It requires the substitution and resulting counterfactual value."},
+        {"question": "What supports 24c4=1 and the x^2-versus-no-x distinction?", "answer_text": "'compare it with the earlier fourth-derivative evaluation'", "why": "A substantive comparison requires naming why the two evaluations differ."},
+        {"question": "What supports rejecting a zero-only response?", "answer_text": "The question explicitly also requires color, x=1 evaluation, and comparison.", "why": "A response omitting those parts is incomplete under the visible question."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "discriminator-in-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "Distractor 0 is excluded by the phrase 'are both complete'; the restrictive rubric item is justified by the question's separate color and counterfactual demands.",
+      "criterion": "The participant-facing wording must itself state the distinction that rejects each tempting but incomplete answer.",
+      "steps": [
+        {"question": "Which phrase excludes distractor 0?", "answer_text": "'and ... are both complete'", "why": "Before its endpoint the caption and displayed zero are not simultaneously complete."},
+        {"question": "Which words reject merely repeating zero at x=0?", "answer_text": "'identify ... screen color' and 'counterfactually evaluate ... at x=1 ... and compare'", "why": "Those requested components are absent from a zero-only answer."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-not-punishing-extra",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 471.7, "what": "The earlier screen shows the fourth derivative as 24*c4 and cosine's fourth derivative as 1."},
+        {"kind": "frame", "t": 574.0, "what": "The later screen shows the twice-differentiated c4 contribution evaluated at x=0."}
+      ],
+      "findings": "The only restrictive rubric item rejects an answer missing explicitly requested components; it does not forbid any additional correct visual or mathematical detail.",
+      "criterion": "A restrictive scoring item must not turn a true additional detail falling under the question into a penalty.",
+      "steps": [
+        {"question": "What restrictive item exists?", "answer_text": "Do not count a response that merely repeats zero at x=0 without color and the x=1 counterfactual.", "why": "It is the sole negative rubric clause."},
+        {"question": "Does it exclude a correct extra detail?", "answer_bool": false, "why": "It excludes omissions of requested content, not the presence of any correct content."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-fully-covered",
+      "target": {"trigger_idx": null, "distractor_idx": 0},
+      "looked_at": [
+        {"kind": "frame", "t": 550.1, "what": "The finished polynomial begins returning, while neither the full caption nor zero evaluation is complete."},
+        {"kind": "frame", "t": 554.4, "what": "The caption and pink term are present, but the zero-evaluation line is absent."},
+        {"kind": "frame", "t": 561.6, "what": "The second-derivative expression is present but has not yet completed to '=0'."},
+        {"kind": "frame", "t": 572.0, "what": "The brace under 3*4*c4*(0)^2 is visible, but no '=0' is displayed yet."}
+      ],
+      "findings": "The distractor begins at question_time when the relevant polynomial returns and continues through every incomplete stage up to 572; throughout it, at least the displayed zero is missing.",
+      "criterion": "The distractor interval should cover the full contiguous temptation, from the first relevant partial state until the trigger condition is met.",
+      "steps": [
+        {"question": "Does the temptation begin before 550.1?", "answer_bool": false, "why": "550.1 is both question_time and the return of the relevant polynomial state."},
+        {"question": "Does the temptation remain active through the distractor end?", "answer_bool": true, "why": "At exact frame 572 the displayed '=0' is still absent."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-not-correct-answer",
+      "target": {"trigger_idx": null, "distractor_idx": 0},
+      "looked_at": [
+        {"kind": "frame", "t": 554.4, "what": "The caption is visible without the displayed zero evaluation."},
+        {"kind": "frame", "t": 561.6, "what": "The evaluation is still incomplete."},
+        {"kind": "frame", "t": 572.0, "what": "The brace is present but '=0' has not appeared."}
+      ],
+      "findings": "No inspected frame in distractor 0 satisfies the question's explicit simultaneous-completeness condition.",
+      "criterion": "A distractor must remain an incorrect time to answer under the literal wording, not a second good-faith trigger.",
+      "steps": [
+        {"question": "Are both named visual conditions complete anywhere in distractor 0?", "answer_bool": false, "why": "The zero result is absent even at the final sampled instant 572."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-why-hides-answer",
+      "target": null,
+      "looked_at": [],
+      "findings": "The distractor explanation states only that the caption and zero evaluation are not yet simultaneously complete; it reveals no color, coefficient, counterfactual value, or derivative comparison.",
+      "criterion": "A distractor rationale may explain why the timing is excluded but must not leak the reference answer to a participant.",
+      "steps": [
+        {"question": "Does the why text reveal any scored answer value?", "answer_bool": false, "why": "It contains only a timing/completeness condition and the boundary time."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "reasoning-level-not-inflated",
+      "target": null,
+      "looked_at": [],
+      "findings": "The video provides c4=1/24, the x=0 twice-derivative display, and the earlier fourth-derivative display, but never provides the requested x=1 counterfactual result.",
+      "criterion": "L3 is appropriate when at least one essential answer component must be derived beyond information directly stated or displayed in the video.",
+      "steps": [
+        {"question": "Is the x=1 counterfactual directly present in the video?", "answer_bool": false, "why": "The relevant video computation substitutes x=0, not x=1."},
+        {"question": "What must be derived?", "answer_text": "12*(1/24)*1^2=1/2 and its contrast with the x-independent four-derivative value 1.", "why": "This requires counterfactual substitution and comparison rather than reading a single displayed fact."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-matches-description",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 471.7, "what": "The screen shows 1*2*3*4*c4 = 24*c4 and the matching fourth derivative 1, but not c4=1/24."},
+        {"kind": "frame", "t": 478.3, "what": "The subsequent frame shows substitution of c4=1/24."},
+        {"kind": "frame", "t": 572.0, "what": "The caption, pink c4 term, and brace are present, but the claimed displayed '=0' is absent."},
+        {"kind": "frame", "t": 574.0, "what": "The displayed '=0' is fully present."}
+      ],
+      "findings": "Both frame references overstate their exact targets: 471.7 precedes the displayed 1/24 substitution, and 572 precedes the displayed '=0'. The described facts are visible at 478.3 and 574 respectively.",
+      "criterion": "A frame provenance record must point to a frame that actually contains the visual fact its explanation attributes to that record.",
+      "steps": [
+        {"question": "Does frame 471.7 contain every visual fact in its explanation?", "answer_bool": false, "why": "It contains 24*c4 but not the subsequent c4=1/24 substitution."},
+        {"question": "Does frame 572 contain the completed zero evaluation claimed in its explanation?", "answer_bool": false, "why": "The brace exists, but '=0' has not yet appeared."},
+        {"question": "Are precise replacement frames available?", "answer_bool": true, "why": "The missing facts are visible at 478.3 and 574."}
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {
+        "field": "provenance.evidence",
+        "value": "Use frame 471.7 only for 24c4=1; add frame 478.3 for c4=1/24; move the completed caption-plus-zero reference from 572.0 to 574.0 (or describe 572 only as the incomplete pre-zero state).",
+        "why": "The current exact frame timestamps do not contain all visual facts claimed by their explanations."
+      },
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "references-consistent-with-windows",
+      "target": null,
+      "looked_at": [],
+      "findings": "The earlier c4 coefficient and fourth-derivative reference precedes the trigger by design, but the question also requires the later caption-plus-zero condition, which is unavailable before the window. The derived x=1 fact is marked as other, not falsely attributed to an earlier frame.",
+      "criterion": "An earlier corroborating reference is contradictory only if it implies that the complete requested answer was already available before the trigger window.",
+      "steps": [
+        {"question": "Do the earlier 471.7/478.3 facts alone complete the answer?", "answer_bool": false, "why": "They lack the later captioned twice-derivative zero state and its screen-color anchor."},
+        {"question": "Does any reference imply the whole answer was available before 572?", "answer_bool": false, "why": "The provenance separates earlier prerequisites, the later visual event, and the external counterfactual derivation."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-answer-verified",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 471.7, "what": "The earlier fourth derivative is 24*c4 and matches cosine's value 1."},
+        {"kind": "frame", "t": 478.3, "what": "The coefficient is displayed as c4=1/24."},
+        {"kind": "frame", "t": 574.0, "what": "The c4 term is pink and its twice-differentiated contribution 3*4*c4*(0)^2 evaluates to zero."}
+      ],
+      "findings": "The visual facts and algebra agree with the response: d^2(c4 x^4)/dx^2=12c4 x^2; at x=0 it is 0, at x=1 with c4=1/24 it is 1/2; d^4(c4 x^4)/dx^4=24c4=1.",
+      "criterion": "Every substantive claim in the reference response must agree with the inspected video evidence and with the required derivation.",
+      "steps": [
+        {"question": "What is the term's screen color?", "answer_text": "Pink/magenta.", "why": "The c4 term and its differentiated contribution use the red-pink color in the inspected frames."},
+        {"question": "What remains after two derivatives?", "answer_text": "12c4 x^2.", "why": "Applying the power rule twice to c4 x^4 gives 4*3*c4 x^2."},
+        {"question": "What is its value at x=1?", "answer_number": 0.5, "why": "12*(1/24)*1^2=1/2."},
+        {"question": "How does the fourth derivative compare?", "answer_text": "It has no remaining x factor and equals 24c4=1.", "why": "Four power-rule applications remove x^4 completely, as the earlier frame shows."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "twins-agree-on-substance",
+      "target": null,
+      "looked_at": [],
+      "findings": "The sample has no twin_of field, so there is no paired reference response to compare.",
+      "criterion": "Substantive agreement can be assessed only when the sample declares a twin.",
+      "steps": [],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

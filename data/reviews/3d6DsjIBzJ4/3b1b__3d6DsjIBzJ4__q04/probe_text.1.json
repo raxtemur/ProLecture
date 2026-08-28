@@ -1,0 +1,57 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q04",
+  "role": "probe_text",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q04/probe_text",
+  "budget": {
+    "frames_viewed": 0,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 227,
+    "screen_index_used": false
+  },
+  "violations": [],
+  "notes": "The polynomial's second derivative is inferred by differentiating the first-derivative formula stated in the transcript.",
+  "looked_at": [
+    {
+      "kind": "cue",
+      "t": 209.0,
+      "what": "The derivative of the quadratic is stated as c1 + 2*c2*x."
+    },
+    {
+      "kind": "cue",
+      "t": 233.6,
+      "what": "After matching the value and slope at x=0, c2 remains free to change."
+    },
+    {
+      "kind": "cue",
+      "t": 263.7,
+      "what": "The target's second derivative at x=0 is stated to equal -1."
+    }
+  ],
+  "steps": [
+    {
+      "question": "What target second-derivative value is given at the center x=0?",
+      "answer_number": -1.0,
+      "why": "The transcript at 263.7–272.9 s explicitly says that the second derivative at x=0 equals -1."
+    },
+    {
+      "question": "What is the quadratic approximation's second derivative?",
+      "answer_text": "2c2",
+      "why": "At 209.0–217.8 s its first derivative is given as c1 + 2*c2*x; differentiating once more gives 2c2."
+    },
+    {
+      "question": "Which equation matches the two second derivatives, and what coefficient solves it?",
+      "answer_text": "2c2 = -1, so c2 = -1/2",
+      "why": "Matching the approximation's second derivative 2c2 to the target value -1 determines the still-free quadratic coefficient."
+    }
+  ],
+  "answer": "The displayed target second-derivative value at x=0 is -1. The matching equation is 2c2 = -1, so the quadratic coefficient is c2 = -1/2.",
+  "basis": "Transcript: [209.0–217.8] gives the quadratic derivative as 'c1 + 2 * c2 * x'; [233.6–236.3] says this leaves c2 free; [263.7–272.9] says the target's second derivative at x=0 'equals -1'. General calculus (differentiating c1 + 2*c2*x) gives 2c2.",
+  "confidence": "high",
+  "insufficient": false
+}

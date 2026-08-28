@@ -1,0 +1,149 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q02",
+  "role": "semiblind",
+  "iteration": 2,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q02/semiblind",
+  "budget": {
+    "frames_viewed": 22,
+    "sparse_step": null,
+    "dense_intervals": [
+      {"t_start": 136.0, "t_end": 142.0},
+      {"t_start": 148.0, "t_end": 162.0},
+      {"t_start": 154.0, "t_end": 159.0}
+    ],
+    "transcript_cues": 119,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The full supplied transcript and screen index were read from 0 to 162.3 s. Scene-change frames covered the whole stretch; dense passes narrowed the two visual transitions near 140 s and 157 s. The blue target and explicit center are jointly readable while all three controls remain marked at 157 s.",
+  "prior_answer": "The numerical coefficients and polynomial cannot be determined from the question alone because it does not identify the blue target function or the displayed center. In general, reflecting a target across the x-axis negates its Taylor polynomial and hence negates all of its coefficients while keeping the center and degree.",
+  "prior_answer_assumptions": [],
+  "recognized_video": false,
+  "recognized_how": "I did not recognize this particular video or moment before viewing.",
+  "scans": [
+    {
+      "idx": 0,
+      "t_from": 0.0,
+      "t_to": 162.3,
+      "watched": [
+        {"kind": "frame", "t": 0.0, "what": "Black opening frame."},
+        {"kind": "frame", "t": 40.0, "what": "Pendulum illustration; no target quadratic controls."},
+        {"kind": "frame", "t": 80.0, "what": "Pendulum approximation scene with cosine formula."},
+        {"kind": "frame", "t": 112.0, "what": "Sine approximation graph near x=0."},
+        {"kind": "frame", "t": 118.0, "what": "Higher-order sine approximation still on screen."},
+        {"kind": "frame", "t": 122.0, "what": "New cosine graph scene begins."},
+        {"kind": "cue", "t": 122.7, "what": "Narrator identifies the function as cosine of x."},
+        {"kind": "frame", "t": 130.0, "what": "Blue cosine curve and green quadratic are visible."},
+        {"kind": "cue", "t": 126.9, "what": "Narrator specifies a quadratic approximation near x=0."},
+        {"kind": "frame", "t": 136.0, "what": "Generic P(x)=c0+c1x+c2x^2 is visible without control markings."},
+        {"kind": "frame", "t": 137.0, "what": "Formula briefly absent during the transition."},
+        {"kind": "frame", "t": 138.0, "what": "Generic quadratic formula returns without markings."},
+        {"kind": "frame", "t": 139.0, "what": "Graph remains visible while control annotation is not yet shown."},
+        {"kind": "frame", "t": 140.0, "what": "Three colored arrows appear and Free to change begins fading in; no displayed x=0 label."},
+        {"kind": "frame", "t": 141.0, "what": "All three coefficient arrows and Free to change are fully visible."},
+        {"kind": "frame", "t": 148.0, "what": "All three controls remain marked while the quadratic varies."},
+        {"kind": "frame", "t": 150.0, "what": "Marked controls remain visible during coefficient variation."},
+        {"kind": "frame", "t": 152.0, "what": "Marked controls remain visible and the quadratic nearly matches cosine."},
+        {"kind": "frame", "t": 154.0, "what": "Blue cos(x), generic quadratic, and three free-control arrows are present; no x=0 label yet."},
+        {"kind": "frame", "t": 155.0, "what": "Same three-control state; explicit center is still absent."},
+        {"kind": "frame", "t": 156.0, "what": "The center annotation begins drawing but is not yet fully readable."},
+        {"kind": "frame", "t": 157.0, "what": "Blue cos(x), fully readable x=0, quadratic degree two, and all three free-control arrows are simultaneously visible."},
+        {"kind": "frame", "t": 158.0, "what": "The x=0 annotation remains visible and evaluation at the center begins."},
+        {"kind": "frame", "t": 160.0, "what": "The display shows cos(x) at x=0 equals 1 while the three controls remain marked."}
+      ],
+      "candidates": [
+        {
+          "question": "Is the complete requested information available at 140-141 s?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The blue cos(x), degree-two formula, and all three free-control markings are visible, but an explicit displayed center is not yet present."
+        },
+        {
+          "question": "Is the complete requested information available at 155 s?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "All three controls remain marked, but the x=0 center annotation has not appeared."
+        },
+        {
+          "question": "Is the complete requested information available at 156 s?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The center annotation is only beginning to render and is not fully readable without filling in unseen text."
+        },
+        {
+          "question": "Is the complete requested information available at 157 s?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The frame fully shows cos(x), x=0, degree two, and simultaneous free markings for c0, c1, and c2; reflection and Taylor coefficients can then be derived without unseen assumptions."
+        }
+      ],
+      "t_val": 157.0,
+      "t_val_basis": "At 157 s the real frame simultaneously shows the blue target cos(x), the center x=0, the degree-two polynomial form P(x)=c0+c1x+c2x^2, and colored arrows marking all three coefficients free to change.",
+      "answer_at_t_val": "The blue target is cos(x) and the center is x=0. Reflecting across the x-axis gives -cos(x). Its degree-two Taylor polynomial at 0 has c0=-1, c1=0, c2=1/2, so P(x)=-1+(1/2)x^2.",
+      "confidence": "high"
+    }
+  ],
+  "checks": [
+    {
+      "group": "shortcuts",
+      "item": "solvable-without-video",
+      "target": null,
+      "looked_at": [
+        {"kind": "cue", "t": 130.3, "what": "Before viewing, the supplied question omitted the identity of the blue target and the displayed center."}
+      ],
+      "findings": "The question text alone requests numerical coefficients but does not supply the target function or center needed to compute them.",
+      "criterion": "The item fires only if the requested concrete answer follows from the question and general subject knowledge without inventing unseen screen content.",
+      "steps": [
+        {
+          "question": "Can the target function be identified from the question text alone?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "It is referred to only as the blue target function."
+        },
+        {
+          "question": "Can the displayed center be identified from the question text alone?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "No numerical or symbolic center is included in the question."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "video-recognized",
+      "target": null,
+      "looked_at": [
+        {"kind": "cue", "t": 130.3, "what": "Before viewing, the title and question did not evoke a remembered answer or exact moment for me."}
+      ],
+      "findings": "I had no memory of this particular video moment and could not name its displayed target, center, or coefficients before viewing.",
+      "criterion": "The item fires only when the reviewer recognizes the particular video and can recover the requested answer from memory before examining supplied material.",
+      "steps": [
+        {
+          "question": "Did I recognize this exact video moment before viewing?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Neither the title nor the question triggered a memory of this scene or its answer."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

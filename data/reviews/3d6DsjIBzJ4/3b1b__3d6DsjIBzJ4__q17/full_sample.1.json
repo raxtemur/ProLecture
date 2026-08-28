@@ -1,0 +1,543 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q17",
+  "role": "full_sample",
+  "iteration": 1,
+  "model": "gpt-5",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/3b1b__3d6DsjIBzJ4__q17/full_sample_r1",
+  "budget": {
+    "frames_viewed": 40,
+    "sparse_step": 65.0,
+    "dense_intervals": [
+      {
+        "t_start": 1198.0,
+        "t_end": 1209.0
+      }
+    ],
+    "transcript_cues": 1017,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The wording combines the first chronological brace pass with a probe location that occurs only in the later pass.\nThe answer sequence is visually verified in both passes, but the current trigger belongs to the inside-boundaries pass.\nThe 1203.9 provenance frame is already complete before t_start=1204.0.",
+  "verdict": "FIX_QUESTION",
+  "checks": [
+    {
+      "group": "triggers",
+      "item": "no-missed-trigger",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 15.0,
+          "what": "The complete transcript begins the lecture on Taylor approximations."
+        },
+        {
+          "kind": "cue",
+          "t": 1182.0,
+          "what": "The transcript introduces the Taylor series for natural log around x=1."
+        },
+        {
+          "kind": "cue",
+          "t": 1236.6,
+          "what": "The transcript remains in the natural-log divergence example after the two visual passes."
+        },
+        {
+          "kind": "cue",
+          "t": 1315.1,
+          "what": "The final transcript cue is closing music, with no further natural-log brace sequence."
+        },
+        {
+          "kind": "frame",
+          "t": 130.3,
+          "what": "A cosine graph and its approximation are on screen, not the natural-log probe scene."
+        },
+        {
+          "kind": "frame",
+          "t": 680.7,
+          "what": "The screen shows cosine derivative values and a cosine approximation."
+        },
+        {
+          "kind": "frame",
+          "t": 1020.0,
+          "what": "The screen shows the geometric area interpretation of a Taylor term."
+        },
+        {
+          "kind": "frame",
+          "t": 1154.5,
+          "what": "The screen shows an exponential-series approximation at a probe."
+        },
+        {
+          "kind": "frame",
+          "t": 1204.0,
+          "what": "The first natural-log brace pass reaches the fourth term while the white probe is left of the right dashed line."
+        },
+        {
+          "kind": "frame",
+          "t": 1218.0,
+          "what": "A later brace pass reaches the fourth term while the white probe is right of the right dashed line."
+        },
+        {
+          "kind": "frame",
+          "t": 1306.4,
+          "what": "The screen has moved to the closing credits."
+        }
+      ],
+      "findings": "The complete transcript and a twenty-frame whole-video scene pass locate the natural-log brace animation only in the 1182-1239 scene. Within it, the first four-term completion occurs at 1203.9-1204.0 with the probe between the dashed lines, and another four-term completion occurs by 1218.0 with the probe beyond the right dashed line. Only the former has a trigger.",
+      "criterion": "Every visual event that a reasonable literal reading of the question permits as the requested completion must be represented as a trigger or explicitly excluded.",
+      "steps": [
+        {
+          "question": "Where in the video does the specified natural-log brace animation occur?",
+          "answer_text": "Only in the late natural-log scene beginning around 1182 seconds.",
+          "why": "The full transcript and sparse scene frames show other functions and topics elsewhere."
+        },
+        {
+          "question": "Is there a completed four-approximant pass at a white probe beyond the right dashed line?",
+          "answer_bool": true,
+          "why": "At 1218.0 the brace spans four terms and the white probe is visibly to the right of the right dashed line."
+        },
+        {
+          "question": "Is that later good-faith firing represented in the annotation?",
+          "answer_bool": false,
+          "why": "The sole trigger is 1204.0-1209.0 and the sole distractor ends at 1204.0."
+        }
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {
+        "field": "question",
+        "value": "Watch the first pass in which the brace successively extends across the first four approximants to the blue target curve. As soon as the fourth curve has appeared, report whether each approximant at the same white probe between the two dashed lines lies above or below the blue curve, in order.",
+        "why": "This makes the current first-pass trigger uniquely satisfy the stated location and excludes the later beyond-boundary pass."
+      },
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "trigger-matches-criterion",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1203.9,
+          "what": "The brace spans the first four terms and the fourth approximant is visible; the white probe is left of the right dashed line."
+        },
+        {
+          "kind": "frame",
+          "t": 1204.0,
+          "what": "At the trigger start, the fourth approximant remains visible and the probe remains between the dashed lines."
+        }
+      ],
+      "findings": "Trigger 0 captures the first chronological four-term completion, but its white probe is between the dashed boundaries rather than beyond the right dashed line named in the question.",
+      "criterion": "Each trigger must satisfy every literal visual qualifier in the participant-facing question, including the stated probe position.",
+      "steps": [
+        {
+          "question": "Has the fourth approximant appeared at trigger 0?",
+          "answer_bool": true,
+          "why": "The fourth curve and the brace through the fourth term are visible at 1203.9 and 1204.0."
+        },
+        {
+          "question": "Is the white probe beyond the right dashed line at trigger 0?",
+          "answer_bool": false,
+          "why": "Its horizontal position is visibly between the yellow center point and the right dashed vertical line."
+        }
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {
+        "field": "question",
+        "value": "Replace 'beyond the right dashed line' with 'between the two dashed lines'.",
+        "why": "That location is what the current trigger frames actually show."
+      },
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "question-anchored-to-screen",
+      "target": null,
+      "looked_at": [],
+      "findings": "The question names a successively extending brace, the first four displayed approximants, a blue target curve, a white probe, and a right dashed line.",
+      "criterion": "A screen-anchored question must identify concrete visible objects or spatial relations rather than ask only about the mathematical topic.",
+      "steps": [
+        {
+          "question": "Which words tie the task to a particular screen state?",
+          "answer_text": "'brace', 'first four approximants', 'blue target curve', 'same white probe', and 'right dashed line'.",
+          "why": "Those objects, colors, and positions must be observed in the animation."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-within-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "Each rubric requirement follows from a phrase in the question: order follows from 'in order'; comparison to blue ln(x) at one probe follows from 'at the same white probe' and 'blue target curve'; four entries follow from 'first four approximants'; rejecting a prefix follows from waiting until 'the fourth curve has appeared'.",
+      "criterion": "The judge may require only distinctions and content that the participant-facing question itself requests.",
+      "steps": [
+        {
+          "question": "Does the question require the four positions in their displayed order?",
+          "answer_bool": true,
+          "why": "It explicitly says 'first four approximants' and 'in order'."
+        },
+        {
+          "question": "Does the question require comparison at one white probe against the blue curve?",
+          "answer_bool": true,
+          "why": "It explicitly names the same white probe and the blue target curve."
+        },
+        {
+          "question": "Does the question justify rejecting a two- or three-entry prefix?",
+          "answer_bool": true,
+          "why": "It says to answer as soon as the fourth curve has appeared and asks about the first four approximants."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "discriminator-in-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "The annotated early-window distractor is excluded by 'first four approximants' and 'as soon as the fourth curve has appeared'; those phrases tell a participant not to answer from only the first one, two, or three curves. The exclusion does not depend on hidden rubric knowledge.",
+      "criterion": "Every annotated temptation and every rubric exclusion must be rejected by wording visible to the participant.",
+      "steps": [
+        {
+          "question": "What wording excludes the 1198.0-1204.0 partial-sequence distractor?",
+          "answer_text": "'first four approximants' and 'as soon as the fourth curve has appeared'.",
+          "why": "Before the fourth curve appears, the requested four-item observation is incomplete."
+        },
+        {
+          "question": "What wording supports the rubric's exclusion of a partial sequence?",
+          "answer_text": "The same explicit requirement to wait for and report all four approximants.",
+          "why": "A prefix omits one or more objects explicitly requested by the question."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-not-punishing-extra",
+      "target": null,
+      "looked_at": [],
+      "findings": "The restrictive clauses are the closed set of four orders and the rejection of a partial sequence. No rubric clause forbids an additional accurate clarification about those four comparisons.",
+      "criterion": "A restrictive rubric must not reject a true detail that also falls under the question's requested scope.",
+      "steps": [
+        {
+          "question": "Which rubric clauses restrict the accepted answer?",
+          "answer_text": "All four orders must be included, and a prefix containing only the first two or three does not count.",
+          "why": "These are the only closed or explicitly excluding rubric statements."
+        },
+        {
+          "question": "Do those restrictions exclude any additional object requested by the question?",
+          "answer_bool": false,
+          "why": "The question itself requests exactly the first four approximants at one probe."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-fully-covered",
+      "target": {
+        "trigger_idx": null,
+        "distractor_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1198.0,
+          "what": "The first-order line is displayed and the brace spans the first term."
+        },
+        {
+          "kind": "frame",
+          "t": 1200.0,
+          "what": "The second-order curve is displayed and the brace spans two terms."
+        },
+        {
+          "kind": "frame",
+          "t": 1202.0,
+          "what": "The third-order curve is displayed and the brace is extending across three terms."
+        },
+        {
+          "kind": "frame",
+          "t": 1203.9,
+          "what": "The fourth-order curve and four-term brace have appeared immediately before the distractor ends."
+        }
+      ],
+      "findings": "The temptation begins by 1198.0 with the first approximant, continues through the second and third states, and ends when the four-term state is visible at 1203.9. The annotated distractor [1198.0,1204.0) covers that full prefix interval.",
+      "criterion": "A distractor window must span the entire period in which its stated incomplete-answer temptation is present, stopping when the fourth requested state arrives.",
+      "steps": [
+        {
+          "question": "When does the partial-sequence temptation first become visible?",
+          "answer_number": 1198.0,
+          "why": "The first approximant and one-term brace are visible then."
+        },
+        {
+          "question": "When does the temptation cease to be only a prefix?",
+          "answer_number": 1203.9,
+          "why": "The fourth approximant and four-term brace are visible in that frame."
+        },
+        {
+          "question": "Does the annotated distractor cover that interval?",
+          "answer_bool": true,
+          "why": "Its half-open bounds are 1198.0 through 1204.0."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-not-correct-answer",
+      "target": {
+        "trigger_idx": null,
+        "distractor_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1198.5,
+          "what": "Only the first-order line and one-term brace are present."
+        },
+        {
+          "kind": "frame",
+          "t": 1201.2,
+          "what": "Only the first two approximants have been reached by the brace."
+        },
+        {
+          "kind": "frame",
+          "t": 1203.0,
+          "what": "The brace has reached three terms and the fourth requested state has not yet appeared."
+        }
+      ],
+      "findings": "Throughout the distractor's substantive prefix, fewer than four requested comparisons are available, so an answer then cannot include all four orders demanded by the question.",
+      "criterion": "The distractor must represent an incomplete or otherwise incorrect answer under the literal participant-facing request, not a second fully valid response.",
+      "steps": [
+        {
+          "question": "Can all four ordered positions be reported from the early prefix?",
+          "answer_bool": false,
+          "why": "The first, second, and third states arrive successively; the fourth is not visible until the prefix ends."
+        },
+        {
+          "question": "Does the question permit answering before the fourth state?",
+          "answer_bool": false,
+          "why": "It explicitly says to respond as soon as the fourth curve has appeared."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-why-hides-answer",
+      "target": null,
+      "looked_at": [],
+      "findings": "The distractor explanation says only that a prefix is incomplete and would omit comparisons; it does not state any of the above/below values or their order.",
+      "criterion": "A distractor rationale may explain why the moment is invalid but must not disclose the answer that a participant is meant to infer.",
+      "steps": [
+        {
+          "question": "Does the distractor rationale reveal the four-position sequence?",
+          "answer_bool": false,
+          "why": "It contains no above/below labels and no values for any approximant."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "reasoning-level-not-inflated",
+      "target": null,
+      "looked_at": [],
+      "findings": "The four relations are direct visual comparisons at one displayed probe across four immediately successive animation states; no distant events or external derivation are required.",
+      "criterion": "L1 is appropriate when the requested answer can be read directly from the displayed states without connecting distant moments or deriving unseen facts.",
+      "steps": [
+        {
+          "question": "Must the answer combine temporally distant scenes?",
+          "answer_bool": false,
+          "why": "The four approximants appear successively within a few seconds in one unchanged graph scene."
+        },
+        {
+          "question": "Must the answer derive information absent from the video?",
+          "answer_bool": false,
+          "why": "Each approximant and the blue curve are simultaneously visible at the probe."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-matches-description",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1198.5,
+          "what": "The first-order yellow line is above the blue curve at the white probe, which is left of the right dashed line."
+        },
+        {
+          "kind": "frame",
+          "t": 1201.2,
+          "what": "The second-order green curve is below the blue curve at the same probe, still left of the right dashed line."
+        },
+        {
+          "kind": "frame",
+          "t": 1203.9,
+          "what": "The fourth-order pink curve is below the blue curve and the four-term brace is complete; the probe remains between the dashed lines."
+        }
+      ],
+      "findings": "The frames support the alternating comparisons, but every provenance explanation locates the fixed probe beyond the right dashed line. In all three cited frames the white probe is visibly between the dashed lines.",
+      "criterion": "A provenance description must accurately identify the visible objects and spatial relation in the exact frame it cites.",
+      "steps": [
+        {
+          "question": "Do the cited frames support the claimed above/below relations?",
+          "answer_bool": true,
+          "why": "The colored approximants can be directly compared with the blue curve at the white point."
+        },
+        {
+          "question": "Do the cited frames show the probe beyond the right dashed boundary?",
+          "answer_bool": false,
+          "why": "The white point is horizontally to the left of that dashed line in each cited frame."
+        }
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {
+        "field": "provenance.evidence[*].explanation",
+        "value": "Describe the fixed white probe as between the two dashed lines, consistently with the cited frames.",
+        "why": "The current 'beyond the right dashed line' description contradicts the actual frame geometry."
+      },
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "references-consistent-with-windows",
+      "target": null,
+      "looked_at": [],
+      "findings": "The third provenance record is at 1203.9 and says the states complete the first four-order sequence, while trigger 0 begins at 1204.0. The answer remains visible inside the window, so this is a 0.1-second pre-start contradiction rather than evidence that the answer is absent from the window.",
+      "criterion": "A provenance record must not assert that the complete answer is available before the corresponding trigger window opens.",
+      "steps": [
+        {
+          "question": "Which provenance record claims completion of the answer?",
+          "answer_text": "The frame record at 1203.9 says the states complete the first four-order sequence.",
+          "why": "That is the only record whose explanation explicitly says the four-state sequence is complete."
+        },
+        {
+          "question": "Is that completion record earlier than trigger 0's start?",
+          "answer_bool": true,
+          "why": "1203.9 is earlier than 1204.0."
+        },
+        {
+          "question": "Is the complete answer nevertheless visible inside the window?",
+          "answer_bool": true,
+          "why": "The 1204.0 frame inside the window still shows the fourth curve and complete brace."
+        }
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {
+        "field": "triggers[0].t_start",
+        "value": "1203.9",
+        "why": "This aligns the window with the cited frame that already shows the complete four-order state; confirm against the semi-blind boundary review before applying."
+      },
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-answer-verified",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1198.5,
+          "what": "At the white probe, the yellow first-order line is above the blue logarithm."
+        },
+        {
+          "kind": "frame",
+          "t": 1201.2,
+          "what": "At the same probe, the green second-order curve is below the blue logarithm."
+        },
+        {
+          "kind": "frame",
+          "t": 1203.0,
+          "what": "At the same probe, the red third-order curve is above the blue logarithm."
+        },
+        {
+          "kind": "frame",
+          "t": 1203.9,
+          "what": "At the same probe, the pink fourth-order curve is below the blue logarithm."
+        },
+        {
+          "kind": "frame",
+          "t": 1218.0,
+          "what": "The later beyond-boundary pass also visibly places the fourth-order curve below the blue logarithm at its probe."
+        }
+      ],
+      "findings": "Reading the four successive colored curves at the fixed probe gives first above, second below, third above, and fourth below relative to the blue logarithm. The stated reference answer has exactly that order.",
+      "criterion": "The reference answer must match the complete observable answer in the video, including all requested entries and their order.",
+      "steps": [
+        {
+          "question": "What is the first-order position relative to blue?",
+          "answer_text": "above",
+          "why": "The yellow line passes above the blue curve at the white probe in the 1198.5 frame."
+        },
+        {
+          "question": "What is the second-order position relative to blue?",
+          "answer_text": "below",
+          "why": "The green curve passes below the blue curve at the white probe in the 1201.2 frame."
+        },
+        {
+          "question": "What is the third-order position relative to blue?",
+          "answer_text": "above",
+          "why": "The red curve passes above the blue curve at the white probe in the 1203.0 frame."
+        },
+        {
+          "question": "What is the fourth-order position relative to blue?",
+          "answer_text": "below",
+          "why": "The pink curve passes below the blue curve at the white probe in the 1203.9 frame."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "twins-agree-on-substance",
+      "target": null,
+      "looked_at": [],
+      "findings": "The supplied sample has no twin_of field, so there is no paired reference answer to compare.",
+      "criterion": "Substantive agreement can be evaluated only when the sample identifies a twin with another reference answer.",
+      "steps": [],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

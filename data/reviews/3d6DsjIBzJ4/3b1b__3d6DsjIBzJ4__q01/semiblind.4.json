@@ -1,0 +1,167 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q01",
+  "role": "semiblind",
+  "iteration": 4,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q01/semiblind",
+  "budget": {
+    "frames_viewed": 24,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 43.0,
+        "t_end": 54.0
+      }
+    ],
+    "transcript_cues": 61,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The whole 0-79.8 s stretch was covered by the full transcript, screen index, and scene-change frames. Dense 1 fps inspection around the only candidate transition showed the expression incomplete at 50 s and fully readable at 51 s. The declared distractor [35, 51) was not treated as a valid trigger.",
+  "prior_answer": "It cannot be answered uniquely on the merits from the question alone, because the unseen diagram/expression determines the angle convention and the zero of vertical height. If this is the standard pendulum geometry with theta measured from the downward vertical and height measured above the lowest point, doubling the shown angle gives h_new = R(1 - cos(2 theta)), and for small theta h_new approximately equals 2 R theta^2.",
+  "prior_answer_assumptions": [
+    "The displayed angle theta is measured from the downward vertical.",
+    "The displayed vertical height is measured upward from the pendulum's lowest point, so its original expression is R(1 - cos(theta))."
+  ],
+  "recognized_video": false,
+  "recognized_how": "I recognized the supplied title as part of the 3Blue1Brown Essence of Calculus series, but did not recognize this particular pendulum moment or know its displayed expression from memory before viewing.",
+  "scans": [
+    {
+      "idx": 0,
+      "t_from": 0.0,
+      "t_to": 79.8,
+      "watched": [
+        {"kind": "frame", "t": 0.0, "what": "Black opening frame."},
+        {"kind": "frame", "t": 3.0, "what": "3Blue1Brown logo."},
+        {"kind": "frame", "t": 6.0, "what": "Opening quotation begins."},
+        {"kind": "frame", "t": 10.0, "what": "Opening quotation, unrelated to the pendulum."},
+        {"kind": "frame", "t": 16.0, "what": "Gaussian approximation scene, no pendulum."},
+        {"kind": "frame", "t": 26.0, "what": "Exponential approximation scene, no pendulum."},
+        {"kind": "frame", "t": 35.0, "what": "Pendulum line has only begun to be drawn."},
+        {"kind": "frame", "t": 40.0, "what": "Pendulum is visible without the requested labels and height expression."},
+        {"kind": "frame", "t": 43.0, "what": "Pendulum and arc, with no requested labels or expression."},
+        {"kind": "frame", "t": 44.0, "what": "Pendulum and arc remain unlabeled."},
+        {"kind": "frame", "t": 45.0, "what": "Height marker appears, but no R, theta, or expression."},
+        {"kind": "frame", "t": 46.0, "what": "Theta label appears; R and height expression are absent."},
+        {"kind": "frame", "t": 47.0, "what": "R and theta are visible, but the height expression is absent."},
+        {"kind": "frame", "t": 48.0, "what": "R and theta remain visible, but the height expression is absent."},
+        {"kind": "frame", "t": 49.0, "what": "R and theta remain visible, but the height expression is absent."},
+        {"kind": "frame", "t": 50.0, "what": "The height expression is mid-animation and not fully readable."},
+        {"kind": "frame", "t": 51.0, "what": "R, theta, and the complete expression R(1 - cos(theta)) are simultaneously readable."},
+        {"kind": "frame", "t": 52.0, "what": "The same complete labeled pendulum diagram remains readable."},
+        {"kind": "frame", "t": 53.0, "what": "The same complete labeled pendulum diagram remains readable."},
+        {"kind": "frame", "t": 55.0, "what": "Complete pendulum diagram and expression persist."},
+        {"kind": "frame", "t": 59.0, "what": "Cosine is being separated from the height expression."},
+        {"kind": "frame", "t": 65.0, "what": "Pendulum remains while cosine is discussed separately."},
+        {"kind": "frame", "t": 69.0, "what": "The small-angle relation cos(theta) approximately equals 1 - theta^2/2 is displayed."},
+        {"kind": "frame", "t": 77.0, "what": "The derived pendulum height approximation R theta^2/2 is displayed for the original angle."},
+        {"kind": "cue", "t": 43.4, "what": "Narration identifies height above the pendulum's lowest point."},
+        {"kind": "cue", "t": 47.9, "what": "Narration says the height is proportional to one minus cosine."},
+        {"kind": "cue", "t": 50.3, "what": "Narration identifies theta as the angle between pendulum and vertical."},
+        {"kind": "cue", "t": 68.6, "what": "Narration introduces the quadratic small-angle cosine approximation."}
+      ],
+      "candidates": [
+        {
+          "question": "Was the requested answer already visually available before the pendulum scene?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Frames from 0 through 26 s show branding, a quotation, and unrelated Gaussian/exponential Taylor examples, not the labeled pendulum height relation."
+        },
+        {
+          "question": "Do the pendulum frames from 35 through 49 s contain all three required visible elements?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "This is the declared distractor interval; direct frame inspection also shows the diagram being assembled, with R and theta present by 47 s but no complete height expression."
+        },
+        {
+          "question": "Is the displayed height expression complete at 50 s?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The formula is visibly mid-animation and cannot yet be read in full; 50 s also lies inside the declared [35, 51) distractor."
+        },
+        {
+          "question": "Can the doubled-angle height and its quadratic approximation be derived at 51 s?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "At 51 s the frame simultaneously shows R, theta, and R(1 - cos(theta)); substituting 2 theta and using the quadratic cosine expansion gives the requested exact and approximate expressions."
+        },
+        {
+          "question": "Do later frames reveal an earlier independent occurrence that changes the first valid moment?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Later frames preserve or transform the same pendulum relation; at 69 s the cosine approximation appears and by 77 s the original-angle height approximation is shown, both later than the complete 51 s diagram."
+        }
+      ],
+      "t_val": 51.0,
+      "t_val_basis": "The 51 s frame is the first inspected real frame outside the declared distractor in which R, theta, and the complete original height expression R(1 - cos(theta)) are simultaneously legible.",
+      "answer_at_t_val": "With the angle doubled and R fixed, the exact height is R(1 - cos(2 theta)). Since cos(2 theta) = 1 - (2 theta)^2/2 + O(theta^4), its quadratic small-angle approximation is 2 R theta^2.",
+      "confidence": "high"
+    }
+  ],
+  "checks": [
+    {
+      "group": "shortcuts",
+      "item": "solvable-without-video",
+      "target": null,
+      "looked_at": [
+        {"kind": "cue", "t": 43.4, "what": "Narration supplies the previously unspecified reference level: height above the lowest point."},
+        {"kind": "cue", "t": 50.3, "what": "Narration supplies the previously unspecified angle convention: angle from the vertical."},
+        {"kind": "frame", "t": 51.0, "what": "The frame supplies the original relation R(1 - cos(theta))."}
+      ],
+      "findings": "Before viewing, the question alone did not state the angle convention, height zero, or original displayed expression. The video later supplies each of these facts.",
+      "criterion": "The item fires only if an exact answer stands from the question and general subject knowledge without inventing unseen diagram content; a conditional answer requiring screen-specific assumptions does not qualify.",
+      "steps": [
+        {
+          "question": "Did the unconditional prior answer determine a unique new expression?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "It explicitly required two assumptions about the unseen diagram and therefore did not stand from the question alone."
+        },
+        {
+          "question": "Were those assumptions subsequently supplied by the video rather than by the question?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The transcript and 51 s frame establish the lowest-point reference, vertical angle convention, and original expression."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "video-recognized",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 3.0, "what": "The 3Blue1Brown logo identifies the familiar series branding."},
+        {"kind": "frame", "t": 51.0, "what": "The particular pendulum diagram and expression encountered after the Step-0 self-report."}
+      ],
+      "findings": "The series/title was familiar from the supplied prompt, but before opening any material I could not recall this particular moment or its displayed answer from memory.",
+      "criterion": "Recognition requires prior memory of this specific video moment sufficient to name the answer, not merely familiarity with the channel, series, or supplied title.",
+      "steps": [
+        {
+          "question": "Could I name the displayed relation from memory before viewing?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "My Step-0 self-report recognized only the series title and not the particular pendulum moment."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

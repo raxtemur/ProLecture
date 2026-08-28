@@ -1,0 +1,242 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q07",
+  "role": "full_window",
+  "iteration": 3,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q07/full_window0",
+  "budget": {
+    "frames_viewed": 25,
+    "sparse_step": 1.0,
+    "dense_intervals": [
+      {
+        "t_start": 530.7,
+        "t_end": 559.4
+      }
+    ],
+    "transcript_cues": 27,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The complete-brace boundary is visually supported by the change from an unfinished 8 label at 530.0 to a finished 8! at 530.7. The generic c8 rule shown afterward never supplies the target -2 or the completed counterfactual result.",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "group": "windows",
+      "item": "window-can-be-tightened",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 530.7,
+          "what": "The eighth-derivative product has a completed brace labeled 8!, and both c8 occurrences are yellow-gold."
+        },
+        {
+          "kind": "frame",
+          "t": 541.2,
+          "what": "The fourth-order screen is adding the result 24 times c4."
+        },
+        {
+          "kind": "frame",
+          "t": 544.2,
+          "what": "The fourth-order calculation is fully visible as 1*2*3*4*1/24 = 24*1/24."
+        },
+        {
+          "kind": "frame",
+          "t": 548.7,
+          "what": "The completed fourth-order formulas and factor 24 remain visible shortly before the window ends."
+        }
+      ],
+      "findings": "The brace and color cue are complete at the opening, the later required factor 24 begins appearing at about 541.1, and the fourth-order calculation remains on screen until almost the 549.4 end. There is no large irrelevant tail inside the window.",
+      "criterion": "A tightening is warranted only when a substantial part of the answer window contains no usable trigger evidence or retained evidence; one or two seconds of latency or transition does not justify a boundary change.",
+      "steps": [
+        {
+          "question": "What is the last newly appearing fact required by the answer?",
+          "answer_number": 541.1,
+          "why": "The 24*c4 result starts appearing there, completing the cross-order factorial connection after the 8! brace and color were observed."
+        },
+        {
+          "question": "Does a substantial empty tail follow that fact before t_end?",
+          "answer_bool": false,
+          "why": "The settled fourth-order computation remains visible through the 548.7 frame, less than a second before t_end=549.4."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "windows",
+      "item": "author-says-answer-in-window",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 532.2,
+          "what": "The screen gives only the generic rule Set c8 = Desired derivative value / 8! above the eighth-derivative product."
+        },
+        {
+          "kind": "frame",
+          "t": 544.2,
+          "what": "The screen shows the separate cosine fourth-order example with factor 24 and coefficient 1/24."
+        },
+        {
+          "kind": "frame",
+          "t": 559.2,
+          "what": "The screen discusses that the c4*x^4 term does not affect previous terms; no target -2 or computed c8 is shown."
+        },
+        {
+          "kind": "cue",
+          "t": 529.8,
+          "what": "The author says coefficients are not simply set equal to the desired derivative."
+        },
+        {
+          "kind": "cue",
+          "t": 536.2,
+          "what": "The author says to divide by the appropriate factorial to cancel the differentiation effect."
+        },
+        {
+          "kind": "cue",
+          "t": 543.6,
+          "what": "The author identifies the cosine fourth derivative as 1 divided by 4 factorial, 24."
+        },
+        {
+          "kind": "cue",
+          "t": 551.1,
+          "what": "The author moves to the fact that adding new terms does not disturb the old terms."
+        }
+      ],
+      "findings": "Within [530.7,559.4], the author supplies the generic divide-by-factorial rule and the fourth-order value 24, but neither speech nor screen introduces the counterfactual target -2, evaluates 8! as 40320, or states c8=-1/20160. The complete requested color-plus-counterfactual answer is never presented in finished form.",
+      "criterion": "For an L2 item this check fires only if the author gives the requested answer in finished form within the window or ten seconds afterward, so that waiting would replace the required reasoning.",
+      "steps": [
+        {
+          "question": "Does the author state or show the screen color requested by the question as an answer?",
+          "answer_bool": false,
+          "why": "The yellow-gold styling is visible, but the author does not verbally identify that color."
+        },
+        {
+          "question": "Does the author introduce the target eighth derivative -2 in the checked interval?",
+          "answer_bool": false,
+          "why": "No viewed frame or transcript cue through 559.4 contains -2 as the eighth-derivative target."
+        },
+        {
+          "question": "Does the author finish the counterfactual arithmetic for c8?",
+          "answer_bool": false,
+          "why": "Only the generic division rule is given; neither 40320*c8=-2 nor c8=-1/20160 appears."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "event-not-earlier-than-window",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 530.0,
+          "what": "The brace animation is incomplete and its label reads only 8, without the factorial mark."
+        },
+        {
+          "kind": "frame",
+          "t": 530.7,
+          "what": "The brace is complete and the label beneath it is now 8!."
+        }
+      ],
+      "findings": "Immediately before the annotated opening the factorial brace is still being completed; at 530.7 the brace and 8! label are complete for the first viewed time.",
+      "criterion": "An event window should open where the condition named in the question first becomes true, not after an already completed occurrence has been underway.",
+      "steps": [
+        {
+          "question": "Is the question's complete-factorial-brace condition already true at 530.0?",
+          "answer_bool": false,
+          "why": "The label has not yet acquired the exclamation mark and the brace animation is unfinished."
+        },
+        {
+          "question": "Is the complete-factorial-brace condition true at t_start=530.7?",
+          "answer_bool": true,
+          "why": "The 530.7 frame shows the settled full brace with 8! beneath it."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "depends-on-is-dependency",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [],
+      "findings": "This trigger has no depends_on field, so there is no asserted dependency edge to test for necessity or superfluity.",
+      "criterion": "The dependency check applies only when the trigger declares an earlier window whose answer is necessary for satisfying this window's rubric.",
+      "steps": [
+        {
+          "question": "Does trigger 0 declare any depends_on link?",
+          "answer_bool": false,
+          "why": "The handed trigger specification explicitly says depends_on is absent."
+        }
+      ],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "evidence-span-is-last",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 530.7,
+          "what": "The completed 8! brace and the shared yellow-gold styling of the two c8 occurrences are visible."
+        },
+        {
+          "kind": "frame",
+          "t": 541.2,
+          "what": "The fourth-order derivative calculation introduces the result 24*c4."
+        },
+        {
+          "kind": "frame",
+          "t": 544.2,
+          "what": "The later settled frame substitutes 1/24 and repeats 24*1/24, corroborating rather than adding a required multiplier."
+        }
+      ],
+      "findings": "The brace, 8!, and shared color are available at 530.7. The last distinct fact needed by the requested response is the fourth-order multiplier 24, whose 24*c4 line begins at about 541.1; the later 1/24 substitution is not required by the stated answer.",
+      "criterion": "The evidence span should end where the last indispensable fact first appears, excluding later repetition, settling, or worked-example corroboration that does not change what can be derived.",
+      "steps": [
+        {
+          "question": "Which requested fact appears last in this trigger?",
+          "answer_text": "The fourth-order factorial multiplier 24.",
+          "why": "The shared color and 8! brace are already visible at 530.7, while 24*c4 is introduced only around 541.1."
+        },
+        {
+          "question": "Does any indispensable fact first appear after the annotated evidence end 541.1?",
+          "answer_bool": false,
+          "why": "The 1/24 substitution after 541.1 illustrates the already-known fourth-order relation; the -2 result is intentionally counterfactual reasoning, not video evidence."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ],
+  "window_idx": 0
+}

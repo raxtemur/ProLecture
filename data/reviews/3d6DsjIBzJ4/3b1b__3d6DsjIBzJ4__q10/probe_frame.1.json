@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q10",
+  "role": "probe_frame",
+  "iteration": 1,
+  "model": "gpt-5.6",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/3b1b__3d6DsjIBzJ4__q10/probe_frame_r1",
+  "budget": {
+    "frames_viewed": 1,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 0,
+    "screen_index_used": false
+  },
+  "violations": [],
+  "notes": "The frame shows the generic derivative labels and curve, but not the preceding column's numerical values.",
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 758.0,
+      "what": "A graph of f near x=0, a left column labeled f(0), f'(0), f''(0), f'''(0), f''''(0), and the generic Taylor formula with matching colors through the cubic term."
+    }
+  ],
+  "steps": [
+    {
+      "question": "Which derivative entry maps to each nonconstant power slot?",
+      "answer_text": "f'(0) maps to x, f''(0) to x^2, f'''(0) to x^3, and f''''(0) to x^4 (with the usual factorial divisors).",
+      "why": "The frame color-codes the derivative column and the corresponding terms of the Taylor formula; the fourth-order continuation follows the displayed Taylor pattern."
+    },
+    {
+      "question": "What signs and zeros are suggested by the curve at the expansion point?",
+      "answer_text": "The x coefficient is positive, the x^2 coefficient is zero, the x^3 coefficient is negative, and the x^4 coefficient is zero.",
+      "why": "The curve rises through x=0, changes concavity there, and locally suggests an odd-order expansion. The x^4 zero is a guess because the actual derivative-value column is not visible in this frame."
+    }
+  ],
+  "answer": "The mapping is x <- f'(0), x^2 <- f''(0), x^3 <- f'''(0), and x^4 <- f''''(0), each divided by 1!, 2!, 3!, and 4! respectively. The x^2 and x^4 slots vanish; the x slot is positive and the x^3 slot is negative.",
+  "basis": "At t=758 the matching colors and generic Taylor formula establish the derivative-to-power mapping. The graph visibly rises and changes concavity at x=0, supporting positive linear and zero quadratic terms and a negative cubic tendency. The preceding numerical derivative values are absent, so the zero quartic assignment is a guess from the locally odd pattern rather than a directly readable value.",
+  "confidence": "medium",
+  "insufficient": true
+}

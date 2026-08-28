@@ -1,0 +1,62 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q10",
+  "role": "probe_vision",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/3b1b__3d6DsjIBzJ4__q10/probe_vision_r1",
+  "budget": {
+    "frames_viewed": 5,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": null,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "",
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 676.0,
+      "what": "Slide introducing derivative information at a point as input to output information near that point."
+    },
+    {
+      "kind": "frame",
+      "t": 686.0,
+      "what": "Concrete cosine derivative-value column 1, 0, -1, 0, 1 beside the color-matched polynomial 1 + 0 x/1! - 1 x^2/2! + 0 x^3/3! + 1 x^4/4! + ... ."
+    },
+    {
+      "kind": "frame",
+      "t": 718.0,
+      "what": "Concrete Taylor polynomial displayed clearly as 1 + 0 x^1/1! - 1 x^2/2! + 0 x^3/3! + 1 x^4/4! + ... ."
+    },
+    {
+      "kind": "frame",
+      "t": 737.0,
+      "what": "The concrete polynomial has been replaced by the color-matched general formula using f(0), f'(0), f''(0), and f'''(0) in the corresponding coefficient slots."
+    },
+    {
+      "kind": "frame",
+      "t": 751.0,
+      "what": "Generic derivative column and Taylor formula remain visible, preserving the color mapping between derivative order and power of x."
+    }
+  ],
+  "steps": [
+    {
+      "question": "What are the four nonconstant derivative values in order?",
+      "answer_text": "0, -1, 0, +1 for derivative orders one through four.",
+      "why": "Frame 686 shows the derivative-value column, and frame 718 shows the same values multiplying x^1/1!, x^2/2!, x^3/3!, and x^4/4!."
+    },
+    {
+      "question": "How do those values map to the generic coefficient slots?",
+      "answer_text": "x uses f'(0)=0; x^2 uses f''(0)=-1; x^3 uses f'''(0)=0; x^4 uses f''''(0)=+1, each over its matching factorial.",
+      "why": "Frames 737 and 751 replace the concrete color-coded entries with derivatives of matching order and color."
+    }
+  ],
+  "answer": "The mapping is x -> f'(0)=0, x^2 -> f''(0)=-1, x^3 -> f'''(0)=0, and x^4 -> f''''(0)=+1 (each attached to x^n/n!). Thus the x and x^3 entries vanish; the x^2 entry is negative, and the x^4 entry is positive.",
+  "basis": "Frames t000686.jpg and t000718.jpg show the concrete values and coefficient slots; frames t000737.jpg and t000751.jpg show their replacement by the generic derivatives of f.",
+  "confidence": "high",
+  "insufficient": false
+}

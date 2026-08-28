@@ -1,0 +1,200 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q13",
+  "role": "semiblind",
+  "iteration": 1,
+  "model": "gpt-5.4",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/3b1b__3d6DsjIBzJ4__q13/semiblind_r1",
+  "budget": {
+    "frames_viewed": 7,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 903.0,
+        "t_end": 907.0
+      }
+    ],
+    "transcript_cues": 708,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "Read the supplied transcript in full and used both supplied screen indexes only to locate candidates.\nThe full 0-935.8 s stretch was accounted for; real frames, not index descriptions, ground the boundary.\nThe declared distractor [889.0,904.9) was treated as given and not selected.",
+  "prior_answer": "It cannot be answered completely on the merits because the question does not state the displayed base-point and endpoint symbols. Generically, the correction is a triangle whose base is the endpoint displacement and whose height is the change in the accumulated-area function's derivative (the height of the underlying graph) across that displacement; to second order that height is approximately the second derivative at the base point times the displacement.",
+  "prior_answer_assumptions": [
+    "To write the generic answer as x-a, one must assume the unseen display uses a for the base point and x for the endpoint.",
+    "To write the height as f_area''(a)(x-a), one must assume the unseen display names the accumulated-area function f_area."
+  ],
+  "recognized_video": false,
+  "recognized_how": "The opaque video ID and question did not evoke a specific remembered video or moment before viewing.",
+  "scans": [
+    {
+      "idx": 0,
+      "t_from": 0.0,
+      "t_to": 935.8,
+      "watched": [
+        {
+          "kind": "cue",
+          "t": 15.0,
+          "what": "The lecture begins by motivating Taylor series as tools for approximating functions."
+        },
+        {
+          "kind": "cue",
+          "t": 641.4,
+          "what": "The lecture has developed higher-order derivative matching and then continues to the general Taylor-polynomial construction."
+        },
+        {
+          "kind": "cue",
+          "t": 869.3,
+          "what": "The narration pivots to a geometric understanding of the second-order Taylor term."
+        },
+        {
+          "kind": "frame",
+          "t": 880.0,
+          "what": "The geometric-view screen visibly shows f(a), derivative terms evaluated at a, and powers of (x-a), including the highlighted second-order term."
+        },
+        {
+          "kind": "cue",
+          "t": 889.0,
+          "what": "The narrator begins introducing a function that gives area under a graph between a fixed left point and a variable right point."
+        },
+        {
+          "kind": "frame",
+          "t": 894.0,
+          "what": "Inside the declared distractor, a white curve and shaded region labeled f_area(x) are visible with endpoint x, but the setup is still being introduced."
+        },
+        {
+          "kind": "cue",
+          "t": 900.4,
+          "what": "The narrator says the approximation concerns the area function, not the function for the graph itself."
+        },
+        {
+          "kind": "frame",
+          "t": 903.0,
+          "what": "The shaded f_area(x) region and white curve are visible, but this frame remains inside the declared distractor."
+        },
+        {
+          "kind": "frame",
+          "t": 904.0,
+          "what": "The area animation is still in the declared distractor; the yellow moving boundary is returning left."
+        },
+        {
+          "kind": "frame",
+          "t": 905.0,
+          "what": "The first frame after the declared distractor clearly shows the shaded f_area(x) region as distinct from the white graph, with endpoint x."
+        },
+        {
+          "kind": "frame",
+          "t": 906.0,
+          "what": "The same distinct white-graph/shaded-area relationship persists as the endpoint animation continues."
+        },
+        {
+          "kind": "frame",
+          "t": 916.0,
+          "what": "A later confirming frame labels the white graph height as df_area/dx evaluated at x."
+        },
+        {
+          "kind": "cue",
+          "t": 919.9,
+          "what": "The narration explains that nudging the right bound by dx adds approximately graph height times dx."
+        },
+        {
+          "kind": "cue",
+          "t": 933.9,
+          "what": "At the end of the supplied transcript, the narrator says the strip approximation becomes increasingly accurate for smaller choices."
+        }
+      ],
+      "candidates": [
+        {
+          "question": "Is the answer already available at 880.0 seconds?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The symbols a and x and the algebraic second-order term are visible, but the new accumulated-area screen and the requested distinction between its two visual roles have not appeared."
+        },
+        {
+          "question": "Is the answer available from the 894.0-second frame?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "This is inside the declared [889.0,904.9) distractor, where the area-function setup is still being introduced; it must not be used to move the boundary."
+        },
+        {
+          "question": "Is the answer available at 903.0 or 904.0 seconds?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Both real frames remain inside the declared distractor and show the endpoint animation before the stated setup interval has finished."
+        },
+        {
+          "question": "Is the answer available at 905.0 seconds?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "This is the first inspected frame outside the distractor: the shaded f_area(x) object and white accumulating graph are simultaneously unambiguous, and the prior geometric-view frame supplies a and x."
+        }
+      ],
+      "t_val": 905.0,
+      "t_val_basis": "At 905.0 s, immediately after the declared distractor ends, the real frame clearly separates the shaded accumulated-area function f_area(x) from the white graph whose height is being accumulated. The 880.0-s geometric-view frame has already displayed the base point a and endpoint x, so the correction geometry can now be predicted without filling in unseen symbols.",
+      "answer_at_t_val": "The extra shape is a triangle (or triangular wedge). Its base is x-a. Its height is the change in the white graph's height between a and x: for f=f_area this is f'(x)-f'(a), approximated to second order by f''(a)(x-a). Hence its area is approximately (1/2)f''(a)(x-a)^2.",
+      "confidence": "high"
+    }
+  ],
+  "checks": [
+    {
+      "group": "shortcuts",
+      "item": "solvable-without-video",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 886.7,
+          "what": "The supplied question refers to displayed base-point and endpoint symbols without naming them in its text."
+        }
+      ],
+      "findings": "Before viewing, the generic calculus geometry suggested a triangular correction, but the exact requested symbols and the displayed name of the area function were absent from the question.",
+      "criterion": "The item fires only if the question can be answered on its merits from its text and general knowledge without inventing screen content; missing requested symbols prevent that.",
+      "steps": [
+        {
+          "question": "Can the requested answer be stated in the same symbols without seeing the display?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The question never supplies the symbols, so using a and x would be an assumption about unseen screen content."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "video-recognized",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 886.7,
+          "what": "Before viewing, only the opaque video ID and the supplied question wording were available for recognition."
+        }
+      ],
+      "findings": "Neither the opaque ID nor the question wording evoked a remembered specific video or answer-bearing moment.",
+      "criterion": "This item fires only when the reviewer recognizes the particular video and moment strongly enough to name the answer from memory before viewing.",
+      "steps": [
+        {
+          "question": "Did I recognize this particular video and moment before opening the transcript or frames?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "I had no specific memory attached to the ID or wording and could not name the displayed symbols from memory."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

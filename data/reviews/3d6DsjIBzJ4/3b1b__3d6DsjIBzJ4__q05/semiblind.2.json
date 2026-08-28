@@ -1,0 +1,153 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q05",
+  "role": "semiblind",
+  "iteration": 2,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q05/semiblind",
+  "budget": {
+    "frames_viewed": 21,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 330.0,
+        "t_end": 338.0
+      }
+    ],
+    "transcript_cues": 253,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The transcript and screen index covered the complete 0.0-341.7 s stretch; real sparse frames sampled the full progression.\nThe first unambiguously readable joint display is localized to 334.0 s at the available 1 fps dense resolution.\nAt 333.0 s the true-value digits are only beginning to fade in and are too dark/incomplete for a stable reading.\nNo forbidden material was accessed.",
+  "prior_answer": "The question cannot be answered on the merits from its text alone because it does not state the displayed quadratic estimate or the displayed true value. If I assume the quadratic is the second-degree Maclaurin polynomial 1 - x^2/2 and 0.1 is in radians, then the estimate is 0.995, cos(0.1) - 0.995 is approximately 0.000004165278, and the quadratic underestimates the true value.",
+  "prior_answer_assumptions": [
+    "The displayed quadratic estimate is the second-degree Maclaurin polynomial 1 - x^2/2 centered at zero.",
+    "The input 0.1 is measured in radians."
+  ],
+  "recognized_video": false,
+  "recognized_how": "Before opening the workspace I did not recognize this particular video moment and could not name its displayed values from memory.",
+  "scans": [
+    {
+      "idx": 0,
+      "t_from": 0.0,
+      "t_to": 341.7,
+      "watched": [
+        {"kind": "frame", "t": 0.0, "what": "Black opening frame; no numerical cosine comparison is visible."},
+        {"kind": "frame", "t": 35.0, "what": "An early geometric animation is beginning; no target numerical values are shown."},
+        {"kind": "frame", "t": 69.0, "what": "Pendulum scene shows cos(theta) approximately 1 - theta^2/2, without values for cos(0.1)."},
+        {"kind": "frame", "t": 96.0, "what": "Cosine and quadratic graphs plus the general approximation are shown, with no evaluated 0.1 comparison."},
+        {"kind": "frame", "t": 130.0, "what": "Cosine and a candidate parabola are shown, without the requested numerical pair."},
+        {"kind": "frame", "t": 162.0, "what": "The coefficient derivation begins with P(0); no target numerical comparison is visible."},
+        {"kind": "frame", "t": 191.0, "what": "P(x)=1+c1*x+c2*x^2 and a tangent construction are visible, but not the requested numbers."},
+        {"kind": "frame", "t": 217.0, "what": "First-derivative matching equations are visible, without the requested evaluated values."},
+        {"kind": "frame", "t": 251.0, "what": "The free c2 coefficient and curve geometry are visible, without the requested evaluated values."},
+        {"kind": "frame", "t": 281.0, "what": "Second-derivative information for cosine is shown, but the target numerical pair is absent."},
+        {"kind": "frame", "t": 311.0, "what": "The coefficient -1/2 is placed into P(x), but cos(0.1) and its true value are not displayed."},
+        {"kind": "frame", "t": 325.0, "what": "The general quadratic approximation is visible; the 0.1 evaluation has not yet appeared."},
+        {"kind": "frame", "t": 329.0, "what": "The cos(0.1) substitution is being rendered and the estimate is not yet fully stable."},
+        {"kind": "frame", "t": 330.0, "what": "The quadratic estimate is fully readable as 0.995; no true value is visible."},
+        {"kind": "frame", "t": 331.0, "what": "Only the estimate line is visible, with part of its formula animating."},
+        {"kind": "frame", "t": 332.0, "what": "The estimate line is fully visible as 0.995 and the true value is still absent."},
+        {"kind": "frame", "t": 333.0, "what": "The estimate remains readable, while the true-value digits are only a very dark partial fade-in."},
+        {"kind": "frame", "t": 334.0, "what": "Both lines are clear: estimate 0.995 and true value 0.9950042..."},
+        {"kind": "frame", "t": 335.0, "what": "The true-value line is readable while the estimate line begins moving away."},
+        {"kind": "frame", "t": 336.0, "what": "Both estimate 0.995 and true value 0.9950042... are again fully readable."},
+        {"kind": "frame", "t": 337.0, "what": "Both formulas are breaking apart in the outgoing animation."},
+        {"kind": "cue", "t": 324.1, "what": "Narration introduces estimating cos(0.1) with the polynomial."},
+        {"kind": "cue", "t": 329.6, "what": "Narration states that the polynomial estimate is 0.995."},
+        {"kind": "cue", "t": 332.7, "what": "Narration points to the true value but does not speak its digits."}
+      ],
+      "candidates": [
+        {
+          "question": "Do the general cosine approximation scenes through 325.0 s provide both displayed numbers?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "They establish the polynomial but do not show both the evaluated estimate and the displayed true value of cos(0.1)."
+        },
+        {
+          "question": "Can the requested signed comparison be answered from the 330.0-332.0 s estimate display?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Only 0.995 is readable; this interval is also inside the declared distractor, whose missing true value was taken as given."
+        },
+        {
+          "question": "Are both numerical values genuinely readable at 333.0 s?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The true-value suffix has only begun fading in as very dark, incomplete digits, so a stable value cannot yet be read without inference."
+        },
+        {
+          "question": "Are both displayed values readable and sufficient at 334.0 s?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The frame clearly shows the estimate 0.995 and the true value 0.9950042..., making the subtraction and its sign directly available."
+        }
+      ],
+      "t_val": 334.0,
+      "t_val_basis": "At 334.0 s the same frame clearly displays both 0.995 and 0.9950042..., whereas at 333.0 s the latter is only a dark partial fade-in.",
+      "answer_at_t_val": "True value minus estimate is 0.9950042... - 0.995 = 0.0000042... (about 4.2e-6), which is positive, so the quadratic underestimates the true value.",
+      "confidence": "high"
+    }
+  ],
+  "checks": [
+    {
+      "group": "shortcuts",
+      "item": "solvable-without-video",
+      "target": null,
+      "looked_at": [
+        {"kind": "cue", "t": 324.1, "what": "The supplied question asks for arithmetic on two displayed values rather than stating those values."}
+      ],
+      "findings": "Before viewing, the question supplied cos(0.1) but did not state either displayed numerical value or uniquely define the displayed quadratic.",
+      "criterion": "A question is solvable without video only if its text and general knowledge determine the requested quantities without guessing unseen screen content.",
+      "steps": [
+        {
+          "question": "Does the question text uniquely specify the displayed quadratic estimate?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Calling it the displayed quadratic does not give its coefficients or expansion center."
+        },
+        {
+          "question": "Did the prior numerical answer require assumptions about unseen content?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "It required assuming the Maclaurin quadratic and radian measure, both recorded explicitly above."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "video-recognized",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 0.0, "what": "The opening frame is black and contains no recognition cue."}
+      ],
+      "findings": "Before viewing, I did not recognize the particular video moment or remember its displayed numerical comparison.",
+      "criterion": "The recognition flag fires only if the reviewer could identify this particular video and answer its moment from memory before inspecting supplied material.",
+      "steps": [
+        {
+          "question": "Could I name the displayed estimate and true value from memory before viewing?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "I had no memory of this particular scene or its displayed precision."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

@@ -1,0 +1,292 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q09",
+  "role": "full_window",
+  "iteration": 4,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q09/full_window0",
+  "budget": {
+    "frames_viewed": 36,
+    "sparse_step": 1.0,
+    "dense_intervals": [
+      {
+        "t_start": 600.0,
+        "t_end": 633.8
+      }
+    ],
+    "transcript_cues": 33,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The 1 s grid covers onset, the full trigger window, and the leakage tail through 633.8. Exact scene-change frames at 613.9 and 623.8 were also inspected. The distractor boundary at 601.0 cleanly meets the visual onset, although distractor grading itself belongs to full_sample.",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "group": "windows",
+      "item": "window-can-be-tightened",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 601.0,
+          "what": "The shifted P_pi basis begins appearing over the blue cosine curve and the marked point pi."
+        },
+        {
+          "kind": "frame",
+          "t": 602.0,
+          "what": "The complete shifted-basis formula, blue target curve, and marked pi are jointly visible."
+        },
+        {
+          "kind": "frame",
+          "t": 613.9,
+          "what": "The full shifted basis and graph remain visible, now with the sentence about plugging in x=pi."
+        },
+        {
+          "kind": "frame",
+          "t": 622.0,
+          "what": "The full shifted basis, blue curve, and marked pi are still on screen near the end of the window."
+        },
+        {
+          "kind": "frame",
+          "t": 623.8,
+          "what": "At the exclusive right boundary the video has changed to the philosophical-level transition card."
+        }
+      ],
+      "findings": "The trigger display starts at 601.0, is fully legible by 602.0, and remains on screen through 622.0; the scene transition occurs at the stated exclusive endpoint 623.8. The prompt asks about the first shift, so the already observed state remains answerable while the model generates.",
+      "criterion": "A tightening is warranted only when a substantial portion of the legal window contains no usable opportunity to observe or answer the requested first-appearance state, while preserving reasonable answer-generation latency.",
+      "steps": [
+        {
+          "question": "When does the requested shifted-basis display begin?",
+          "answer_number": 601.0,
+          "why": "The 600.0 frame has no polynomial, while the 601.0 frame shows the shifted formula beginning to appear."
+        },
+        {
+          "question": "What is the last inspected frame before the endpoint that still carries the relevant display?",
+          "answer_number": 622.0,
+          "why": "At 622.0 the formula, target curve, and marked center remain visible; the transition is at 623.8."
+        },
+        {
+          "question": "Is there a large empty tail that would punish a correct delayed answer?",
+          "answer_bool": false,
+          "why": "The relevant scene persists almost to the exclusive endpoint, and a first-appearance answer remains valid after observation."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "windows",
+      "item": "author-says-answer-in-window",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 599.8,
+          "what": "The author says the polynomial must be written in powers around the proposed nonzero input."
+        },
+        {
+          "kind": "cue",
+          "t": 601.4,
+          "what": "The author says these are powers of x minus pi."
+        },
+        {
+          "kind": "cue",
+          "t": 610.8,
+          "what": "The author explains that pi is made to look and behave like zero."
+        },
+        {
+          "kind": "cue",
+          "t": 613.3,
+          "what": "The author says plugging in x=pi gives convenient cancellation."
+        },
+        {
+          "kind": "cue",
+          "t": 622.5,
+          "what": "The author leaves the cancellation explanation and begins a philosophical-level transition."
+        },
+        {
+          "kind": "cue",
+          "t": 626.7,
+          "what": "After the window the author discusses taking derivative information at a point."
+        },
+        {
+          "kind": "cue",
+          "t": 631.2,
+          "what": "Through 633.8 the author continues the general description of higher-order derivatives at a single point."
+        },
+        {
+          "kind": "frame",
+          "t": 613.9,
+          "what": "The screen shows the symbolic shifted basis and a qualitative cancellation sentence, but no coefficient values or completed quadratic."
+        },
+        {
+          "kind": "frame",
+          "t": 628.0,
+          "what": "The post-window screen says derivative information at a point over the blue curve without showing coefficients."
+        },
+        {
+          "kind": "frame",
+          "t": 633.0,
+          "what": "Near the end of the leakage interval the screen still shows only derivative information at a point and the curve."
+        }
+      ],
+      "findings": "From 601.0 through 633.8 the narration and screen reveal the shifted basis, the center pi, and the general cancellation/derivative idea. They never state or display c0=-1, c1=0, c2=1/2, or the finished quadratic -1+(x-pi)^2/2.",
+      "criterion": "For this L3 task the item fires only if the author supplies the finished coefficient computation or resulting quadratic inside the window or within the following ten seconds, so that streaming rather than reasoning yields the answer.",
+      "steps": [
+        {
+          "question": "Does the author identify the shifted center and basis in the checked interval?",
+          "answer_bool": true,
+          "why": "The narration names powers of x-pi and the frames display P_pi(x)."
+        },
+        {
+          "question": "Are all three requested coefficient values supplied by 633.8?",
+          "answer_bool": false,
+          "why": "Neither the transcript nor the inspected frames state the values -1, 0, and 1/2 as coefficients."
+        },
+        {
+          "question": "Is the requested completed quadratic supplied by 633.8?",
+          "answer_bool": false,
+          "why": "The display remains generic and then changes to a conceptual derivative-information scene."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "event-not-earlier-than-window",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 600.0,
+          "what": "The blue curve and marked pi are visible, but no shifted polynomial basis is on screen."
+        },
+        {
+          "kind": "frame",
+          "t": 601.0,
+          "what": "The P_pi formula in powers of x-pi begins appearing at the top of the screen."
+        },
+        {
+          "kind": "frame",
+          "t": 602.0,
+          "what": "The shifted polynomial basis is fully visible."
+        }
+      ],
+      "findings": "The event named by the question is the first visual shift to a basis centered at pi. It is absent at 600.0 and begins at 601.0, exactly where the trigger window opens and the distractor interval ends.",
+      "criterion": "An event window must start at the observable onset of the named change; opening later would penalize a correct model that responds as soon as the shifted basis first appears.",
+      "steps": [
+        {
+          "question": "Is the shifted polynomial basis already visible before 601.0?",
+          "answer_bool": false,
+          "why": "The 600.0 frame contains the graph and marked center but no polynomial formula."
+        },
+        {
+          "question": "At what inspected time does the shifted basis begin to appear?",
+          "answer_number": 601.0,
+          "why": "The formula P_pi(x) with powers of x-pi is visibly entering at 601.0."
+        },
+        {
+          "question": "Does the distractor-to-trigger boundary coincide with that onset?",
+          "answer_bool": true,
+          "why": "The distractor ends and trigger begins at 601.0, matching the first observed shifted-basis frame."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "depends-on-is-dependency",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [],
+      "findings": "This is a single-trigger sample and trigger 0 has no depends_on field; there is no other trigger answer on which its rubric could depend.",
+      "criterion": "The dependency test applies only when a window names another trigger whose answer is required by one of this window's rubric items; with no dependency field and no prior trigger, it is inapplicable.",
+      "steps": [
+        {
+          "question": "Does trigger 0 contain a depends_on field?",
+          "answer_bool": false,
+          "why": "The supplied trigger object has idx, timing, response, rubric, modality, and evidence_span, but no depends_on."
+        },
+        {
+          "question": "Could this only trigger require an answer from an earlier trigger?",
+          "answer_bool": false,
+          "why": "There is no earlier trigger in the sample and every rubric item concerns the same displayed center and curve."
+        }
+      ],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "evidence-span-is-last",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 600.0,
+          "what": "The blue cosine-shaped target and pi marker are visible, but the shifted polynomial basis is absent."
+        },
+        {
+          "kind": "frame",
+          "t": 601.0,
+          "what": "The shifted basis begins entering while the target curve and pi marker remain visible."
+        },
+        {
+          "kind": "frame",
+          "t": 602.0,
+          "what": "The complete P_pi(x) expansion in powers of x-pi is jointly visible with the blue curve and marked pi."
+        },
+        {
+          "kind": "frame",
+          "t": 613.9,
+          "what": "At the evidence-span endpoint the same formula, curve, and center are still visible; the added sentence only emphasizes plugging in pi."
+        }
+      ],
+      "findings": "The curve and center precede the trigger, while the last missing visual fact, the shifted polynomial basis, begins at 601.0 and is fully legible by 602.0. The declared evidence_span [601.0, 613.9] contains that last-evidence moment and continues while all needed visual bindings remain displayed.",
+      "criterion": "The evidence interval must include the moment when the final fact needed to derive the answer becomes available, rather than merely a later verbal corroboration.",
+      "steps": [
+        {
+          "question": "Which required visual fact arrives last?",
+          "answer_text": "The polynomial basis written in powers of x-pi",
+          "why": "The blue curve and pi marker are already present at 600.0, but the shifted formula is not."
+        },
+        {
+          "question": "When is that last fact jointly usable with the other required bindings?",
+          "answer_number": 602.0,
+          "why": "At 602.0 the complete formula, blue curve, and marked pi are simultaneously clear."
+        },
+        {
+          "question": "Does the declared evidence_span cover that moment?",
+          "answer_bool": true,
+          "why": "602.0 lies within [601.0, 613.9], and the relevant display persists through the endpoint."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ],
+  "window_idx": 0
+}

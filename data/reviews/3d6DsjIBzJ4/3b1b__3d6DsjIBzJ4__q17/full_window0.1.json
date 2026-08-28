@@ -1,0 +1,285 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q17",
+  "role": "full_window",
+  "iteration": 1,
+  "model": "gpt-5",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/3b1b__3d6DsjIBzJ4__q17/full_window0_r1",
+  "budget": {
+    "frames_viewed": 16,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 1200.0,
+        "t_end": 1210.0
+      }
+    ],
+    "transcript_cues": 18,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The window shows a four-order pass at a probe between the dashed boundaries, not beyond the right dashed boundary named by the question. The matching beyond-boundary pass completes near 1218 s, outside this window.",
+  "verdict": "FIX_INTERVALS",
+  "checks": [
+    {
+      "group": "windows",
+      "item": "window-can-be-tightened",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1203.9,
+          "what": "The brace covers four terms and the pink fourth-order curve is present, but the white probe is left of the right dashed boundary."
+        },
+        {
+          "kind": "frame",
+          "t": 1207.3,
+          "what": "A later purple approximant is shown at the same in-boundary probe; the requested beyond-right-boundary probe is still not being used."
+        },
+        {
+          "kind": "frame",
+          "t": 1210.0,
+          "what": "The approximant has cleared and the white probe has moved to a position right of the right dashed line."
+        },
+        {
+          "kind": "frame",
+          "t": 1212.7,
+          "what": "The second-order green curve is below the blue curve at the white probe beyond the right dashed line."
+        },
+        {
+          "kind": "frame",
+          "t": 1215.3,
+          "what": "The third-order red curve is above the blue curve at that beyond-boundary white probe."
+        },
+        {
+          "kind": "frame",
+          "t": 1218.0,
+          "what": "The fourth-order pink curve is below the blue curve at the beyond-boundary white probe, completing the requested four-order pass."
+        }
+      ],
+      "findings": "Throughout 1204.0–1209.0, the animated pass uses a white probe located between the two dashed vertical boundaries. The probe beyond the right dashed boundary appears after the window, and its first four-order pass completes at about 1218.0.",
+      "criterion": "The complete answer must be available from the visual event named in the question throughout the legal response interval; if the named probe/event is absent from the interval, the interval must be relocated rather than merely left open around a similar-looking pass.",
+      "steps": [
+        {
+          "question": "Is the probe in the reviewed window beyond the right dashed boundary?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "At 1203.9 and 1207.3 the white probe is visibly left of the right dashed vertical line."
+        },
+        {
+          "question": "When does the first four-order pass at the requested beyond-boundary probe complete?",
+          "answer_bool": null,
+          "answer_number": 1218.0,
+          "answer_text": null,
+          "why": "Frames at 1212.7 and 1215.3 show the second and third orders there, and the 1218.0 frame shows the fourth order."
+        },
+        {
+          "question": "Can the existing interval be made valid by trimming only an empty edge?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "No subinterval of 1204.0–1209.0 contains the qualifying beyond-boundary four-order completion."
+        }
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {
+        "field": "triggers[0]",
+        "value": "{\"t_start\":1218.0,\"t_end\":1223.0,\"t_ideal\":1218.0}",
+        "why": "Move the response interval to the first completed four-order pass at the white probe beyond the right dashed boundary."
+      },
+      "uncovered": null
+    },
+    {
+      "group": "windows",
+      "item": "author-says-answer-in-window",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 1203.5,
+          "what": "The author says adding terms gets closer to the natural logarithm of the input."
+        },
+        {
+          "kind": "cue",
+          "t": 1206.3,
+          "what": "The author begins contrasting behavior outside the range."
+        },
+        {
+          "kind": "cue",
+          "t": 1211.0,
+          "what": "The author says that outside the range the series fails to approach anything."
+        },
+        {
+          "kind": "cue",
+          "t": 1215.7,
+          "what": "The author says the sum bounces back and forth wildly as terms are added."
+        },
+        {
+          "kind": "frame",
+          "t": 1218.0,
+          "what": "The fourth-order curve is visibly below the blue curve at the beyond-boundary probe."
+        }
+      ],
+      "findings": "From 1204.0 through 1219.0 the narration describes convergence inside the range and later divergence or back-and-forth behavior outside it, but it does not state the finished ordered sequence 'above, below, above, below.'",
+      "criterion": "This item fires only when the author supplies the requested answer in finished usable form within the window or the following ten seconds; moreover, the sample is L1, for which an alarm coinciding with narration is permitted.",
+      "steps": [
+        {
+          "question": "Does the narration state all four ordered comparisons by 1219.0?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The cues describe broad convergence and oscillatory divergence, not each of the four positions relative to the blue curve."
+        },
+        {
+          "question": "Would coincident author speech be disqualifying at this reasoning level?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The sample is marked L1, which is designed as an alarm and is allowed to coincide with the author's explanation."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "event-not-earlier-than-window",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1203.9,
+          "what": "A fourth-order curve is already visible, but its white probe remains inside the dashed interval."
+        },
+        {
+          "kind": "frame",
+          "t": 1210.0,
+          "what": "The white probe has moved beyond the right dashed line before the new approximant pass begins."
+        },
+        {
+          "kind": "frame",
+          "t": 1218.0,
+          "what": "The qualifying fourth-order curve at the beyond-right-boundary probe is visible for the first completed time."
+        }
+      ],
+      "findings": "The similar four-order event completed by 1203.9 is at the wrong probe. The event actually named by the question, completion of four orders at the white probe beyond the right dashed line, occurs around 1218.0 and therefore does not begin earlier than the 1204.0 window start.",
+      "criterion": "For an event-triggered question, this check asks only whether the qualifying event started before the response window opened; a qualifying event that occurs after the entire window is a different interval defect.",
+      "steps": [
+        {
+          "question": "Does the four-order event before 1204 satisfy the probe location in the question?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The white probe is visibly between, rather than beyond, the dashed boundaries."
+        },
+        {
+          "question": "Did the qualifying beyond-boundary event begin before 1204.0?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "That probe is set after the window and the fourth curve at it is not present until about 1218.0."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "depends-on-is-dependency",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [],
+      "findings": "Trigger 0 has no depends_on field, and there is no earlier trigger in this single-trigger sample on which its rubric could depend.",
+      "criterion": "A dependency check applies only when an answer genuinely requires another trigger's answer, or when such a prerequisite exists but is missing from the field.",
+      "steps": [
+        {
+          "question": "Is there an earlier trigger answer required to satisfy this window's rubric?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The sample contains only trigger 0, so no prior trigger can supply a prerequisite answer."
+        }
+      ],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "evidence-span-is-last",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1203.9,
+          "what": "The fourth curve shown near the annotated evidence span uses the in-boundary probe."
+        },
+        {
+          "kind": "frame",
+          "t": 1212.7,
+          "what": "The beyond-boundary pass has reached its second-order curve."
+        },
+        {
+          "kind": "frame",
+          "t": 1215.3,
+          "what": "The beyond-boundary pass has reached its third-order curve."
+        },
+        {
+          "kind": "frame",
+          "t": 1218.0,
+          "what": "The fourth-order curve appears below the blue curve at the beyond-boundary probe, supplying the last required comparison."
+        }
+      ],
+      "findings": "The annotated span 1204.0–1204.3 covers a fourth-order curve at the wrong, in-boundary probe. The final fact requested at the beyond-right-boundary probe arrives when the fourth-order curve appears around 1218.0.",
+      "criterion": "The evidence span must cover the moment when the last fact needed for the exact requested answer first becomes derivable, including the probe location qualifier.",
+      "steps": [
+        {
+          "question": "Does the annotated evidence span contain the last fact at the probe named in the question?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "At 1204 the probe is not beyond the right dashed line."
+        },
+        {
+          "question": "When does the fourth and last comparison at the requested probe become visible?",
+          "answer_bool": null,
+          "answer_number": 1218.0,
+          "answer_text": null,
+          "why": "The 1218.0 frame shows the fourth-order pink curve below the blue curve at the beyond-boundary white probe."
+        }
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {
+        "field": "triggers[0].evidence_span",
+        "value": "[1218.0,1218.3]",
+        "why": "This span covers the appearance of the fourth curve at the requested beyond-right-boundary probe, which is the last fact needed."
+      },
+      "uncovered": null
+    }
+  ],
+  "window_idx": 0
+}

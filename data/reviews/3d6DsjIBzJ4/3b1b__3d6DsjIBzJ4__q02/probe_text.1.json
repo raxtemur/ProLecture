@@ -1,0 +1,78 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q02",
+  "role": "probe_text",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q02/probe_text",
+  "budget": {
+    "frames_viewed": 0,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 119,
+    "screen_index_used": false
+  },
+  "violations": [],
+  "notes": "No frames or screen-derived material were used. The transcript was read in full.",
+  "looked_at": [
+    {
+      "kind": "cue",
+      "t": 68.6,
+      "what": "The lecture says to approximate cosine near the pendulum's small-angle regime; the ASR renders the displayed formula incompletely."
+    },
+    {
+      "kind": "cue",
+      "t": 122.7,
+      "what": "The lecture turns to constructing a quadratic approximation of cosine of x."
+    },
+    {
+      "kind": "cue",
+      "t": 126.9,
+      "what": "The approximation is explicitly stated to be quadratic and centered near x=0."
+    },
+    {
+      "kind": "cue",
+      "t": 134.2,
+      "what": "The candidate polynomial is stated as c0 + c1*x + c2*x^2."
+    },
+    {
+      "kind": "cue",
+      "t": 145.4,
+      "what": "The chosen polynomial should resemble cosine of x near x=0."
+    },
+    {
+      "kind": "cue",
+      "t": 154.6,
+      "what": "The lecture begins matching the target at zero and states that cosine(0)=1."
+    }
+  ],
+  "steps": [
+    {
+      "question": "What is the constant coefficient for the new target?",
+      "answer_bool": null,
+      "answer_number": -1.0,
+      "answer_text": null,
+      "why": "For f(x)=-cos(x), matching the value at the center gives c0=f(0)=-1."
+    },
+    {
+      "question": "What is the linear coefficient for the new target?",
+      "answer_bool": null,
+      "answer_number": 0.0,
+      "answer_text": null,
+      "why": "The derivative is f'(x)=sin(x), so matching the slope at x=0 gives c1=f'(0)=0."
+    },
+    {
+      "question": "What is the quadratic coefficient for the new target?",
+      "answer_bool": null,
+      "answer_number": 0.5,
+      "answer_text": null,
+      "why": "The second derivative is f''(x)=cos(x), hence the Taylor coefficient is c2=f''(0)/2!=1/2."
+    }
+  ],
+  "answer": "c0=-1, c1=0, and c2=1/2. Therefore the quadratic is P(x)=-1+(1/2)x^2.",
+  "basis": "Transcript [122.7-125.1] introduces cosine of x, [126.9-131.3] specifies a quadratic approximation near x=0, [134.2-139.5] gives the form c0+c1*x+c2*x^2, and [154.6-160.2] states cosine(0)=1. General knowledge: a degree-2 Taylor polynomial matches f(0), f'(0), and f''(0)/2; applying this to f=-cos gives -1, 0, and 1/2.",
+  "confidence": "high",
+  "insufficient": false
+}

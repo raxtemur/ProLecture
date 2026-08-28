@@ -1,0 +1,135 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q03",
+  "role": "full_window",
+  "iteration": 3,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q03/full_window1",
+  "budget": {
+    "frames_viewed": 15,
+    "sparse_step": null,
+    "dense_intervals": [
+      {"t_start": 360.0, "t_end": 375.0},
+      {"t_start": 375.0, "t_end": 380.0}
+    ],
+    "transcript_cues": 19,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The answer state is already complete in the real 363.0 s frame, one second before trigger 1 opens.\nThe exact onset lies after the blank coefficient at 362.0 s and no later than 363.0 s; a finer-than-1 s extraction was unavailable because the workspace script rounds such names.\nNo old review file or annotation file was read.",
+  "verdict": "FIX_INTERVALS",
+  "checks": [
+    {
+      "group": "windows",
+      "item": "window-can-be-tightened",
+      "target": {"trigger_idx": 1},
+      "looked_at": [
+        {"kind": "frame", "t": 364.0, "what": "The yellow 0 is present in P(x)=1+0x+c2x^2 and the two curves share a horizontal tangent at x=0."},
+        {"kind": "frame", "t": 365.0, "what": "The same yellow 0 and matching flat behavior at x=0 remain visible."},
+        {"kind": "frame", "t": 369.0, "what": "The yellow 0 remains in the polynomial while the second-derivative equation is introduced."},
+        {"kind": "frame", "t": 370.0, "what": "At the excluded right boundary the 0 and matched behavior are still on screen as c2 receives its value."}
+      ],
+      "findings": "Across [364.0,370.0) the requested coefficient value and the shared flat behavior at x=0 remain available; no long empty tail appears before the right boundary.",
+      "criterion": "The interval should be shortened only when a substantial part of it no longer permits the requested answer, while a one- or two-second margin and the legal response minimum are preserved.",
+      "steps": [
+        {"question": "Is the answer visible at the left edge of the window?", "answer_bool": true, "why": "The 364.0 frame contains the yellow 0 and visibly matching horizontal behavior at x=0."},
+        {"question": "Does a substantial unusable tail occur before 370.0?", "answer_bool": false, "why": "Frames through 369.0 retain the relevant coefficient and graph, and the state is still present at 370.0."},
+        {"question": "Can the six-second window be tightened without sacrificing response time?", "answer_bool": false, "why": "The whole interval remains usable and it is already at the six-second minimum described by the supplied geometry."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "windows",
+      "item": "author-says-answer-in-window",
+      "target": {"trigger_idx": 1},
+      "looked_at": [
+        {"kind": "frame", "t": 364.9, "what": "The finished polynomial visibly contains a yellow 0 multiplying x, and the curves meet with a flat tangent at x=0."},
+        {"kind": "cue", "t": 366.3, "what": "The narrator moves on to C2 and says it is responsible for matching the second derivatives."},
+        {"kind": "cue", "t": 369.3, "what": "The narrator explains that this controls how the approximation changes away from x=0."},
+        {"kind": "frame", "t": 375.0, "what": "The polynomial formula has left and a moving point illustrates behavior on the two curves."},
+        {"kind": "frame", "t": 377.0, "what": "A horizontal tangent is explicitly drawn at x=0 while the two curves meet there."},
+        {"kind": "frame", "t": 379.0, "what": "The tangent demonstration has moved away from x=0 and the line is tilted."}
+      ],
+      "findings": "The completed visual answer is on screen at the start, while the narration in and after the window discusses C2 and second-derivative matching; a flat tangent is later illustrated explicitly at 377.0.",
+      "criterion": "A finished answer in or up to ten seconds after the window invalidates only an L2/L3 reasoning task; for an L1 alarm, immediate visual or spoken confirmation is permitted.",
+      "steps": [
+        {"question": "Is the answer shown or spoken in finished form by t_end plus ten seconds?", "answer_bool": true, "why": "The yellow 0 and graph geometry are already finished at 364.9, and the flat tangent is explicitly drawn at 377.0."},
+        {"question": "Is this sample L2 or L3?", "answer_bool": false, "why": "The supplied sample metadata labels it L1 ground/pre."},
+        {"question": "Does immediate author confirmation fire this item for this reasoning level?", "answer_bool": false, "why": "The item explicitly permits coincidence for an L1 alarm."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "event-not-earlier-than-window",
+      "target": {"trigger_idx": 1},
+      "looked_at": [
+        {"kind": "frame", "t": 360.0, "what": "The yellow symbol c1 is shown, but its coefficient slot before x is not yet assigned 0 and the green curve has a nonzero slope at x=0."},
+        {"kind": "frame", "t": 362.0, "what": "The coefficient slot before x is blank during the transition; c1 is still shown in yellow and the curves do not yet share the final flat tangent."},
+        {"kind": "frame", "t": 363.0, "what": "A yellow 0 fully occupies the x-coefficient slot and the green and blue curves meet with the same horizontal tangent at x=0."},
+        {"kind": "frame", "t": 364.0, "what": "The same completed 0x state and shared flat tangent remain visible when the annotated window opens."}
+      ],
+      "findings": "The transition is unfinished at 362.0 but the complete response state is already visible at 363.0; the annotated trigger starts at 364.0, after the event has begun.",
+      "criterion": "For an event-triggered response, the counting window must open when the answer-producing visual event begins, not after the completed state has already been available.",
+      "steps": [
+        {"question": "What is the last inspected frame before the answer state is complete?", "answer_number": 362.0, "why": "At 362.0 the coefficient slot is blank and the final shared flat tangent is not established."},
+        {"question": "What is the first inspected frame with the complete answer state?", "answer_number": 363.0, "why": "At 363.0 the yellow 0 and shared horizontal tangent at x=0 are both fully visible."},
+        {"question": "Does the event begin before the annotated 364.0 start?", "answer_bool": true, "why": "A complete real frame exists at 363.0, one second before the window opens."}
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {
+        "field": "triggers[1].t_start and distractors[1].t_end",
+        "value": "363.0",
+        "why": "Open the trigger no later than the first inspected complete-answer frame and end the adjacent distractor there to avoid overlap."
+      },
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "depends-on-is-dependency",
+      "target": {"trigger_idx": 1},
+      "looked_at": [],
+      "findings": "Trigger 1 has no depends_on link in the supplied sample metadata, so there is no declared dependency to test for necessity or superfluity.",
+      "criterion": "This check applies only when a window declares another trigger as a prerequisite, or when its rubric contains a genuine prerequisite that has been omitted.",
+      "steps": [
+        {"question": "Does trigger 1 declare a depends_on value?", "answer_bool": false, "why": "No depends_on value is present in the supplied trigger-1 metadata."},
+        {"question": "Does the rubric require an answer obtainable only from trigger 0?", "answer_bool": false, "why": "Color, symbol, value, and tangent geometry are all directly visible in trigger 1's own frames."}
+      ],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "evidence-span-is-last",
+      "target": {"trigger_idx": 1},
+      "looked_at": [
+        {"kind": "frame", "t": 362.0, "what": "The coefficient value is not yet present, so the complete answer is not derivable at this inspected moment."},
+        {"kind": "frame", "t": 363.0, "what": "The last needed facts are all present: yellow 0 in the linear term and a shared horizontal tangent at x=0."},
+        {"kind": "frame", "t": 364.0, "what": "The completed state persists at the exclusive end of evidence_span [358.9,364.0)."}
+      ],
+      "findings": "The final needed evidence first appears no later than 363.0 after being incomplete at 362.0, and the declared evidence span [358.9,364.0) contains that last-evidence moment.",
+      "criterion": "The evidence interval must contain the moment when the final fact required for the answer becomes visible; later narration or demonstration is only corroboration.",
+      "steps": [
+        {"question": "When is the last required fact first present on the inspected grid?", "answer_number": 363.0, "why": "That frame first shows both the yellow assigned value and the resulting shared flat tangent."},
+        {"question": "Does evidence_span [358.9,364.0) include that moment?", "answer_bool": true, "why": "363.0 lies inside the half-open evidence interval."},
+        {"question": "Must the span extend to the explicit tangent illustration at 377.0?", "answer_bool": false, "why": "The graph at 363.0 already makes the geometric consequence derivable; 377.0 only corroborates it."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ],
+  "window_idx": 1
+}

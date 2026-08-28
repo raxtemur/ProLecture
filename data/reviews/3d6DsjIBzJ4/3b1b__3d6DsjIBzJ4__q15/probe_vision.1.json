@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q15",
+  "role": "probe_vision",
+  "iteration": 1,
+  "model": "gpt-5",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/3b1b__3d6DsjIBzJ4__q15/probe_vision_r1",
+  "budget": {
+    "frames_viewed": 1,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 0,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The screen index was used only to locate the relevant stretch; all displayed quantities were verified in the cited frame.",
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 1087.0,
+      "what": "The frame shows 1/3 + 1/9 + 1/27 + 1/81 + 1/243 + ... and the label ‘Converges’ to 1/2."
+    }
+  ],
+  "steps": [
+    {
+      "question": "What common ratio is visible from consecutive terms of the displayed series?",
+      "answer_number": 0.3333333333333333,
+      "why": "In frame t001087.jpg, (1/9)/(1/3) = 1/3, and the later displayed terms follow the same factor."
+    },
+    {
+      "question": "What limit is labelled on the screen?",
+      "answer_text": "1/2",
+      "why": "Frame t001087.jpg labels the series as ‘Converges’ to 1/2."
+    },
+    {
+      "question": "What is the infinite sum after changing the first term to 1/4 and retaining r = 1/3?",
+      "answer_text": "(1/4)/(1 - 1/3) = 3/8 = 0.375",
+      "why": "Using the geometric-series formula a/(1-r) with a = 1/4 and the ratio read from the frame."
+    },
+    {
+      "question": "How does the new sum compare quantitatively with the displayed limit?",
+      "answer_text": "It is 1/8 = 0.125 smaller; equivalently it is 3/4 of the displayed limit, or 25% lower.",
+      "why": "1/2 - 3/8 = 1/8 and (3/8)/(1/2) = 3/4."
+    }
+  ],
+  "answer": "The displayed series has common ratio r = 1/3 and is labelled as converging to 1/2. Replacing its first term by 1/4 while keeping r = 1/3 gives S = (1/4)/(1 - 1/3) = 3/8 = 0.375. This is 1/8 = 0.125 below the displayed limit 1/2, so it is 75% of that limit (25% smaller).",
+  "basis": "Frame t001087.jpg at 1087.0 s visibly shows the series terms and the labelled limit; the revised sum and comparison use the geometric-series formula.",
+  "confidence": "high",
+  "insufficient": false
+}

@@ -1,0 +1,247 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q01",
+  "role": "full_window",
+  "iteration": 2,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q01/full_window1",
+  "budget": {
+    "frames_viewed": 14,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 493.0,
+        "t_end": 508.0
+      }
+    ],
+    "transcript_cues": 23,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "Metadata-only re-review of trigger idx 1. No prior review files were opened and no annotation was edited.",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "group": "windows",
+      "item": "window-can-be-tightened",
+      "target": {
+        "trigger_idx": 1,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 498.0,
+          "what": "The pendulum has readable theta and R labels, the height R(1 - cos(theta)), and the quadratic cosine term."
+        },
+        {
+          "kind": "frame",
+          "t": 499.0,
+          "what": "The labeled pendulum, exact height, and cosine expansion are fully readable together."
+        },
+        {
+          "kind": "frame",
+          "t": 506.0,
+          "what": "The same labeled pendulum, exact height, and cosine expansion remain visible near the end of the window."
+        },
+        {
+          "kind": "frame",
+          "t": 507.0,
+          "what": "A new scene headed 'Notice a few things' has begun at the exclusive right boundary."
+        }
+      ],
+      "findings": "All required diagram labels and the exact height are visible at 498 s and remain available through the last full second before the exclusive 507 s boundary. The scene changes at 507 s.",
+      "criterion": "A boundary fix is warranted only for a substantial portion of the legal window in which the first-appearance state has not yet been observed or cannot still support generation of the requested answer.",
+      "steps": [
+        {
+          "question": "What is the first inspected in-window frame containing R, theta, and the complete height expression together?",
+          "answer_number": 498.0,
+          "why": "The 498 s frame visibly contains all three items named by the question."
+        },
+        {
+          "question": "Does the window contain a substantial empty tail after the observed first-appearance state?",
+          "answer_bool": false,
+          "why": "The relevant diagram is still visible at 506 s, and the replacement scene starts at the exclusive 507 s boundary."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "windows",
+      "item": "author-says-answer-in-window",
+      "target": {
+        "trigger_idx": 1,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 497.0,
+          "what": "The author discusses a small-angle cosine example and says predictions change little."
+        },
+        {
+          "kind": "cue",
+          "t": 501.4,
+          "what": "The author says one may substitute this polynomial for cosine of x."
+        },
+        {
+          "kind": "cue",
+          "t": 506.2,
+          "what": "The author moves on to noticing features of the process."
+        },
+        {
+          "kind": "cue",
+          "t": 510.5,
+          "what": "The author begins discussing factorial terms from successive derivatives."
+        },
+        {
+          "kind": "frame",
+          "t": 499.0,
+          "what": "The screen shows R(1 - cos(theta)) and the ordinary cosine expansion, but no doubled-angle result."
+        },
+        {
+          "kind": "frame",
+          "t": 510.9,
+          "what": "The screen shows c_8 x^8, unrelated to the pendulum counterfactual answer."
+        },
+        {
+          "kind": "frame",
+          "t": 513.6,
+          "what": "The screen shows a derivative of c_8 x^8, not a doubled-angle height."
+        }
+      ],
+      "findings": "From 498 s through 517 s the narration gives a generic polynomial-substitution remark and then discusses factorials and derivatives. The screen supplies the original-angle height and cosine expansion, but never displays or speaks the completed doubled-angle exact expression or its simplified quadratic approximation.",
+      "criterion": "For this L3 item to fire, the author must deliver the requested counterfactual result in finished form during the window or within ten seconds after it, so a streaming model can copy it instead of carrying out the substitution and simplification.",
+      "steps": [
+        {
+          "question": "Is R(1 - cos(2 theta)) spoken or displayed by 517 s?",
+          "answer_bool": false,
+          "why": "The inspected cues and frames contain only the original-angle expression and later derivative material."
+        },
+        {
+          "question": "Is the simplified quadratic result 2 R theta squared spoken or displayed by 517 s?",
+          "answer_bool": false,
+          "why": "Neither the narration nor the inspected frames performs the doubled-angle substitution and simplification."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "event-not-earlier-than-window",
+      "target": {
+        "trigger_idx": 1,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 497.0,
+          "what": "Only the unlabeled pendulum geometry is visible; R, theta, and the height expression are absent."
+        },
+        {
+          "kind": "frame",
+          "t": 498.0,
+          "what": "R, theta, and R(1 - cos(theta)) are simultaneously visible on the pendulum diagram."
+        }
+      ],
+      "findings": "The trigger condition is absent at 497 s and present at 498 s, which is the annotated left boundary.",
+      "criterion": "The first moment at which the complete visual condition occurs must not precede the start assigned to this event window.",
+      "steps": [
+        {
+          "question": "Are all three required diagram elements already visible in the last inspected second before t_start?",
+          "answer_bool": false,
+          "why": "At 497 s the diagram has no readable R, theta, or height formula."
+        },
+        {
+          "question": "Are all three required diagram elements visible at t_start?",
+          "answer_bool": true,
+          "why": "At 498 s the frame simultaneously shows R, theta, and R(1 - cos(theta))."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "depends-on-is-dependency",
+      "target": {
+        "trigger_idx": 1,
+        "distractor_idx": null
+      },
+      "looked_at": [],
+      "findings": "Trigger idx 1 has no depends_on field, and its rubric asks only for the exact doubled-angle expression and its quadratic approximation.",
+      "criterion": "This check applies only when a dependency link exists or when the rubric explicitly requires an answer from another trigger window.",
+      "steps": [
+        {
+          "question": "Does trigger idx 1 declare depends_on?",
+          "answer_bool": false,
+          "why": "No depends_on key is present in the supplied trigger object."
+        },
+        {
+          "question": "Does any rubric item require using an answer produced in another trigger window?",
+          "answer_bool": false,
+          "why": "Every rubric item can be satisfied directly from this window's pendulum formula and cosine expansion."
+        }
+      ],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "evidence-span-is-last",
+      "target": {
+        "trigger_idx": 1,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 497.0,
+          "what": "The pendulum is present without the required labels or equations."
+        },
+        {
+          "kind": "frame",
+          "t": 498.0,
+          "what": "R, theta, R(1 - cos(theta)), and the quadratic cosine term are all visible."
+        },
+        {
+          "kind": "frame",
+          "t": 499.0,
+          "what": "The complete labeled diagram and cosine expansion remain fully readable."
+        }
+      ],
+      "findings": "The last ingredients needed to derive both requested expressions first appear together at 498 s and are fully readable at 499 s. The declared evidence span is 498–500 s.",
+      "criterion": "The evidence interval must include the moment when the final fact needed for derivation becomes visible, rather than merely a later corroboration or an earlier incomplete drawing.",
+      "steps": [
+        {
+          "question": "What is the first inspected moment when both the original height relation and the quadratic cosine term are available together?",
+          "answer_number": 498.0,
+          "why": "The 498 s frame contains R(1 - cos(theta)) and 1 - theta squared over 2 alongside R and theta."
+        },
+        {
+          "question": "Does the declared evidence span 498–500 s cover that final-evidence moment?",
+          "answer_bool": true,
+          "why": "Its left endpoint coincides with the first inspected frame containing all necessary ingredients."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ],
+  "window_idx": 1
+}

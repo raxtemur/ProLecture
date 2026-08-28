@@ -1,0 +1,281 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q01",
+  "role": "full_window",
+  "iteration": 2,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q01/full_window0",
+  "budget": {
+    "frames_viewed": 18,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 50.0,
+        "t_end": 54.0
+      },
+      {
+        "t_start": 86.0,
+        "t_end": 90.0
+      }
+    ],
+    "transcript_cues": 29,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "Checked only trigger window 0. The screen index was used solely to locate candidate moments; every cited visual fact was verified in a real prepared frame. No annotation file or prior review was read.",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "group": "windows",
+      "item": "window-can-be-tightened",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 51.0,
+          "what": "The pendulum has labels theta and R and the complete height expression R(1-cos(theta))."
+        },
+        {
+          "kind": "frame",
+          "t": 68.9,
+          "what": "The pendulum remains visible and the quadratic cosine approximation cos(theta) approximately 1-theta^2/2 is complete."
+        },
+        {
+          "kind": "frame",
+          "t": 77.1,
+          "what": "The pendulum derivation remains on screen with R theta^2/2 and the cosine approximation."
+        },
+        {
+          "kind": "frame",
+          "t": 79.8,
+          "what": "At the right boundary the same derivation remains visible, including R theta^2/2 and cos(theta) approximately 1-theta^2/2."
+        }
+      ],
+      "findings": "The requested diagram is complete at 51.0. The video then rearranges and derives the original-angle approximation, with the last explicit approximation fact visible by 68.9, and the derivation remains visible through 79.8.",
+      "criterion": "The interval should be shortened only if a substantial portion no longer permits a model that observed the first appearance to produce the requested answer; later animation does not erase already observed state, and reasonable generation time must remain.",
+      "steps": [
+        {
+          "question": "When is the first complete state required by the question visible?",
+          "answer_number": 51.0,
+          "why": "The 50.0 frame is still drawing the height formula, while the 51.0 frame has theta, R, and the full expression."
+        },
+        {
+          "question": "Does the visual state cease to support an answer before the current right boundary?",
+          "answer_bool": false,
+          "why": "A streaming model can retain the complete first-appearance state, and the subsequent frames add the relevant cosine approximation rather than replacing the observed fact with conflicting evidence."
+        },
+        {
+          "question": "Is there a large empty tail after all useful visual material has left?",
+          "answer_bool": false,
+          "why": "At 77.1 and 79.8 the pendulum and original-angle quadratic derivation are still on screen."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "windows",
+      "item": "author-says-answer-in-window",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 50.3,
+          "what": "The author describes proportionality to one minus the cosine of the angle between the pendulum and vertical."
+        },
+        {
+          "kind": "cue",
+          "t": 68.6,
+          "what": "The author begins stating the original-angle approximation for cosine of theta."
+        },
+        {
+          "kind": "cue",
+          "t": 71.4,
+          "what": "The author completes the original-angle theta-squared approximation discussion without applying a doubled angle."
+        },
+        {
+          "kind": "cue",
+          "t": 81.4,
+          "what": "The author says that such an approximation may seem out of left field; no doubled-angle height is stated."
+        },
+        {
+          "kind": "frame",
+          "t": 79.8,
+          "what": "The screen shows only the original-angle forms R theta^2/2 and cos(theta) approximately 1-theta^2/2."
+        },
+        {
+          "kind": "frame",
+          "t": 89.0,
+          "what": "Near the end of the ten-second tail the screen still shows only cos(theta) approximately 1-(1/2)theta^2, not a doubled-angle result."
+        }
+      ],
+      "findings": "Across 51.0 through 89.0 the author states and displays the source relation and the ordinary small-angle cosine approximation. Neither R(1-cos(2theta)) nor 2R theta^2, nor an equivalent completed doubled-angle answer, is spoken or shown.",
+      "criterion": "For an L3 item this check fires only if the stream supplies the requested counterfactual answer in finished form during the window or the following ten seconds, so that waiting replaces the required reasoning.",
+      "steps": [
+        {
+          "question": "Is the exact doubled-angle height stated or displayed in the checked range?",
+          "answer_bool": false,
+          "why": "All inspected speech and frames retain theta as the original angle; no cos(2theta) height expression appears."
+        },
+        {
+          "question": "Is the doubled-angle quadratic result stated or displayed in finished form?",
+          "answer_bool": false,
+          "why": "The visible result is R theta^2/2 for the original angle, not 2R theta^2; obtaining the requested factor requires substituting 2theta and simplifying."
+        },
+        {
+          "question": "Does the supplied material eliminate the L3 counterfactual reasoning?",
+          "answer_bool": false,
+          "why": "The stream provides premises but not the requested transformed exact and approximate answers."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "event-not-earlier-than-window",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 50.0,
+          "what": "The height expression is visibly incomplete and still being drawn."
+        },
+        {
+          "kind": "frame",
+          "t": 51.0,
+          "what": "The full R(1-cos(theta)) expression is present together with R and theta on the pendulum diagram."
+        },
+        {
+          "kind": "frame",
+          "t": 52.0,
+          "what": "The same fully assembled labeled diagram remains visible."
+        }
+      ],
+      "findings": "The requested all-labels-visible state is not complete at 50.0 and is complete at 51.0, exactly when the trigger window opens.",
+      "criterion": "A state-change trigger must not already have begun materially before its window; its opening should coincide with the first complete qualifying state rather than lag behind it.",
+      "steps": [
+        {
+          "question": "Is the qualifying all-labels-visible state complete one second before the window?",
+          "answer_bool": false,
+          "why": "At 50.0 the vertical height formula is only partially rendered."
+        },
+        {
+          "question": "Is the qualifying state complete when the window opens at 51.0?",
+          "answer_bool": true,
+          "why": "At 51.0 all three requested elements R, theta, and R(1-cos(theta)) are visible."
+        },
+        {
+          "question": "Did the event begin earlier than the annotated window?",
+          "answer_bool": false,
+          "why": "The transition from incomplete to complete occurs at the 51.0 boundary on the one-second dense grid."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "depends-on-is-dependency",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [],
+      "findings": "Trigger 0 has no depends_on field, and its rubric asks only for the exact doubled-angle expression, its quadratic approximation, and the correct factor change.",
+      "criterion": "A dependency link is applicable only when this window's rubric requires an answer from another named window; absence of both such a rubric requirement and such a link makes the dependency check inapplicable.",
+      "steps": [
+        {
+          "question": "Does this trigger declare a depends_on link?",
+          "answer_bool": false,
+          "why": "No depends_on value is present in the supplied trigger metadata."
+        },
+        {
+          "question": "Does the rubric require a result obtainable only from another trigger window?",
+          "answer_bool": false,
+          "why": "Every rubric condition concerns transforming the pendulum formula shown in this window."
+        }
+      ],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "evidence-span-is-last",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 51.0,
+          "what": "The complete geometric source expression R(1-cos(theta)) and labels R and theta are visible."
+        },
+        {
+          "kind": "frame",
+          "t": 65.4,
+          "what": "The source expression has been split, but the quadratic cosine approximation is not yet displayed."
+        },
+        {
+          "kind": "frame",
+          "t": 68.9,
+          "what": "The complete approximation cos(theta) approximately 1-theta^2/2 is visible alongside the pendulum source relation."
+        },
+        {
+          "kind": "frame",
+          "t": 77.1,
+          "what": "A later frame derives the corroborating original-angle result R theta^2/2 but adds no premise needed to substitute a doubled angle."
+        }
+      ],
+      "findings": "The exact geometric relation is available by 51.0. The last explicit premise for the requested quadratic computation, cos(theta) approximately 1-theta^2/2, is fully visible at 68.9. Later frames simplify the original-angle height but do not add a necessary fact for replacing theta by 2theta.",
+      "criterion": "The evidence span must include the moment when the final premise needed to derive both requested expressions becomes available, and it must not be extended merely to later corroboration or worked simplification.",
+      "steps": [
+        {
+          "question": "When is the exact source height relation available?",
+          "answer_number": 51.0,
+          "why": "The full R(1-cos(theta)) relation is visible in the 51.0 frame."
+        },
+        {
+          "question": "When is the last explicit approximation premise available?",
+          "answer_number": 68.9,
+          "why": "The 68.9 frame is the first inspected real frame with the complete quadratic cosine approximation."
+        },
+        {
+          "question": "Does the later original-angle simplification at 77.1 supply a new required premise?",
+          "answer_bool": false,
+          "why": "Once the source relation and cosine expansion are visible, substituting 2theta and simplifying already yields both requested answers."
+        },
+        {
+          "question": "Does the annotated evidence span end at the last needed fact?",
+          "answer_bool": true,
+          "why": "Its end is 68.9, matching the first complete frame of the last explicit premise rather than the later corroborating derivation."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ],
+  "window_idx": 0
+}

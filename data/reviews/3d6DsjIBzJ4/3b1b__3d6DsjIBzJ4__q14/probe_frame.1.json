@@ -1,0 +1,53 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q14",
+  "role": "probe_frame",
+  "iteration": 1,
+  "model": "gpt-5",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/3b1b__3d6DsjIBzJ4__q14/probe_frame_r1",
+  "budget": {
+    "frames_viewed": 1,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 0,
+    "screen_index_used": false
+  },
+  "violations": [],
+  "notes": "",
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 1025.0,
+      "what": "A completed three-color geometric decomposition is paired with the displayed Taylor approximation f(x) ≈ f(a) + (df/da)(a)(x-a) + (1/2)(d²f/dx²)(a)(x-a)², with each term color-matched to a piece."
+    }
+  ],
+  "steps": [
+    {
+      "question": "Which displayed term matches the blue geometric piece?",
+      "answer_bool": null,
+      "answer_number": null,
+      "answer_text": "f(a), the constant or zeroth-order Taylor term",
+      "why": "In the frame, f(a) is written in blue and the first geometric piece is blue."
+    },
+    {
+      "question": "Which displayed term matches the yellow geometric piece?",
+      "answer_bool": null,
+      "answer_number": null,
+      "answer_text": "(df/da)(a)(x-a), the linear or first-order Taylor term",
+      "why": "The frame color-matches the yellow middle piece to the derivative-times-displacement term."
+    },
+    {
+      "question": "Which displayed term matches the pink geometric piece?",
+      "answer_bool": null,
+      "answer_number": null,
+      "answer_text": "(1/2)(d²f/dx²)(a)(x-a)², the quadratic or second-order Taylor term",
+      "why": "The frame writes the quadratic contribution in pink and explicitly shows the matching pink piece with the same formula."
+    }
+  ],
+  "answer": "Blue represents f(a), the constant (zeroth-order) Taylor term. Yellow represents (df/da)(a)(x-a), the linear (first-order) term. Pink represents (1/2)(d²f/dx²)(a)(x-a)², the quadratic (second-order) term.",
+  "basis": "The single frame at 1025 s visibly shows the completed blue, yellow, and pink pieces together with the color-coded three-term equation and an enlarged pink-term equality.",
+  "confidence": "high",
+  "insufficient": false
+}

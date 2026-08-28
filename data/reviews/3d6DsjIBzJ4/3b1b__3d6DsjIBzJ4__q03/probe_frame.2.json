@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q03",
+  "role": "probe_frame",
+  "iteration": 2,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q03/probe_frame",
+  "budget": {
+    "frames_viewed": 1,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 0,
+    "screen_index_used": false
+  },
+  "violations": [],
+  "notes": "The workspace contained two JPEG files despite the single-frame protocol. Only t000230.jpg was opened; t000218.jpg was not viewed.",
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 230.0,
+      "what": "The screen shows cos(x), P(x)=1+0x+c_2x^2, both derivatives evaluated as 0 at x=0, and a yellow horizontal tangent through their common point."
+    }
+  ],
+  "steps": [
+    {
+      "question": "Which displayed term controls the polynomial's slope at x=0?",
+      "answer_text": "The warm red/orange 0 multiplying x is the linear coefficient; in the usual displayed coefficient indexing this is c_1.",
+      "why": "The frame visibly writes P(x)=1+0x+c_2x^2, so the coefficient of x is the term that survives as the derivative at zero."
+    },
+    {
+      "question": "What value is that coefficient set to?",
+      "answer_number": 0.0,
+      "why": "The coefficient is visibly written as 0 in the 0x term, and the derivative calculation on screen evaluates dP/dx(0) to 0."
+    },
+    {
+      "question": "What geometric consequence is shown at x=0?",
+      "answer_text": "The two curves have the same horizontal tangent line at their common point x=0.",
+      "why": "Both derivative calculations on screen equal 0, and the frame draws one yellow horizontal line tangent at the shared point."
+    }
+  ],
+  "answer": "The controlling linear coefficient is the warm red/orange c_1; it is set to 0. Consequently, at x=0 the two curves meet with the same horizontal tangent line (both slopes are zero).",
+  "basis": "Frame t000230.jpg directly shows the red/orange 0x term, d(cos)/dx(0)=-sin(0)=0, dP/dx(0)=0, and the yellow horizontal tangent. The symbol c_1 is inferred from standard coefficient indexing for the visible linear term; it is not itself still printed in this frame.",
+  "confidence": "high",
+  "insufficient": false
+}

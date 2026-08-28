@@ -1,0 +1,308 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q13",
+  "role": "full_sample",
+  "iteration": 3,
+  "model": "gpt-5.4",
+  "date": "2026-08-27",
+  "workspace": "/workspace-SR004.nfs2/rahmatullaev/rand_exps/PoC_for_rand_ideas/manim_play/.review_ws/3d6DsjIBzJ4/3b1b__3d6DsjIBzJ4__q13/full_sample_r3",
+  "budget": {
+    "frames_viewed": 26,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 1016,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "Read all 1016 transcript cues and inspected 26 scene-change frames across the lecture.\nThe only post-question screen satisfying the definite new area-function construction begins at 890.2 s.\nThe displayed a notation comes from the preceding general Taylor construction, so the intended prediction genuinely connects separated moments.",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "group": "triggers",
+      "item": "no-missed-trigger",
+      "target": null,
+      "looked_at": [
+        {"kind": "cue", "t": 14.9, "what": "Start of the complete 0-1339 s transcript pass."},
+        {"kind": "cue", "t": 643.2, "what": "The lecture turns from the first cosine derivation to the general higher-derivative construction."},
+        {"kind": "cue", "t": 788.7, "what": "The general base point a and powers of x-a are introduced."},
+        {"kind": "cue", "t": 869.3, "what": "The lecture announces a geometric interpretation of the second-order term."},
+        {"kind": "cue", "t": 889.0, "what": "A new accumulated-area function is introduced after the recap."},
+        {"kind": "cue", "t": 943.5, "what": "The extra portion is identified as approximately triangular."},
+        {"kind": "cue", "t": 1041.6, "what": "The area construction ends and the lecture turns to infinite series."},
+        {"kind": "cue", "t": 1315.1, "what": "Final music cue at the end of the complete transcript pass."},
+        {"kind": "frame", "t": 51.8, "what": "Pendulum/cosine introductory scene, not an accumulated-area-function construction."},
+        {"kind": "frame", "t": 206.9, "what": "Cosine polynomial and derivative-matching scene."},
+        {"kind": "frame", "t": 443.4, "what": "Higher-order cosine approximation scene."},
+        {"kind": "frame", "t": 623.8, "what": "Philosophical Taylor-polynomial transition scene."},
+        {"kind": "frame", "t": 798.4, "what": "General Taylor formula displaying a and x-a, without a shaded accumulated-area construction."},
+        {"kind": "frame", "t": 841.9, "what": "Exponential Taylor-polynomial example."},
+        {"kind": "frame", "t": 887.6, "what": "Chapter 8 recap screen still on display before the new construction."},
+        {"kind": "frame", "t": 890.2, "what": "New screen with shaded f_area(x), a white boundary graph, and endpoint x."},
+        {"kind": "frame", "t": 1109.6, "what": "Later convergence example, after the geometric area segment."},
+        {"kind": "frame", "t": 1253.5, "what": "Radius-of-convergence scene near the lecture's end."},
+        {"kind": "frame", "t": 1297.0, "what": "Closing summary of derivative information and nearby output information."}
+      ],
+      "findings": "The complete transcript contains one accumulated-area-function construction, from 889.0 through 1033.6 s. The scene-frame pass shows the requested new screen at 890.2 s; earlier scenes are polynomial examples or the explicitly old Chapter 8 recap, and later scenes move to convergence. No second post-question transition satisfies the definite-screen criterion.",
+      "criterion": "Every moment after the question becomes known that newly presents the specified shaded area function against its white boundary graph must be represented as a trigger or excluded as a distractor.",
+      "steps": [
+        {"question": "How many transcript segments introduce an accumulated-area function under a graph?", "answer_number": 1, "why": "Only the 889.0-1033.6 s segment does so in the complete transcript."},
+        {"question": "How many post-question new-screen transitions satisfy the visual condition?", "answer_number": 1, "why": "The scene pass finds the transition at 890.2 s and no later recurrence."},
+        {"question": "Is that sole transition already represented by a trigger?", "answer_bool": true, "why": "Trigger 0 begins at 890.2 s."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "trigger-matches-criterion",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 887.6, "what": "The preceding frame is the Chapter 8 Integrals recap."},
+        {"kind": "frame", "t": 890.2, "what": "The new screen visibly separates shaded f_area(x) from the white graph and marks x."},
+        {"kind": "frame", "t": 798.4, "what": "The preceding general Taylor derivation displays base point a and the displacement x-a."}
+      ],
+      "findings": "At 890.2 s the recap has been replaced by the new f_area(x) screen: the accumulated region is colored, its boundary graph is white, and x marks the variable endpoint. The base-point notation a and displacement x-a were visibly established in the preceding general formula.",
+      "criterion": "The trigger must literally be the new-screen moment described by the question and must leave the triangle correction still to be predicted.",
+      "steps": [
+        {"question": "Does trigger 0 show a newly arrived screen rather than the old recap?", "answer_bool": true, "why": "887.6 s is the framed Chapter 8 recap; 890.2 s is the unlabeled-axis f_area(x) construction."},
+        {"question": "Are the shaded area function and white graph visually distinct at the trigger?", "answer_bool": true, "why": "The colored fill is labeled f_area(x) and is bounded by a separate white curve."},
+        {"question": "Has the triangular correction already been disclosed at the trigger?", "answer_bool": false, "why": "No triangle or triangle label is present at 890.2 s; it appears later."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "question-anchored-to-screen",
+      "target": null,
+      "looked_at": [],
+      "findings": "The question names a new screen, a shaded accumulated-area function, a white graph whose area is accumulated, a first-order strip, and displayed base-point and endpoint symbols.",
+      "criterion": "A screen-anchored question must identify visible objects or layout features that select a particular video moment rather than merely naming a mathematical topic.",
+      "steps": [
+        {"question": "Does the question name concrete visible objects?", "answer_bool": true, "why": "It names shaded and white graphs, a strip, and displayed symbols."},
+        {"question": "Do those objects select a particular screen state?", "answer_bool": true, "why": "The color/role distinction and the phrase 'new screen' identify the area-function construction."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-within-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "Rubric items require the extra triangle, base x-a, height equal to local slope times x-a, identification of that slope with the area function's second derivative, and rejection of naming only the already-mentioned first-order rectangle.",
+      "criterion": "Each scoring requirement must follow from something the participant is explicitly asked to identify or explain in the question string.",
+      "steps": [
+        {"question": "What question requirement supports naming a triangle?", "answer_text": "The request for the extra geometric shape beyond the first-order strip.", "why": "The answer must identify the new correction shape."},
+        {"question": "What question requirement supports the base x-a?", "answer_text": "The request to describe its base using the displayed base-point and endpoint symbols.", "why": "The endpoint difference in those symbols is x-a."},
+        {"question": "What question requirement supports local slope times x-a as height?", "answer_text": "The request to state what determines the triangle's height in those same symbols.", "why": "The height is the white graph's local change over the displacement."},
+        {"question": "What question requirement supports linking that slope to the area function's second derivative?", "answer_text": "The explicit distinction between the accumulated-area function and the graph it accumulates, together with 'second-order correction'.", "why": "The distinction asks the answerer to track which function owns which derivative order."},
+        {"question": "What question wording supports rejecting a rectangle-only answer?", "answer_text": "The words 'extra geometric shape beyond the first-order strip'.", "why": "They explicitly exclude merely repeating the strip."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "discriminator-in-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "The sole distractor is excluded by 'When the new screen clearly distinguishes'; its interval still shows the old Chapter 8 recap. The rectangle-only exclusion is stated by 'beyond the first-order strip'.",
+      "criterion": "The participant-visible question must contain the wording that separates each tempting but rejected response or time from a valid one.",
+      "steps": [
+        {"question": "Which phrase excludes answering during the recap distractor?", "answer_text": "When the new screen clearly distinguishes the two functions.", "why": "The distractor precedes that new screen transition."},
+        {"question": "Which phrase excludes naming only the rectangle?", "answer_text": "Beyond the first-order strip.", "why": "A rectangle is the strip already acknowledged by the question, not the extra correction."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-not-punishing-extra",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 930.0, "what": "The first-order contribution is a thin yellow strip at x."},
+        {"kind": "frame", "t": 964.4, "what": "A red triangular cap appears above the yellow first-order strip."}
+      ],
+      "findings": "The only restrictive rubric clause says not to count only naming a rectangle. The frames show that the rectangle is exactly the already-specified first-order strip and that the additional correction is the red triangular cap.",
+      "criterion": "A restrictive scoring clause is sound only if it excludes material outside the requested category rather than forbidding another correct detail visible in the answer window.",
+      "steps": [
+        {"question": "Is the rectangle itself an additional shape beyond the first-order strip?", "answer_bool": false, "why": "At 930.0 s the yellow rectangle is the first-order strip itself."},
+        {"question": "Does the restriction forbid mentioning the rectangle together with the triangle?", "answer_bool": false, "why": "It rejects only naming a rectangle, so a correct richer explanation remains countable."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-fully-covered",
+      "target": {"trigger_idx": null, "distractor_idx": 0},
+      "looked_at": [
+        {"kind": "frame", "t": 883.5, "what": "Chapter 8 Integrals recap is already on screen before question_time."},
+        {"kind": "frame", "t": 887.6, "what": "The same framed recap remains throughout the distractor interval."},
+        {"kind": "frame", "t": 890.2, "what": "The new f_area(x) construction replaces the recap at the distractor's exclusive end."},
+        {"kind": "cue", "t": 886.7, "what": "The narration is still finishing the refresher and says 'Like we did in those videos'."},
+        {"kind": "cue", "t": 889.0, "what": "The narration begins 'consider a function that gives the area under some graph'."}
+      ],
+      "findings": "From question_time 886.7 s until the transition at 890.2 s, the visible scene is the old boxed Chapter 8 recap. At 890.2 s it cuts to the new shaded f_area(x) screen. Thus the distractor spans the entire post-question temptation before the literal screen condition becomes true.",
+      "criterion": "The distractor must cover the whole contiguous interval after question_time in which the topic is tempting but the required new screen has not appeared.",
+      "steps": [
+        {"question": "What is visible at the start of the distractor?", "answer_text": "The Chapter 8 Integrals recap screen.", "why": "It persists from the 883.5 s frame through 887.6 s."},
+        {"question": "When does that recap give way to the requested new screen?", "answer_number": 890.2, "why": "The indexed 890.2 s frame is the first scene-change frame of f_area(x)."},
+        {"question": "Does the distractor end exactly at that replacement?", "answer_bool": true, "why": "Its half-open interval is [886.7, 890.2)."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-not-correct-answer",
+      "target": {"trigger_idx": null, "distractor_idx": 0},
+      "looked_at": [
+        {"kind": "frame", "t": 887.6, "what": "Old Chapter 8 recap, with no new f_area(x) screen."},
+        {"kind": "frame", "t": 890.2, "what": "The requested new construction first appears at the distractor's end."}
+      ],
+      "findings": "Inside the distractor the participant has not yet seen the definite new screen specified by the question. The first qualifying frame is at the exclusive endpoint, 890.2 s.",
+      "criterion": "A distractor is legitimate when the participant-visible temporal condition is still false there, rather than merely being an alternative valid moment.",
+      "steps": [
+        {"question": "Does the requested new screen appear inside [886.7, 890.2)?", "answer_bool": false, "why": "887.6 s remains the recap and the cut occurs at 890.2 s."},
+        {"question": "Would answering inside the distractor satisfy the question's 'when' clause?", "answer_bool": false, "why": "The definite new-screen condition has not yet occurred."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-why-hides-answer",
+      "target": null,
+      "looked_at": [],
+      "findings": "The distractor explanation says only that the new screen has not yet separated the shaded accumulated area from the white boundary graph. It does not name the triangle, its base, its height, or the derivative relation.",
+      "criterion": "A distractor explanation may identify why timing is premature but must not disclose substantive parts of the reference answer.",
+      "steps": [
+        {"question": "Does the explanation disclose the extra shape?", "answer_bool": false, "why": "It never uses 'triangle' or an equivalent geometric answer."},
+        {"question": "Does the explanation disclose the base or height formulas?", "answer_bool": false, "why": "It contains neither x-a nor a slope/derivative height relation."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "reasoning-level-not-inflated",
+      "target": null,
+      "looked_at": [
+        {"kind": "cue", "t": 788.7, "what": "Earlier narration names the base point a and powers of x-a."},
+        {"kind": "frame", "t": 798.4, "what": "Earlier screen displays the general Taylor formula in a and x-a."},
+        {"kind": "frame", "t": 890.2, "what": "Later screen introduces the distinct shaded area function and white boundary graph."},
+        {"kind": "cue", "t": 912.3, "what": "Narration connects the boundary graph to the derivative of the area function."}
+      ],
+      "findings": "Solving at the trigger requires carrying the a and x-a Taylor structure from roughly 789-815 s into the distinct area-function picture at 890.2 s and using the fundamental-theorem relation discussed afterward. The whole answer is not read from one line or frame during the prediction window.",
+      "criterion": "L2 is appropriate when the answer follows by connecting information separated in time; it would be inflated only if a single cue or frame directly stated the answer.",
+      "steps": [
+        {"question": "Is the complete reference answer stated in one cue inside the window?", "answer_bool": false, "why": "Triangle, base, and height are only stated after 943.5 s, outside the window."},
+        {"question": "Must the participant connect separated parts of the lecture?", "answer_bool": true, "why": "The a/x-a formula precedes the new area-function scene by about ninety seconds."},
+        {"question": "Does the answer require facts not supplied by the video at all?", "answer_bool": false, "why": "The prior Taylor derivation and area-function construction supply the needed relation."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-matches-description",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 890.2, "what": "Shaded f_area(x), separate white boundary curve, and x endpoint are visible."},
+        {"kind": "frame", "t": 964.4, "what": "Red triangular cap, base arrow x-a, and points a and x are visible."},
+        {"kind": "frame", "t": 972.7, "what": "Height is explicitly labeled d^2 f_area/dx^2(a)(x-a)."}
+      ],
+      "findings": "Each provenance frame matches its description. The 890.2 s record correctly limits itself to the new-screen distinction and x while noting that a/x-a came from earlier; 964.4 s shows the triangle and base; 972.7 s shows the stated height formula.",
+      "criterion": "Every evidence record must describe what is actually visible at its cited frame without attributing later labels to an earlier image.",
+      "steps": [
+        {"question": "Does the 890.2 s frame support its description?", "answer_bool": true, "why": "It shows f_area(x), the colored region, the white graph, and x, and the record explicitly sources a/x-a earlier."},
+        {"question": "Does the 964.4 s frame support its description?", "answer_bool": true, "why": "The triangular cap and Base=(x-a) construction are visible."},
+        {"question": "Does the 972.7 s frame support its description?", "answer_bool": true, "why": "The exact second-derivative height label is visible."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "references-consistent-with-windows",
+      "target": null,
+      "looked_at": [],
+      "findings": "The prediction window is [890.2, 935.8). The first provenance frame is exactly at its opening and contains only the prompt condition, while the answer-confirming frames at 964.4 and 972.7 s occur after its end.",
+      "criterion": "A prediction reference is contradictory only if it says the substantive answer was already available before the answer window opened; later confirmation is expected.",
+      "steps": [
+        {"question": "Does any evidence record place the triangle/base/height answer before 890.2 s?", "answer_bool": false, "why": "The substantive confirmation records are at 964.4 and 972.7 s."},
+        {"question": "Does the 890.2 s evidence disclose the answer rather than the triggering condition?", "answer_bool": false, "why": "It describes only the separated area function, boundary graph, and endpoint x."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-answer-verified",
+      "target": null,
+      "looked_at": [
+        {"kind": "cue", "t": 943.5, "what": "Narrator says the extra portion is approximately a triangle."},
+        {"kind": "cue", "t": 949.6, "what": "Narrator names starting input a and nudged input x."},
+        {"kind": "cue", "t": 959.9, "what": "Narrator states the triangle base is x-a."},
+        {"kind": "cue", "t": 963.8, "what": "Narrator states the height is graph slope times x-a."},
+        {"kind": "cue", "t": 970.4, "what": "Narrator identifies that slope as the area function's second derivative at a."},
+        {"kind": "frame", "t": 964.4, "what": "The red triangular cap is visibly above the yellow strip and its base is x-a."},
+        {"kind": "frame", "t": 972.7, "what": "The height label gives d^2 f_area/dx^2(a)(x-a)."}
+      ],
+      "findings": "The later narration and diagrams verify every substantive part of the response: a triangular cap beyond the first-order strip, base x-a, height equal to local boundary-graph slope times x-a, and equivalently the shaded area function's second derivative at a times x-a.",
+      "criterion": "The reference answer must be factually supported by primary audio or frames, with each rubric-bearing claim verified rather than inferred from annotation notes.",
+      "steps": [
+        {"question": "Is the extra shape verified as a triangle above the strip?", "answer_bool": true, "why": "The 943.5 s cue names it and the 964.4 s frame shows it."},
+        {"question": "Is the base verified as x-a?", "answer_bool": true, "why": "The 959.9 s cue and 964.4 s label agree."},
+        {"question": "Is the height verified as local slope times x-a?", "answer_bool": true, "why": "The 963.8 s cue states exactly that relation."},
+        {"question": "Is the local slope verified as the area function's second derivative at a?", "answer_bool": true, "why": "The 970.4-978.5 s narration and 972.7 s formula show the equivalence."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "twins-agree-on-substance",
+      "target": null,
+      "looked_at": [],
+      "findings": "The sample contains no twin_of field, so there is no paired reference answer to compare.",
+      "criterion": "Substantive twin agreement applies only when the sample declares a twin whose reference response can be compared.",
+      "steps": [
+        {"question": "Does this sample declare a twin_of relationship?", "answer_bool": false, "why": "No twin_of field appears in the supplied sample JSON."}
+      ],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "schema_version": "1.0",
+  "checklist_version": "1.0",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q17",
+  "role": "probe_text",
+  "iteration": 1,
+  "model": "gpt-5",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/3b1b__3d6DsjIBzJ4__q17/probe_text_r1",
+  "budget": {
+    "frames_viewed": 0,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 920,
+    "screen_index_used": false
+  },
+  "violations": [],
+  "notes": "The transcript does not narrate the white probe or the curves' above/below positions.",
+  "looked_at": [
+    {
+      "kind": "cue",
+      "t": 1175.1,
+      "what": "The speaker says that some Taylor series converge only within a certain range around the input where derivative information is taken."
+    },
+    {
+      "kind": "cue",
+      "t": 1182.0,
+      "what": "The speaker introduces the Taylor series for the natural log of x."
+    },
+    {
+      "kind": "cue",
+      "t": 1184.0,
+      "what": "The speaker says the natural-log series is developed around x = 1."
+    },
+    {
+      "kind": "cue",
+      "t": 1196.1,
+      "what": "The speaker says what it looks like for an input between 0 and 2."
+    },
+    {
+      "kind": "cue",
+      "t": 1198.6,
+      "what": "The speaker says that adding more terms of the series gets closer to the natural log for such an input."
+    }
+  ],
+  "steps": [
+    {
+      "question": "Which target function and expansion are being shown?",
+      "answer_text": "The Taylor expansion of ln(x) around x = 1.",
+      "why": "The transcript explicitly identifies the natural logarithm and the expansion point at 1182.0–1196.1 s."
+    },
+    {
+      "question": "What does the right dashed boundary most likely represent?",
+      "answer_text": "The right endpoint x = 2 of the stated convergence interval 0 < x < 2.",
+      "why": "The transcript discusses a finite convergence range and immediately describes inputs between 0 and 2 at 1175.1–1200.9 s; identifying the dashed line itself is an inference because it is not narrated."
+    },
+    {
+      "question": "What ordering follows for the first four nonconstant partial sums beyond x = 2?",
+      "answer_text": "Above, below, above, below.",
+      "why": "From general knowledge, writing u = x - 1 > 1 gives the partial sums u, u-u^2/2, u-u^2/2+u^3/3, and u-u^2/2+u^3/3-u^4/4. Their errors relative to ln(1+u) alternate in sign. The transcript does not say that these are the four displayed curves, so this is a guess."
+    }
+  ],
+  "answer": "In order, the four approximants lie above, below, above, and below the blue curve at the white probe beyond the right dashed line.",
+  "basis": "Transcript: at 1175.1–1182.0 s the speaker says some Taylor series converge only within a certain range; at 1182.0–1196.1 s the example is identified as the Taylor series for ln(x) around x = 1; and at 1196.1–1206.3 s the speaker specifies inputs between 0 and 2. The above/below sequence is not spoken. It is a guess from general knowledge of the first four nonconstant partial sums of ln(x) about x = 1, whose errors alternate beyond x = 2. I did not recognize or recall the video's displayed answer before reading the transcript.",
+  "confidence": "low",
+  "insufficient": true
+}

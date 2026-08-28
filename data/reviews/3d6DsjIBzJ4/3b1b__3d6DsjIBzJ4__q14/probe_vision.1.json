@@ -1,0 +1,62 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q14",
+  "role": "probe_vision",
+  "iteration": 1,
+  "model": "gpt-5",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/3b1b__3d6DsjIBzJ4__q14/probe_vision_r1",
+  "budget": {
+    "frames_viewed": 2,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 1018.0,
+        "t_end": 1024.0
+      }
+    ],
+    "transcript_cues": null,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "Used the frame-derived screen index to locate the completed display, then verified the color-to-term mapping in the real 1020-second frame.",
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 1007.0,
+      "what": "The blue area, yellow vertical piece, and pink triangle are visible, but the lower Taylor equation is still incomplete after f(a) +."
+    },
+    {
+      "kind": "frame",
+      "t": 1020.0,
+      "what": "The three colored geometric pieces and the complete three-term equation are simultaneously visible: blue f(a), yellow df/dx(a)(x-a), and pink one-half d-squared-f/dx-squared(a)(x-a)^2."
+    }
+  ],
+  "steps": [
+    {
+      "question": "Which frame shows both the three colored pieces and the complete matching equation?",
+      "answer_text": "The frame at 1020 seconds.",
+      "why": "At 1007 seconds the lower equation is incomplete, while at 1020 seconds all three colored equation terms and geometric pieces are simultaneously visible."
+    },
+    {
+      "question": "What Taylor term is colored blue?",
+      "answer_text": "f(a)",
+      "why": "The first term f(a) in the completed equation at 1020 seconds is blue, matching the blue filled geometric area."
+    },
+    {
+      "question": "What Taylor term is colored yellow?",
+      "answer_text": "(df/dx)(a)(x-a)",
+      "why": "The linear term in the completed equation at 1020 seconds is yellow, matching the yellow vertical piece."
+    },
+    {
+      "question": "What Taylor term is colored pink?",
+      "answer_text": "(1/2)(d^2f/dx^2)(a)(x-a)^2",
+      "why": "The quadratic term in the completed equation at 1020 seconds is pink, matching the pink triangular piece."
+    }
+  ],
+  "answer": "Blue represents the constant Taylor term f(a). Yellow represents the linear term (df/dx)(a)(x-a). Pink represents the quadratic term (1/2)(d^2f/dx^2)(a)(x-a)^2.",
+  "basis": "Frame t001020.jpg (1020 s), where the three colored pieces and the fully written three-term Taylor approximation are simultaneously visible; t001007.jpg confirms the equation was not yet complete there.",
+  "confidence": "high",
+  "insufficient": false
+}

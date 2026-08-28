@@ -1,0 +1,151 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q05",
+  "role": "semiblind",
+  "iteration": 4,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q05/semiblind",
+  "budget": {
+    "frames_viewed": 32,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 329.0,
+        "t_end": 338.0
+      }
+    ],
+    "transcript_cues": 253,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The full transcript and screen index covered 0-341.7 s; sparse real frames sampled the whole stretch.\nThe declared distractor [328.6,333.0) contains the estimate but no readable true value.\nAt 333 s the incoming true-value digits are too faint/overlapped to rely on; 334 s is the first unambiguous frame.",
+  "prior_answer": "It cannot be computed from the question alone: the displayed quadratic estimate and displayed true value are not stated.",
+  "prior_answer_assumptions": [],
+  "recognized_video": false,
+  "recognized_how": "I did not recognize this particular video and moment well enough to name the displayed values or answer from memory.",
+  "scans": [
+    {
+      "idx": 0,
+      "t_from": 0.0,
+      "t_to": 341.7,
+      "watched": [
+        {"kind": "frame", "t": 0.0, "what": "Black opening frame; no answer quantities."},
+        {"kind": "frame", "t": 16.0, "what": "An unrelated exponential graph near x=0."},
+        {"kind": "frame", "t": 35.0, "what": "Beginning of a pendulum diagram; no numerical cosine comparison."},
+        {"kind": "frame", "t": 48.0, "what": "Pendulum geometry with theta and R."},
+        {"kind": "frame", "t": 59.0, "what": "Pendulum height expression and cosine symbol, without requested values."},
+        {"kind": "frame", "t": 69.0, "what": "General quadratic approximation cos(theta) approximately 1-theta squared over 2."},
+        {"kind": "frame", "t": 82.0, "what": "General pendulum approximation, not the 0.1 numerical comparison."},
+        {"kind": "frame", "t": 96.0, "what": "Graph comparing cosine and its quadratic near zero."},
+        {"kind": "frame", "t": 101.0, "what": "Transition to an exponential approximation example."},
+        {"kind": "frame", "t": 118.0, "what": "Sine polynomial approximation example."},
+        {"kind": "frame", "t": 130.0, "what": "Cosine graph and a candidate quadratic, no requested numerical values."},
+        {"kind": "frame", "t": 141.0, "what": "Generic P(x)=c0+c1x+c2x squared with free coefficients."},
+        {"kind": "frame", "t": 162.0, "what": "Value matching at x=0, establishing cosine of zero equals one."},
+        {"kind": "frame", "t": 175.0, "what": "Polynomial constant fixed to one; other coefficients remain free."},
+        {"kind": "frame", "t": 191.0, "what": "Tangent-slope matching setup with coefficients still free."},
+        {"kind": "frame", "t": 207.0, "what": "Cosine first derivative at zero shown as zero."},
+        {"kind": "frame", "t": 217.0, "what": "Polynomial first derivative at zero displayed."},
+        {"kind": "frame", "t": 233.0, "what": "Linear coefficient fixed to zero; c2 remains free."},
+        {"kind": "frame", "t": 251.0, "what": "Curvature matching illustration without requested numerical comparison."},
+        {"kind": "frame", "t": 281.0, "what": "Cosine second derivative at zero shown as negative one."},
+        {"kind": "frame", "t": 297.0, "what": "Cosine derivative facts and generic c2 polynomial."},
+        {"kind": "frame", "t": 311.0, "what": "Quadratic coefficient negative one half is established."},
+        {"kind": "frame", "t": 325.0, "what": "General completed quadratic formula, but no 0.1 estimate or true value."},
+        {"kind": "frame", "t": 329.0, "what": "The cos(0.1) substitution is being drawn; its numerical estimate is incomplete."},
+        {"kind": "frame", "t": 330.0, "what": "Quadratic estimate is fully readable as 0.995; no true value is shown."},
+        {"kind": "frame", "t": 331.0, "what": "Only the estimate 0.995 is present during a brief animation disruption."},
+        {"kind": "frame", "t": 332.0, "what": "Quadratic estimate 0.995 is readable; the true-value line has not appeared."},
+        {"kind": "frame", "t": 333.0, "what": "Faint incoming digits overlap the estimate line and are not reliably readable as a separate true value."},
+        {"kind": "frame", "t": 334.0, "what": "Both lines are clear: estimate 0.995 and true value 0.9950042 ellipsis."},
+        {"kind": "frame", "t": 335.0, "what": "True-value line is clear, while the estimate line is sliding partly off screen."},
+        {"kind": "frame", "t": 336.0, "what": "Both estimate 0.995 and true value 0.9950042 ellipsis are again fully readable."},
+        {"kind": "frame", "t": 337.0, "what": "Both equations are breaking apart and no longer fully readable."}
+      ],
+      "candidates": [
+        {
+          "question": "Can the requested comparison be answered at 311 seconds?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The quadratic formula is available, but neither displayed numerical value at 0.1 is present."
+        },
+        {
+          "question": "Can the requested comparison be answered from the distractor by 332 seconds?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The estimate 0.995 is readable, but the displayed true value is absent throughout the inspected distractor frames."
+        },
+        {
+          "question": "Are both values reliably readable at 333 seconds?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The incoming true-value digits are extremely faint and overlap the old line, so completing them would require inference."
+        },
+        {
+          "question": "Are both values readable and sufficient at 334 seconds?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Separate clear lines show the quadratic estimate 0.995 and true value 0.9950042 ellipsis, enough to subtract and compare."
+        }
+      ],
+      "t_val": 334.0,
+      "t_val_basis": "At 334 s two separate, fully legible equations simultaneously show the quadratic estimate 0.995 and the true value 0.9950042... .",
+      "answer_at_t_val": "True value minus estimate is approximately 0.9950042 - 0.995 = 0.0000042 (4.2e-6), so the quadratic underestimates the true value.",
+      "confidence": "high"
+    }
+  ],
+  "checks": [
+    {
+      "group": "shortcuts",
+      "item": "solvable-without-video",
+      "target": null,
+      "looked_at": [
+        {"kind": "cue", "t": 0.0, "what": "Pre-view question text refers to two displayed values but states neither number."}
+      ],
+      "findings": "The question supplies no numerical estimate or true value from which to calculate the requested difference.",
+      "criterion": "The item fires only if the answer can be derived on its merits from the question and general knowledge without inventing unseen screen content.",
+      "steps": [
+        {
+          "question": "Does the question itself state both numbers required for subtraction?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "It names the displayed quantities but does not reproduce their values."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "video-recognized",
+      "target": null,
+      "looked_at": [
+        {"kind": "cue", "t": 0.0, "what": "Pre-view memory self-report made before opening transcript or frames."}
+      ],
+      "findings": "I could not identify this exact video moment or recall its displayed numerical comparison from memory.",
+      "criterion": "The item fires only when prior recognition of the particular video and moment would reveal the answer without viewing the supplied material.",
+      "steps": [
+        {
+          "question": "Could I name the displayed values and comparison from memory?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "No specific values or answer were available to me from recognition before viewing."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

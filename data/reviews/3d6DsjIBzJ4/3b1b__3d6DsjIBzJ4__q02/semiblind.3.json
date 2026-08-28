@@ -1,0 +1,179 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q02",
+  "role": "semiblind",
+  "iteration": 3,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q02/semiblind",
+  "budget": {
+    "frames_viewed": 9,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 136.0,
+        "t_end": 141.1
+      }
+    ],
+    "transcript_cues": 119,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The full 0-162.3 s stretch was covered by the complete transcript and screen index, with real frames used as evidence. The t=140 frame has all three colored arrows visible, while the label is still fading in; by t=141 it is fully bright. No forbidden source, bundle, video, annotation, other workspace, or prior review was opened.",
+  "prior_answer": "It cannot be answered on the merits from the question alone: the blue target function and its center are not specified, so the reflected quadratic's three coefficients cannot be determined.",
+  "prior_answer_assumptions": [],
+  "recognized_video": false,
+  "recognized_how": "I did not recognize this particular video or moment before viewing.",
+  "scans": [
+    {
+      "idx": 0,
+      "t_from": 0.0,
+      "t_to": 162.3,
+      "watched": [
+        {
+          "kind": "cue",
+          "t": 122.7,
+          "what": "The narrator identifies the target as cosine of x."
+        },
+        {
+          "kind": "cue",
+          "t": 126.9,
+          "what": "The narrator asks for a quadratic approximation near x = 0."
+        },
+        {
+          "kind": "frame",
+          "t": 122.0,
+          "what": "The blue label cos(x) and coordinate axes are visible."
+        },
+        {
+          "kind": "frame",
+          "t": 130.0,
+          "what": "The blue cosine curve and a green quadratic centered at x = 0 are visible, but coefficient controls are not marked free."
+        },
+        {
+          "kind": "frame",
+          "t": 136.0,
+          "what": "P(x) = c0 + c1 x + c2 x^2 is visible above the curves; no free-to-change marks are present."
+        },
+        {
+          "kind": "frame",
+          "t": 139.0,
+          "what": "All three coefficients are displayed, but none is yet marked by a free-to-change arrow."
+        },
+        {
+          "kind": "frame",
+          "t": 140.0,
+          "what": "Three colored arrows simultaneously point to c0, c1, and c2, and the Free to change label is appearing."
+        },
+        {
+          "kind": "frame",
+          "t": 141.0,
+          "what": "The same three arrows and the now fully bright Free to change label are clearly visible."
+        },
+        {
+          "kind": "frame",
+          "t": 148.0,
+          "what": "The controls remain marked free while the green quadratic changes, confirming that all three coefficients are adjustable."
+        }
+      ],
+      "candidates": [
+        {
+          "question": "Is the answer valid at 130.0 s?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The blue cosine target and center x = 0 are available, but the required simultaneous free-to-change marking has not occurred; the following 130.3-140.0 interval is also the declared distractor."
+        },
+        {
+          "question": "Is the answer valid at 139.0 s?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The polynomial form is visible, but there are still no arrows or free-to-change marking on the three coefficients."
+        },
+        {
+          "question": "Is the answer valid at 140.0 s?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "This is the first inspected frame after the declared distractor in which distinct colored arrows simultaneously mark c0, c1, and c2 free to change; the target cos(x) and center x = 0 were already established."
+        },
+        {
+          "question": "Is the free-to-change state unambiguous by 141.0 s?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "At 141.0 s all three arrows remain visible and the Free to change caption is fully bright."
+        }
+      ],
+      "t_val": 140.0,
+      "t_val_basis": "At 140.0 s all three coefficient controls c0, c1, and c2 are simultaneously marked by colored arrows as free to change. Earlier audio and frames identify the blue target as cos(x) about x = 0. Reflecting it across the x-axis gives -cos(x), whose degree-two Taylor polynomial at 0 is -1 + x^2/2.",
+      "answer_at_t_val": "Blue target: cos(x). Center: x = 0. After reflection across the x-axis, the quadratic coefficients are c0 = -1, c1 = 0, c2 = 1/2, so P(x) = -1 + (1/2)x^2.",
+      "confidence": "high"
+    }
+  ],
+  "checks": [
+    {
+      "group": "shortcuts",
+      "item": "solvable-without-video",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 130.3,
+          "what": "The supplied question refers to an unspecified blue target function and its unspecified center shown earlier on screen."
+        }
+      ],
+      "findings": "Before viewing, the question supplied neither the identity of the blue target nor the center needed to compute the requested coefficients.",
+      "criterion": "A question is solvable without video only if its text plus general subject knowledge determines the requested quantities without inventing unseen screen content.",
+      "steps": [
+        {
+          "question": "Does the question name the target function?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "It refers only to the blue target function shown earlier."
+        },
+        {
+          "question": "Does the question name the expansion center?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "It refers only to the center shown earlier on screen."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "video-recognized",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 130.3,
+          "what": "Before opening the transcript or frames, I assessed whether the supplied question and video ID recalled a known video moment."
+        }
+      ],
+      "findings": "Before viewing, I could not identify this particular video or recall its target function, center, or requested coefficients from memory.",
+      "criterion": "This item fires only when the reviewer recognizes the particular video and moment well enough to name the answer from memory before viewing.",
+      "steps": [
+        {
+          "question": "Was this particular video and moment recognized before viewing?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Neither the video ID nor the question evoked a specific remembered scene or answer."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

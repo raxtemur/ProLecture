@@ -1,0 +1,186 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q17",
+  "role": "semiblind",
+  "iteration": 3,
+  "model": "gpt-5.4",
+  "date": "2026-08-27",
+  "workspace": "/workspace-SR004.nfs2/rahmatullaev/rand_exps/PoC_for_rand_ideas/manim_play/.review_ws/3d6DsjIBzJ4/3b1b__3d6DsjIBzJ4__q17/semiblind_r3",
+  "budget": {
+    "frames_viewed": 25,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 1190.0,
+        "t_end": 1218.0
+      }
+    ],
+    "transcript_cues": 925,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The complete supplied 0–1218 s transcript and screen index were covered. The dense visual pass verified the end sequence at 1 fps; the fourth beyond-right-probe curve is first fully visible in the t=1217 frame.",
+  "prior_answer": "It cannot be answered on the merits: the question does not provide the four approximants' values or shapes at the white probe, nor the blue curve's value there, so their above/below relations are unknown without the video.",
+  "prior_answer_assumptions": [],
+  "recognized_video": false,
+  "recognized_how": "I did not recognize this particular video or moment before viewing.",
+  "scans": [
+    {
+      "idx": 0,
+      "t_from": 0.0,
+      "t_to": 1218.0,
+      "watched": [
+        {
+          "kind": "frame",
+          "t": 1190.0,
+          "what": "The natural-log target curve and its Taylor expression are visible, before the dashed bounds and probe comparison sequence."
+        },
+        {
+          "kind": "frame",
+          "t": 1196.0,
+          "what": "The white probe is at the expansion point and only one dashed guide is visible; no four-way probe comparison is available."
+        },
+        {
+          "kind": "frame",
+          "t": 1198.0,
+          "what": "A white probe between the dashed guides lies on the first yellow approximant, above the blue curve."
+        },
+        {
+          "kind": "frame",
+          "t": 1204.0,
+          "what": "The brace reaches four terms and the fourth curve is visible, but the probe remains between the dashed guides."
+        },
+        {
+          "kind": "frame",
+          "t": 1209.0,
+          "what": "The white probe has moved beyond the right dashed line; the blue target is visible but no approximant is yet drawn at it."
+        },
+        {
+          "kind": "frame",
+          "t": 1211.0,
+          "what": "At the beyond-right probe, the first yellow approximant is visibly above the blue target."
+        },
+        {
+          "kind": "frame",
+          "t": 1212.0,
+          "what": "At the same probe, the second green approximant is visibly below the blue target."
+        },
+        {
+          "kind": "frame",
+          "t": 1214.0,
+          "what": "At the same probe, the third approximant is visibly above the blue target, but the fourth has not appeared."
+        },
+        {
+          "kind": "frame",
+          "t": 1217.0,
+          "what": "The brace reaches the fourth term and the fourth pink approximant is fully visible below the blue target at the same beyond-right probe."
+        }
+      ],
+      "candidates": [
+        {
+          "question": "Is t=1198 the earliest answerable moment?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "It is inside the declared distractor and uses a probe between the dashed guides; only the first approximant is shown."
+        },
+        {
+          "question": "Is t=1204 the earliest answerable moment?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Although four terms have appeared, this remains the declared between-guides probe pass rather than the requested beyond-right pass."
+        },
+        {
+          "question": "Is t=1209 the earliest answerable moment?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The probe is now beyond the right dashed guide, but none of the four approximants is yet visible there."
+        },
+        {
+          "question": "Is t=1211 through t=1214 sufficient?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Those frames reveal only a prefix: first above, second below, third above. The fourth curve has not yet appeared, and the interval is declared a distractor."
+        },
+        {
+          "question": "Is t=1217 the earliest answerable moment?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The fourth curve and four-term brace are fully visible at the beyond-right probe, outside the half-open distractor; together with the immediately preceding prefix, all four ordered relations are available."
+        }
+      ],
+      "t_val": 1217.0,
+      "t_val_basis": "At t=1217 the brace reaches the fourth term and the fourth curve is fully drawn at the same white probe beyond the right dashed line; the preceding frames in this pass visibly establish the first three relations.",
+      "answer_at_t_val": "In order from the first through fourth approximant: above, below, above, below the blue target curve.",
+      "confidence": "high"
+    }
+  ],
+  "checks": [
+    {
+      "group": "shortcuts",
+      "item": "solvable-without-video",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 1196.0,
+          "what": "The supplied question text and video identifier, considered before any transcript or frame; they provide no visual values and triggered no memory of the answer."
+        }
+      ],
+      "findings": "Before viewing, the question named four approximants, a probe, and a blue target curve but supplied none of their values or relative positions.",
+      "criterion": "A video-free solution must derive the requested ordered relations from the question and general knowledge alone, without inventing the unseen graph content.",
+      "steps": [
+        {
+          "question": "Does the question specify the four probe values or enough formulas to derive them?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Neither the approximants nor the target value at the probe are given in the question."
+        },
+        {
+          "question": "Can the above/below order be derived without assuming unseen screen content?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "General knowledge does not identify the particular target, probe location, and displayed approximants."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "video-recognized",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 1196.0,
+          "what": "The supplied question text and video identifier, considered before any transcript or frame; they provide no visual values and triggered no memory of the answer."
+        }
+      ],
+      "findings": "Before opening the transcript or frames, I had no memory of this particular video or the requested moment and could not name its answer.",
+      "criterion": "This shortcut fires only if the exact video or moment was recognized from prior memory strongly enough to supply the answer without reviewing the provided material.",
+      "steps": [
+        {
+          "question": "Did I recognize the exact video and moment before viewing?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "No title, scene, or answer from this particular video was present in memory."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

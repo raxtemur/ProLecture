@@ -1,0 +1,232 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q03",
+  "role": "full_window",
+  "iteration": 4,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q03/full_window1",
+  "budget": {
+    "frames_viewed": 8,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 360.0,
+        "t_end": 371.0
+      }
+    ],
+    "transcript_cues": 17,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The visual transition was bracketed by real frames at 362.0 and 363.0 s. The answer state remains readable through the right edge of the window; no interval change is advised.",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "group": "windows",
+      "item": "window-can-be-tightened",
+      "target": {
+        "trigger_idx": 1
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 363.0,
+          "what": "The polynomial shows a yellow 0 in the linear-coefficient position, and the approximation and cosine share a horizontal tangent at x0."
+        },
+        {
+          "kind": "frame",
+          "t": 365.0,
+          "what": "The same yellow 0 and the common flat tangent remain visible while the c2 term begins to be emphasized."
+        },
+        {
+          "kind": "frame",
+          "t": 369.0,
+          "what": "Near the end of the window the yellow 0 is still visible and the two curves still share the flat tangent at x0."
+        }
+      ],
+      "findings": "From the opening frame through the last inspected in-window second, the requested symbol/value cue and the corresponding geometry remain visible. Later c2 animation does not erase the c1 answer.",
+      "criterion": "Tightening is warranted only if a substantial part of the window no longer permits the requested answer; a brief animation that preserves all answer facts is not empty slack.",
+      "steps": [
+        {
+          "question": "At what inspected moment does the complete answer first appear?",
+          "answer_number": 363.0,
+          "why": "At 363.0 the yellow linear coefficient has become 0 and the common horizontal tangent is visible."
+        },
+        {
+          "question": "Does any substantial suffix of the window lose the answer?",
+          "answer_bool": false,
+          "why": "The 369.0 frame still shows the yellow 0 and the shared flat tangent, immediately before the 370.0 right boundary."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "windows",
+      "item": "author-says-answer-in-window",
+      "target": {
+        "trigger_idx": 1
+      },
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 361.0,
+          "what": "A line continuing until 364.1 says that the derivatives match at that point."
+        },
+        {
+          "kind": "cue",
+          "t": 366.3,
+          "what": "The author begins explaining that C2 is responsible for matching the second derivatives."
+        },
+        {
+          "kind": "cue",
+          "t": 369.3,
+          "what": "The author continues the second-derivative explanation rather than stating the requested c1 symbol, color, value, and geometry as a finished answer."
+        },
+        {
+          "kind": "frame",
+          "t": 363.0,
+          "what": "The requested c1 result is shown visually as a yellow 0 with a common flat tangent."
+        }
+      ],
+      "findings": "Speech overlapping the opening mentions matching first derivatives, then speech from 366.3 onward turns to C2 and second derivatives. The complete requested multi-part answer is not spoken verbatim, while its visual result is on screen.",
+      "criterion": "For an L1 alarm, overlap with the author's explanation or an on-screen finished state is permitted; the critical leakage rule applies only to L2/L3 tasks.",
+      "steps": [
+        {
+          "question": "Is the sample reasoning level L1?",
+          "answer_bool": true,
+          "why": "The supplied sample metadata labels this ground/pre question as L1."
+        },
+        {
+          "question": "Does speech in the checked interval state the full requested answer?",
+          "answer_bool": false,
+          "why": "It mentions derivative matching and then C2, but does not give the full c1 color, symbol, zero value, and flat-tangent description."
+        },
+        {
+          "question": "Would coincident author explanation invalidate this L1 window?",
+          "answer_bool": false,
+          "why": "The item explicitly allows author-answer coincidence for an L1 alarm."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "event-not-earlier-than-window",
+      "target": {
+        "trigger_idx": 1
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 362.0,
+          "what": "Before the boundary, c1 is still displayed in yellow and the formula has not yet resolved the linear coefficient to 0."
+        },
+        {
+          "kind": "frame",
+          "t": 363.0,
+          "what": "At the boundary, the yellow c1 position has resolved to 0 and the two curves share the flat tangent at x0."
+        }
+      ],
+      "findings": "The decisive on-screen state is absent at 362.0 and present at 363.0, so the one-second visual bracket places its onset at the stated opening boundary rather than clearly before it.",
+      "criterion": "For a state-change trigger, the window should open where the decisive new state begins, not later after the state has already been observable.",
+      "steps": [
+        {
+          "question": "Is the resolved zero state already present in the last inspected pre-boundary frame?",
+          "answer_bool": false,
+          "why": "The 362.0 frame still shows c1 rather than 0."
+        },
+        {
+          "question": "Is the resolved zero state present at the window boundary?",
+          "answer_bool": true,
+          "why": "The 363.0 frame shows yellow 0 and the common flat tangent."
+        },
+        {
+          "question": "Does the evidence establish that the event began earlier than 363.0?",
+          "answer_bool": false,
+          "why": "The inspected adjacent one-second frames bracket the change at the boundary, with no completed answer in the earlier frame."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "depends-on-is-dependency",
+      "target": {
+        "trigger_idx": 1
+      },
+      "looked_at": [],
+      "findings": "The supplied trigger metadata contains no depends_on link for this optional window.",
+      "criterion": "A dependency check applies only when a depends_on link exists; absence of such a link makes this item inapplicable unless the rubric itself requires an earlier answer.",
+      "steps": [
+        {
+          "question": "Does trigger 1 declare a depends_on link?",
+          "answer_bool": false,
+          "why": "No dependency was present in the supplied trigger metadata."
+        }
+      ],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "evidence-span-is-last",
+      "target": {
+        "trigger_idx": 1
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 360.0,
+          "what": "The screen identifies c1 in yellow and shows the first-derivative matching condition, but its numeric value has not yet been resolved."
+        },
+        {
+          "kind": "frame",
+          "t": 362.0,
+          "what": "The formula still shows yellow c1 rather than the numeric value 0."
+        },
+        {
+          "kind": "frame",
+          "t": 363.0,
+          "what": "The yellow linear coefficient is now 0 and the approximation and cosine have the shared horizontal tangent at x0."
+        }
+      ],
+      "findings": "The coefficient identity and color are available earlier, but the last needed fact—the displayed value 0 together with the settled flat-tangent geometry—first appears in the 363.0 frame. The evidence span ends at 363.0.",
+      "criterion": "The evidence span must include the moment when the last fact required by the answer becomes visually derivable, rather than stopping at an earlier setup cue or extending to later corroboration.",
+      "steps": [
+        {
+          "question": "What answer fact remains unresolved before 363.0?",
+          "answer_text": "The numeric value of c1 is not yet displayed as 0.",
+          "why": "At both 360.0 and 362.0 the formula still labels the coefficient c1."
+        },
+        {
+          "question": "When is the last required fact first present in an inspected frame?",
+          "answer_number": 363.0,
+          "why": "At 363.0 the yellow coefficient is 0 and the shared horizontal tangent is settled."
+        },
+        {
+          "question": "Does evidence_span ending at 363.0 cover that last fact?",
+          "answer_bool": true,
+          "why": "The supplied evidence span is [358.9, 363.0], whose endpoint matches the decisive frame."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ],
+  "window_idx": 1
+}

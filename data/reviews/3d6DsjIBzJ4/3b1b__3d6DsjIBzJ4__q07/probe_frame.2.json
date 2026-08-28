@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q07",
+  "role": "probe_frame",
+  "iteration": 2,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q07/probe_frame",
+  "budget": {
+    "frames_viewed": 1,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 0,
+    "screen_index_used": false
+  },
+  "violations": [],
+  "notes": "The sole frame does not visibly show a completed c8 factorial brace. The eighth-order multiplier and c8 value below are therefore a standard-calculus inference, not a transcription of visible quantities.",
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 540.0,
+      "what": "The frame visibly shows cos(0)=1, its first through fourth derivatives at 0 (with the fourth equal to 1), P(x)=1-(1/2)x^2+c4x^4, and the start of d^4P/dx^4 applied to c4x^4. No c8 term or completed eighth-order factorial brace is distinguishable."
+    }
+  ],
+  "steps": [
+    {
+      "question": "What nonzero fourth-order target is visible in the frame?",
+      "answer_text": "The frame shows d^4(cos)/dx^4 evaluated at 0 equals cos(0)=1, alongside the c4x^4 term of P(x).",
+      "why": "These equations are directly legible on the left and upper-right of the sole frame."
+    },
+    {
+      "question": "What fourth-order factorial equation follows from the visible c4x^4 term?",
+      "answer_text": "By standard differentiation, d^4(c4x^4)/dx^4=4!c4=24c4, so matching the visible target 1 gives 4!c4=1 and c4=1/24.",
+      "why": "The target 1 and c4x^4 are visible; the multiplier 4!=24 is inferred from general calculus rather than read from a completed brace in this frame."
+    },
+    {
+      "question": "What would c8 be if an eighth-order term had to produce an eighth derivative of -2?",
+      "answer_text": "Using the standard multiplier 8!=40320 gives 8!c8=-2, hence c8=-2/40320=-1/20160.",
+      "why": "This is a general-knowledge calculation. The c8 term and its complete factorial brace are not visible in the supplied frame, so treating 8! as one of the multipliers 'shown' would be a guess about missing material."
+    }
+  ],
+  "answer": "The factorial multipliers are 4!=24 for the earlier fourth-order calculation and, by the standard higher-power pattern, 8!=40320 for c8. Thus the earlier relation is 4!c4=1 (so c4=1/24). Counterfactually imposing an eighth derivative of -2 gives 8!c8=-2, so c8=-2/40320=-1/20160. However, only the fourth-order setup and target 1 are visible in the supplied frame; the completed c8 brace is not, so the claimed displayed eighth-order multiplier is an inference/guess rather than genuinely readable evidence.",
+  "basis": "Frame t=540 s directly shows d^4(cos)/dx^4(0)=1 and P(x)=1-(1/2)x^2+c4x^4. General knowledge supplies d^n(cx^n)/dx^n=n!c. The 4! and especially 8! multiplier are inferred from that rule; the sole frame does not visibly show the complete factorial braces or a c8 term.",
+  "confidence": "low",
+  "insufficient": true
+}

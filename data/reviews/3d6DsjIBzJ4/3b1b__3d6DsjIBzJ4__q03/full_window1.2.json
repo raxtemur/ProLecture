@@ -1,0 +1,245 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q03",
+  "role": "full_window",
+  "iteration": 2,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q03/full_window1",
+  "budget": {
+    "frames_viewed": 13,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 361.5,
+        "t_end": 364.9
+      },
+      {
+        "t_start": 364.9,
+        "t_end": 370.0
+      }
+    ],
+    "transcript_cues": 17,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The answer is already fully visible by the inspected 364.0 frame, before this optional window opens at 364.9. The exact sub-second onset was not sampled, so the proposed start uses the earliest verified finished frame.",
+  "verdict": "FIX_INTERVALS",
+  "checks": [
+    {
+      "group": "windows",
+      "item": "window-can-be-tightened",
+      "target": {
+        "trigger_idx": 1
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 364.9,
+          "what": "The polynomial is already shown as P(x)=1+0x+c2x^2; the 0 is yellow, and the two curves meet at x=0 with a shared horizontal tangent."
+        },
+        {
+          "kind": "frame",
+          "t": 365.0,
+          "what": "The same yellow 0 and shared flat tangent remain visible at the beginning of the counted window."
+        },
+        {
+          "kind": "frame",
+          "t": 369.2,
+          "what": "Near the right edge, the yellow 0 and the coincident horizontal tangents at x=0 remain visible while c2 is being updated."
+        },
+        {
+          "kind": "frame",
+          "t": 370.0,
+          "what": "At the boundary after the window, the yellow 0 remains in the polynomial and the curves still share their tangent at x=0."
+        }
+      ],
+      "findings": "From 364.9 through the end of the half-open window, the displayed value 0 stays yellow in the linear term and the two curves retain a common horizontal tangent at x=0. The concurrent c2 animation does not remove those facts.",
+      "criterion": "The interval needs shortening only if a substantial portion of its beginning or end no longer supports the requested answer; one or two seconds of harmless slack do not justify a fix.",
+      "steps": [
+        {
+          "question": "Is the requested answer available at the first inspected frame of the window?",
+          "answer_bool": true,
+          "why": "At 364.9 the yellow 0 and shared horizontal tangent are plainly visible."
+        },
+        {
+          "question": "Does any substantial suffix of the window lose the requested answer?",
+          "answer_bool": false,
+          "why": "The same linear coefficient value and tangent geometry remain visible at 369.2 and 370.0."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "windows",
+      "item": "author-says-answer-in-window",
+      "target": {
+        "trigger_idx": 1
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 364.9,
+          "what": "The finished yellow value 0 and the shared flat tangent are on screen at the start of the window."
+        },
+        {
+          "kind": "cue",
+          "t": 366.3,
+          "what": "The author begins discussing c2 and says it is responsible for matching second derivatives."
+        },
+        {
+          "kind": "cue",
+          "t": 369.3,
+          "what": "The author continues explaining how matching second derivatives controls the approximation away from x=0."
+        },
+        {
+          "kind": "frame",
+          "t": 371.8,
+          "what": "The yellow 0 remains in the completed polynomial while c2 has become -1/2."
+        },
+        {
+          "kind": "frame",
+          "t": 374.5,
+          "what": "The formula has left the screen and only the two curves remain."
+        }
+      ],
+      "findings": "The requested c1 result is displayed in finished form inside the window, while the speech from 366.3 onward concerns c2 and second-derivative matching rather than restating the c1 answer. The sample is labeled L1.",
+      "criterion": "A finished answer appearing in or just after the window invalidates higher-level reasoning tasks, but it is acceptable for an L1 alarm whose purpose is to report the displayed event.",
+      "steps": [
+        {
+          "question": "Is the requested answer spoken or displayed during the window or the following ten seconds?",
+          "answer_bool": true,
+          "why": "It is displayed at 364.9 and remains visible through 371.8."
+        },
+        {
+          "question": "Does that finished presentation trigger a failure at this reasoning level?",
+          "answer_bool": false,
+          "why": "The provided reasoning_level is L1, for which coincidence with the displayed answer is allowed."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "event-not-earlier-than-window",
+      "target": {
+        "trigger_idx": 1
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 362.0,
+          "what": "The derivative equality is visible and yellow c1 is still shown as a symbol; its value has not yet been inserted into the polynomial."
+        },
+        {
+          "kind": "frame",
+          "t": 364.0,
+          "what": "The derivative equality remains visible, the polynomial already reads P(x)=1+0x+c2x^2 with 0 in yellow, and the curves share a flat tangent at x=0."
+        },
+        {
+          "kind": "frame",
+          "t": 364.9,
+          "what": "At the annotated window start, the same completed yellow 0 and shared flat tangent remain on screen."
+        }
+      ],
+      "findings": "The requested explicit result is already complete in the 364.0 frame, whereas the optional trigger window starts at 364.9. At 362.0 the yellow c1 symbol is present but the value has not yet been inserted, so the transition occurs between those observations and is complete no later than 364.0.",
+      "criterion": "For a question keyed to the moment a visual condition becomes explicit, the counted window must begin when that explicit state starts; otherwise a correct immediate answer before the boundary is penalized.",
+      "steps": [
+        {
+          "question": "What is the earliest inspected frame where the requested explicit state is complete?",
+          "answer_number": 364.0,
+          "why": "That frame visibly contains the yellow 0 substitution together with the matching horizontal tangent geometry."
+        },
+        {
+          "question": "Is that verified completed state earlier than the annotated window start?",
+          "answer_bool": true,
+          "why": "364.0 precedes t_start=364.9 by 0.9 seconds."
+        }
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {
+        "field": "triggers[1].t_start",
+        "value": "364.0",
+        "why": "Open the optional window at the earliest inspected frame where the explicit yellow 0 and shared flat tangent are already complete; source-precision review may move it slightly earlier within 362.0-364.0."
+      },
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "depends-on-is-dependency",
+      "target": {
+        "trigger_idx": 1
+      },
+      "looked_at": [],
+      "findings": "The supplied optional trigger has no depends_on field, and its requested response and rubric are self-contained rather than requiring an answer from another trigger.",
+      "criterion": "A dependency link applies only when satisfying this window's rubric logically requires the answer to another named window; absence of such a link is inapplicable when no such requirement exists.",
+      "steps": [
+        {
+          "question": "Does this window declare a depends_on link to evaluate?",
+          "answer_bool": false,
+          "why": "No depends_on entry is present in the supplied trigger description."
+        },
+        {
+          "question": "Does its rubric nevertheless require a previous trigger answer?",
+          "answer_bool": false,
+          "why": "The color, symbol, value, and tangent consequence can all be reported from this visual occurrence itself."
+        }
+      ],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "evidence-span-is-last",
+      "target": {
+        "trigger_idx": 1
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 361.4,
+          "what": "The yellow c1 symbol, derivative equality, and the two curves at x=0 are visible, but the coefficient value is not yet inserted."
+        },
+        {
+          "kind": "frame",
+          "t": 364.0,
+          "what": "The last missing fact is present: the linear coefficient has become a yellow 0 while the shared horizontal tangent is visible."
+        },
+        {
+          "kind": "frame",
+          "t": 364.9,
+          "what": "The same completed answer remains visible at the stated end of evidence_span [358.9,364.9]."
+        }
+      ],
+      "findings": "The symbol and its yellow color are visible by 361.4; the missing value and its flat-tangent consequence are fully visible by 364.0. The declared evidence span [358.9,364.9] covers that last required fact.",
+      "criterion": "The evidence span is correct when it contains the moment at which the final fact needed to derive the answer appears; it need not be extended to later corroboration.",
+      "steps": [
+        {
+          "question": "Which requested fact appears last among color, symbol, value, and geometry?",
+          "answer_text": "The value c1=0 together with the completed shared horizontal tangent state.",
+          "why": "At 361.4 the yellow c1 symbol is visible but the numerical substitution is still absent; it is complete at 364.0."
+        },
+        {
+          "question": "Does the declared evidence span cover that last-evidence moment?",
+          "answer_bool": true,
+          "why": "The verified 364.0 moment lies inside [358.9,364.9]."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ],
+  "window_idx": 1
+}

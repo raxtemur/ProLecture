@@ -1,0 +1,164 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q03",
+  "role": "semiblind",
+  "iteration": 2,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q03/semiblind",
+  "budget": {
+    "frames_viewed": 25,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 227.0,
+        "t_end": 235.0
+      }
+    ],
+    "transcript_cues": 275,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The full 0–370 s transcript and screen index were covered. Sparse scene-change frames sampled the whole stretch; an integer-second dense pass narrowed the first complete visual answer to 229 s. The transcript's apparent c2=-2 is an ASR error and was not used; real frames show -1/2 later. No forbidden material was opened.",
+  "prior_answer": "It cannot be answered on the merits from the question alone: the coefficient's screen color and symbol, its displayed value, and the specific geometry shown at x=0 are not given.",
+  "prior_answer_assumptions": [],
+  "recognized_video": false,
+  "recognized_how": "I knew the general Taylor-series subject, but did not recognize this particular moment or know the requested answer from memory before viewing.",
+  "scans": [
+    {
+      "idx": 0,
+      "t_from": 0.0,
+      "t_to": 370.0,
+      "watched": [
+        {"kind": "frame", "t": 0.0, "what": "Black opening frame."},
+        {"kind": "frame", "t": 69.0, "what": "Pendulum diagram and cosine quadratic approximation; no c1 tangent-match assignment."},
+        {"kind": "frame", "t": 130.0, "what": "Cosine and a green quadratic curve are displayed near x=0."},
+        {"kind": "frame", "t": 172.0, "what": "P(0) value-matching algebra is displayed; c1 and c2 remain free."},
+        {"kind": "frame", "t": 191.0, "what": "Yellow c1 and green c2 are marked free to change; a horizontal yellow tangent is visible."},
+        {"kind": "frame", "t": 199.0, "what": "Same free-coefficient state, before the derivative match is evaluated."},
+        {"kind": "frame", "t": 210.0, "what": "Cosine derivative at zero is shown as zero; polynomial derivative is only beginning to appear."},
+        {"kind": "frame", "t": 217.0, "what": "dP/dx(0)=c1+2c2·0 is visible with c1 yellow, but c1 is not assigned."},
+        {"kind": "frame", "t": 220.0, "what": "dP/dx(0)=c1+0 and yellow c1 are explicit, still without the assignment c1=0."},
+        {"kind": "frame", "t": 224.0, "what": "The same unassigned yellow c1 derivative state remains on screen."},
+        {"kind": "frame", "t": 227.0, "what": "Last clear pre-assignment state: yellow c1 controls dP/dx(0), while its value is not yet set."},
+        {"kind": "frame", "t": 228.0, "what": "The yellow c1 glyph is mid-morph and not yet a stable readable assignment."},
+        {"kind": "frame", "t": 229.0, "what": "Yellow c1 has become yellow 0 in P(x), dP/dx(0)=0 is explicit, and the common tangent at x=0 is horizontal."},
+        {"kind": "frame", "t": 230.0, "what": "The assigned yellow 0 and zero derivative remain stable with the flat tangent."},
+        {"kind": "frame", "t": 231.0, "what": "Stable post-assignment frame: P(x)=1+0x+c2x² and the horizontal tangent is visible."},
+        {"kind": "frame", "t": 232.0, "what": "The same complete tangent-match state remains visible."},
+        {"kind": "frame", "t": 233.0, "what": "The algebra clears, but P(x)=1+0x+c2x² and the flat tangent remain visible."},
+        {"kind": "frame", "t": 234.0, "what": "c2 is marked free to change after c1 has been locked to zero."},
+        {"kind": "frame", "t": 251.0, "what": "Later curvature discussion retains 0x and shows varying c2."},
+        {"kind": "frame", "t": 292.0, "what": "Second-derivative matching is discussed after the tangent match."},
+        {"kind": "frame", "t": 311.0, "what": "The later quadratic coefficient -1/2 is displayed; this concerns curvature, not tangent slope."},
+        {"kind": "frame", "t": 325.0, "what": "The completed cosine quadratic approximation is displayed."},
+        {"kind": "frame", "t": 342.0, "what": "Recap begins with a thumbnail of the earlier coefficient construction."},
+        {"kind": "frame", "t": 352.0, "what": "Recap shows c0 value matching; tangent coefficient assignment is not yet complete."},
+        {"kind": "frame", "t": 361.0, "what": "Recap shows yellow c1 and derivative equality, but not yet its assigned value or completed geometry."},
+        {"kind": "frame", "t": 365.0, "what": "Recap has reached P(x)=1+0x+c2x² after the declared recap distractor."},
+        {"kind": "cue", "t": 187.4, "what": "Narrator introduces matching the tangent slope of the approximation and cosine at x=0."},
+        {"kind": "cue", "t": 198.2, "what": "Narrator derives cosine's derivative and says it equals zero at x=0."},
+        {"kind": "cue", "t": 204.2, "what": "Narrator says the cosine tangent line is perfectly flat."},
+        {"kind": "cue", "t": 217.8, "what": "Narrator says the polynomial derivative at x=0 equals whatever is chosen for c1."},
+        {"kind": "cue", "t": 220.6, "what": "Narrator says c1 completely controls the approximation derivative around x=0."},
+        {"kind": "cue", "t": 227.0, "what": "Narrator begins: setting it equal to zero ensures the approximation also has a flat tangent."},
+        {"kind": "cue", "t": 231.0, "what": "Narrator completes the flat-tangent consequence at this point."},
+        {"kind": "cue", "t": 358.9, "what": "Recap says c1 makes the derivatives match, without yet jointly completing assignment and geometry."}
+      ],
+      "candidates": [
+        {
+          "question": "Is the answer already available from the early cosine approximation at 69 s?",
+          "answer_bool": false,
+          "why": "The approximation coefficient shown there does not identify the later screen-colored tangent-control symbol or the requested explicit tangent geometry."
+        },
+        {
+          "question": "Is the tangent-match answer complete at 191 s?",
+          "answer_bool": false,
+          "why": "The yellow c1 and a horizontal tangent are visible, but c1 is still labelled free to change and no value is assigned; this is also inside the declared 181–229 s distractor."
+        },
+        {
+          "question": "Is the tangent-match answer complete at 227 s?",
+          "answer_bool": false,
+          "why": "c1 is visibly yellow and controls dP/dx(0), while the equation still reads c1+0 and the assignment to zero has not appeared."
+        },
+        {
+          "question": "Is the tangent-match answer readable at 228 s?",
+          "answer_bool": false,
+          "why": "The yellow c1 glyph is visibly mid-morph; treating it as an already completed zero would infer an unfinished render."
+        },
+        {
+          "question": "Is the complete requested answer available at 229 s?",
+          "answer_bool": true,
+          "why": "The transition is complete: the previously yellow c1 is now a yellow 0, dP/dx(0)=0 is readable, and the displayed curves share a horizontal tangent at x=0."
+        },
+        {
+          "question": "Does the recap at 361 s provide an earlier complete alternative?",
+          "answer_bool": false,
+          "why": "It restates the derivative equality with yellow c1 but has not yet shown the coefficient assignment and resulting geometry jointly; it lies in the declared recap distractor."
+        }
+      ],
+      "t_val": 229.0,
+      "t_val_basis": "At 229 s the on-screen morph has completed: yellow c1 is set to a yellow 0 in P(x), the displayed derivative at x=0 is zero, and the common tangent line is visibly horizontal.",
+      "answer_at_t_val": "The controlling coefficient is the yellow c1; it is set to 0, making the polynomial approximation have the same flat (horizontal) tangent as cos(x) at x=0.",
+      "confidence": "high"
+    }
+  ],
+  "checks": [
+    {
+      "group": "shortcuts",
+      "item": "solvable-without-video",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 181.0,
+          "what": "Before any viewing, only the supplied question text was considered; it names requested fields but gives none of their values."
+        }
+      ],
+      "findings": "Before viewing, the question supplied none of the requested screen-specific coefficient identity, color, value, or geometry.",
+      "criterion": "The item fires only if the requested substantive answer follows from the question and general subject knowledge without inventing what appears on screen.",
+      "steps": [
+        {
+          "question": "Can all requested fields be named from the question alone?",
+          "answer_bool": false,
+          "why": "Their exact visual identities and displayed values are omitted from the question."
+        },
+        {
+          "question": "Did the prior answer assume unseen frame content?",
+          "answer_bool": false,
+          "why": "It only states which necessary information is missing and makes no guess about the frame."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "video-recognized",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 181.0,
+          "what": "Before any viewing, I checked my memory for this particular video moment and could not retrieve the requested answer."
+        }
+      ],
+      "findings": "Before viewing, I did not remember this particular scene or the requested coefficient, color, assignment, and geometric consequence.",
+      "criterion": "Recognition requires memory of this particular video moment sufficient to name the answer without inspecting the supplied material.",
+      "steps": [
+        {
+          "question": "Could I name the requested answer from memory before viewing?",
+          "answer_bool": false,
+          "why": "Only the broad Taylor-series topic was familiar; the scene-specific answer was not."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

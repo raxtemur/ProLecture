@@ -1,0 +1,296 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q07",
+  "role": "full_sample",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q07/full_sample",
+  "budget": {
+    "frames_viewed": 32,
+    "sparse_step": 60.0,
+    "dense_intervals": [],
+    "transcript_cues": 1019,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "Full transcript and a 24-frame whole-video sparse pass were checked; eight pinpointed frames covered the references, trigger, and distractor.\nThe isolated c8 demonstration is unique; the c4 calculation is the deliberately earlier fact to be connected.\nNo twin_of was supplied, so the twins check is not applicable.",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "group": "triggers",
+      "item": "no-missed-trigger",
+      "target": null,
+      "looked_at": [
+        {"kind": "cue", "t": 15.0, "what": "The lecture begins its Taylor-series construction and approximation discussion."},
+        {"kind": "cue", "t": 443.5, "what": "The narration introduces the fourth-order c4 x^4 term and then computes its fourth derivative."},
+        {"kind": "cue", "t": 510.5, "what": "The narration starts the general factorial observation and follows the cascading power rule up to n."},
+        {"kind": "cue", "t": 529.8, "what": "The narration transitions from the completed product to dividing a desired derivative by the appropriate factorial."},
+        {"kind": "cue", "t": 541.2, "what": "The narration returns to the earlier fourth-power coefficient as an example."},
+        {"kind": "cue", "t": 732.5, "what": "The narration states the general nth coefficient rule rather than another isolated c8 cascade."},
+        {"kind": "cue", "t": 1302.3, "what": "The mathematical discussion ends and the outro begins."},
+        {"kind": "frame", "t": 35.0, "what": "Opening approximation scene, with no isolated higher-power derivative cascade."},
+        {"kind": "frame", "t": 95.8, "what": "Cosine quadratic approximation scene."},
+        {"kind": "frame", "t": 162.3, "what": "Polynomial coefficient construction at x=0."},
+        {"kind": "frame", "t": 229.6, "what": "First-derivative coefficient calculation."},
+        {"kind": "frame", "t": 297.1, "what": "Second-derivative matching scene."},
+        {"kind": "frame", "t": 364.9, "what": "Quadratic recap scene."},
+        {"kind": "frame", "t": 421.8, "what": "Third-power product 1·2·3·c3 in the main polynomial scene."},
+        {"kind": "frame", "t": 478.3, "what": "Fourth-power coefficient calculation with 1·2·3·4 and 1/24."},
+        {"kind": "frame", "t": 530.7, "what": "Unique isolated c8 screen with the completed 1·2·3·4·5·6·7·8 brace labelled 8!."},
+        {"kind": "frame", "t": 554.4, "what": "Return to the polynomial and the effect of adding c4 x^4."},
+        {"kind": "frame", "t": 613.9, "what": "Polynomial recentered at pi."},
+        {"kind": "frame", "t": 675.6, "what": "Derivative-information summary scene."},
+        {"kind": "frame", "t": 736.7, "what": "General Taylor polynomial formula."},
+        {"kind": "frame", "t": 792.3, "what": "Taylor formula about a general center a."},
+        {"kind": "frame", "t": 851.8, "what": "Exponential Taylor polynomial, not an isolated c8 cascade."},
+        {"kind": "frame", "t": 910.2, "what": "Area-function geometric example."},
+        {"kind": "frame", "t": 972.7, "what": "Geometric second-derivative triangle construction."},
+        {"kind": "frame", "t": 1030.9, "what": "Area approximation summary."},
+        {"kind": "frame", "t": 1090.4, "what": "Geometric-series convergence example."},
+        {"kind": "frame", "t": 1151.3, "what": "Exponential Taylor series graph."},
+        {"kind": "frame", "t": 1207.3, "what": "Logarithm Taylor series graph."},
+        {"kind": "frame", "t": 1261.3, "what": "Closing list of further topics."},
+        {"kind": "frame", "t": 1297.0, "what": "Final derivative-to-output-information recap."},
+        {"kind": "frame", "t": 1325.3, "what": "Outro screen."}
+      ],
+      "findings": "Across the complete transcript and the sparse visual pass, only the 510.9–533.9 isolated c8 sequence builds a higher-power derivative into a completed factorial brace; later factorial formulas are general series displays, not this isolated demonstration.",
+      "criterion": "Every screen event literally matching the isolated higher-power demonstration reaching its complete factorial brace must be represented as a trigger, while related but differently presented factorial material does not qualify.",
+      "steps": [
+        {"question": "How many isolated c8 derivative cascades reach a complete factorial brace?", "answer_number": 1, "why": "The transcript sequence and frame at 530.7 show one such completion, and the whole-video pass shows no repeat."},
+        {"question": "Are the later factorial displays another firing under the exact wording?", "answer_bool": false, "why": "They are general Taylor-polynomial or series formulas rather than the isolated higher-power derivative demonstration."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "trigger-matches-criterion",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 510.9, "what": "The isolated screen initially contains only c8 x^8."},
+        {"kind": "frame", "t": 517.3, "what": "The isolated derivative cascade is still partial at the third derivative."},
+        {"kind": "frame", "t": 530.7, "what": "The eighth derivative is complete and a brace labels the full product as 8!."}
+      ],
+      "findings": "At 530.7 the isolated c8 x^8 demonstration has reached d^8/dx^8, displays factors 1 through 8, and shows the completed brace marked 8!.",
+      "criterion": "The annotated trigger must be the first displayed moment at which the isolated higher-power example has the complete factorial brace named in the question.",
+      "steps": [
+        {"question": "Is the screen an isolated higher-power demonstration?", "answer_bool": true, "why": "Only the c8 x^8 derivative expression is shown on the black screen."},
+        {"question": "Has the factorial brace reached completion at the trigger?", "answer_bool": true, "why": "The frame shows all factors 1 through 8 under one brace labelled 8!."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "question-anchored-to-screen",
+      "target": null,
+      "looked_at": [],
+      "findings": "The question names an isolated demonstration, its complete factorial brace, an earlier coefficient calculation, and what the new screen leaves undetermined.",
+      "criterion": "The wording must point to identifiable visual states rather than ask a context-free Taylor-series exercise.",
+      "steps": [
+        {"question": "Which words select a particular visual event?", "answer_text": "isolated higher-power demonstration; complete factorial brace; earlier ... calculation; new screen", "why": "These phrases require recognizing screen layout, completion state, and a cross-screen relation."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-within-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "The rubric asks for the earlier 4! product/value, the new 8! product, c8 as still symbolic, and the distinction between a displayed multiplier and a determined coefficient.",
+      "criterion": "Each scoring requirement must follow from an explicit request in the participant-visible question.",
+      "steps": [
+        {"question": "What wording supports scoring the two factorial products?", "answer_text": "report both factorial products shown across those two moments", "why": "This directly requests the earlier and new products."},
+        {"question": "What wording supports scoring c8 as undetermined rather than numerically fixed?", "answer_text": "identify the coefficient symbol that the new screen leaves undetermined", "why": "Recognizing that the product multiplies c8 but does not choose c8 is exactly the requested distinction."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "discriminator-in-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "The phrase complete factorial brace excludes the partial derivative cascade, while earlier nonzero even-power coefficient calculation selects the c4 computation and leaves the c3 zero-coefficient episode out.",
+      "criterion": "Every tempting near-match must be excluded by language present in the question itself, including distinctions based on completion and origin.",
+      "steps": [
+        {"question": "Which phrase rejects answering during the partial c8 cascade?", "answer_text": "reaches its complete factorial brace", "why": "Before 530.7 neither the full factor chain nor completed 8! brace is visible."},
+        {"question": "Which phrase selects 4! = 24 rather than the earlier cubic product?", "answer_text": "earlier nonzero even-power coefficient calculation", "why": "The c3 coefficient is zero and odd-power, whereas c4 is nonzero and even-power."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-not-punishing-extra",
+      "target": null,
+      "looked_at": [],
+      "findings": "The expected enumeration is limited to the two products and one undetermined symbol explicitly requested; it does not forbid additional correct context such as 40320 or c4=1/24.",
+      "criterion": "A closed scoring list must not reject extra details that are correct under the question's wording.",
+      "steps": [
+        {"question": "Does the rubric require an unnecessarily exclusive wording or forbid valid equivalents?", "answer_bool": false, "why": "It accepts 8! or the expanded product and treats 40320 as optional while requiring the same substantive facts."},
+        {"question": "Could mentioning the determined c4 value remain a correct extra detail?", "answer_bool": true, "why": "The question asks for the product from that calculation and does not make the associated coefficient value incorrect."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-fully-covered",
+      "target": {"trigger_idx": null, "distractor_idx": 0},
+      "looked_at": [
+        {"kind": "frame", "t": 510.9, "what": "The isolated c8 x^8 term first appears."},
+        {"kind": "frame", "t": 517.3, "what": "The third derivative and partial factor chain are visible."},
+        {"kind": "cue", "t": 510.5, "what": "The factorial observation begins as the isolated demonstration starts."},
+        {"kind": "cue", "t": 526.6, "what": "The narration continues the product up to whatever n is, immediately before visual completion."},
+        {"kind": "frame", "t": 530.7, "what": "The full chain and completed 8! brace first appear at the distractor's excluded endpoint."}
+      ],
+      "findings": "The temptation begins with the isolated c8 term at 510.9 and persists through all partial derivative stages; its half-open end at 530.7 is exactly where the requested completed brace appears.",
+      "criterion": "The distractor must cover the full contiguous near-match period and stop exactly before the qualifying completion, without leaving an uncovered tempting prefix or tail.",
+      "steps": [
+        {"question": "When does the tempting isolated demonstration begin?", "answer_number": 510.9, "why": "The frame at 510.9 first shows c8 x^8 alone and the factorial narration has just begun."},
+        {"question": "When does it cease being only a near-match?", "answer_number": 530.7, "why": "The full product and completed brace labelled 8! are visible at 530.7."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-not-correct-answer",
+      "target": {"trigger_idx": null, "distractor_idx": 0},
+      "looked_at": [
+        {"kind": "frame", "t": 510.9, "what": "Only c8 x^8 is visible, with no factorial product."},
+        {"kind": "frame", "t": 517.3, "what": "Only a partial 6·7·8 factor chain is visible."},
+        {"kind": "frame", "t": 530.7, "what": "The complete 1-through-8 product and 8! brace arrive only at the excluded endpoint."}
+      ],
+      "findings": "Inside [510.9,530.7) the requested complete factorial brace has not yet appeared, so the visual event named by the question has not fired.",
+      "criterion": "A distractor must be a genuine near-match but must fail at least one explicit condition in the question; here that condition is visual completion of the factorial brace.",
+      "steps": [
+        {"question": "Can a frame strictly inside the distractor satisfy complete factorial brace?", "answer_bool": false, "why": "The viewed interior frames contain only the initial monomial or a partial derivative product."},
+        {"question": "Is extrapolating the remaining factors equivalent to seeing the requested screen event?", "answer_bool": false, "why": "The question is anchored to when the demonstration reaches the displayed complete brace, not when a viewer could infer it mathematically."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-why-hides-answer",
+      "target": null,
+      "looked_at": [],
+      "findings": "The supplied distractor rationale is a structural boundary reason: the interval contains the incomplete build-up before the completed brace, not an alternate response containing the scored products or coefficient value.",
+      "criterion": "Distractor metadata may explain why a window is tempting, but must not provide the benchmark response to a participant or judge through an answer-like rationale.",
+      "steps": [
+        {"question": "Does the distractor rationale need any hidden answer fact beyond incompleteness?", "answer_bool": false, "why": "Its exclusion follows solely from the question's visible completion condition."},
+        {"question": "Does the rationale turn the distractor into an answer-bearing reference?", "answer_bool": false, "why": "It identifies a partial build-up interval and does not substitute for reporting both products and the undetermined symbol."}
+      ],
+      "result": "ok",
+      "confidence": "medium",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "reasoning-level-not-inflated",
+      "target": null,
+      "looked_at": [],
+      "findings": "The answer combines the fourth-power calculation around 471.7 with the isolated eighth-power completion around 530.7 and distinguishes a factorial multiplier from a chosen coefficient.",
+      "criterion": "L2 is appropriate when facts from separated moments must be retained and connected; L3 would require deriving content not supplied by the video.",
+      "steps": [
+        {"question": "Are all required facts available in one screen or one speech line?", "answer_bool": false, "why": "The c4 product is established about 59 seconds before the c8 brace completes."},
+        {"question": "Is extra-video derivation required?", "answer_bool": false, "why": "The two products and symbolic c8 status are displayed; only cross-moment integration is needed."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-matches-description",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 471.7, "what": "The fourth derivative calculation shows 1·2·3·4·c4 = 24·c4 alongside the cosine derivative value 1."},
+        {"kind": "frame", "t": 530.7, "what": "The isolated eighth derivative shows 1·2·3·4·5·6·7·8·c8 under a brace labelled 8!."}
+      ],
+      "findings": "Both provenance frames contain the described visual evidence: the earlier nonzero c4 product/value and the later complete c8 factorial brace with c8 still symbolic.",
+      "criterion": "Each cited time must visibly contain the object and fact its provenance description claims, rather than merely occurring near the discussion.",
+      "steps": [
+        {"question": "Does 471.7 verify the earlier factorial product and its value?", "answer_bool": true, "why": "It visibly equates 1·2·3·4·c4 with 24·c4."},
+        {"question": "Does 530.7 verify the new factorial product and undetermined symbol?", "answer_bool": true, "why": "The full product multiplies c8 and the brace says 8!, with no numerical assignment to c8."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "references-consistent-with-windows",
+      "target": null,
+      "looked_at": [],
+      "findings": "The historical c4 reference at 471.7 supplies only the earlier half of the requested connection; the new c8 completion first appears at the required window start 530.7, so the complete response is not evidenced before the window.",
+      "criterion": "A provenance reference contradicts the window only if it shows that all information needed for the requested response was already available before the window opened.",
+      "steps": [
+        {"question": "Does the 471.7 reference alone contain the new factorial product and undetermined symbol?", "answer_bool": false, "why": "It concerns c4 and 4!, not the later c8 demonstration."},
+        {"question": "When does the missing new-screen evidence appear?", "answer_number": 530.7, "why": "The provenance frame at the window boundary first shows the completed 8! brace and c8."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-answer-verified",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 471.7, "what": "Visible earlier equation: d^4P/dx^4 = 1·2·3·4·c4 = 24·c4."},
+        {"kind": "frame", "t": 530.7, "what": "Visible new equation: d^8(c8x^8)/dx^8 = 1·2·3·4·5·6·7·8·c8, braced as 8!."},
+        {"kind": "frame", "t": 533.9, "what": "The next screen says to set c8 to desired derivative value divided by 8!, confirming that the brace alone has not numerically determined c8."}
+      ],
+      "findings": "The reference response is substantively correct: 4! is the displayed product 1·2·3·4 = 24; 8! is the displayed product 1·2·3·4·5·6·7·8 = 40320; and c8 remains a symbolic coefficient until a desired derivative value is supplied.",
+      "criterion": "The reference answer must match the visible equations and arithmetic, and must not confuse a multiplicative factorial generated by differentiation with a coefficient value selected by derivative matching.",
+      "steps": [
+        {"question": "What is the earlier displayed factorial product?", "answer_text": "4! = 1·2·3·4 = 24", "why": "The 471.7 equation explicitly shows the expanded factors and 24·c4."},
+        {"question": "What is the new displayed factorial product?", "answer_text": "8! = 1·2·3·4·5·6·7·8 = 40320", "why": "The 530.7 brace labels the expanded product 8!, whose arithmetic value is 40320."},
+        {"question": "Which symbol is not yet numerically determined?", "answer_text": "c8", "why": "It remains a factor in the 530.7 equation, and the 533.9 instruction makes its later assignment conditional on a desired derivative value."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "twins-agree-on-substance",
+      "target": null,
+      "looked_at": [],
+      "findings": "No twin_of relation was supplied for this sample, so there is no paired response to compare.",
+      "criterion": "Substantive agreement can only be checked when the sample names a twin with a second reference answer.",
+      "steps": [],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

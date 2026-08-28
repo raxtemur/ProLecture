@@ -1,0 +1,195 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q14",
+  "role": "semiblind",
+  "iteration": 2,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": "/workspace-SR004.nfs2/rahmatullaev/rand_exps/PoC_for_rand_ideas/manim_play/.review_ws/3d6DsjIBzJ4/3b1b__3d6DsjIBzJ4__q14/semiblind_r2",
+  "budget": {
+    "frames_viewed": 15,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 1016.0,
+        "t_end": 1023.0
+      }
+    ],
+    "transcript_cues": 777,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The full transcript and supplied screen index account for the complete 0-1030.9 s stretch.\nSparse scene-change frames cover earlier chapters; a dense pass narrows the relevant completion to 1020 s.\nThe declared distractor [993,1020) was treated as excluded and was not selected as t_val.",
+  "prior_answer": "It cannot be answered on the merits: the question does not specify which Taylor term is assigned to blue, yellow, or pink.",
+  "prior_answer_assumptions": [],
+  "recognized_video": false,
+  "recognized_how": "",
+  "scans": [
+    {
+      "idx": 0,
+      "t_from": 0.0,
+      "t_to": 1030.9,
+      "watched": [
+        {
+          "kind": "frame",
+          "t": 0.0,
+          "what": "Black opening frame; no Taylor-term color mapping is present."
+        },
+        {
+          "kind": "frame",
+          "t": 172.0,
+          "what": "Cosine approximation and coefficient equations are shown, without the requested blue/yellow/pink geometric decomposition."
+        },
+        {
+          "kind": "frame",
+          "t": 344.0,
+          "what": "A quadratic-coefficient recap with colored symbols is visible, but not the three geometric pieces paired with the requested three-term equation."
+        },
+        {
+          "kind": "frame",
+          "t": 541.0,
+          "what": "Higher cosine derivatives and a fourth-order polynomial appear; the requested geometric mapping is absent."
+        },
+        {
+          "kind": "frame",
+          "t": 729.0,
+          "what": "A general Taylor polynomial and derivative values are visible, but no matching blue-area, yellow-rectangle, and pink-triangle equation."
+        },
+        {
+          "kind": "frame",
+          "t": 870.0,
+          "what": "Transition into the geometric explanation; no requested three-piece equation is yet visible."
+        },
+        {
+          "kind": "frame",
+          "t": 910.0,
+          "what": "Only the blue-green area under the curve is shown; the three-piece mapping is not complete."
+        },
+        {
+          "kind": "frame",
+          "t": 964.0,
+          "what": "Blue area, yellow rectangle, and pink triangle are developing, but the matching three-term Taylor equation is not present."
+        },
+        {
+          "kind": "cue",
+          "t": 985.5,
+          "what": "The narrator gives the triangle area as one half times the second derivative at a times (x-a) squared."
+        },
+        {
+          "kind": "frame",
+          "t": 1007.0,
+          "what": "All three shapes are visible, but the lower equation contains only f(x) approximately f(a) plus; the mapping remains incomplete."
+        },
+        {
+          "kind": "frame",
+          "t": 1016.0,
+          "what": "The blue and yellow equation terms are legible, while the third pink term has not appeared."
+        },
+        {
+          "kind": "frame",
+          "t": 1018.0,
+          "what": "The scene is mid-transition and the requested three-term correspondence is not fully visible."
+        },
+        {
+          "kind": "frame",
+          "t": 1019.0,
+          "what": "The pink second-order term is only faintly being drawn and is not yet fully legible."
+        },
+        {
+          "kind": "frame",
+          "t": 1020.0,
+          "what": "The three colored shapes and the complete color-matched equation are simultaneously clear."
+        },
+        {
+          "kind": "frame",
+          "t": 1021.0,
+          "what": "The completed mapping remains stable: blue f(a), yellow first-order term, pink second-order term."
+        },
+        {
+          "kind": "frame",
+          "t": 1022.0,
+          "what": "A transition begins after the complete mapping has already been shown."
+        }
+      ],
+      "candidates": [
+        {
+          "question": "Is the exact three-color Taylor-term mapping complete at 1007 seconds?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The shapes are present, but only f(a) has been written in the matching lower equation."
+        },
+        {
+          "question": "Is the exact three-color Taylor-term mapping complete at 1016 seconds?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The blue constant and yellow first-order terms are visible, but the pink second-order term is still absent."
+        },
+        {
+          "question": "Is the exact three-color Taylor-term mapping complete at 1019 seconds?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The third term is only faintly being rendered; this moment is also inside the declared distractor [993,1020)."
+        },
+        {
+          "question": "Is the exact three-color Taylor-term mapping complete at 1020 seconds?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The blue, yellow, and pink pieces coexist with a fully legible equation whose matching colors identify all three terms."
+        }
+      ],
+      "t_val": 1020.0,
+      "t_val_basis": "At 1020 s the complete lower equation is simultaneously visible with the three colored pieces, and its colored terms directly match blue, yellow, and pink; the immediately preceding 1019 s frame is still incomplete and lies in the declared distractor.",
+      "answer_at_t_val": "Blue represents f(a). Yellow represents (df/dx)(a)(x-a). Pink represents (1/2)(d^2f/dx^2)(a)(x-a)^2.",
+      "confidence": "high"
+    }
+  ],
+  "checks": [
+    {
+      "group": "shortcuts",
+      "item": "solvable-without-video",
+      "target": null,
+      "looked_at": [{"kind": "cue", "t": 993.0, "what": "Before opening the transcript or frames, I considered only the supplied question text asking for the blue, yellow, and pink Taylor-term mapping."}],
+      "findings": "Before viewing, the question named three colors and asked for their terms but supplied no color-to-term assignments.",
+      "criterion": "The item fires only if the requested mappings can be derived from the question and general knowledge without inventing unseen screen content.",
+      "steps": [
+        {
+          "question": "Does the question itself determine which term belongs to each color?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Color assignments are contingent properties of the video's graphics, not a standard mathematical convention."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "video-recognized",
+      "target": null,
+      "looked_at": [{"kind": "cue", "t": 993.0, "what": "Before opening the transcript or frames, I checked whether the supplied question text triggered memory of this exact video and moment."}],
+      "findings": "Before viewing any supplied material, I did not recognize this particular video or moment and could not recall its color mapping.",
+      "criterion": "The item fires only when prior memory of this exact video and moment supplies the answer independently of the provided evidence.",
+      "steps": [
+        {
+          "question": "Could I name the video's exact color mapping from memory before viewing?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "I had no episodic recognition of this particular clip or its graphics."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

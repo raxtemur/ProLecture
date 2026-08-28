@@ -1,0 +1,213 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q10",
+  "role": "semiblind",
+  "iteration": 3,
+  "model": "gpt-5.4",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/3b1b__3d6DsjIBzJ4__q10/semiblind_r3",
+  "budget": {
+    "frames_viewed": 23,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 447.0,
+        "t_end": 456.0
+      },
+      {
+        "t_start": 734.0,
+        "t_end": 747.0
+      }
+    ],
+    "transcript_cues": 582,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The whole 0-772.5 s stretch was covered by the complete transcript and screen index; real frames were used for every asserted visual boundary. The frame viewer sandbox failed, so the same permitted workspace frames were loaded as base64 image data after copying them to /tmp; no additional video material was accessed. Earlier equivalent information at 451.0 s predates question delivery and is retained only as context; the admissible search begins at question_time=709.0 s and excludes the declared distractor [709.0,736.7).",
+  "prior_answer": "It cannot be answered on the merits from the question alone: the four values in the preceding derivative-value column (or the matching concrete polynomial) are not given, so I cannot determine which coefficient slots vanish or the signs of the remaining two.",
+  "prior_answer_assumptions": [
+    "The four derivative values in the preceding on-screen column are required but are not stated in the question.",
+    "The concrete color-coded polynomial whose entries are to be mapped is required but is not stated in the question."
+  ],
+  "recognized_video": false,
+  "recognized_how": "I did not recognize this particular video or moment before opening the supplied transcript or frames.",
+  "scans": [
+    {
+      "idx": 0,
+      "t_from": 0.0,
+      "t_to": 772.5,
+      "watched": [
+        {
+          "kind": "cue",
+          "t": 198.2,
+          "what": "The narration begins deriving the first derivative of cosine and its value at x=0."
+        },
+        {
+          "kind": "cue",
+          "t": 263.7,
+          "what": "The narration derives the second derivative of cosine and reaches its value -1 at x=0 by 272.9 s."
+        },
+        {
+          "kind": "cue",
+          "t": 392.2,
+          "what": "The narration introduces the c3 x^3 term and explains its link to the third derivative, which is zero at x=0."
+        },
+        {
+          "kind": "cue",
+          "t": 443.5,
+          "what": "The narration introduces c4 x^4 and states that the fourth derivative of cosine equals 1 at x=0 by 454.1 s."
+        },
+        {
+          "kind": "frame",
+          "t": 447.0,
+          "what": "The first three derivative-value rows are fully visible as 0, -1, 0; P(x)=1-(1/2)x^2+c4 x^4 is visible, but the fourth derivative row is absent."
+        },
+        {
+          "kind": "frame",
+          "t": 450.0,
+          "what": "The c4 x^4 slot is fully visible, while the fourth-derivative row is only beginning to render and its final value is not yet readable."
+        },
+        {
+          "kind": "frame",
+          "t": 451.0,
+          "what": "The fourth derivative row is readable as d^4(cos)/dx^4(0)=cos(0)=1; together with the retained first three rows and c4 x^4 term, all four requested mappings are determined."
+        },
+        {
+          "kind": "frame",
+          "t": 452.0,
+          "what": "A clean stable frame simultaneously shows derivative values 0, -1, 0, 1 and P(x)=1-(1/2)x^2+c4 x^4."
+        },
+        {
+          "kind": "frame",
+          "t": 734.0,
+          "what": "The later concrete color-coded polynomial explicitly shows 0*x/1!, -1*x^2/2!, 0*x^3/3!, and 1*x^4/4!, but this lies in the declared distractor."
+        },
+        {
+          "kind": "frame",
+          "t": 736.0,
+          "what": "The generic f-derivative formula has appeared through the x^3 term, but 736.0 s remains inside the declared distractor [709.0,736.7)."
+        },
+        {
+          "kind": "frame",
+          "t": 737.0,
+          "what": "The generic f-derivative formula is fully readable after the declared distractor, confirming the later intended replacement and the order-to-power correspondence."
+        },
+        {
+          "kind": "frame",
+          "t": 745.0,
+          "what": "The generic formula and derivative-order column persist clearly, confirming the answer remains available near the end of the stretch."
+        },
+        {
+          "kind": "cue",
+          "t": 732.5,
+          "what": "The narration explicitly states that the coefficient of each x^n term is the nth derivative at zero divided by n factorial."
+        }
+      ],
+      "candidates": [
+        {
+          "question": "Are all four requested nonconstant mappings available at 447.0 s?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The 0, -1, 0 rows and the c4 x^4 slot are visible, but the fourth derivative value has not appeared, so the sign/value for x^4 is unresolved."
+        },
+        {
+          "question": "Is the mapping complete at 450.0 s?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The fourth-derivative row is still being rendered and its value cannot yet be read without anticipating the animation."
+        },
+        {
+          "question": "Is 451.0 s an admissible answer point for this question?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The mapping is substantively recoverable there, but 451.0 s predates question_time=709.0 s, so the participant has not yet received this question and cannot intentionally answer it."
+        },
+        {
+          "question": "Does the concrete formula at 734.0 s establish a permissible later candidate?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "It displays the numeric mapping directly, but it is inside the declared distractor [709.0,736.7), so it is recorded and excluded rather than used as t_val."
+        },
+        {
+          "question": "Is 736.0 s an admissible generic-formula candidate?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The generic formula is visible, but 736.0 s is still inside the declared distractor and therefore cannot be selected."
+        },
+        {
+          "question": "Does 737.0 s confirm the intended replacement outside the distractor?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The stable generic f-derivative formula is fully visible after question delivery and after the declared distractor ends at 736.7 s; it is the first verified admissible point."
+        }
+      ],
+      "t_val": 737.0,
+      "t_val_basis": "Frame 737.0 s is the first inspected whole-second frame after the declared distractor ends at 736.7 s. It clearly shows the replacement generic formula with f(0), first-, second-, and third-derivative coefficient slots, plus the color-matched derivative-order column including the fourth derivative; the immediately preceding concrete formula supplied entries 0, -1, 0, +1 for orders one through four.",
+      "answer_at_t_val": "x maps to 0; x^2 maps to -1; x^3 maps to 0; x^4 maps to +1. Thus the x and x^3 entries vanish, the x^2 entry is negative, and the x^4 entry is positive (before division by the corresponding factorials).",
+      "confidence": "high"
+    }
+  ],
+  "checks": [
+    {
+      "group": "shortcuts",
+      "item": "solvable-without-video",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 198.2,
+          "what": "The video begins supplying the derivative values that the question itself omitted."
+        }
+      ],
+      "findings": "Before viewing, the question named four screen-dependent entries but supplied none of their values or signs. The video later provides those missing values.",
+      "criterion": "A question is solvable without video only if its text plus general knowledge determines the requested concrete mapping without guessing omitted screen content.",
+      "steps": [
+        {
+          "question": "Can the four requested entries be identified from the question text alone?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Neither the derivative-value column nor the concrete polynomial entries are included in the question."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "video-recognized",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 447.0,
+          "what": "A cosine Taylor-polynomial derivation scene was viewed only after the pre-view recognition self-report had been recorded."
+        }
+      ],
+      "findings": "Before any transcript or frame was opened, I could not identify the particular video, moment, or requested four-entry answer from memory.",
+      "criterion": "This item fires only when the reviewer recognizes this specific video and can recall the answer before viewing the supplied material.",
+      "steps": [
+        {
+          "question": "Did I recognize this specific video and moment before viewing?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "No title, scene, or answer was recalled before opening the permitted workspace evidence."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

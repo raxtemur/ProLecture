@@ -1,0 +1,199 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q02",
+  "role": "semiblind",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q02/semiblind",
+  "budget": {
+    "frames_viewed": 14,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 66.0,
+        "t_end": 71.0
+      },
+      {
+        "t_start": 138.0,
+        "t_end": 143.0
+      }
+    ],
+    "transcript_cues": 119,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The supplied transcript and screen index were read across the full 0.0-162.3 s stretch.\nThe earliest answer-bearing frame is an earlier equivalent formula, not the later UI state.\nNo annotation, reference answer, rubric, or material outside the permitted workspace was opened.",
+  "prior_answer": "c0 = -1, c1 = 0, and c2 = 1/2, so P(x) = -1 + (1/2)x^2.",
+  "prior_answer_assumptions": [],
+  "recognized_video": false,
+  "recognized_how": "I did not recognize this particular video moment or recall its answer from the video before viewing; the prior answer came from general calculus knowledge applied to the question text.",
+  "scans": [
+    {
+      "idx": 0,
+      "t_from": 0.0,
+      "t_to": 162.3,
+      "watched": [
+        {
+          "kind": "frame",
+          "t": 0.0,
+          "what": "Black opening frame; no answer-bearing content is visible."
+        },
+        {
+          "kind": "frame",
+          "t": 65.0,
+          "what": "Pendulum scene shows cos(theta), but the approximation formula is not yet present."
+        },
+        {
+          "kind": "frame",
+          "t": 68.0,
+          "what": "The expression cos(theta) and an approximation sign are being drawn, but the polynomial is still absent."
+        },
+        {
+          "kind": "frame",
+          "t": 69.0,
+          "what": "A complete displayed formula reads cos(theta) approximately equals 1 minus theta squared over 2."
+        },
+        {
+          "kind": "frame",
+          "t": 130.0,
+          "what": "The blue cos(x) graph and a green quadratic are visible, without the generic polynomial or three free-coefficient markers."
+        },
+        {
+          "kind": "frame",
+          "t": 140.0,
+          "what": "The generic quadratic is visible, while the Free to change label and coefficient arrows are still faint and incomplete."
+        },
+        {
+          "kind": "frame",
+          "t": 141.0,
+          "what": "P(x)=c0+c1x+c2x^2, three colored arrows, and the fully visible Free to change label appear with blue cos(x)."
+        },
+        {
+          "kind": "cue",
+          "t": 68.6,
+          "what": "The narrator begins stating the quadratic approximation for cosine near zero."
+        },
+        {
+          "kind": "cue",
+          "t": 126.9,
+          "what": "The narrator introduces constructing a quadratic approximation near x=0."
+        },
+        {
+          "kind": "cue",
+          "t": 134.2,
+          "what": "The narrator names the generic coefficients c0, c1, and c2."
+        }
+      ],
+      "candidates": [
+        {
+          "question": "Is the answer fully available at 65.0 seconds?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Only cos(theta) and an unfinished pendulum expression are visible; the needed quadratic coefficients are not shown."
+        },
+        {
+          "question": "Is the answer fully available at 68.0 seconds?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The approximation is mid-render: the frame shows cos(theta) and the approximation sign, but not the polynomial terms."
+        },
+        {
+          "question": "Is the answer fully available at 69.0 seconds?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": "The complete formula cos(theta) approximately equals 1 - theta^2/2 is visible; negating it and renaming theta to x gives all requested coefficients.",
+          "why": "Every term needed for the degree-two approximation is legible in a real frame, and the requested target differs only by multiplication by -1."
+        },
+        {
+          "question": "Does the 130.0-140.9 second UI sequence establish the named three-control state?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "At 130.0 the coefficient display is absent, and at 140.0 its control annotation is still being rendered; this is also the declared distractor interval and is not used as t_val."
+        },
+        {
+          "question": "Is the explicitly named three-coefficient state complete at 141.0 seconds?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": "All three coefficients have arrows and the Free to change label is fully visible alongside the blue cos(x) target.",
+          "why": "The real frame contains the entire polynomial, all three colored coefficient markers, and the completed control-state label, but it occurs later than the already sufficient formula at 69.0 seconds."
+        }
+      ],
+      "t_val": 69.0,
+      "t_val_basis": "At 69.0 s a real frame fully displays cos(theta) approximately equal to 1 - theta^2/2. This is the same answer-bearing information in another form: multiplying by -1 and writing x instead of theta directly determines the requested quadratic for -cos(x).",
+      "answer_at_t_val": "c0 = -1, c1 = 0, c2 = 1/2; P(x) = -1 + (1/2)x^2.",
+      "confidence": "high"
+    }
+  ],
+  "checks": [
+    {
+      "group": "shortcuts",
+      "item": "solvable-without-video",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 69.0,
+          "what": "Post-step-0 confirmation shows the standard quadratic cosine approximation; it was not used to form the prior answer."
+        }
+      ],
+      "findings": "Before opening the transcript or frames, the question text itself specified the function -cos(x), center 0, degree 2, and the coefficient basis. The complete coefficients were derived from general calculus knowledge with no assumptions about unseen screen content.",
+      "criterion": "This preliminary item fires when the requested answer can be determined on the merits from the supplied question and general subject knowledge alone; final correctness comparison belongs to the coordinator.",
+      "steps": [
+        {
+          "question": "Does the question provide the function, expansion center, and polynomial degree?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "It explicitly names -cos(x), x=0, degree two, and c0+c1x+c2x^2."
+        },
+        {
+          "question": "Can all three coefficients be derived without guessing any frame content?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": "Using derivatives at zero gives -cos(0)=-1, (-cos)'(0)=0, and (-cos)''(0)=1, hence c2=1/2.",
+          "why": "These are standard Taylor-coefficient calculations from the named function and center only."
+        }
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {
+        "field": "sample",
+        "value": "remove or rewrite so the answer depends on information available only from the video",
+        "why": "As written, the complete answer is derivable before any video viewing; the coordinator should confirm it against the hidden rubric."
+      },
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "video-recognized",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 0.0,
+          "what": "The later-opened initial frame is black and supplies no retrospective recognition cue."
+        }
+      ],
+      "findings": "Before viewing, I did not recognize this particular video moment and could not name the answer from memory of the video. The mathematical prior answer was derived independently from the question.",
+      "criterion": "The item fires only if this particular video and moment were recognized before viewing strongly enough to recall the answer from the video itself.",
+      "steps": [
+        {
+          "question": "Was this particular video moment recognized before any viewing?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "There was no episodic recollection of the scene or its answer; only a subject-matter derivation from the question."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

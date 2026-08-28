@@ -1,0 +1,67 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q03",
+  "role": "probe_text",
+  "iteration": 2,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q03/probe_text",
+  "budget": {
+    "frames_viewed": 0,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 257,
+    "screen_index_used": false
+  },
+  "violations": [],
+  "notes": "The transcript does not state the coefficient's screen color; no visual material was available.",
+  "looked_at": [
+    {
+      "kind": "cue",
+      "t": 209.0,
+      "what": "The derivative of the quadratic is stated as c1 + 2*c2*x."
+    },
+    {
+      "kind": "cue",
+      "t": 217.8,
+      "what": "At x=0, the quadratic's derivative equals the chosen value of c1."
+    },
+    {
+      "kind": "cue",
+      "t": 220.6,
+      "what": "The constant c1 is said to completely control the derivative near x=0."
+    },
+    {
+      "kind": "cue",
+      "t": 227.0,
+      "what": "Setting c1 to zero is said to give the approximation a flat tangent line at the point."
+    }
+  ],
+  "steps": [
+    {
+      "question": "Which coefficient controls the tangent slope at x=0?",
+      "answer_text": "c1",
+      "why": "At 217.8-225.1 s, the transcript says the derivative at x=0 equals c1 and that c1 completely controls it."
+    },
+    {
+      "question": "What value is the controlling coefficient set to?",
+      "answer_number": 0,
+      "why": "At 227.0-228.9 s, the transcript explicitly says to set it equal to zero."
+    },
+    {
+      "question": "What geometric consequence does that choice have at x=0?",
+      "answer_text": "The quadratic approximation has a flat tangent line there, matching the flat tangent of cosine.",
+      "why": "At 204.2-207.3 s cosine's tangent is described as perfectly flat; at 228.9-233.6 s the approximation is said to also have a flat tangent."
+    },
+    {
+      "question": "What is the coefficient's screen color?",
+      "answer_text": "Not distinguishable from the transcript.",
+      "why": "No cue names a screen color, and this probe was given no frames or screen description."
+    }
+  ],
+  "answer": "The controlling coefficient is c1, set to 0. This makes the quadratic approximation's tangent line flat at x=0, matching cosine's flat tangent there. Its screen color cannot be determined from the transcript.",
+  "basis": "Transcript: [209.0-212.3] gives the quadratic derivative as c1; [217.8-225.1] says its value at x=0 is c1 and that c1 controls the derivative; [227.0-233.6] says setting it to zero gives a flat tangent line. The transcript contains no statement of the coefficient's screen color, so that part is not guessed.",
+  "confidence": "high",
+  "insufficient": true
+}

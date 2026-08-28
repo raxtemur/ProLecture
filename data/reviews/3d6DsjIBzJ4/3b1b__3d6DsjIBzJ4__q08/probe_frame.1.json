@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q08",
+  "role": "probe_frame",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q08/probe_frame",
+  "budget": {
+    "frames_viewed": 1,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 0,
+    "screen_index_used": false
+  },
+  "violations": [],
+  "notes": "The single supplied frame does not show the caption or either derivative calculation named in the question.",
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 582.0,
+      "what": "A polynomial P(x)=c_0+c_1x+c_2x^2+c_3x^3+c_4x^4 is shown. The label 'Controls P(0)' points to c_0; c_3x^3 is colored red. No derivative evaluation or the caption 'Doesn't affect previous terms' is visible."
+    }
+  ],
+  "steps": [
+    {
+      "question": "What current evaluation is genuinely visible in the supplied frame?",
+      "answer_text": "P(0), controlled by c_0; hence the visible evaluation is P(0)=c_0.",
+      "why": "The frame explicitly labels 'Controls P(0)' and draws an arrow to c_0 in the displayed polynomial."
+    },
+    {
+      "question": "What earlier derivative evaluation is genuinely visible in the supplied frame?",
+      "answer_text": "It cannot be read from this frame because no earlier derivative evaluation is displayed.",
+      "why": "The only supplied image contains the polynomial and the P(0) control label, with no derivative equation or comparison caption."
+    },
+    {
+      "question": "What can be said about the remaining power of x from this frame?",
+      "answer_text": "At x=0 every displayed term containing a positive power of x vanishes, leaving only c_0; the power remaining in the requested derivative comparison is not shown.",
+      "why": "This follows from the visible polynomial evaluated at the explicitly shown center x=0, while the derivative orders needed for the requested comparison are absent."
+    }
+  ],
+  "answer": "The only current center evaluation visible is P(0)=c_0: setting x=0 kills every term with a positive power of x. The earlier displayed derivative evaluation is not present in the supplied frame, so I cannot honestly state both requested results or explain their difference by the power of x remaining in those derivative expressions.",
+  "basis": "Frame t=582 s explicitly shows the polynomial and the label 'Controls P(0)' pointing to c_0. It does not show the quoted caption or either derivative evaluation; supplying the missing earlier result would be a guess.",
+  "confidence": "low",
+  "insufficient": true
+}

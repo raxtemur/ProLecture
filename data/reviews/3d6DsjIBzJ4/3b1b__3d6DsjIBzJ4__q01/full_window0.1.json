@@ -1,0 +1,265 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q01",
+  "role": "full_window",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q01/full_window0",
+  "budget": {
+    "frames_viewed": 14,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 50.0,
+        "t_end": 55.0
+      }
+    ],
+    "transcript_cues": 29,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The condition is fully visible before the annotated start, despite a brief formula transition around 53 s. The author's original-angle identities are evidence, not the finished doubled-angle answer.",
+  "verdict": "FIX_INTERVALS",
+  "checks": [
+    {
+      "group": "windows",
+      "item": "window-can-be-tightened",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 54.7,
+          "what": "R, theta, and R(1 - cos(theta)) are all visible on the pendulum diagram."
+        },
+        {
+          "kind": "frame",
+          "t": 68.9,
+          "what": "The diagram remains and cos(theta) approximately equals 1 - theta squared over 2 is fully visible."
+        },
+        {
+          "kind": "frame",
+          "t": 79.8,
+          "what": "At the right boundary the diagram, R theta squared over 2, and the cosine approximation remain visible."
+        }
+      ],
+      "findings": "The requested exact source expression is present at the annotated opening, the small-angle identity appears later, and the relevant construction is still on screen at the closing boundary.",
+      "criterion": "This item fires only when a substantial leading or trailing portion of the window cannot support a correct answer and can be removed without losing useful response time.",
+      "steps": [
+        {
+          "question": "Is there a substantial unusable prefix after 54.7 seconds?",
+          "answer_bool": false,
+          "why": "The complete labelled exact-height construction is visible at 54.7 seconds."
+        },
+        {
+          "question": "Is there a substantial unusable suffix before 79.8 seconds?",
+          "answer_bool": false,
+          "why": "The relevant diagram and approximation remain visible at 79.8 seconds."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "windows",
+      "item": "author-says-answer-in-window",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 68.6,
+          "what": "The author begins saying to approximate cosine of theta."
+        },
+        {
+          "kind": "cue",
+          "t": 71.4,
+          "what": "The author continues with the theta-squared approximation discussion."
+        },
+        {
+          "kind": "frame",
+          "t": 68.9,
+          "what": "The original-angle identity cos(theta) approximately equals 1 - theta squared over 2 is shown."
+        },
+        {
+          "kind": "frame",
+          "t": 77.1,
+          "what": "The original-angle consequence R theta squared over 2 is shown beside the pendulum."
+        },
+        {
+          "kind": "cue",
+          "t": 81.4,
+          "what": "After the window the author only comments that the approximation may seem unexpected."
+        }
+      ],
+      "findings": "The author states and displays the small-angle rule for theta and displays the original height approximation, but never states or displays R(1 - cos(2 theta)) or 2R theta squared through 89.8 seconds.",
+      "criterion": "For this L3 sample the item fires only if the stream supplies the requested doubled-angle answer in finished form during the window or within ten seconds after it, rather than merely supplying premises that still require the counterfactual substitution.",
+      "steps": [
+        {
+          "question": "Is the requested exact doubled-angle expression stated or shown?",
+          "answer_bool": false,
+          "why": "All inspected speech and frames retain theta rather than replacing it by 2 theta."
+        },
+        {
+          "question": "Is the requested doubled-angle quadratic approximation stated or shown?",
+          "answer_bool": false,
+          "why": "The stream shows R theta squared over 2, not 2R theta squared."
+        },
+        {
+          "question": "Does a correct response still require applying the counterfactual?",
+          "answer_bool": true,
+          "why": "The viewer must substitute 2 theta and simplify the factor (2 theta) squared over 2."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "event-not-earlier-than-window",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 50.0,
+          "what": "The height formula is still in an incomplete animated state."
+        },
+        {
+          "kind": "frame",
+          "t": 51.0,
+          "what": "The pendulum simultaneously shows theta, R, and the complete expression R(1 - cos(theta))."
+        },
+        {
+          "kind": "frame",
+          "t": 52.0,
+          "what": "The same three required labels and complete expression remain visible."
+        },
+        {
+          "kind": "frame",
+          "t": 54.0,
+          "what": "After a brief transition, the complete labelled construction is visible again."
+        },
+        {
+          "kind": "frame",
+          "t": 54.7,
+          "what": "The annotated window opens while the complete construction is already visible."
+        }
+      ],
+      "findings": "The first verified frame satisfying the stated on-appearance condition is 51.0 seconds, 3.7 seconds before the annotated start at 54.7 seconds; it remains complete at 52.0 seconds and is later redrawn after a short transition.",
+      "criterion": "An on-appearance response window must begin when its visual condition first becomes true, not at a later convenient recurrence of the same completed construction.",
+      "steps": [
+        {
+          "question": "What is the last inspected frame before the condition is complete?",
+          "answer_number": 50.0,
+          "why": "At 50.0 seconds the height expression is visibly mid-animation and incomplete."
+        },
+        {
+          "question": "What is the first inspected frame with all required elements complete?",
+          "answer_number": 51.0,
+          "why": "At 51.0 seconds theta, R, and R(1 - cos(theta)) are simultaneously legible."
+        },
+        {
+          "question": "Does the event begin materially before the current 54.7-second opening?",
+          "answer_bool": true,
+          "why": "The verified completion at 51.0 seconds precedes the opening by 3.7 seconds."
+        }
+      ],
+      "result": "fail",
+      "confidence": "medium",
+      "proposal": {
+        "field": "triggers[0].t_start",
+        "value": "51.0",
+        "why": "Open at the first frame on the 1-second dense grid where all three named visual elements are complete; frame-accurate onset lies between 50.0 and 51.0 seconds."
+      },
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "depends-on-is-dependency",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [],
+      "findings": "This is the only trigger in the supplied sample and it has no depends_on field.",
+      "criterion": "A dependency link can be judged only when a trigger names another trigger whose answer is required by its rubric; with no link and no preceding trigger, the check is inapplicable.",
+      "steps": [
+        {
+          "question": "Does trigger 0 declare a depends_on link?",
+          "answer_bool": false,
+          "why": "The supplied trigger object contains no depends_on key."
+        },
+        {
+          "question": "Could a missing dependency target exist in this sample?",
+          "answer_bool": false,
+          "why": "Trigger 0 is the sample's sole trigger, so there is no earlier window to depend on."
+        }
+      ],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "evidence-span-is-last",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 51.0,
+          "what": "The complete exact source height R(1 - cos(theta)) is visible with R and theta."
+        },
+        {
+          "kind": "frame",
+          "t": 68.9,
+          "what": "The complete small-angle identity cos(theta) approximately equals 1 - theta squared over 2 is visible."
+        },
+        {
+          "kind": "frame",
+          "t": 77.1,
+          "what": "The later frame shows R theta squared over 2 for the unchanged original angle."
+        }
+      ],
+      "findings": "The exact source expression is available by 51.0 seconds and the final independent fact needed for the counterfactual, the cosine small-angle identity, is available by 68.9 seconds. The 77.1-second expression is derived from those same facts for the unchanged angle.",
+      "criterion": "The evidence span should end where the last independent fact needed to derive the requested answer first appears, excluding later worked-out corroboration that is not needed for the derivation.",
+      "steps": [
+        {
+          "question": "What fact is still missing after the exact source height appears?",
+          "answer_text": "The quadratic small-angle expansion of cosine.",
+          "why": "The exact formula alone supports R(1 - cos(2 theta)) but not the displayed-sequence quadratic approximation."
+        },
+        {
+          "question": "When is that last independent fact fully visible?",
+          "answer_number": 68.9,
+          "why": "The complete formula cos(theta) approximately equals 1 - theta squared over 2 is visible in the 68.9-second frame."
+        },
+        {
+          "question": "Is the 77.1-second original-angle result necessary to derive the doubled-angle answer?",
+          "answer_bool": false,
+          "why": "Substituting 2 theta directly into the exact height and the 68.9-second cosine expansion already yields both requested expressions."
+        }
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {
+        "field": "triggers[0].evidence_span",
+        "value": "[51.0, 68.9]",
+        "why": "Cover the first verified exact-height evidence and end at the last independent fact needed, rather than at the later original-angle worked consequence."
+      },
+      "uncovered": null
+    }
+  ],
+  "window_idx": 0
+}

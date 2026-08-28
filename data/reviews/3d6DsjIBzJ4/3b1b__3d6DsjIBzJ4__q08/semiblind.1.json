@@ -1,0 +1,144 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q08",
+  "role": "semiblind",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q08/semiblind",
+  "budget": {
+    "frames_viewed": 11,
+    "sparse_step": null,
+    "dense_intervals": [
+      {"t_start": 547.5, "t_end": 548.5},
+      {"t_start": 570.0, "t_end": 576.0}
+    ],
+    "transcript_cues": 435,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "Read the full 0-590.5 s transcript and searched the supplied screen index across the prefix. The declared distractor at 550.1-561.6 was retained as a rejected candidate. The 561.6-573.4 gap was explicitly checked in real frames; the result is absent at 572 s and readable at 573 s.",
+  "prior_answer": "It cannot be answered on the merits from the question alone: the two displayed derivative evaluations and the powers of x left in those particular on-screen calculations are not specified.",
+  "prior_answer_assumptions": [
+    "The exact earlier and current displayed derivative expressions and their evaluated results would have to be supplied by the video."
+  ],
+  "recognized_video": false,
+  "recognized_how": "I did not recognize this particular video and moment or know the displayed results from memory before viewing.",
+  "scans": [
+    {
+      "idx": 0,
+      "t_from": 0.0,
+      "t_to": 590.5,
+      "watched": [
+        {"kind": "frame", "t": 541.0, "what": "The earlier fourth-derivative calculation for the c_4 x^4 term has begun but has not yet reached its numerical evaluation."},
+        {"kind": "frame", "t": 548.0, "what": "The earlier calculation displays d^4P/dx^4(x) = 1*2*3*4*(1/24) = 24*(1/24), which evaluates to 1."},
+        {"kind": "frame", "t": 550.0, "what": "The new polynomial is only partly drawn; the reused c_4 x^4 term and current derivative evaluation are not yet present."},
+        {"kind": "frame", "t": 562.0, "what": "The caption and second-derivative expression are visible, including 3*4*c_4(0)^2, but its evaluated result is not displayed."},
+        {"kind": "frame", "t": 570.0, "what": "The current second-derivative expression is visible without an evaluated result beneath the higher-order term."},
+        {"kind": "frame", "t": 571.0, "what": "An underbrace begins drawing beneath 3*4*c_4(0)^2, but no result is shown."},
+        {"kind": "frame", "t": 572.0, "what": "The underbrace is complete, but the value under it is still absent."},
+        {"kind": "frame", "t": 573.0, "what": "The underbrace now has a fully readable '=0' beneath the reused c_4 x^4 contribution."},
+        {"kind": "frame", "t": 574.0, "what": "The same complete current evaluation '=0' remains visible."},
+        {"kind": "frame", "t": 575.0, "what": "The caption, expression, and '=0' result remain stable and readable."},
+        {"kind": "frame", "t": 582.0, "what": "The scene has advanced to the general coefficient-control summary, after the requested comparison."}
+      ],
+      "candidates": [
+        {
+          "question": "Is the answer already available in the earlier coefficient calculation at 548 seconds?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The earlier fourth-derivative result is visible, but the later reused-term evaluation requested for comparison has not happened yet."
+        },
+        {
+          "question": "Does the declared distractor at 550.1-561.6 seconds provide the complete comparison?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "At 550 seconds the reused term is not complete, and by the end of the distractor the second-derivative expression is only being introduced; its zero result is not displayed."
+        },
+        {
+          "question": "Is the current displayed evaluation complete at 562 seconds?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The factor 3*4*c_4(0)^2 is visible, but the on-screen evaluation '=0' has not appeared."
+        },
+        {
+          "question": "Is the current displayed evaluation complete by 572 seconds?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "A real frame shows only the completed underbrace; no numerical result is yet readable beneath it."
+        },
+        {
+          "question": "Can both displayed results and the reason for their difference be stated at 573 seconds?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The real frame shows '=0' under 3*4*c_4(0)^2; the earlier real frame shows 24*(1/24), and the visible exponents show that two derivatives leave x^2 whereas four leave no x factor."
+        }
+      ],
+      "t_val": 573.0,
+      "t_val_basis": "At 573 s, '=0' is fully readable beneath the current second-derivative contribution 3*4*c_4(0)^2, while the earlier inspected frame shows the fourth-derivative evaluation 24*(1/24)=1.",
+      "answer_at_t_val": "Earlier, taking four derivatives of (1/24)x^4 gives 24*(1/24)=1. Currently, taking only two derivatives leaves 3*4*c_4(0)^2, which is 0. The difference is that two derivatives leave an x^2 factor that vanishes at x=0, while four derivatives remove all powers of x and leave the nonzero constant 24c_4=1.",
+      "confidence": "high"
+    }
+  ],
+  "checks": [
+    {
+      "group": "shortcuts",
+      "item": "solvable-without-video",
+      "target": null,
+      "looked_at": [
+        {"kind": "cue", "t": 550.1, "what": "Before media viewing, the supplied question referred to two unnamed displayed evaluations without stating their expressions or values."}
+      ],
+      "findings": "The question supplies neither derivative expression nor evaluated number, so the requested pair of displayed results cannot be derived from its wording alone.",
+      "criterion": "The item fires only if the requested quantities and relation can be answered from the question plus general subject knowledge without assuming unseen screen content.",
+      "steps": [
+        {
+          "question": "Are both displayed evaluations specified in the question text?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "They are referred to relationally as current and earlier displays, but their formulas and numbers are omitted."
+        },
+        {
+          "question": "Can general calculus knowledge uniquely recover those omitted displays?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Many derivative orders and polynomial terms fit the wording, so choosing a specific pair would invent video content."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "video-recognized",
+      "target": null,
+      "looked_at": [
+        {"kind": "cue", "t": 550.1, "what": "Pre-view self-report based only on the supplied question and video identifier."}
+      ],
+      "findings": "I did not recognize the particular video moment and could not name the requested displayed results from memory before viewing.",
+      "criterion": "The item fires only when this exact video and moment are recognized strongly enough to recall the answer without inspecting the supplied media.",
+      "steps": [
+        {
+          "question": "Could I name the exact answer from memory before opening the transcript or frames?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The identifier and question did not evoke a remembered scene or its two displayed derivative values."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

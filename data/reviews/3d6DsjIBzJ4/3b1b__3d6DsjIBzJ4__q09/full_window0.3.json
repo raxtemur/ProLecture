@@ -1,0 +1,310 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q09",
+  "role": "full_window",
+  "iteration": 3,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q09/full_window0",
+  "budget": {
+    "frames_viewed": 18,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 600.0,
+        "t_end": 604.0
+      },
+      {
+        "t_start": 620.0,
+        "t_end": 634.0
+      }
+    ],
+    "transcript_cues": 33,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The only firing is the event beginning in a verified 601.0 frame, one second before t_start.\nNo finished coefficients or quadratic appear through t_end+10.",
+  "verdict": "FIX_INTERVALS",
+  "checks": [
+    {
+      "group": "windows",
+      "item": "window-can-be-tightened",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 602.2,
+          "what": "The shifted-basis formula, blue cosine curve, and marked center pi are all clearly visible."
+        },
+        {
+          "kind": "frame",
+          "t": 613.9,
+          "what": "The same formula and graph remain visible, with an added note about plugging in x=pi."
+        },
+        {
+          "kind": "frame",
+          "t": 620.0,
+          "what": "The formula, blue curve, marked pi, and plugging-in note remain on screen."
+        },
+        {
+          "kind": "frame",
+          "t": 622.0,
+          "what": "The formula and relevant graph are still fully visible."
+        },
+        {
+          "kind": "frame",
+          "t": 623.0,
+          "what": "The relevant graph and formula have transitioned to a philosophical-level cartoon."
+        },
+        {
+          "kind": "frame",
+          "t": 623.8,
+          "what": "Only the philosophical-level cartoon is visible at the right boundary."
+        }
+      ],
+      "findings": "The answer-bearing formula and graph persist through the 622.0 frame and are gone by 623.0. Thus less than one second at the end of the 21.8-second window lacks the relevant display.",
+      "criterion": "The right boundary should be shortened only when a substantial useless tail remains; roughly one second of exit animation is ordinary answer-generation slack and is not worth an interval fix.",
+      "steps": [
+        {
+          "question": "What is the last verified frame where the answer-bearing display remains visible?",
+          "answer_number": 622.0,
+          "why": "At 622.0 the shifted formula, blue curve, and marked pi remain fully visible."
+        },
+        {
+          "question": "How much of the window follows the verified disappearance by 623.0?",
+          "answer_number": 0.8,
+          "why": "The scene has changed at 623.0 and the window ends at 623.8."
+        },
+        {
+          "question": "Is that irrelevant tail large enough to justify tightening?",
+          "answer_bool": false,
+          "why": "It is under one second and supplies reasonable latency for a participant already composing the answer."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "windows",
+      "item": "author-says-answer-in-window",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 601.4,
+          "what": "The author says to write the polynomial in powers of x minus pi."
+        },
+        {
+          "kind": "cue",
+          "t": 610.8,
+          "what": "The author says the point pi is made to look and behave like zero."
+        },
+        {
+          "kind": "cue",
+          "t": 613.3,
+          "what": "The author explains that plugging in x=pi causes convenient cancellation."
+        },
+        {
+          "kind": "cue",
+          "t": 618.8,
+          "what": "The author says the cancellation leaves only one constant."
+        },
+        {
+          "kind": "cue",
+          "t": 622.5,
+          "what": "The narration changes to a philosophical discussion of derivative information."
+        },
+        {
+          "kind": "cue",
+          "t": 631.2,
+          "what": "The author describes translating derivative information at a point into nearby value information."
+        },
+        {
+          "kind": "frame",
+          "t": 613.9,
+          "what": "The screen states only that plugging in x=pi is nice; it shows symbolic coefficients c0 through c4, not their values."
+        },
+        {
+          "kind": "frame",
+          "t": 623.8,
+          "what": "The formula and graph are gone, replaced by a philosophical-level cartoon."
+        },
+        {
+          "kind": "frame",
+          "t": 627.8,
+          "what": "A blue cosine graph appears under the heading Derivative information at a point, with no coefficient values or quadratic."
+        },
+        {
+          "kind": "frame",
+          "t": 633.0,
+          "what": "The derivative-information slide remains and still contains no coefficient values or finished polynomial."
+        }
+      ],
+      "findings": "Across 602.0 through 633.8 the author explains the shifted basis and cancellation at pi. Neither speech nor screen gives c0=-1, c1=0, c2=1/2, or the finished quadratic -1+(x-pi)^2/2.",
+      "criterion": "For an L3 sample this item fires only if the stream supplies the requested finished result inside the answer window or within ten seconds after it, so that participant reasoning can be replaced by copying the author.",
+      "steps": [
+        {
+          "question": "Does the author state the three requested coefficient values by 633.8?",
+          "answer_bool": false,
+          "why": "The transcript discusses powers, cancellation, and derivative information but never evaluates cosine or its derivatives at pi."
+        },
+        {
+          "question": "Does the screen show the requested finished quadratic by 633.8?",
+          "answer_bool": false,
+          "why": "Viewed frames show only symbolic c0 through c4 and later a generic derivative-information slide."
+        },
+        {
+          "question": "Is the material sufficient to copy the full reference answer without doing the requested computation?",
+          "answer_bool": false,
+          "why": "The participant must still identify cosine and calculate all three coefficients and the quadratic."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "event-not-earlier-than-window",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 600.0,
+          "what": "The blue cosine curve and marked pi are visible, but no shifted polynomial formula is yet visible."
+        },
+        {
+          "kind": "frame",
+          "t": 601.0,
+          "what": "A faded but legible P_pi formula with powers of x-pi is visible above the blue curve and marked pi."
+        },
+        {
+          "kind": "frame",
+          "t": 602.0,
+          "what": "The shifted-basis formula is fully bright and legible with the same blue curve and marked center."
+        },
+        {
+          "kind": "frame",
+          "t": 602.2,
+          "what": "The complete shifted-basis display remains clearly visible after the annotated window has opened."
+        }
+      ],
+      "findings": "The question explicitly keys the response to the first shift of the displayed basis. That shift is already visibly underway and legible in the 601.0 frame, while the scoring window does not open until 602.0.",
+      "criterion": "For a first-occurrence event, the scoring interval must begin when the event first becomes observable; otherwise a participant who correctly reacts at that first appearance is penalized as early.",
+      "steps": [
+        {
+          "question": "Is the shifted basis absent in the last verified frame before its appearance?",
+          "answer_bool": true,
+          "why": "At 600.0 the graph and marked pi are present but there is no polynomial formula."
+        },
+        {
+          "question": "What is the earliest verified frame where powers of x-pi are readable?",
+          "answer_number": 601.0,
+          "why": "The 601.0 frame visibly contains P_pi and shifted x-pi terms, although they are still fading in."
+        },
+        {
+          "question": "Does that verified first appearance precede the window start?",
+          "answer_bool": true,
+          "why": "The verified appearance at 601.0 is one second before t_start=602.0."
+        }
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {
+        "field": "triggers[0].t_start",
+        "value": "601.0",
+        "why": "Open the scoring window at the earliest verified frame where the participant-visible first shift is readable."
+      },
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "depends-on-is-dependency",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [],
+      "findings": "Trigger 0 has no depends_on field, and the single-window answer does not require an answer from any other trigger.",
+      "criterion": "A dependency check applies only when the rubric truly needs another trigger's answer or when such a necessary link is missing; an independent sole trigger has no dependency relation to validate.",
+      "steps": [
+        {
+          "question": "Is a depends_on link present on trigger 0?",
+          "answer_bool": false,
+          "why": "The supplied trigger object contains no depends_on member."
+        },
+        {
+          "question": "Does any rubric item require an answer from a different trigger?",
+          "answer_bool": false,
+          "why": "All rubric requirements concern the center, three coefficients, and quadratic of this same display."
+        }
+      ],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "evidence-span-is-last",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 600.0,
+          "what": "The blue cosine curve and marked pi are visible, but the shifted polynomial basis is absent."
+        },
+        {
+          "kind": "frame",
+          "t": 601.0,
+          "what": "The shifted formula is fading in and its x-pi terms are already readable."
+        },
+        {
+          "kind": "frame",
+          "t": 602.0,
+          "what": "The full shifted-basis formula is bright and legible together with the curve and marked center."
+        },
+        {
+          "kind": "frame",
+          "t": 613.9,
+          "what": "The same underlying evidence remains visible; the later plugging-in note adds no needed coefficient value."
+        }
+      ],
+      "findings": "The curve and center precede the formula; the last needed visual fact is the readable shifted-basis formula, fully visible by 602.0. The declared evidence_span [602.0, 613.9] includes that moment, and later material only explains cancellation without adding a required fact.",
+      "criterion": "The evidence span must include the moment when the final fact needed to derive the answer appears; later explanation or repetition is corroboration rather than a reason to move the span.",
+      "steps": [
+        {
+          "question": "Which required visual fact appears last?",
+          "answer_text": "The displayed polynomial basis in powers of x-pi",
+          "why": "The blue cosine curve and marked pi are already visible at 600.0, before the shifted formula appears."
+        },
+        {
+          "question": "When is that final fact fully legible in a verified frame?",
+          "answer_number": 602.0,
+          "why": "The 602.0 frame shows the complete bright formula P_pi with all shifted powers."
+        },
+        {
+          "question": "Does the declared evidence span cover that final-evidence moment?",
+          "answer_bool": true,
+          "why": "The declared span begins at 602.0 and continues through 613.9."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ],
+  "window_idx": 0
+}

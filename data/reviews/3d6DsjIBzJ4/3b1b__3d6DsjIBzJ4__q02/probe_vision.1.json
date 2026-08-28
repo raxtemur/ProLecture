@@ -1,0 +1,66 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q02",
+  "role": "probe_vision",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q02/probe_vision",
+  "budget": {
+    "frames_viewed": 5,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": null,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "Used screen_text.md (140 numbered lines including its header) only to locate the relevant frames. No transcript or audio was used.",
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 85.0,
+      "what": "The blue cosine graph is visible with the heading Near theta = 0; the approximation is beginning to appear."
+    },
+    {
+      "kind": "frame",
+      "t": 96.0,
+      "what": "The screen explicitly shows cos(theta) approximately equals 1 minus one-half theta squared near theta = 0."
+    },
+    {
+      "kind": "frame",
+      "t": 122.0,
+      "what": "The blue target is labeled cos(x), centered on the vertical axis at x = 0."
+    },
+    {
+      "kind": "frame",
+      "t": 130.0,
+      "what": "The blue cosine and a downward-opening quadratic approximation are shown tangent at x = 0."
+    },
+    {
+      "kind": "frame",
+      "t": 141.0,
+      "what": "The display shows P(x) = c0 + c1 x + c2 x^2, with arrows marking c0, c1, and c2 Free to change."
+    }
+  ],
+  "steps": [
+    {
+      "question": "What quadratic approximates the displayed cosine target at the unchanged center x = 0?",
+      "answer_bool": null,
+      "answer_number": null,
+      "answer_text": "cos(x) is approximated by 1 - x^2/2, so its coefficients are 1, 0, and -1/2.",
+      "why": "Frame t000096.jpg explicitly displays the quadratic cosine approximation near zero; changing theta to x does not change its coefficients."
+    },
+    {
+      "question": "How does replacing the target cos(x) by -cos(x) change the free coefficients?",
+      "answer_bool": null,
+      "answer_number": null,
+      "answer_text": "Negating the target negates every coefficient, giving -1, 0, and 1/2.",
+      "why": "Frame t000141.jpg shows all three coefficients are free; multiplying the displayed approximation by -1 preserves center and degree."
+    }
+  ],
+  "answer": "c0 = -1, c1 = 0, and c2 = 1/2. Thus P(x) = -1 + (1/2)x^2.",
+  "basis": "Frames t000096.jpg and t000141.jpg: the first visibly gives cos near zero as 1 - x^2/2 (shown with theta), and the second visibly gives the degree-2 coefficient form with all coefficients free; the final sign reversal is algebra.",
+  "confidence": "high",
+  "insufficient": false
+}

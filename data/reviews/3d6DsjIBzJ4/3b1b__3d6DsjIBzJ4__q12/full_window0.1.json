@@ -1,0 +1,309 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q12",
+  "role": "full_window",
+  "iteration": 1,
+  "model": "gpt-5",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/3b1b__3d6DsjIBzJ4__q12/full_window0_r1",
+  "budget": {
+    "frames_viewed": 19,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 825.0,
+        "t_end": 829.0
+      },
+      {
+        "t_start": 829.0,
+        "t_end": 851.0
+      }
+    ],
+    "transcript_cues": 15,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The completed fourth-power term is visually revealed at 845 s, only 4.6 s after the window closes. The supplied evidence span also ends before the evaluation at zero and the resulting values of one are established.",
+  "verdict": "CRITICAL_FAIL",
+  "checks": [
+    {
+      "group": "windows",
+      "item": "window-can-be-tightened",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 830.4,
+          "what": "The orange e^x entry has appeared in a derivative tower whose prior entries are also e^x."
+        },
+        {
+          "kind": "frame",
+          "t": 834.0,
+          "what": "The tower continues with another e^x and a downward ellipsis."
+        },
+        {
+          "kind": "frame",
+          "t": 839.0,
+          "what": "The tower is evaluated at zero and its displayed values are one."
+        },
+        {
+          "kind": "frame",
+          "t": 840.0,
+          "what": "The ones begin moving toward the polynomial layout while the derivative tower remains visible."
+        }
+      ],
+      "findings": "From 830.4 s through the 840.4 s end, the scene continuously develops the relevant derivative tower, its evaluation at zero, and the transfer of the resulting ones toward the polynomial. There is no large visually empty tail, and the window is already 10 seconds long.",
+      "criterion": "A boundary should be tightened only when a substantial part of the window no longer supplies the requested evidence or response latency; one or two seconds of animation slack is not enough.",
+      "steps": [
+        {
+          "question": "What relevant state is present at the opening frame?",
+          "answer_bool": null,
+          "answer_number": null,
+          "answer_text": "The newly added orange e^x is part of a visibly repeating e^x derivative tower.",
+          "why": "This is visible in the indexed frame at 830.4 s."
+        },
+        {
+          "question": "Is there a substantial irrelevant interval before the window closes?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Frames at 834, 839, and 840 s show continuous relevant animation rather than an empty tail."
+        },
+        {
+          "question": "Would tightening preserve the normal minimum response window?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The current interval is exactly 10.0 seconds, so shortening it would remove response latency rather than trim a large empty region."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "windows",
+      "item": "author-says-answer-in-window",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 842.0,
+          "what": "The polynomial is being assembled with factorial-denominator terms through the third power."
+        },
+        {
+          "kind": "frame",
+          "t": 845.0,
+          "what": "The finished displayed polynomial includes the fourth-power term 1 x^4 / 4!, equivalent to x^4/24."
+        },
+        {
+          "kind": "cue",
+          "t": 841.0,
+          "what": "The author says the polynomial approximation should look like the expression now being rendered."
+        }
+      ],
+      "findings": "At 845.0 s the screen explicitly shows the requested fourth-power term as 1 times x^4 divided by 4!. This is inside the required audit interval ending at 850.4 s, 10 seconds after the answer window closes.",
+      "criterion": "For an L3 task, a finished answer shown or spoken anywhere in the counting window or the following 10 seconds makes the prediction degenerate because a streaming response can receive the author's answer while it is being generated.",
+      "steps": [
+        {
+          "question": "What is the end of the post-window audit interval?",
+          "answer_bool": null,
+          "answer_number": 850.4,
+          "answer_text": null,
+          "why": "The trigger ends at 840.4 s and this item requires checking ten more seconds."
+        },
+        {
+          "question": "When is the requested full fourth-power term first confirmed in finished form?",
+          "answer_bool": null,
+          "answer_number": 845.0,
+          "answer_text": null,
+          "why": "The 845.0 s frame visibly contains 1 x^4 / 4! in the completed polynomial."
+        },
+        {
+          "question": "Does that finished reveal fall inside the audit interval?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "845.0 s is earlier than 850.4 s and only 4.6 seconds after t_end."
+        },
+        {
+          "question": "Does the L3 critical-failure rule apply?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The sample is labeled L3 and the exact requested term is visually supplied during generation latency."
+        }
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {
+        "field": "question",
+        "value": "Move the prediction to a moment with more than 10 seconds of slack before the full fourth-power term is revealed, or redesign it as an L1 reveal alarm.",
+        "why": "Moving only the current boundaries cannot preserve a normal answer window while keeping the finished x^4/4! reveal outside the 10-second generation-latency audit."
+      },
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "event-not-earlier-than-window",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 829.0,
+          "what": "The tower has cyan, yellow, and green e^x entries; the orange e^x named by the question has not appeared."
+        },
+        {
+          "kind": "frame",
+          "t": 830.4,
+          "what": "The orange e^x entry is now present below the earlier repeated e^x entries."
+        },
+        {
+          "kind": "cue",
+          "t": 829.7,
+          "what": "The author begins stating that the second derivative is also e^x."
+        }
+      ],
+      "findings": "The pre-window 829.0 s frame lacks the newly introduced orange e^x entry. It is present at the indexed scene-change frame 830.4 s, where the colored derivative tower visibly repeats e^x.",
+      "criterion": "For an event trigger, the opening must coincide with the first occurrence of the condition named in the question, here the orange e^x joining the already repeating derivative tower.",
+      "steps": [
+        {
+          "question": "Is the specifically named orange curve present before t_start?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "At 829.0 s only the cyan, yellow, and green e^x entries are visible."
+        },
+        {
+          "question": "Is the named orange e^x present at t_start?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The exact indexed frame at 830.4 s shows it below the earlier entries."
+        },
+        {
+          "question": "Did the question's event begin earlier than the window?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The relevant orange addition occurs at the opening scene-change frame, not in the checked pre-window frames."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "depends-on-is-dependency",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [],
+      "findings": "Trigger 0 has no depends_on field, and its rubric asks only for the coefficient, the full fourth-power term, and the connection to the repeated e^x derivatives at zero.",
+      "criterion": "A dependency check applies only when a depends_on link exists or when the current rubric requires an answer from another trigger; neither condition is present here.",
+      "steps": [
+        {
+          "question": "Does trigger 0 declare a depends_on link?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "No depends_on member appears in the supplied trigger object."
+        },
+        {
+          "question": "Does any rubric item require the answer to another trigger?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "All rubric requirements concern this one derivative tower and its fourth-order Taylor term."
+        }
+      ],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "evidence-span-is-last",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 830.4,
+          "what": "The derivative tower repeats e^x but has not yet been evaluated at zero."
+        },
+        {
+          "kind": "frame",
+          "t": 837.0,
+          "what": "The derivative inputs have changed to zero, displaying repeated e^0 entries."
+        },
+        {
+          "kind": "frame",
+          "t": 838.0,
+          "what": "Equality to one begins appearing beside the e^0 entries."
+        },
+        {
+          "kind": "frame",
+          "t": 839.0,
+          "what": "All displayed evaluated entries are e^0 = 1 and the corresponding ones are visible."
+        },
+        {
+          "kind": "cue",
+          "t": 834.8,
+          "what": "The author states that at x=0 all of these derivatives are equal to 1, completing the statement at 839.0 s."
+        }
+      ],
+      "findings": "The supplied evidence span ends at 834.8 s, when the tower establishes continued repetition but before the zero evaluation and numerator value one are displayed. The visual derivation reaches repeated e^0 = 1 at 839.0 s, matching the speech that runs from 834.8 to 839.0 s.",
+      "criterion": "The evidence span must include the latest fact needed to derive every required answer component, not merely the first repeated derivative; here it must cover both evaluation at zero and the resulting numerator one.",
+      "steps": [
+        {
+          "question": "What answer fact is established by the current span ending at 834.8 s?",
+          "answer_bool": null,
+          "answer_number": null,
+          "answer_text": "Repeated differentiation continues to return e^x.",
+          "why": "The 830.4 and 834.0 s frames show repeated e^x entries and an ellipsis."
+        },
+        {
+          "question": "Does the current span include the displayed evaluation at zero and value one?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The evaluation changes to e^0 at 837 s and the equalities to one appear during 838–839 s."
+        },
+        {
+          "question": "When is the last required fact visibly complete?",
+          "answer_bool": null,
+          "answer_number": 839.0,
+          "answer_text": null,
+          "why": "At 839.0 s all displayed derivatives are evaluated as e^0 = 1, supplying the numerator used with 4!."
+        }
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {
+        "field": "triggers[0].evidence_span",
+        "value": "[830.4, 839.0]",
+        "why": "The interval must extend through the zero evaluation and the repeated value one, which are the last evidence needed for the 1/4! coefficient."
+      },
+      "uncovered": null
+    }
+  ],
+  "window_idx": 0
+}

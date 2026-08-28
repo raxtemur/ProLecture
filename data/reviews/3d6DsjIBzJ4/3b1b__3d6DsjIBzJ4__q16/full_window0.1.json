@@ -1,0 +1,261 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q16",
+  "role": "full_window",
+  "iteration": 1,
+  "model": "gpt-5",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/3b1b__3d6DsjIBzJ4__q16/full_window0_r1",
+  "budget": {
+    "frames_viewed": 7,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 1109.0,
+        "t_end": 1129.0
+      }
+    ],
+    "transcript_cues": 15,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The threshold-crossing event is cleanly bracketed: 2.6666667 at 1113 and 2.7083333 through 1^4/4! at 1114.\nThe five-second window is already at the legal minimum.\nBecause this is L2 and the exact requested term and subtotal are visibly supplied in finished form inside the answer window, author-says-answer-in-window fires critically.",
+  "verdict": "CRITICAL_FAIL",
+  "window_idx": 0,
+  "checks": [
+    {
+      "group": "windows",
+      "item": "window-can-be-tightened",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1114.0,
+          "what": "The brace reaches through the pink 1^4/4! term and the subtotal reads 2.7083333."
+        },
+        {
+          "kind": "frame",
+          "t": 1115.0,
+          "what": "The same first-crossing state remains fully visible."
+        },
+        {
+          "kind": "frame",
+          "t": 1116.0,
+          "what": "The brace has advanced through 1^5/5! and the subtotal now reads 2.7166667."
+        },
+        {
+          "kind": "frame",
+          "t": 1119.0,
+          "what": "The animation has advanced to a later subtotal, 2.7182540."
+        }
+      ],
+      "findings": "The requested first-crossing state is present at 1114.0 and 1115.0. Later in the same window the animation advances to subsequent subtotals, but the question explicitly asks about the first update and that answer has already been observed. The annotated interval [1114.0,1119.0) is exactly five seconds long.",
+      "criterion": "For a first-appearance question, later animation does not erase an already observed answer, and a window already at the legal minimum should not be shortened merely because the model may be finishing its response after the display advances.",
+      "steps": [
+        {
+          "question": "When is the requested first-crossing state visibly complete?",
+          "answer_number": 1114.0,
+          "why": "At 1114.0 the brace includes 1^4/4! and the displayed total is 2.7083333."
+        },
+        {
+          "question": "Does later animation invalidate the already observed first-crossing answer?",
+          "answer_bool": false,
+          "why": "The task asks which update crossed first, so advancement to later terms does not change the historical answer."
+        },
+        {
+          "question": "Can the window be shortened while preserving the minimum legal duration?",
+          "answer_bool": false,
+          "why": "The current interval is already exactly five seconds, from 1114.0 to 1119.0."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "windows",
+      "item": "author-says-answer-in-window",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1113.0,
+          "what": "The immediately preceding displayed subtotal is 2.6666667 and the next visible term is 1^4/4!."
+        },
+        {
+          "kind": "frame",
+          "t": 1114.0,
+          "what": "The screen visibly supplies both requested answer components in finished form: 1^4/4! is newly under the brace and the subtotal is 2.7083333."
+        },
+        {
+          "kind": "cue",
+          "t": 1112.4,
+          "what": "The narrator says that adding more polynomial terms makes the total sum get closer to e."
+        },
+        {
+          "kind": "cue",
+          "t": 1119.0,
+          "what": "The narrator says the infinite series converges, without naming the threshold-crossing term or subtotal."
+        },
+        {
+          "kind": "frame",
+          "t": 1124.0,
+          "what": "Within the ten-second follow-up the series remains visible with a later subtotal, 2.7182818."
+        }
+      ],
+      "findings": "At 1114.0, inside the L2 response window, the animation itself displays the complete requested answer: the brace newly includes 1^4/4!, and 2.7083333 is printed beneath it. The 1113.0 frame supplies the immediately prior 2.6666667 state needed to establish firstness. The narration is generic, but no narration is needed because all answer components are already shown in finished form.",
+      "criterion": "For an L2 task, a complete answer shown or spoken in the response window or the following ten seconds is critical because waiting for the stream supplies what the model is meant to reason out.",
+      "steps": [
+        {
+          "question": "Is this task governed by the L2 or L3 leakage rule?",
+          "answer_bool": true,
+          "why": "The handed sample labels reasoning_level as L2."
+        },
+        {
+          "question": "Are all requested answer components supplied in finished form inside the window?",
+          "answer_bool": true,
+          "why": "The 1114.0 frame shows the newly included 1^4/4! term and prints the exact subtotal 2.7083333."
+        },
+        {
+          "question": "Does the stream also establish that this is the first subtotal above 2.7?",
+          "answer_bool": true,
+          "why": "The adjacent preceding frame shows 2.6666667, below the threshold, before the displayed update to 2.7083333."
+        }
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {
+        "field": "question/design",
+        "value": "convert this to an L1 threshold-crossing alarm, or redesign it so the response requires information not supplied in finished form during the answer window",
+        "why": "The current L2 response window coincides with the animation explicitly displaying the exact term and subtotal requested."
+      },
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "event-not-earlier-than-window",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1113.0,
+          "what": "The brace stops through 1^3/3! and the displayed subtotal is 2.6666667, still below 2.7."
+        },
+        {
+          "kind": "frame",
+          "t": 1114.0,
+          "what": "The brace first reaches through 1^4/4! and the displayed subtotal becomes 2.7083333."
+        },
+        {
+          "kind": "frame",
+          "t": 1115.0,
+          "what": "The 2.7083333 crossing state remains visible one second after the opening."
+        }
+      ],
+      "findings": "The last inspected second before the window remains below threshold at 2.6666667. At the annotated opening, 1114.0, the next term is included and the subtotal is 2.7083333; this state persists at 1115.0.",
+      "criterion": "A monitor window must open when its event first begins so a model reacting at onset is not penalized for answering before the legal interval.",
+      "steps": [
+        {
+          "question": "Is the threshold condition satisfied in the final inspected pre-window frame?",
+          "answer_bool": false,
+          "why": "The 1113.0 subtotal is 2.6666667, which is below 2.7."
+        },
+        {
+          "question": "When is the first above-threshold state observed?",
+          "answer_number": 1114.0,
+          "why": "The 1114.0 frame displays 2.7083333 after adding 1^4/4!."
+        },
+        {
+          "question": "Does the event begin earlier than t_start 1114.0?",
+          "answer_bool": false,
+          "why": "Adjacent one-second frames bracket the change from below threshold at 1113.0 to above threshold at the opening."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "depends-on-is-dependency",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [],
+      "findings": "The handed sample contains one trigger, idx 0, with no depends_on field. Every rubric requirement concerns the term, subtotal, and firstness visible across this same trigger sequence.",
+      "criterion": "A dependency link is applicable only when the current rubric cannot be satisfied without another trigger's answer; with one self-contained trigger and no link, there is no dependency relation to judge.",
+      "steps": [
+        {
+          "question": "Does trigger 0 declare a depends_on link?",
+          "answer_bool": false,
+          "why": "The supplied trigger object has no depends_on field."
+        },
+        {
+          "question": "Does any rubric item require an answer from another trigger?",
+          "answer_bool": false,
+          "why": "There is no other trigger, and all rubric items concern this single running-total crossing."
+        }
+      ],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "evidence-span-is-last",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1113.0,
+          "what": "The prior subtotal is 2.6666667 and the 1^4/4! term is visible but not yet included under the brace."
+        },
+        {
+          "kind": "frame",
+          "t": 1114.0,
+          "what": "The brace now includes 1^4/4! and the exact subtotal 2.7083333 is displayed."
+        },
+        {
+          "kind": "frame",
+          "t": 1115.0,
+          "what": "The complete first-crossing evidence remains visible within the stated evidence span."
+        }
+      ],
+      "findings": "The handed evidence_span is [1114.0,1115.9]. The preceding 1113.0 frame establishes the below-threshold prior state, while at 1114.0 the newly included term and exact above-threshold subtotal appear together. Thus the last answer-specific facts first become available at 1114.0 and remain present at 1115.0.",
+      "criterion": "The evidence span must cover the moment when the final fact needed for the requested answer first appears, rather than only partial earlier evidence or later corroboration.",
+      "steps": [
+        {
+          "question": "Which required facts appear last?",
+          "answer_text": "The inclusion of 1^4/4! under the brace and the resulting displayed subtotal 2.7083333.",
+          "why": "Before that update the frame supplies only the below-threshold subtotal and the not-yet-included next term."
+        },
+        {
+          "question": "When do those last facts first appear together?",
+          "answer_number": 1114.0,
+          "why": "The 1114.0 frame shows both the extended brace and the exact new subtotal."
+        },
+        {
+          "question": "Does the evidence span include that moment?",
+          "answer_bool": true,
+          "why": "The evidence_span begins at 1114.0 and continues to 1115.9."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

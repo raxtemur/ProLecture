@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q06",
+  "role": "probe_frame",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q06/probe_frame",
+  "budget": {
+    "frames_viewed": 1,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 0,
+    "screen_index_used": false
+  },
+  "violations": [],
+  "notes": "",
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 457.0,
+      "what": "The screen shows the completed fourth-derivative row d^4(cos)/dx^4(0) = cos(0) = 1 and the newly added polynomial term c_4 x^4."
+    }
+  ],
+  "steps": [
+    {
+      "question": "What derivative order and target value are shown?",
+      "answer_text": "The derivative order is 4 and its target value at x=0 is 1.",
+      "why": "The completed colored row on the left explicitly shows d^4(cos)/dx^4(0) = cos(0) = 1."
+    },
+    {
+      "question": "What is the exponent of the newly added term?",
+      "answer_number": 4,
+      "why": "The polynomial on the right contains the newly colored term c_4 x^4."
+    },
+    {
+      "question": "What coefficient makes that term match the displayed derivative?",
+      "answer_number": 0.041666666666666664,
+      "why": "At x=0, the fourth derivative of c_4 x^4 is 4! c_4; equating it to the displayed target 1 gives c_4 = 1/24."
+    }
+  ],
+  "answer": "The screen gives derivative order 4, target value 1, and term exponent 4. The matching equation is (d^4/dx^4)(c_4 x^4)|_{x=0} = 4!c_4 = 1, so c_4 = 1/4! = 1/24. Thus the term is (1/24)x^4 before substitution into the polynomial.",
+  "basis": "Single frame t=457 s: the completed fourth-derivative row reads d^4(cos)/dx^4(0) = cos(0) = 1, while the matching colored polynomial term is c_4 x^4; the coefficient follows by elementary differentiation.",
+  "confidence": "high",
+  "insufficient": false
+}

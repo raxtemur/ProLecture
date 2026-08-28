@@ -1,0 +1,67 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q06",
+  "role": "probe_vision",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q06/probe_vision",
+  "budget": {
+    "frames_viewed": 4,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 448.0,
+        "t_end": 452.0
+      }
+    ],
+    "transcript_cues": 0,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The screen index was used only to locate the relevant stretch; all quantities in the answer were checked on real frames.",
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 448.0,
+      "what": "The polynomial visibly contains the completed new term c_4 x^4, while the matching fourth-derivative row has not yet appeared."
+    },
+    {
+      "kind": "frame",
+      "t": 450.0,
+      "what": "The fourth-derivative row is in an overlapping transition and is not yet cleanly readable."
+    },
+    {
+      "kind": "frame",
+      "t": 451.0,
+      "what": "Both the completed term c_4 x^4 and the completed colored row d^4(cos)/dx^4(0) = cos(0) = 1 are visible."
+    },
+    {
+      "kind": "frame",
+      "t": 452.0,
+      "what": "The same completed fourth-derivative row and polynomial term remain stably visible."
+    }
+  ],
+  "steps": [
+    {
+      "question": "What exponent is shown on the newly added even-power polynomial term?",
+      "answer_number": 4,
+      "why": "Frames 448, 451, and 452 visibly show the term c_4 x^4."
+    },
+    {
+      "question": "What derivative order and target value are shown in its matching colored row?",
+      "answer_text": "Fourth derivative, with target value 1 at x = 0.",
+      "why": "Frames 451 and 452 visibly show d^4(cos)/dx^4(0) = cos(0) = 1."
+    },
+    {
+      "question": "What coefficient makes the fourth derivative of c_4 x^4 equal the displayed target?",
+      "answer_text": "4! c_4 = 1, so c_4 = 1/24.",
+      "why": "Differentiating the visibly shown term four times gives 4! c_4 at x = 0, which is matched to the visibly shown target 1."
+    }
+  ],
+  "answer": "The completed row is the fourth derivative at x = 0, its target value is 1, and the new term has exponent 4. Thus the matching equation is P^{(4)}(0) = cos^{(4)}(0) = 1, so (c_4 x^4)^{(4)}(0) = 4! c_4 = 1 and therefore c_4 = 1/24.",
+  "basis": "Frames t000451.jpg and t000452.jpg show the completed term c_4 x^4 together with d^4(cos)/dx^4(0) = cos(0) = 1; frame t000448.jpg confirms the term was complete before the derivative row, and t000450.jpg shows the row still transitioning.",
+  "confidence": "high",
+  "insufficient": false
+}

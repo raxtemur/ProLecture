@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q18",
+  "role": "probe_frame",
+  "iteration": 1,
+  "model": "gpt-5",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/3b1b__3d6DsjIBzJ4__q18/probe_frame_r1",
+  "budget": {
+    "frames_viewed": 1,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 0,
+    "screen_index_used": false
+  },
+  "violations": [],
+  "notes": "",
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 1257.0,
+      "what": "The graph shows the already-visible Diverges callout and, below the x-axis, a bracket labeled Radius of convergence. The bracket runs from the yellow point on the curve/x-axis at left to the dotted vertical marker at right."
+    }
+  ],
+  "steps": [
+    {
+      "question": "What exact text appears with the bracket below the x-axis?",
+      "answer_text": "Radius of convergence",
+      "why": "The wording is fully legible inside quotation marks directly beneath the bracket."
+    },
+    {
+      "question": "Which marked visual locations form the bracket's endpoints?",
+      "answer_text": "The yellow point on the curve at the x-axis and the dotted vertical line beneath the gray point identified by the Diverges callout.",
+      "why": "The bracket’s left end is aligned with the yellow point and its right end meets the dotted vertical marker."
+    }
+  ],
+  "answer": "The bracket reads “Radius of convergence.” It connects the yellow point where the curve meets the x-axis to the dotted vertical marker below the gray point called out as “Diverges.”",
+  "basis": "In the single frame at 1257 s, the quoted label is legible below the x-axis, and the bracket visibly spans from the yellow point at its left end to the dotted vertical marker at its right end.",
+  "confidence": "high",
+  "insufficient": false
+}

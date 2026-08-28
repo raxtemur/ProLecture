@@ -1,0 +1,70 @@
+{
+  "role": "probe_vision",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q09",
+  "model": "gpt-5.6-sol",
+  "iteration": 3,
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q09/probe_vision",
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 541,
+      "what": "The blue curve is identified as cos(x) by the displayed cosine derivative values at 0."
+    },
+    {
+      "kind": "frame",
+      "t": 550,
+      "what": "The current polynomial in powers of x is shown as P(x)=1+(-1/2)x^2+... ."
+    },
+    {
+      "kind": "frame",
+      "t": 584,
+      "what": "The powers-of-x basis and its derivative controls at zero are displayed."
+    },
+    {
+      "kind": "frame",
+      "t": 590,
+      "what": "All coefficients in the powers-of-x basis are paired with derivatives at zero."
+    },
+    {
+      "kind": "frame",
+      "t": 602,
+      "what": "The shifted basis P_pi(x) in powers of (x-pi) is visible above the blue cosine curve, with pi marked by a yellow point at its minimum."
+    }
+  ],
+  "steps": [
+    {
+      "question": "What nonzero center defines the first shifted basis?",
+      "answer_text": "a = pi",
+      "why": "At t=602 the formula uses powers of (x-pi), and pi is marked on the axis."
+    },
+    {
+      "question": "What is the blue target curve?",
+      "answer_text": "f(x) = cos(x)",
+      "why": "At t=541 the displayed cosine derivatives identify the blue curve, whose shape persists at t=602."
+    },
+    {
+      "question": "What are the first three shifted-basis coefficients?",
+      "answer_text": "c_0=-1, c_1=0, c_2=1/2",
+      "why": "For the visible f(x)=cos(x) at a=pi: f(pi)=-1, f'(pi)=-sin(pi)=0, and f''(pi)/2!=(-cos(pi))/2=1/2."
+    },
+    {
+      "question": "What quadratic results in the shifted basis?",
+      "answer_text": "P_2(x) = -1 + (1/2)(x-pi)^2",
+      "why": "Substituting c_0=-1, c_1=0, and c_2=1/2 into c_0+c_1(x-pi)+c_2(x-pi)^2 gives the result."
+    }
+  ],
+  "answer": "The marked center is a = pi and the blue target curve is f(x) = cos(x). In the shifted basis, c_0 = -1, c_1 = 0, and c_2 = 1/2. Thus the quadratic is P_2(x) = -1 + 0(x-pi) + (1/2)(x-pi)^2 = -1 + (1/2)(x-pi)^2.",
+  "basis": "Frames t000541.jpg and t000602.jpg: t000541 visibly identifies the blue function as cos(x), while t000602 visibly shows the shifted basis in powers of (x-pi) and the marked center pi. The coefficient calculation uses standard differentiation of the visible target function.",
+  "confidence": "high",
+  "insufficient": false,
+  "budget": {
+    "frames_viewed": 5,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": null,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "Screen index was used only to locate the relevant stretch; all answer-bearing claims were verified in actual frames."
+}

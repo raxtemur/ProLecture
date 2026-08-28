@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q16",
+  "role": "probe_frame",
+  "iteration": 1,
+  "model": "gpt-5",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/3b1b__3d6DsjIBzJ4__q16/probe_frame_r1",
+  "budget": {
+    "frames_viewed": 1,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 0,
+    "screen_index_used": false
+  },
+  "violations": [],
+  "notes": "The sole frame shows one completed subtotal but no preceding update states.",
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 1116.0,
+      "what": "The substituted series e^1 is displayed through 1^5/5!, underlined with the visible subtotal 2.7166667."
+    }
+  ],
+  "steps": [
+    {
+      "question": "What substituted terms are visible in the frame?",
+      "answer_text": "1 + 1^1/1! + 1^2/2! + 1^3/3! + 1^4/4! + 1^5/5! + ...",
+      "why": "This expression is directly legible in the sole frame."
+    },
+    {
+      "question": "What exact subtotal is visible beneath the displayed terms?",
+      "answer_text": "2.7166667",
+      "why": "The number 2.7166667 is directly shown beneath the underline."
+    },
+    {
+      "question": "Does the frame establish which update was the first one strictly above 2.7?",
+      "answer_bool": false,
+      "why": "Only one completed state is visible; no earlier displayed subtotal or animation state is available for comparison."
+    }
+  ],
+  "answer": "The visible candidate is the newly included term 1^5/5! and the shown subtotal 2.7166667, but the single frame does not establish that this was the first displayed update strictly greater than 2.7.",
+  "basis": "At t=1116 the frame directly shows the substituted series through 1^5/5! and the subtotal 2.7166667. Identifying that state as the first threshold-crossing update would be a guess because no preceding update is present.",
+  "confidence": "low",
+  "insufficient": true
+}

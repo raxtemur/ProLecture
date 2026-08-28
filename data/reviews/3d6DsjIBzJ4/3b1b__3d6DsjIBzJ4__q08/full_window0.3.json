@@ -1,0 +1,299 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q08",
+  "role": "full_window",
+  "iteration": 3,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q08/full_window0",
+  "budget": {
+    "frames_viewed": 9,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 571.0,
+        "t_end": 575.0
+      }
+    ],
+    "transcript_cues": 29,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The event onset is bracketed to (571.0, 572.0] at the available 1 fps resolution. The interval fix is therefore to open at 572.0, the earliest frame where the completed zero is verified.",
+  "verdict": "FIX_INTERVALS",
+  "checks": [
+    {
+      "group": "windows",
+      "item": "window-can-be-tightened",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 573.4,
+          "what": "The caption, pink c4x^4 term, twice-differentiated c4 contribution, brace, and =0 are all fully visible."
+        },
+        {
+          "kind": "frame",
+          "t": 581.6,
+          "what": "After the scene change, the general polynomial remains visible and its c4x^4 term is still pink."
+        },
+        {
+          "kind": "frame",
+          "t": 590.5,
+          "what": "At the right boundary, c4x^4 and its fourth-derivative control annotation are still on screen in pink."
+        }
+      ],
+      "findings": "The requested state is fully visible at the beginning. After the original zero-evaluation layout leaves, the reused c4 term remains identifiable by the same pink color through the window endpoint.",
+      "criterion": "A boundary should be tightened only when a substantial portion of the window no longer supports answering, while later animation does not invalidate an answer about an already observed completed state.",
+      "steps": [
+        {
+          "question": "Is the completed cue available at the beginning of the window?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The 573.4 frame shows the caption and completed =0 annotation together."
+        },
+        {
+          "question": "Does later animation erase the observed color or make the counterfactual impossible?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The c4 term remains pink at 581.6 and 590.5, and the numerical counterfactual uses earlier displayed values retained by the streaming participant."
+        },
+        {
+          "question": "Is there a large empty tail before the annotated endpoint?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The pink c4 term and corresponding fourth-derivative control are still present at 590.5."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "windows",
+      "item": "author-says-answer-in-window",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 574.2,
+          "what": "The author begins explaining that second derivatives of higher-order terms vanish when evaluated at x=0."
+        },
+        {
+          "kind": "cue",
+          "t": 578.9,
+          "what": "The author says the remaining x factor will wash away at the center."
+        },
+        {
+          "kind": "cue",
+          "t": 584.1,
+          "what": "The author explains that each derivative at x=0 is controlled by one coefficient."
+        },
+        {
+          "kind": "cue",
+          "t": 594.3,
+          "what": "The author discusses approximating near a nonzero input such as pi, without evaluating the questioned term at x=1."
+        },
+        {
+          "kind": "frame",
+          "t": 590.5,
+          "what": "The screen pairs the pink c4x^4 term with the fourth derivative at zero but shows no x=1 evaluation or numerical comparison."
+        },
+        {
+          "kind": "frame",
+          "t": 593.7,
+          "what": "The next graph scene has no finished composite answer to the question."
+        }
+      ],
+      "findings": "Within [573.0, 600.5], the author states the general reason higher-order contributions vanish at x=0 and later mentions a nonzero center. The video shows the pink term and fourth-derivative association, but it never gives the twice-differentiated value at x=1 or the requested numerical comparison in finished form.",
+      "criterion": "For this L2 item to fail, the author must supply the answer in a form sufficient to recover the requested color, x=1 counterfactual value, and comparison while a streaming response is being generated.",
+      "steps": [
+        {
+          "question": "Does the author identify the reused term's color in the checked interval?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The color is visible, but the narration does not name it."
+        },
+        {
+          "question": "Does the author evaluate 12c4x^2 at x=1 using c4=1/24?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The transcript discusses x=0 and then a center at pi; it never computes 1/2 at x=1."
+        },
+        {
+          "question": "Is the finished comparison with the earlier fourth derivative supplied?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "No checked frame or cue states that the x=1 value 1/2 is half of the earlier value 1."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "event-not-earlier-than-window",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 571.0,
+          "what": "The caption and formulas are present, but the numerical =0 below the brace is not yet visible."
+        },
+        {
+          "kind": "frame",
+          "t": 572.0,
+          "what": "The =0 annotation is fully visible beneath the twice-differentiated c4 contribution while the caption remains present."
+        },
+        {
+          "kind": "frame",
+          "t": 573.0,
+          "what": "The same completed caption-plus-zero state persists at the annotated window start."
+        }
+      ],
+      "findings": "The joint trigger condition is incomplete at 571.0 and already complete at 572.0. The annotated window does not open until 573.0, after the event has begun.",
+      "criterion": "An event-conditioned window must open when the triggering visual state first becomes complete, rather than one or more seconds after that state is already available.",
+      "steps": [
+        {
+          "question": "What is the last inspected frame before the full joint condition is present?",
+          "answer_number": 571.0,
+          "answer_bool": null,
+          "answer_text": null,
+          "why": "At 571.0 the caption is present but =0 has not appeared."
+        },
+        {
+          "question": "What is the first inspected frame where both caption and zero evaluation are complete?",
+          "answer_number": 572.0,
+          "answer_bool": null,
+          "answer_text": null,
+          "why": "The 572.0 frame visibly contains both elements in their completed form."
+        },
+        {
+          "question": "Is that verified onset earlier than t_start=573.0?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "572.0 precedes 573.0 by one second."
+        }
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {
+        "field": "triggers[0].t_start",
+        "value": "572.0",
+        "why": "Open the window at the earliest verified frame where the caption and displayed zero are both complete."
+      },
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "depends-on-is-dependency",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [],
+      "findings": "The trigger has no depends_on field, and the rubric does not require an answer from another trigger window.",
+      "criterion": "A dependency is needed only when satisfying this window's rubric is impossible without the answer to another named window; an absent link is appropriate when no such requirement exists.",
+      "steps": [
+        {
+          "question": "Does the rubric require an answer produced by another trigger window?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The single response combines the visible term with calculations from earlier displayed evidence, not a separately answered trigger."
+        },
+        {
+          "question": "Is a depends_on link present to assess for necessity?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The supplied trigger explicitly has depends_on absent."
+        }
+      ],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "evidence-span-is-last",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 571.0,
+          "what": "The reused pink c4 term and differentiated expression are present, but the final =0 evaluation has not yet appeared."
+        },
+        {
+          "kind": "frame",
+          "t": 572.0,
+          "what": "The final zero evaluation is now fully shown beneath the c4 contribution."
+        },
+        {
+          "kind": "frame",
+          "t": 573.4,
+          "what": "The completed zero and pink term remain visible; no additional fact needed for the requested calculation appears."
+        },
+        {
+          "kind": "cue",
+          "t": 574.2,
+          "what": "The subsequent narration explains the already visible zero at x=0 rather than adding a needed operand for the answer."
+        }
+      ],
+      "findings": "The last new fact demanded by the question is the completed zero evaluation, which appears by 572.0. The supplied evidence span ends at 573.0, covering that moment; later narration only corroborates why the contribution vanishes at the center.",
+      "criterion": "The evidence span must include the moment the final required fact becomes available, but need not extend to later explanation or corroboration once the answer is already derivable.",
+      "steps": [
+        {
+          "question": "What is the last newly presented fact required by the question?",
+          "answer_text": "The displayed =0 evaluation of the twice-differentiated c4 contribution at the center.",
+          "answer_bool": null,
+          "answer_number": null,
+          "why": "The coefficient value and earlier fourth-derivative evaluation are identified by the question as earlier displays, while this visual completion is the current cue."
+        },
+        {
+          "question": "When is that last fact first verified in the inspected frames?",
+          "answer_number": 572.0,
+          "answer_bool": null,
+          "answer_text": null,
+          "why": "It is absent at 571.0 and present at 572.0."
+        },
+        {
+          "question": "Does evidence_span [471.7, 573.0] cover that last fact?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The verified completion at 572.0 lies inside the supplied span and before its 573.0 endpoint."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ],
+  "window_idx": 0
+}

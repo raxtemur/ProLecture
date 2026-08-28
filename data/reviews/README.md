@@ -33,6 +33,19 @@ deliberately no structure here: the coordinator does not answer questions agains
 contract, they take decisions on top of somebody else's answers, and what makes that
 checkable is the link "these files → these changes" rather than a set of fields.
 
+At the video-directory level, `coordinator.log` is an append-only JSON-lines operational
+record. The coordinator writes `spawn` after each successful subagent launch, `finish`
+after each terminal result, and `sample_edit` after applying a sample change. It is the
+chronology of scheduling and edits, not a replacement for the per-question decision files.
+Write and validate it with:
+
+```bash
+python3 tools/coordinator_log.py <VIDEO_ID> spawn --help
+python3 tools/coordinator_log.py <VIDEO_ID> finish --help
+python3 tools/coordinator_log.py <VIDEO_ID> sample-edit --help
+python3 tools/coordinator_log.py <VIDEO_ID> check
+```
+
 The viewing budget (`budget`) is kept here as well and deliberately not carried over into
 the sample: it is a property of the measurement, not of the data.
 

@@ -1,0 +1,219 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q11",
+  "role": "semiblind",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q11/semiblind",
+  "budget": {
+    "frames_viewed": 10,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 786.0,
+        "t_end": 794.0
+      }
+    ],
+    "transcript_cues": 615,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The full 0-813 s transcript was read and the screen index was searched across the stretch. The declared 761.6-788.3 s distractor was retained: it shows and explains the zero-centred formula, not the requested completed substitution. Dense real frames resolve the visual change from old at 790 s, through partial at 791 s, to fully legible at 792 s.",
+  "prior_answer": "The exact three substitutions cannot be reported from the question alone because it does not state the old and new center symbols shown on screen. In general, changing a Taylor polynomial's center replaces the center consistently in the function value and every derivative evaluation, and replaces each power by a power of x minus the new center; the factorial denominators do not change.",
+  "prior_answer_assumptions": [],
+  "recognized_video": false,
+  "recognized_how": "Before viewing, the wording suggested a familiar Taylor-polynomial exposition, but I did not recognize this particular displayed transition or know its exact old/new symbols from memory.",
+  "scans": [
+    {
+      "idx": 0,
+      "t_from": 0.0,
+      "t_to": 813.0,
+      "watched": [
+        {
+          "kind": "cue",
+          "t": 15.0,
+          "what": "The talk begins by motivating Taylor series as polynomial approximations."
+        },
+        {
+          "kind": "cue",
+          "t": 592.5,
+          "what": "The narration discusses recentering near a nonzero input, using pi as an illustrative earlier case."
+        },
+        {
+          "kind": "cue",
+          "t": 713.8,
+          "what": "The narration introduces the general Taylor-polynomial formula for an arbitrary function."
+        },
+        {
+          "kind": "cue",
+          "t": 784.7,
+          "what": "The narration announces making the formula more general by approximating near an input other than zero."
+        },
+        {
+          "kind": "cue",
+          "t": 788.7,
+          "what": "The nonzero input is explicitly named a."
+        },
+        {
+          "kind": "cue",
+          "t": 791.4,
+          "what": "The narration says the polynomial is written in powers of x minus a."
+        },
+        {
+          "kind": "cue",
+          "t": 794.4,
+          "what": "The narration says all derivatives of f are evaluated at a."
+        },
+        {
+          "kind": "frame",
+          "t": 785.0,
+          "what": "The displayed general formula is still fully zero-centred: f(0), derivatives at 0, and powers x^n over n!."
+        },
+        {
+          "kind": "frame",
+          "t": 786.0,
+          "what": "The formula remains fully zero-centred."
+        },
+        {
+          "kind": "frame",
+          "t": 787.0,
+          "what": "The zero-centred terms remain visible while the graph animation moves."
+        },
+        {
+          "kind": "frame",
+          "t": 788.0,
+          "what": "The displayed formula still reads f(0), derivative evaluations at 0, and x powers."
+        },
+        {
+          "kind": "frame",
+          "t": 789.0,
+          "what": "The formula is partially occluded by the animation and does not visibly supply the completed substitutions."
+        },
+        {
+          "kind": "frame",
+          "t": 790.0,
+          "what": "The formula is again clearly visible in its old zero-centred form."
+        },
+        {
+          "kind": "frame",
+          "t": 791.0,
+          "what": "The side derivative list has changed to evaluations at a, but the main polynomial is mid-transition and still visibly contains f(0), so the complete three-part change is not yet legible."
+        },
+        {
+          "kind": "frame",
+          "t": 792.0,
+          "what": "The full main polynomial clearly shows f(a), derivatives evaluated at a, powers (x-a)^n, and the same 1! and 2! denominators; the color-matched side list also shows a."
+        },
+        {
+          "kind": "frame",
+          "t": 793.0,
+          "what": "The recentered formula remains visible, though the graph animation partly crosses it."
+        },
+        {
+          "kind": "frame",
+          "t": 798.0,
+          "what": "The recentered formula is stable and fully legible with center a and unchanged factorial denominators."
+        }
+      ],
+      "candidates": [
+        {
+          "question": "Does the zero-centred general formula visible at 785 s already answer the requested change?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "It is inside the declared distractor and contains only the old notation f(0), derivatives at 0, and x^n; it does not show the new center."
+        },
+        {
+          "question": "Is the answer fully visible at 790 s, after the declared distractor ends?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "A real frame still clearly shows the old zero-centred formula, so none of the requested completed substitutions is yet displayed."
+        },
+        {
+          "question": "Is the partially changed display at 791 s sufficient on its own?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The colored side evaluations have changed to a, but the main polynomial remains mid-animation with f(0) still visible and the new power bases not yet unambiguously rendered."
+        },
+        {
+          "question": "Is the complete answer visible by 792 s?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The real frame fully and simultaneously exposes f(a), derivative evaluations at a, (x-a)^n, and unchanged factorial denominators, without filling in any half-drawn content."
+        }
+      ],
+      "t_val": 792.0,
+      "t_val_basis": "At 792 s the real frame first gives a fully legible completed recentered polynomial: f(a), every displayed derivative evaluated at a, powers (x-a)^n, and the original factorial denominators still present. The 791 s frame is rejected as a partial transition.",
+      "answer_at_t_val": "The simultaneous substitutions are f(0) -> f(a); every derivative evaluation (d^n f/dx^n)(0) -> (d^n f/dx^n)(a); and x^n -> (x-a)^n. The factorial denominators n! (such as 1!, 2!, 3!) remain unchanged.",
+      "confidence": "high"
+    }
+  ],
+  "checks": [
+    {
+      "group": "shortcuts",
+      "item": "solvable-without-video",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 761.6,
+          "what": "Before any viewing, the supplied question asks for exact old-to-new on-screen center substitutions but does not name either displayed center symbol."
+        }
+      ],
+      "findings": "The question specifies the categories of substitutions and asks what happens to factorials, but withholds the exact old and new center notation required for the requested answer.",
+      "criterion": "The item fires only if the exact requested quantities can be answered honestly from the question and general knowledge, without inventing unseen screen content.",
+      "steps": [
+        {
+          "question": "Can general Taylor-series knowledge determine the structural kind of change?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "A Taylor polynomial is recentered consistently in its values, derivative evaluations, and shifted powers, with factorial orders preserved."
+        },
+        {
+          "question": "Can the exact displayed old and new symbols be named without video?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Those symbols are not included in the question, so naming them would require guessing the screen content."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "video-recognized",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 761.6,
+          "what": "Before opening the workspace, only the supplied question wording and video identifier were considered for recognition."
+        }
+      ],
+      "findings": "The general topic was familiar, but the particular video moment and its exact displayed replacement symbols were not remembered before viewing.",
+      "criterion": "Recognition requires being able to identify this particular video and moment strongly enough to give the requested answer from memory, not merely recognizing the mathematical topic.",
+      "steps": [
+        {
+          "question": "Could I name the exact three displayed substitutions from memory before viewing?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "I knew only the generic recentering rule and did not know which center symbols this display used."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "sample_id": "3b1b__3d6DsjIBzJ4__q18",
+  "role": "probe_text",
+  "iteration": 1,
+  "model": "gpt-5.4",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/3b1b__3d6DsjIBzJ4__q18/probe_text_r1",
+  "budget": {
+    "frames_viewed": 0,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 404,
+    "screen_index_used": false
+  },
+  "violations": [],
+  "notes": "The transcript supplies the spoken label and the relevant x-values, but not a view of the bracket. Its endpoints and capitalization are therefore inferred, not directly observed.",
+  "looked_at": [
+    {
+      "kind": "cue",
+      "t": 1184.0,
+      "what": "The example is the Taylor series for ln(x), constructed around x=1."
+    },
+    {
+      "kind": "cue",
+      "t": 1196.1,
+      "what": "The narration says inputs between 0 and 2 converge as more terms are added."
+    },
+    {
+      "kind": "cue",
+      "t": 1206.3,
+      "what": "The narration says that outside that range the series fails to approach anything."
+    },
+    {
+      "kind": "cue",
+      "t": 1242.4,
+      "what": "The narration calls such behavior divergence."
+    },
+    {
+      "kind": "cue",
+      "t": 1244.1,
+      "what": "The narration defines the maximum distance from the approximation input to convergent points."
+    },
+    {
+      "kind": "cue",
+      "t": 1252.6,
+      "what": "The narration names that distance the radius of convergence."
+    }
+  ],
+  "steps": [
+    {
+      "question": "What text does the narration give for the bracketed quantity?",
+      "answer_text": "Radius of convergence",
+      "why": "At 1252.6–1256.9 s, the maximum distance is explicitly called the radius of convergence for the Taylor series."
+    },
+    {
+      "question": "Which marked locations would delimit that radius in this example?",
+      "answer_text": "x=1 and x=2",
+      "why": "The series is centered at x=1 (1184.0–1196.1 s), converges between 0 and 2 (1196.1–1206.3 s), and the narration defines the radius as the distance from the center to a convergence boundary (1244.1–1256.9 s). Thus the right-hand radius runs from 1 to 2. This is an inference because the transcript does not show the bracket."
+    }
+  ],
+  "answer": "The label is “Radius of convergence,” and the bracket connects the marked locations x=1 and x=2. The endpoint identification is inferred from the narration rather than visually observed.",
+  "basis": "[1184.0–1187.6] says the Taylor series is for ln(x) “around the input x=1”; [1196.1–1200.9] says the convergent input is “between 0 and two”; [1242.4–1244.1] says the series “diverges”; and [1244.1–1256.9] defines the maximum distance from the approximation input to convergent points as “the radius of convergence.” The answer that the bracket runs from x=1 to x=2, and the capitalization of its exact text, are guesses/inferences because no visual material was available.",
+  "confidence": "low",
+  "insufficient": true
+}

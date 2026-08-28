@@ -1,0 +1,57 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q04",
+  "role": "probe_vision",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q04/probe_vision",
+  "budget": {
+    "frames_viewed": 3,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 0,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The screen index was used only to locate the relevant late-video frames. No transcript, annotation, bundle, video, or review file was opened.",
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 281.0,
+      "what": "The blue target is cos(x); the left third row visibly reads d^2(cos)/dx^2(0) = -cos(0) = -1, while the right side shows P(x) = 1 + 0x + c_2 x^2 and marks c_2 as free to change."
+    },
+    {
+      "kind": "frame",
+      "t": 292.0,
+      "what": "The same derivative value -1 and the still-free quadratic coefficient c_2 are simultaneously readable; the graph shows the blue cosine and a green quadratic approximation at the center."
+    },
+    {
+      "kind": "frame",
+      "t": 297.0,
+      "what": "The formulas remain readable: cos''(0) = -1 and P(x) = 1 + 0x + c_2 x^2."
+    }
+  ],
+  "steps": [
+    {
+      "question": "What displayed second-derivative value must the polynomial match at the center?",
+      "answer_text": "cos''(0) = -cos(0) = -1",
+      "why": "This is visibly written in the third derivative row in frame t000281.jpg and remains visible in t000292.jpg and t000297.jpg."
+    },
+    {
+      "question": "What equation determines the free quadratic coefficient?",
+      "answer_text": "P''(0) = 2c_2 = cos''(0) = -1",
+      "why": "The displayed polynomial is P(x) = 1 + 0x + c_2 x^2, whose second derivative at 0 is 2c_2, and the displayed target value is -1."
+    },
+    {
+      "question": "What is the coefficient c_2?",
+      "answer_number": -0.5,
+      "why": "Solving 2c_2 = -1 gives c_2 = -1/2."
+    }
+  ],
+  "answer": "The displayed target value is cos''(0) = -cos(0) = -1. For P(x) = 1 + 0x + c_2x^2, matching second derivatives at x = 0 gives P''(0) = 2c_2 = -1, so c_2 = -1/2.",
+  "basis": "Frames t000281.jpg, t000292.jpg, and t000297.jpg; t000281.jpg already simultaneously shows the target's second-derivative row and the free c_2x^2 term.",
+  "confidence": "high",
+  "insufficient": false
+}

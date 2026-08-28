@@ -1,0 +1,68 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q13",
+  "role": "probe_vision",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/3b1b__3d6DsjIBzJ4__q13/probe_vision_r1",
+  "budget": {
+    "frames_viewed": 4,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": null,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "Used screen_text.md only to locate the relevant stretch (501 displayed index lines); no transcript or audio was used.",
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 880.0,
+      "what": "The geometric-view screen displays the expansion about base point a, with endpoint x: f(a) + f'(a)(x-a) + f''(a)(x-a)^2."
+    },
+    {
+      "kind": "frame",
+      "t": 894.0,
+      "what": "A colored region labeled f_area(x) extends from the fixed left boundary to the endpoint marked x, under a distinct white graph."
+    },
+    {
+      "kind": "frame",
+      "t": 905.0,
+      "what": "The endpoint x has moved right; the colored accumulated area ends at a vertical boundary whose top lies on the white graph."
+    },
+    {
+      "kind": "frame",
+      "t": 916.0,
+      "what": "The white graph is explicitly labeled df_area/dx(x), distinguishing it from the colored f_area(x) region."
+    }
+  ],
+  "steps": [
+    {
+      "question": "What interval supplies the base of the correction shape?",
+      "answer_bool": null,
+      "answer_number": null,
+      "answer_text": "The horizontal interval from a to x, of length x-a.",
+      "why": "Frame t000880.jpg supplies the symbols a and x, while t000894.jpg and t000905.jpg show the accumulated region ending at x."
+    },
+    {
+      "question": "What geometric shape produces a quadratic area correction beyond the first-order strip?",
+      "answer_bool": null,
+      "answer_number": null,
+      "answer_text": "A triangular wedge on top of the first-order rectangular strip.",
+      "why": "The white graph in t000916.jpg gives the strip height and varies across the interval, so its first-order change makes the additional area triangular."
+    },
+    {
+      "question": "What determines the triangle's height in the displayed symbols?",
+      "answer_bool": null,
+      "answer_number": null,
+      "answer_text": "The change of the white graph from a to x: f_area'(x)-f_area'(a), locally approximated by f_area''(a)(x-a).",
+      "why": "Frame t000916.jpg identifies the white graph as f_area'(x), and frame t000880.jpg shows that the next correction is governed by the derivative at a times x-a."
+    }
+  ],
+  "answer": "The extra shape is a triangular wedge beyond the first-order rectangular strip. Its horizontal base runs from a to x, so the base is x-a. Its height is the change in the white graph over that interval: f_area'(x)-f_area'(a), which to first order is f_area''(a)(x-a). Thus the wedge area is approximately (1/2)f_area''(a)(x-a)^2, the second-order correction.",
+  "basis": "Frames t000880.jpg (880 s), t000894.jpg (894 s), t000905.jpg (905 s), and t000916.jpg (916 s); especially 880 s for a and x and 916 s for the white graph labeled df_area/dx(x).",
+  "confidence": "high",
+  "insufficient": false
+}

@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q03",
+  "role": "probe_frame",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q03/probe_frame",
+  "budget": {
+    "frames_viewed": 1,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 0,
+    "screen_index_used": false
+  },
+  "violations": [],
+  "notes": "",
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 218.0,
+      "what": "The frame shows cos(x) and P(x)=1+c1 x+c2 x^2 meeting at x=0, their derivative expressions at zero, and a horizontal tangent line through the common point."
+    }
+  ],
+  "steps": [
+    {
+      "question": "What is the slope of cos(x) at x=0 in the frame?",
+      "answer_number": 0.0,
+      "why": "The displayed equation reads d(cos)/dx(0) = -sin(0) = 0."
+    },
+    {
+      "question": "Which polynomial coefficient determines its slope at x=0?",
+      "answer_text": "The green-highlighted coefficient c1.",
+      "why": "The frame gives dP/dx(0)=c1+2c2·0, so only c1 remains."
+    },
+    {
+      "question": "What value and geometry follow from matching the two slopes?",
+      "answer_text": "c1=0, giving both curves the same horizontal tangent at their common point (0,1).",
+      "why": "Matching dP/dx(0) to the displayed cosine slope 0 forces c1=0; the yellow tangent drawn at x=0 is horizontal."
+    }
+  ],
+  "answer": "The green-coded coefficient is c1, and it is set to 0. Thus at x=0 the polynomial and cos(x) have the same horizontal tangent line at their common point (0,1), i.e. the tangent is y=1.",
+  "basis": "The single frame at t=218 s explicitly shows d(cos)/dx(0)=-sin(0)=0 and dP/dx(0)=c1+2c2·0, with c1 color-coded green and a horizontal tangent through (0,1).",
+  "confidence": "high",
+  "insufficient": false
+}

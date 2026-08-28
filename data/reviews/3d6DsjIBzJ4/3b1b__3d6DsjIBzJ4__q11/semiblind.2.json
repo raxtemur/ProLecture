@@ -1,0 +1,199 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q11",
+  "role": "semiblind",
+  "iteration": 2,
+  "model": "gpt-5",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/3b1b__3d6DsjIBzJ4__q11/semiblind_r2",
+  "budget": {
+    "frames_viewed": 15,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 790.0,
+        "t_end": 800.0
+      }
+    ],
+    "transcript_cues": 615,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The full 0–813 s transcript and screen index were covered. The declared distractor [761.6,792.0) was treated as given and not selected as t_val. Frame 792 is the first checked frame outside it and is already fully answerable.",
+  "prior_answer": "The function value and every derivative evaluation must change from the old center to the new center, and each power must change from a power about the old center to the corresponding power about the new center; the factorial denominators do not change. The exact symbols cannot be stated because the question does not name either center.",
+  "prior_answer_assumptions": [],
+  "recognized_video": false,
+  "recognized_how": "I did not recognize the particular video or moment before viewing.",
+  "scans": [
+    {
+      "idx": 0,
+      "t_from": 0.0,
+      "t_to": 813.0,
+      "watched": [
+        {
+          "kind": "cue",
+          "t": 592.5,
+          "what": "The narration introduces approximating near a nonzero input and explains using powers shifted by that input."
+        },
+        {
+          "kind": "frame",
+          "t": 607.0,
+          "what": "A polynomial centered at pi is visible with coefficients c_0 through c_4 and powers (x-pi)^n, but no function-value or derivative-evaluation formula and no factorial denominators."
+        },
+        {
+          "kind": "frame",
+          "t": 729.0,
+          "what": "The center-zero Taylor construction is visible with derivative values listed at 0 and factorial-scaled powers."
+        },
+        {
+          "kind": "frame",
+          "t": 747.0,
+          "what": "The general displayed formula is fully in the old center-zero notation: f(0), derivative evaluations at 0, and x^n over n!."
+        },
+        {
+          "kind": "frame",
+          "t": 767.0,
+          "what": "The displayed general formula still uses f(0), derivatives evaluated at 0, and x^n; factorial denominators are visible."
+        },
+        {
+          "kind": "frame",
+          "t": 785.0,
+          "what": "Immediately before the center change, the displayed formula remains in center-zero notation."
+        },
+        {
+          "kind": "frame",
+          "t": 790.0,
+          "what": "The old formula remains visible while the animation begins moving the approximation center."
+        },
+        {
+          "kind": "frame",
+          "t": 791.0,
+          "what": "The side labels have changed to evaluations at a, but the polynomial itself still shows f(0), derivative evaluations at 0, and x^n."
+        },
+        {
+          "kind": "frame",
+          "t": 792.0,
+          "what": "The polynomial now visibly shows f(a), derivatives evaluated at a, and powers (x-a)^1 and (x-a)^2, while 1! and 2! remain unchanged."
+        },
+        {
+          "kind": "frame",
+          "t": 798.0,
+          "what": "The completed center-a formula persists with the same three substitutions and unchanged factorial denominators."
+        },
+        {
+          "kind": "cue",
+          "t": 788.7,
+          "what": "The narrator names the new nonzero center a."
+        },
+        {
+          "kind": "cue",
+          "t": 791.4,
+          "what": "The narrator says to use powers of x-a."
+        },
+        {
+          "kind": "cue",
+          "t": 794.4,
+          "what": "The narrator says all derivatives of f are evaluated at a."
+        }
+      ],
+      "candidates": [
+        {
+          "question": "Does the 607 s nonzero-center example already supply all three requested substitutions and the factorial behavior?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "It shows c_n coefficients and shifted powers (x-pi)^n, but not f(0) to f(a), derivative evaluations from 0 to a, or factorial denominators."
+        },
+        {
+          "question": "Does the fully displayed old general formula at 747 s answer the requested change?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "It establishes the old notation f(0), derivatives at 0, and x^n/n!, but no new-center substitution has occurred."
+        },
+        {
+          "question": "Is the formula fully changed at 791 s inside the declared distractor?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Although the side labels already use a, the polynomial itself still uses f(0), derivative evaluations at 0, and x^n."
+        },
+        {
+          "question": "Is the complete answer visible at 792 s?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The real frame simultaneously shows f(a), derivative evaluations at a, and (x-a)^n, with the same factorial denominators as before."
+        }
+      ],
+      "t_val": 792.0,
+      "t_val_basis": "At 792 s the rendered formula is fully readable in center-a notation: its constant term is f(a), every shown derivative is evaluated at a, its powers are (x-a)^n, and the factorial denominators remain n!.",
+      "answer_at_t_val": "The three color-matched substitutions are f(0) -> f(a), (d^n f/dx^n)(0) -> (d^n f/dx^n)(a) for the derivative terms, and x^n -> (x-a)^n for the powers. The factorial denominators 1!, 2!, 3!, ... do not change.",
+      "confidence": "high"
+    }
+  ],
+  "checks": [
+    {
+      "group": "shortcuts",
+      "item": "solvable-without-video",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 761.6,
+          "what": "Before viewing, I read only the supplied question text; it names the substitution categories but not the old or new center symbols."
+        }
+      ],
+      "findings": "Before viewing, the question specified the categories of substitutions but did not name the old and new center symbols needed for an exact symbolic answer.",
+      "criterion": "The item fires only if the exact requested answer can be derived from the question and general knowledge without inventing unseen notation.",
+      "steps": [
+        {
+          "question": "Can the exact old-to-new symbols be named from the question alone?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Neither the old center symbol nor the new center symbol appears in the question text."
+        },
+        {
+          "question": "Can only the generic transformation rule be stated without viewing?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "General Taylor-polynomial knowledge gives the structural change and unchanged factorials, but not the video's exact notation."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "video-recognized",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 0.0,
+          "what": "Pre-view self-report: the specific video and moment were not recognized from the identifier and question."
+        }
+      ],
+      "findings": "Before opening any supplied material, I did not recognize this particular video or this moment and could not recall its exact displayed notation.",
+      "criterion": "This item fires only when prior memory of the specific video and moment supplies the answer independently of the permitted evidence.",
+      "steps": [
+        {
+          "question": "Did I recognize the specific video and moment before viewing?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "I had no specific memory of this video identifier, scene, or exact formula animation."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

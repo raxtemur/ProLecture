@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q04",
+  "role": "probe_frame",
+  "iteration": 3,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q04/probe_frame",
+  "budget": {
+    "frames_viewed": 1,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 0,
+    "screen_index_used": false
+  },
+  "violations": [],
+  "notes": "",
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 291.0,
+      "what": "At x=0, the frame shows cos(x) pointing to 1, the rows d(cos)/dx(0)=0 and d^2(cos)/dx^2(0)=-1, and P(x)=1+0x+c_2x^2 with c_2 marked free to change."
+    }
+  ],
+  "steps": [
+    {
+      "question": "What target value is displayed at the center?",
+      "answer_number": 1.0,
+      "why": "The frame explicitly shows x=0 and an arrow from cos(x) to 1."
+    },
+    {
+      "question": "What doubled target curvature must the altered polynomial match?",
+      "answer_number": -2.0,
+      "why": "The visible second-derivative row gives cos''(0)=-1, so doubling the signed curvature gives -2."
+    },
+    {
+      "question": "What equation determines the altered quadratic coefficient?",
+      "answer_text": "P''(0)=2c_2=-2",
+      "why": "For the displayed quadratic P(x)=1+0x+c_2x^2, differentiating twice gives P''(0)=2c_2."
+    },
+    {
+      "question": "What is the new value of the quadratic coefficient?",
+      "answer_number": -1.0,
+      "why": "Solving the altered matching equation 2c_2=-2 yields c_2=-1."
+    }
+  ],
+  "answer": "The displayed target value is cos(0)=1. Doubling the displayed signed curvature cos''(0)=-1 makes the target curvature -2, so the altered matching equation is P''(0)=2c_2=-2, and the new quadratic coefficient is c_2=-1.",
+  "basis": "The sole frame at t=291 s visibly supplies x=0, cos(0)=1, cos''(0)=-1, and P(x)=1+0x+c_2x^2. The doubled-curvature equation and coefficient follow by differentiating that displayed polynomial twice and solving.",
+  "confidence": "high",
+  "insufficient": false
+}

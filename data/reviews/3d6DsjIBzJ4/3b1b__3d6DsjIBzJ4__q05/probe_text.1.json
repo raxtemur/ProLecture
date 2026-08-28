@@ -1,0 +1,57 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q05",
+  "role": "probe_text",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q05/probe_text",
+  "budget": {
+    "frames_viewed": 0,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 253,
+    "screen_index_used": false
+  },
+  "violations": [],
+  "notes": "The numerical true value displayed on screen is not transcribed. The numerical attempt uses the mathematical value of cos(0.1), not a claimed reading of the absent display text.",
+  "looked_at": [
+    {
+      "kind": "cue",
+      "t": 326.6,
+      "what": "The lecturer specifies estimating cosine of 0.1 with the quadratic polynomial."
+    },
+    {
+      "kind": "cue",
+      "t": 329.6,
+      "what": "The lecturer says the estimate is 0.995."
+    },
+    {
+      "kind": "cue",
+      "t": 332.7,
+      "what": "The lecturer refers to the true value of cosine of 0.1, but the transcript contains no numerical value for it."
+    }
+  ],
+  "steps": [
+    {
+      "question": "What quadratic estimate is stated in the transcript?",
+      "answer_number": 0.995,
+      "why": "At 329.6–332.7 s the lecturer says, 'you'd estimate it to be 0.995.'"
+    },
+    {
+      "question": "What numerical true value is distinguishable in the transcript?",
+      "answer_text": "No numerical true value is transcribed.",
+      "why": "At 332.7–336.6 s the narration only calls something 'the true value of cosine of 0.1'; its displayed digits are absent from the text modality."
+    },
+    {
+      "question": "What is a general-knowledge numerical attempt using the mathematical value cos(0.1)?",
+      "answer_number": 0.0000041652780258,
+      "why": "Using general knowledge, cos(0.1) ≈ 0.9950041652780258, so cos(0.1) - 0.995 ≈ 0.0000041652780258, which is positive. This is not a reading of the displayed true value."
+    }
+  ],
+  "answer": "The transcript gives the quadratic estimate as 0.995 but does not transcribe the displayed numerical true value, so the requested subtraction of the two displayed numbers is not determinable from the text modality alone. As a general-knowledge attempt using the mathematical value cos(0.1) ≈ 0.9950041652780258, true value minus estimate is about 0.0000041652780258 (4.17×10^-6), which is positive, so the quadratic underestimates the true value.",
+  "basis": "Transcript: [326.6–329.6] identifies cos(0.1) and the quadratic; [329.6–332.7] says 'you'd estimate it to be 0.995'; [332.7–336.6] says 'the true value of cosine of 0.1' without speaking its digits. The difference and direction in the attempted numerical answer use general knowledge of cos(0.1), not a readable true-value numeral in the supplied transcript; treating that computed value as the displayed value would be a guess about unseen screen content.",
+  "confidence": "high",
+  "insufficient": true
+}

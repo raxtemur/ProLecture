@@ -1,0 +1,247 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q03",
+  "role": "full_window",
+  "iteration": 2,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q03/full_window0",
+  "budget": {
+    "frames_viewed": 15,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 228.0,
+        "t_end": 246.2
+      }
+    ],
+    "transcript_cues": 21,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The full trigger window and the ten-second post-window speech check were covered. The screen index was used only to locate moments; all cited visual facts were verified in real frames.",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "group": "windows",
+      "item": "window-can-be-tightened",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 229.0,
+          "what": "The polynomial reads P(x)=1+0x+c_2x^2 with the zero highlighted yellow, and the yellow horizontal tangent passes through the shared point at x=0."
+        },
+        {
+          "kind": "frame",
+          "t": 233.3,
+          "what": "The zero coefficient and the common horizontal tangent at x=0 remain visible while the matched curves are displayed."
+        },
+        {
+          "kind": "frame",
+          "t": 236.0,
+          "what": "Immediately before the window ends, P(x)=1+0x+c_2x^2 and the shared flat tangent are still visible; only c_2 is being varied."
+        }
+      ],
+      "findings": "The completed zero-coefficient state is visible at the opening of [229.0,236.2), remains visible in the middle, and is still on screen immediately before the end. There is no long empty tail or unfinished opening portion inside the window.",
+      "criterion": "A boundary should move only when a substantial part of the answer window does not support producing the requested answer; one or two seconds of harmless latency is not enough.",
+      "steps": [
+        {
+          "question": "What is the first checked frame inside the window where the requested state is complete?",
+          "answer_number": 229.0,
+          "why": "At 229.0 the displayed coefficient has completed its change to yellow 0 and the common flat tangent is visible."
+        },
+        {
+          "question": "Does the answer-supporting display persist until immediately before the right boundary?",
+          "answer_bool": true,
+          "why": "The 236.0 frame still shows the zero coefficient and the shared horizontal tangent, only 0.2 seconds before t_end."
+        },
+        {
+          "question": "Is there a substantial unsupported segment that should be removed?",
+          "answer_bool": false,
+          "why": "All checked portions from 229.0 through 236.0 retain the relevant state."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "windows",
+      "item": "author-says-answer-in-window",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 227.0,
+          "what": "The author says that setting it equal to zero ensures the approximation also has a flat tangent line at this point, continuing through 233.6 seconds."
+        },
+        {
+          "kind": "cue",
+          "t": 238.4,
+          "what": "The author says the polynomial value and slope at x=0 are locked in place to match cosine, continuing through 244.2 seconds."
+        },
+        {
+          "kind": "frame",
+          "t": 230.0,
+          "what": "The yellow zero in the polynomial and the shared yellow horizontal tangent are shown while the explanation is spoken."
+        },
+        {
+          "kind": "frame",
+          "t": 244.0,
+          "what": "Within ten seconds after t_end, the screen still shows the zero coefficient and common horizontal tangent while c_2 changes the curvature."
+        }
+      ],
+      "findings": "The author explicitly explains the zero setting and flat tangent during the window, and later says the slope at x=0 is locked to match cosine within the ten-second follow-up interval. The sample is labeled L1.",
+      "criterion": "Spoken or finished on-screen answers during the window or the next ten seconds invalidate L2/L3 reasoning tasks, but they are allowed for an L1 alarm whose purpose is to react when the fact becomes explicit.",
+      "steps": [
+        {
+          "question": "Is the requested answer stated or shown in finished form by t_end plus ten seconds?",
+          "answer_bool": true,
+          "why": "The zero and flat-tangent consequence are both shown and spoken between 229.0 and 233.6, with matching-at-x=0 corroboration by 244.2."
+        },
+        {
+          "question": "What reasoning level controls whether that overlap fires this item?",
+          "answer_text": "L1",
+          "why": "The supplied sample labels reasoning_level as L1."
+        },
+        {
+          "question": "Does author overlap constitute a defect at this reasoning level?",
+          "answer_bool": false,
+          "why": "For L1, coincidence with the author's explicit cue is the intended alarm behavior."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "event-not-earlier-than-window",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 228.0,
+          "what": "The yellow c_1 glyph is visibly mid-transformation in the derivative expression; the replacement value is not yet stably displayed."
+        },
+        {
+          "kind": "frame",
+          "t": 229.0,
+          "what": "The transformation is complete: yellow 0 replaces c_1 in the polynomial and derivative, with the shared horizontal tangent visible at x=0."
+        },
+        {
+          "kind": "frame",
+          "t": 229.6,
+          "what": "The explicit zero setting and shared flat tangent remain in a stable completed state."
+        }
+      ],
+      "findings": "One second before the window, the coefficient-to-zero substitution is still animated. At the 229.0 opening frame the zero setting is complete and the geometric consequence is visible.",
+      "criterion": "For a trigger defined by a visual event becoming explicit, the counting window should not open after the first completed occurrence of that event.",
+      "steps": [
+        {
+          "question": "Is the qualifying explicit state already complete in the last checked pre-window frame?",
+          "answer_bool": false,
+          "why": "At 228.0 the yellow coefficient glyph is still morphing and the final replacement is not stably legible."
+        },
+        {
+          "question": "When is the first checked completed occurrence of the explicit zero-setting state?",
+          "answer_number": 229.0,
+          "why": "The 229.0 frame cleanly shows 0 in both the polynomial and its derivative alongside the flat common tangent."
+        },
+        {
+          "question": "Does the event begin earlier than the window start?",
+          "answer_bool": false,
+          "why": "The first checked completed occurrence coincides with t_start=229.0 rather than preceding it."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "depends-on-is-dependency",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [],
+      "findings": "Trigger 0 has no depends_on field, so there is no declared cross-window dependency to test against its rubric.",
+      "criterion": "This item applies only when a window declares a depends_on link whose predecessor answer is genuinely required by the current window's rubric.",
+      "steps": [
+        {
+          "question": "Does trigger 0 declare a depends_on window?",
+          "answer_bool": false,
+          "why": "No depends_on value is present in the supplied trigger 0 specification."
+        }
+      ],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "evidence-span-is-last",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 224.0,
+          "what": "The controlling symbol c_1 is shown in yellow in P(x) and dP/dx(0), and the horizontal tangent at x=0 is visible, but c_1 has not yet been replaced by its value."
+        },
+        {
+          "kind": "frame",
+          "t": 228.0,
+          "what": "The yellow c_1 is in the middle of its transformation toward the replacement value."
+        },
+        {
+          "kind": "frame",
+          "t": 229.0,
+          "what": "The replacement is complete: the yellow value 0 appears in P(x) and dP/dx(0), and the shared horizontal tangent at x=0 is visible."
+        },
+        {
+          "kind": "frame",
+          "t": 229.6,
+          "what": "The same completed zero-setting and flat shared tangent are stably displayed."
+        }
+      ],
+      "findings": "The symbol, its yellow color, and the flat-tangent geometry are available before the final substitution completes. The last needed fact—the coefficient's explicit value 0—is complete by 229.0 and stable at 229.6. The declared evidence_span ends at 229.6.",
+      "criterion": "The evidence interval must extend through the moment when the final fact needed by the requested multi-part answer first becomes derivable, without being extended merely to later narration that only corroborates it.",
+      "steps": [
+        {
+          "question": "Which requested fact appears last in completed form?",
+          "answer_text": "The explicit setting of the yellow c_1 coefficient to 0",
+          "why": "The symbol/color and tangent geometry are visible at 224.0, while the coefficient-to-zero animation is still incomplete at 228.0 and complete at 229.0."
+        },
+        {
+          "question": "What is the last checked moment needed to establish that final fact stably?",
+          "answer_number": 229.6,
+          "why": "At 229.6 the completed yellow zero and the shared flat tangent are both plainly visible."
+        },
+        {
+          "question": "Does evidence_span [199.1,229.6] cover the last necessary evidence?",
+          "answer_bool": true,
+          "why": "Its right endpoint reaches the stable completed state at 229.6; later speech is corroboration rather than new evidence."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ],
+  "window_idx": 0
+}

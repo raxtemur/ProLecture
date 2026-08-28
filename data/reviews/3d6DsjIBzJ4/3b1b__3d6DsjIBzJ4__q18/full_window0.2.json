@@ -1,0 +1,261 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q18",
+  "role": "full_window",
+  "iteration": 2,
+  "model": "gpt-5",
+  "date": "2026-08-27",
+  "workspace": "/workspace-SR004.nfs2/rahmatullaev/rand_exps/PoC_for_rand_ideas/manim_play/.review_ws/3d6DsjIBzJ4/3b1b__3d6DsjIBzJ4__q18/full_window0_r2",
+  "budget": {
+    "frames_viewed": 8,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 1252.0,
+        "t_end": 1254.0
+      },
+      {
+        "t_start": 1253.5,
+        "t_end": 1258.6
+      }
+    ],
+    "transcript_cues": 19,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The label is still being introduced immediately before the window, but the exact phrase and both bracket endpoints are readable at 1253.5. The author says the name during the window; this is permitted for an L1 alarm. No prior reviews or annotation history were inspected.",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "group": "windows",
+      "item": "window-can-be-tightened",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1253.5,
+          "what": "The bracket is present below the x-axis from the yellow point to the right dashed line, and the complete phrase Radius of convergence is readable while still fading in."
+        },
+        {
+          "kind": "frame",
+          "t": 1254.0,
+          "what": "The same bracket, endpoints, and label remain visible during the label animation."
+        },
+        {
+          "kind": "frame",
+          "t": 1256.0,
+          "what": "Radius of convergence is fully bright beneath the bracket, whose endpoints remain clear."
+        },
+        {
+          "kind": "frame",
+          "t": 1258.0,
+          "what": "During the outgoing transition, the bracket and the full label remain visible together with both marked endpoints."
+        },
+        {
+          "kind": "frame",
+          "t": 1258.6,
+          "what": "The graph scene, bracket, and Radius of convergence label have been replaced by the next scene."
+        }
+      ],
+      "findings": "At the inclusive start frame the requested label and bracket geometry are readable. They persist through 1258.0 during the transition, and the scene has changed at the exclusive end boundary 1258.6.",
+      "criterion": "The interval needs adjustment only if a substantial part cannot support the requested answer; a brief fade or transition of one to two seconds is not enough by itself, provided the evidence stays readable.",
+      "steps": [
+        {
+          "question": "Are all requested facts readable at the first inspected frame inside the window?",
+          "answer_bool": true,
+          "why": "At 1253.5 the exact phrase, yellow left endpoint, and right dashed boundary can all be identified."
+        },
+        {
+          "question": "Does the requested evidence remain visible close to the exclusive right boundary?",
+          "answer_bool": true,
+          "why": "It remains visible at 1258.0 and disappears only by the scene-change frame at 1258.6."
+        },
+        {
+          "question": "Is there a large empty prefix or tail that would reward an unsupported answer?",
+          "answer_bool": false,
+          "why": "The usable evidence covers the inspected window except for the scene change exactly at its exclusive end."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "windows",
+      "item": "author-says-answer-in-window",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 1252.6,
+          "what": "The utterance crossing into the window says that the interval is called the radius of convergence."
+        },
+        {
+          "kind": "cue",
+          "t": 1254.8,
+          "what": "The author completes the sentence with for the Taylor series."
+        },
+        {
+          "kind": "frame",
+          "t": 1256.0,
+          "what": "The finished on-screen label Radius of convergence is visible within the window."
+        },
+        {
+          "kind": "cue",
+          "t": 1267.2,
+          "what": "Near the end of the ten-second follow-up interval, the narration discusses when series converge and does not add a different answer."
+        }
+      ],
+      "findings": "The author finishes speaking the term radius of convergence around 1254.4, and the same finished term is shown on screen in the window. No conflicting answer is introduced through 1268.6.",
+      "criterion": "A spoken or displayed answer in or shortly after the window is disqualifying only for L2 or L3 tasks; an L1 alarm is allowed to coincide with the author's answer.",
+      "steps": [
+        {
+          "question": "Is the answer spoken or shown within the window or the following ten seconds?",
+          "answer_bool": true,
+          "why": "The narration completes radius of convergence during the window, and the finished label is visible at 1256.0."
+        },
+        {
+          "question": "Is this sample classified as L1?",
+          "answer_bool": true,
+          "why": "The supplied sample sets reasoning_level to L1."
+        },
+        {
+          "question": "Does the author's answer therefore trigger the degeneracy failure for this sample?",
+          "answer_bool": false,
+          "why": "The failure criterion applies to L2 and L3, not to an L1 alarm."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "event-not-earlier-than-window",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1252.0,
+          "what": "The bracket is already present but there is no Radius of convergence label below it."
+        },
+        {
+          "kind": "frame",
+          "t": 1253.0,
+          "what": "A faint, incomplete label is beginning to appear below the bracket; its exact full text is not yet reliably readable."
+        },
+        {
+          "kind": "frame",
+          "t": 1253.5,
+          "what": "The entire phrase Radius of convergence is readable below the bracket, and the bracket endpoints are visible."
+        }
+      ],
+      "findings": "Before the window the label is absent at 1252.0 and only partially introduced at 1253.0. At the 1253.5 window start the requested exact text and the two connected locations can be read together.",
+      "criterion": "For this appearance trigger, onset is the first point at which the requested exact label and its connections are actually available, rather than the first faint stroke of an unfinished text animation.",
+      "steps": [
+        {
+          "question": "Is the requested exact label answer available in the 1253.0 pre-window frame?",
+          "answer_bool": false,
+          "why": "Only an incomplete, faint portion of the label is present there."
+        },
+        {
+          "question": "Is the complete requested answer available at the 1253.5 window opening?",
+          "answer_bool": true,
+          "why": "The full phrase and both bracket endpoints are identifiable in that frame."
+        },
+        {
+          "question": "Does the usable trigger event begin before its window?",
+          "answer_bool": false,
+          "why": "The evidence first becomes usable on the inspected grid at the window start, not in the pre-window frame."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "depends-on-is-dependency",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [],
+      "findings": "The only trigger in the supplied sample has no depends_on field.",
+      "criterion": "This check applies only when a window declares a dependency or when its rubric requires an earlier trigger answer that should be declared as one.",
+      "steps": [
+        {
+          "question": "Does trigger 0 declare a depends_on link?",
+          "answer_bool": false,
+          "why": "No depends_on key appears in the supplied trigger object."
+        },
+        {
+          "question": "Does the rubric require an answer from another trigger window?",
+          "answer_bool": false,
+          "why": "This is the sample's sole trigger, and all rubric facts concern the label and bracket in this window."
+        }
+      ],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "evidence-span-is-last",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1253.5,
+          "what": "The exact label and the bracket running from the yellow point to the right dashed boundary are visible together."
+        },
+        {
+          "kind": "frame",
+          "t": 1254.0,
+          "what": "The same complete set of answer facts remains visible within the declared evidence span."
+        },
+        {
+          "kind": "frame",
+          "t": 1256.0,
+          "what": "The label and both endpoints remain fully visible later in the evidence span."
+        }
+      ],
+      "findings": "All three required facts—the exact label, the yellow point as the left endpoint, and the right dashed boundary as the other endpoint—are jointly visible from the beginning of the declared evidence span and remain visible afterward.",
+      "criterion": "The evidence span must contain the moment when the last fact needed for the response becomes visually derivable; later narration is corroboration rather than required evidence.",
+      "steps": [
+        {
+          "question": "What is the last required fact to become available on the inspected frames?",
+          "answer_text": "The exact label text as it finishes appearing with the already-visible bracket endpoints.",
+          "why": "The bracket and endpoints precede the label; by 1253.5 the full phrase is readable with them."
+        },
+        {
+          "question": "Does the declared evidence span contain that last evidence moment?",
+          "answer_bool": true,
+          "why": "The span begins at 1253.5, the first inspected moment where all required facts are jointly readable."
+        },
+        {
+          "question": "Is any later fact needed to derive the requested response?",
+          "answer_bool": false,
+          "why": "Later frames only preserve or clarify the same label and endpoints."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ],
+  "window_idx": 0
+}

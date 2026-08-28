@@ -1,0 +1,282 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q13",
+  "role": "full_window",
+  "iteration": 3,
+  "model": "gpt-5",
+  "date": "2026-08-27",
+  "workspace": "/workspace-SR004.nfs2/rahmatullaev/rand_exps/PoC_for_rand_ideas/manim_play/.review_ws/3d6DsjIBzJ4/3b1b__3d6DsjIBzJ4__q13/full_window0_r3",
+  "budget": {
+    "frames_viewed": 14,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 935.8,
+        "t_end": 945.8
+      }
+    ],
+    "transcript_cues": 55,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The small triangular sliver starts to appear visually around 944 s, but the requested symbolic base and height are not supplied in finished form by t_end + 10. The assigned window otherwise remains visually relevant throughout.",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "group": "windows",
+      "item": "window-can-be-tightened",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 890.2,
+          "what": "The new screen shows a shaded region labelled f_area(x) beneath a separate white boundary graph, with x at the right endpoint."
+        },
+        {
+          "kind": "frame",
+          "t": 900.6,
+          "what": "The shaded accumulated-area region and white graph remain visible while the right endpoint is moved."
+        },
+        {
+          "kind": "frame",
+          "t": 919.6,
+          "what": "The same area-function construction remains, now with a narrow added strip and the derivative label."
+        },
+        {
+          "kind": "frame",
+          "t": 930.0,
+          "what": "A narrow first-order strip labelled dx is shown at the moving endpoint beneath the white graph."
+        },
+        {
+          "kind": "cue",
+          "t": 933.9,
+          "what": "The narrator says the first-order approximation becomes increasingly accurate for smaller choices of dx."
+        }
+      ],
+      "findings": "From 890.2 through the end of the window, the new area-function screen stays present and continues developing the first-order strip construction; there is no long visually empty tail.",
+      "criterion": "The interval should be shortened only if a substantial part of it no longer supports deriving or completing the requested prediction, allowing normal response latency.",
+      "steps": [
+        {
+          "question": "What is the first frame in the window that clearly shows the relevant new construction?",
+          "answer_number": 890.2,
+          "why": "At 890.2 the shaded f_area(x) region is visibly distinct from the white graph, unlike the old recap screen at 887.6."
+        },
+        {
+          "question": "Does the relevant construction disappear well before the right boundary?",
+          "answer_bool": false,
+          "why": "At 930.0 and through the closing narration at 935.8, the graph, shaded area, and first-order dx strip remain on screen."
+        },
+        {
+          "question": "Is there a substantial unusable suffix that should be removed?",
+          "answer_bool": false,
+          "why": "The continuous visual construction remains sufficient context for a model finishing its prediction anywhere in the window."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "windows",
+      "item": "author-says-answer-in-window",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 907.0,
+          "what": "The narrator says focusing on the area will make the second-order term pop out, without giving its geometric or symbolic form."
+        },
+        {
+          "kind": "cue",
+          "t": 919.9,
+          "what": "The narrator explains that a slight dx nudge adds area approximately equal to graph height times dx."
+        },
+        {
+          "kind": "frame",
+          "t": 938.3,
+          "what": "The screen still shows only the narrow yellow dx strip under the white graph, with the derivative of f_area labelled."
+        },
+        {
+          "kind": "cue",
+          "t": 943.5,
+          "what": "The narrator says a further portion must be taken into account but has not yet named its shape or symbolic dimensions."
+        },
+        {
+          "kind": "frame",
+          "t": 944.0,
+          "what": "A small pink wedge begins appearing above the yellow first-order strip, but no a, x-a, or second-derivative height label is present."
+        },
+        {
+          "kind": "frame",
+          "t": 945.0,
+          "what": "The wedge is highlighted at the top of the yellow strip; the requested base and height expressions are still absent."
+        },
+        {
+          "kind": "frame",
+          "t": 950.3,
+          "what": "After the ten-second tail, the triangle is plainly filled and an a label appears beside the dx strip."
+        }
+      ],
+      "findings": "Inside [890.2, 945.8), the narration gives the first-order height-times-dx strip and the picture begins revealing a triangular wedge near 944 s. It does not present the requested base x-a together with the slope-times-(x-a), equivalently f_area''(a)(x-a), height in finished form.",
+      "criterion": "For this L2 prediction to fail, the author must provide the complete requested answer, spoken or visibly finished, within the window or by 945.8 s; revealing only part of the geometry is insufficient.",
+      "steps": [
+        {
+          "question": "Does the author reveal the extra geometric shape by t_end plus ten seconds?",
+          "answer_bool": true,
+          "why": "A small triangular-looking wedge is visible above the yellow strip at 944-945 s."
+        },
+        {
+          "question": "Does the author also provide the requested base x-a in that interval?",
+          "answer_bool": false,
+          "why": "The frames through 945.0 show dx, not x-a; the a label only appears later at 950.3."
+        },
+        {
+          "question": "Does the author provide the requested slope or second-derivative height in that interval?",
+          "answer_bool": false,
+          "why": "No frame through 945.0 and no cue ending by 945.8 states the wedge height as local slope times the horizontal change or as f_area''(a)(x-a)."
+        },
+        {
+          "question": "Is the complete answer supplied in finished form by 945.8 seconds?",
+          "answer_bool": false,
+          "why": "Only the triangle component has begun to be revealed; two essential symbolic dimensions requested by the question remain unstated."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "event-not-earlier-than-window",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 887.6,
+          "what": "The prior Chapter 8 recap screen shows an integral, a shaded velocity-area graph, and a dT strip."
+        },
+        {
+          "kind": "frame",
+          "t": 890.2,
+          "what": "The new screen has appeared, with a shaded region labelled f_area(x) beneath a separate white graph and x at its right edge."
+        },
+        {
+          "kind": "cue",
+          "t": 889.0,
+          "what": "The narrator transitions from the recap and begins, 'consider a function that gives the area'."
+        }
+      ],
+      "findings": "The old recap graphic is still present at 887.6, while the specified new shaded area-function construction is clearly present at 890.2, exactly where the trigger window opens.",
+      "criterion": "An appearance-triggered window should begin when the described new visual state first becomes clear, not after that state has already begun.",
+      "steps": [
+        {
+          "question": "Is the specified new visual state already present on the earlier indexed frame?",
+          "answer_bool": false,
+          "why": "At 887.6 the screen is the Chapter 8 integral recap, not the new f_area(x) construction."
+        },
+        {
+          "question": "At what checked time is the new state first clearly present?",
+          "answer_number": 890.2,
+          "why": "The 890.2 frame distinctly separates the shaded accumulated area from the white boundary graph."
+        },
+        {
+          "question": "Does the event begin before the window's 890.2-second start?",
+          "answer_bool": false,
+          "why": "The adjacent scene-change evidence brackets the visual change between the old 887.6 screen and the clear new state at the window boundary."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "depends-on-is-dependency",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [],
+      "findings": "Trigger 0 has no depends_on field, and this sample contains no other trigger window on which it could depend.",
+      "criterion": "This check applies only when a dependency link exists or when another trigger supplies an answer logically required by this window's rubric.",
+      "steps": [
+        {
+          "question": "Is a depends_on link present on trigger 0?",
+          "answer_bool": false,
+          "why": "The supplied trigger object contains no depends_on member."
+        },
+        {
+          "question": "Is there another trigger whose answer is required by this trigger's rubric?",
+          "answer_bool": false,
+          "why": "The supplied sample has a single trigger, so no cross-window dependency can be encoded."
+        }
+      ],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "evidence-span-is-last",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 887.6,
+          "what": "The preceding recap screen does not yet show the new f_area(x) area-function construction."
+        },
+        {
+          "kind": "frame",
+          "t": 890.2,
+          "what": "The new screen clearly shows the shaded accumulated-area function beneath a distinct white graph, completing the condition named in the question."
+        },
+        {
+          "kind": "frame",
+          "t": 894.2,
+          "what": "The same separated shaded-area and white-graph construction persists after the evidence moment."
+        }
+      ],
+      "findings": "The last new fact demanded by this prediction prompt is the appearance of the clearly separated shaded area-function construction, which is visible at 890.2; the base-point notation needed for the inference was established earlier in the continuous stream.",
+      "criterion": "The evidence span must end where the final fact needed to derive the prediction becomes available, without being extended to later corroboration that explicitly draws the answer.",
+      "steps": [
+        {
+          "question": "What is the final new fact needed at this trigger?",
+          "answer_text": "The new screen clearly distinguishes the shaded accumulated-area function from the white graph whose area it accumulates.",
+          "why": "The question explicitly conditions the prediction on that new visual distinction while referring back to already established symbols."
+        },
+        {
+          "question": "When is that final new fact first clearly visible in the checked frames?",
+          "answer_number": 890.2,
+          "why": "The old recap is present at 887.6 and the complete new construction is present at 890.2."
+        },
+        {
+          "question": "Does the supplied evidence span cover that final evidence moment?",
+          "answer_bool": true,
+          "why": "The supplied interval [890.0, 890.2] ends at the checked frame where the condition becomes clear."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ],
+  "window_idx": 0
+}

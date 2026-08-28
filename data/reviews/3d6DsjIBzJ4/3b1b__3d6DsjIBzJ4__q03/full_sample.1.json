@@ -1,0 +1,335 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q03",
+  "role": "full_sample",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q03/full_sample",
+  "budget": {
+    "frames_viewed": 43,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 226.0,
+        "t_end": 230.0
+      }
+    ],
+    "transcript_cues": 1016,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The entire transcript and a scene-frame pass over the full 0-1339 s video were checked.\nA second complete presentation appears in the recap around 361-365 s and is currently uncovered.\nThe distractor ends exactly before the complete 229.0 s frame, but its why text leaks the answer.\nNo twin_of is present.",
+  "verdict": "FIX_QUESTION",
+  "checks": [
+    {
+      "group": "triggers",
+      "item": "no-missed-trigger",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 15.5, "what": "Opening approximation graphic near x=0."},
+        {"kind": "frame", "t": 58.7, "what": "Pendulum and cosine setup."},
+        {"kind": "frame", "t": 101.4, "what": "Introductory near-x=0 function graph."},
+        {"kind": "frame", "t": 140.9, "what": "Cosine and polynomial with c0, c1, c2 color-coded."},
+        {"kind": "frame", "t": 187.1, "what": "Two curves and free yellow c1 before tangent matching is resolved."},
+        {"kind": "frame", "t": 229.6, "what": "Yellow c1 has become 0 and both displayed curves share a flat tangent at x=0."},
+        {"kind": "frame", "t": 281.3, "what": "Second-derivative matching stage controlled by c2."},
+        {"kind": "frame", "t": 351.6, "what": "Recap begins with the same two curves and the coefficients."},
+        {"kind": "frame", "t": 356.9, "what": "Recap displays P(x)=1+c1x+c2x^2 beside the two curves."},
+        {"kind": "frame", "t": 361.4, "what": "Recap explicitly shows dP/dx(0)=d(cos)/dx(0) and yellow c1."},
+        {"kind": "frame", "t": 364.9, "what": "Recap replaces the yellow c1 term by yellow 0 while the two curves meet at x=0."},
+        {"kind": "frame", "t": 369.2, "what": "Recap moves on to second-derivative matching and c2."},
+        {"kind": "frame", "t": 421.8, "what": "Third-derivative stage with c3."},
+        {"kind": "frame", "t": 471.7, "what": "Fourth-derivative stage with c4."},
+        {"kind": "frame", "t": 517.3, "what": "General repeated-power-rule calculation."},
+        {"kind": "frame", "t": 561.6, "what": "Higher terms shown not to affect earlier derivative matches."},
+        {"kind": "frame", "t": 606.7, "what": "Expansion around pi rather than zero."},
+        {"kind": "frame", "t": 650.8, "what": "Cosine derivative cycle and approximation curves."},
+        {"kind": "frame", "t": 709.0, "what": "Cosine Taylor polynomial with its coefficient pattern, without c1 as the active matching coefficient."},
+        {"kind": "frame", "t": 761.6, "what": "Generic f and Taylor polynomial with df/dx(0), not the specific c1=0 match."},
+        {"kind": "frame", "t": 798.4, "what": "Generic expansion about a."},
+        {"kind": "frame", "t": 841.9, "what": "Taylor polynomial for exp(x)."},
+        {"kind": "frame", "t": 890.2, "what": "Area-function geometric section."},
+        {"kind": "frame", "t": 930.0, "what": "Differential area strip."},
+        {"kind": "frame", "t": 981.2, "what": "Second-order triangular area correction."},
+        {"kind": "frame", "t": 1078.4, "what": "Geometric-series convergence example."},
+        {"kind": "frame", "t": 1125.1, "what": "Taylor series for exp(1)."},
+        {"kind": "frame", "t": 1171.0, "what": "Convergence illustration with tangent at a different function."},
+        {"kind": "frame", "t": 1261.3, "what": "Closing list of further Taylor-series topics."},
+        {"kind": "frame", "t": 1336.0, "what": "End-screen material."},
+        {"kind": "cue", "t": 358.9, "what": "The narrator says c1 is in charge of making sure the derivatives match at x=0."},
+        {"kind": "cue", "t": 361.0, "what": "The narrator completes that the derivatives match at that point."}
+      ],
+      "findings": "The transcript was read line by line through 1338.7 s and the full-video scene pass was checked. Besides the annotated 229 s presentation, the recap at 358.9-364.9 s again names c1 as controlling derivative matching, shows it in yellow, and then replaces it with 0 beside the same cosine and polynomial curves. The later generic discussion around 761.6 s uses df/dx(0), not c1=0, and does not reproduce the requested specific answer.",
+      "criterion": "Every later moment that independently satisfies the literal request must be covered by a trigger or excluded by a distractor; a recap that again supplies the requested coefficient, value, and matching geometry is a candidate firing.",
+      "steps": [
+        {"question": "Does the annotated moment supply the requested specific match?", "answer_bool": true, "why": "At 229.6 s yellow 0 replaces c1 and the two curves have the same flat tangent."},
+        {"question": "Does any later scene independently reconstruct the same requested answer?", "answer_bool": true, "why": "Frames 361.4 and 364.9 plus the 358.9-364.1 cues repeat c1, derivative equality, and the substitution 0 for the same two curves."},
+        {"question": "Is the generic formula near 761.6 s another instance of the same answer?", "answer_bool": false, "why": "It shows df/dx(0) for an arbitrary f and no c1=0 assignment."}
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {
+        "field": "triggers",
+        "value": "Add an optional trigger for the recap beginning when 0 replaces c1 around 364.9 s; have a per-window reviewer set its exact end.",
+        "why": "The recap independently makes the same specific tangent-match answer available and is currently neither a trigger nor a distractor."
+      },
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "trigger-matches-criterion",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 217.3, "what": "The polynomial derivative at x=0 is shown as yellow c1 plus a vanishing c2 term."},
+        {"kind": "frame", "t": 229.0, "what": "Yellow c1 is replaced by 0 and the shared tangent is flat at x=0."},
+        {"kind": "cue", "t": 220.6, "what": "The narrator says c1 has complete control over the derivative near x=0."},
+        {"kind": "cue", "t": 227.0, "what": "The narrator begins setting that coefficient equal to zero."}
+      ],
+      "findings": "The sole annotated trigger is the specific cosine-versus-polynomial tangent-matching episode. By 229.0 s its controlling yellow c1 has been replaced with 0 and the displayed tangent line is flat at x=0.",
+      "criterion": "Each annotated trigger must literally be a moment when the displayed curves' tangent match becomes explicit and the requested coefficient, value, and consequence are available.",
+      "steps": [
+        {"question": "Is the trigger about the two displayed curves named by the question?", "answer_bool": true, "why": "The blue cosine and green polynomial are both displayed at 229.0 s."},
+        {"question": "Are coefficient, value, and geometric consequence available there?", "answer_bool": true, "why": "The preceding c1 state transitions to yellow 0 and a horizontal common tangent is visible at x=0."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "question-anchored-to-screen",
+      "target": null,
+      "looked_at": [],
+      "findings": "The question refers to 'the two displayed curves', a 'color-coded coefficient', and a geometric consequence at the displayed location x=0.",
+      "criterion": "The wording must point to specific visible objects or labels rather than ask a free-standing textbook question.",
+      "steps": [
+        {"question": "Which words anchor the task to a particular screen?", "answer_text": "'two displayed curves', 'color-coded coefficient', and 'at x=0'", "why": "These phrases require identifying objects and coding in the video frame."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-within-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "The question directly requests the controlling coefficient, its assigned value, and the geometric consequence at x=0. The rubric additionally requires the answer to state that the coefficient's screen color is yellow. Grammatically, 'report the color-coded coefficient' requests the coefficient itself; it does not unambiguously request reporting its color, just as 'report the red car's speed' does not require restating red.",
+      "criterion": "Every rubric requirement must be an explicit deliverable in the question string that the participant sees.",
+      "steps": [
+        {"question": "What question requirement supports identifying c1?", "answer_text": "'report the ... coefficient that controls this match'", "why": "This asks for the coefficient's identity."},
+        {"question": "What question requirement supports stating the value 0?", "answer_text": "'the value it is set to'", "why": "This directly requests the assigned value."},
+        {"question": "What question requirement supports the flat matching tangent?", "answer_text": "'the geometric consequence at x=0'", "why": "This directly asks for the geometry at the specified input."},
+        {"question": "What question requirement unambiguously asks the answer to name yellow?", "answer_text": "None", "why": "'color-coded' modifies which coefficient is meant but does not say to report its screen color."}
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {
+        "field": "question",
+        "value": "When the tangent-line matching condition for the two displayed curves becomes explicit, report the controlling coefficient's screen color and symbol, the value it is set to, and the geometric consequence at x=0.",
+        "why": "This makes the yellow-color rubric item an explicit deliverable instead of an inference from an identifying modifier."
+      },
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "discriminator-in-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "The distractor contains the already-fixed value match and partial tangent discussion, but the requested tangent-line matching condition is not fully explicit until its controlling coefficient is set. The words 'When ... becomes explicit' distinguish the incomplete lead-up from the firing.",
+      "criterion": "The question itself must state the feature that separates a tempting incomplete moment from a correct firing.",
+      "steps": [
+        {"question": "Which phrase excludes the earlier value-match-only portion?", "answer_text": "'the tangent-line matching condition'", "why": "A value match alone is not the condition named by the question."},
+        {"question": "Which phrase excludes the partial tangent derivation before the assignment?", "answer_text": "'becomes explicit'", "why": "Before the substitution, the controlling coefficient and its assigned value are not yet simultaneously explicit."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-not-punishing-extra",
+      "target": null,
+      "looked_at": [],
+      "findings": "None of the four rubric entries uses exactly, only, single, no-more-than language, or a closed enumeration that rejects additional correct detail. Each entry is a positive identification requirement.",
+      "criterion": "Only restrictive rubric language can punish an otherwise correct extra detail; positive 'is identified' requirements are nonrestrictive.",
+      "steps": [
+        {"question": "How many restrictive rubric items are present?", "answer_number": 0, "why": "All four items ask that a fact be identified or stated and none excludes additional facts."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-fully-covered",
+      "target": {"trigger_idx": null, "distractor_idx": 0},
+      "looked_at": [
+        {"kind": "frame", "t": 187.1, "what": "The distractor begins with value matching fixed and c1/c2 still free."},
+        {"kind": "frame", "t": 191.1, "what": "Same two curves with unmatched polynomial tangent and free yellow c1."},
+        {"kind": "frame", "t": 199.1, "what": "Flat tangent is drawn while c1 is still free."},
+        {"kind": "frame", "t": 206.9, "what": "Cosine derivative -sin(0)=0 is shown, but c1 has no assigned value."},
+        {"kind": "frame", "t": 217.3, "what": "Polynomial derivative is reduced toward c1, still without substituting 0."},
+        {"kind": "frame", "t": 226.0, "what": "Yellow c1 remains in both the polynomial and its derivative."},
+        {"kind": "frame", "t": 228.0, "what": "The replacement animation has begun but c1 is still visible and 0 is not yet established."},
+        {"kind": "frame", "t": 229.0, "what": "At the excluded right boundary, c1 has become yellow 0 and the full answer first appears."},
+        {"kind": "cue", "t": 181.0, "what": "The narrator reiterates the already-fixed value match at x=0."},
+        {"kind": "cue", "t": 227.0, "what": "The narrator begins 'Setting it equal to zero ensures that'."}
+      ],
+      "findings": "From question_time 181.0 s the display carries the already-fixed value match and then develops the tangent condition. Frames through 228.0 s remain incomplete. The first dense frame with the yellow 0 substitution complete is exactly 229.0 s, which is excluded from the half-open distractor [181.0,229.0).",
+      "criterion": "The distractor must cover the whole tempting but incomplete lead-up and stop when the complete answer becomes available.",
+      "steps": [
+        {"question": "When does the tempting lead-up begin within the evaluable period?", "answer_number": 181.0, "why": "That is question_time and the value-match state is already on screen."},
+        {"question": "What is the last checked incomplete frame?", "answer_number": 228.0, "why": "c1 is still present during the transition and 0 has not yet replaced it."},
+        {"question": "What is the first checked complete frame?", "answer_number": 229.0, "why": "The yellow 0 substitution and flat shared tangent are simultaneously visible there."},
+        {"question": "Does the half-open distractor exclude that complete frame?", "answer_bool": true, "why": "Its t_end is 229.0 s, so the frame at 229.0 is outside [181.0,229.0)."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-not-correct-answer",
+      "target": {"trigger_idx": null, "distractor_idx": 0},
+      "looked_at": [
+        {"kind": "frame", "t": 217.3, "what": "c1 is identified as the derivative term but has not been assigned 0."},
+        {"kind": "frame", "t": 228.0, "what": "The assignment animation is incomplete inside the distractor."},
+        {"kind": "frame", "t": 229.0, "what": "The complete c1-to-0 substitution appears only at the excluded boundary."}
+      ],
+      "findings": "Inside [181.0,229.0), a viewer can identify the tangent topic and eventually c1, but cannot yet see the completed assignment c1=0. The full requested triple first appears at the right boundary, outside the distractor.",
+      "criterion": "A distractor must remain an incomplete or wrong answer under the literal question, not a second valid firing that is penalized.",
+      "steps": [
+        {"question": "Can all requested fields be answered before 229.0 s?", "answer_bool": false, "why": "The assigned value is not visually complete through the 228.0 s frame."},
+        {"question": "Is the first fully correct state included in the distractor?", "answer_bool": false, "why": "The complete 229.0 s state is excluded by the half-open end."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-why-hides-answer",
+      "target": null,
+      "looked_at": [],
+      "findings": "The distractor why literally contains 'yellow c1=0 substitution' and 'the resulting shared flat tangent', from which every rubric item and the reference response can be reconstructed.",
+      "criterion": "A distractor explanation may describe the temptation and missing condition but must not transmit the reference answer to a semi-blind reviewer.",
+      "steps": [
+        {"question": "Can the coefficient and its color be reconstructed from why?", "answer_bool": true, "why": "It explicitly says 'yellow c1'."},
+        {"question": "Can the assigned value be reconstructed from why?", "answer_bool": true, "why": "It explicitly writes 'c1=0'."},
+        {"question": "Can the geometric consequence be reconstructed from why?", "answer_bool": true, "why": "It explicitly names the 'shared flat tangent'."}
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {
+        "field": "distractor_windows[0].why",
+        "value": "the value match is already fixed, but the tangent-match coefficient, its assignment, and the resulting geometry are not yet simultaneously explicit",
+        "why": "This preserves why the interval is tempting and incomplete without revealing the coefficient, color, value, or reference geometry."
+      },
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "reasoning-level-not-inflated",
+      "target": null,
+      "looked_at": [],
+      "findings": "At the completed visual state, the yellow replacement 0, the preceding c1 identity, and the common horizontal tangent at x=0 are directly visible; no external derivation or long-range synthesis is required.",
+      "criterion": "L1 is appropriate when the requested answer can be read directly from the displayed event rather than connecting distant moments or deriving outside information.",
+      "steps": [
+        {"question": "Must the answer combine distant parts of the video?", "answer_bool": false, "why": "The coefficient transition and tangent geometry occur in one continuous local animation."},
+        {"question": "Must any requested fact be derived from outside the video?", "answer_bool": false, "why": "All requested facts are displayed directly."},
+        {"question": "What level follows from those requirements?", "answer_text": "L1", "why": "The answer is direct local grounding."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-matches-description",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 199.1, "what": "c1 is yellow and the flat tangent is drawn, but no derivative formula -sin(0) is visible."},
+        {"kind": "frame", "t": 206.9, "what": "The formula d(cos)/dx(0)=-sin(0)=0 is visible with the flat tangent and yellow c1."},
+        {"kind": "frame", "t": 229.6, "what": "The polynomial has yellow 0 in place of c1 and retains the common flat tangent at x=0."}
+      ],
+      "findings": "Evidence record 0 says the cosine derivative -sin(x) is shown at 199.1 s, but the actual 199.1 s frame has no derivative formula. That formula is visible by 206.9 s. Evidence record 1 accurately describes the 229.6 s frame.",
+      "criterion": "Each provenance time must show the visual content claimed by its own explanation, not merely nearby content from the same scene.",
+      "steps": [
+        {"question": "Does frame 199.1 show the claimed derivative formula?", "answer_bool": false, "why": "Only the two curves, flat tangent, and coefficient display are present there."},
+        {"question": "Is there a nearby frame that does match evidence record 0?", "answer_number": 206.9, "why": "At 206.9 the -sin(0)=0 equation, flat tangent, and yellow c1 are all visible."},
+        {"question": "Does frame 229.6 match evidence record 1?", "answer_bool": true, "why": "It shows yellow 0 substituted for c1 and the flat tangent at x=0."}
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {
+        "field": "provenance.evidence[0].t",
+        "value": "206.9",
+        "why": "The frame at 206.9 s, unlike 199.1 s, contains every visual element named in the existing explanation."
+      },
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "references-consistent-with-windows",
+      "target": null,
+      "looked_at": [],
+      "findings": "The 199.1 s evidence is before t_start=229.0 but describes only partial evidence: c1 is still free and its value is absent. The 229.6 s evidence is inside [229.0,236.2) and supplies the completed assignment and geometry.",
+      "criterion": "A pre-window reference is contradictory only if its description implies that the complete reference answer was already available before the trigger opened.",
+      "steps": [
+        {"question": "Does the pre-window evidence description include c1's assigned value?", "answer_bool": false, "why": "It explicitly says c1 is still highlighted, not replaced by 0."},
+        {"question": "Is the evidence describing the completed assignment inside the trigger?", "answer_bool": true, "why": "229.6 lies within [229.0,236.2)."},
+        {"question": "Do the reference descriptions imply the full answer before t_start?", "answer_bool": false, "why": "The decisive value assignment is only in the in-window evidence record."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-answer-verified",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 217.3, "what": "The derivative at x=0 reduces to yellow c1 plus zero."},
+        {"kind": "frame", "t": 229.0, "what": "The yellow c1 position is replaced by 0 and a common horizontal tangent is visible."},
+        {"kind": "cue", "t": 220.6, "what": "The narrator states that c1 completely controls the approximation's derivative around x=0."},
+        {"kind": "cue", "t": 227.0, "what": "The narrator says setting it equal to zero ensures the approximation has a flat tangent."}
+      ],
+      "findings": "The source confirms every substantive part of the response: c1 is the yellow linear coefficient controlling the derivative at x=0, it is set to 0, and the polynomial then has the same flat tangent as cosine there.",
+      "criterion": "The reference response must be correct on the merits and each of its asserted facts must be supported by the video.",
+      "steps": [
+        {"question": "Which coefficient controls the tangent match?", "answer_text": "c1", "why": "The derivative display reduces to c1 at x=0 and the narrator says it has complete control."},
+        {"question": "What is its screen color?", "answer_text": "yellow", "why": "c1 and its replacement are visibly yellow in the checked frames."},
+        {"question": "What value is assigned?", "answer_number": 0, "why": "The 229.0 frame replaces c1 with 0."},
+        {"question": "What geometric result follows at x=0?", "answer_text": "The polynomial has a flat tangent matching cosine", "why": "A common horizontal tangent is visible and the narrator states the same consequence."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "twins-agree-on-substance",
+      "target": null,
+      "looked_at": [],
+      "findings": "The supplied sample has no twin_of field, so there is no paired reference response to compare.",
+      "criterion": "Substantive answer agreement can only be checked when the sample declares a twin.",
+      "steps": [],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

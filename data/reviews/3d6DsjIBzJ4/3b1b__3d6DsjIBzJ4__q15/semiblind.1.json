@@ -1,0 +1,170 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q15",
+  "role": "semiblind",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/3b1b__3d6DsjIBzJ4__q15/semiblind_r1",
+  "budget": {
+    "frames_viewed": 5,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 1076.0,
+        "t_end": 1080.0
+      },
+      {
+        "t_start": 1083.0,
+        "t_end": 1088.0
+      }
+    ],
+    "transcript_cues": 841,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The full 0–1104.6 s stretch was covered by the complete transcript and screen indices. Five real frames were opened around the only numerical-series candidate. The declared distractor was preserved; no forbidden material was accessed.",
+  "prior_answer": "It cannot be determined on the merits from the question alone: the displayed common ratio and labelled limit are not stated, so the requested new sum and quantitative comparison cannot be computed.",
+  "prior_answer_assumptions": [],
+  "recognized_video": false,
+  "recognized_how": "I did not recognize this particular video or moment, and could not name the displayed ratio or limit from memory before viewing.",
+  "scans": [
+    {
+      "idx": 0,
+      "t_from": 0.0,
+      "t_to": 1104.6,
+      "watched": [
+        {
+          "kind": "frame",
+          "t": 1077.0,
+          "what": "The complete numerical series 1/3 + 1/9 + 1/27 + 1/81 + 1/243 + ... is visible, but only the first partial sum 0.3333333 is labelled; no limit is shown."
+        },
+        {
+          "kind": "frame",
+          "t": 1079.0,
+          "what": "The same numerical series is visible with partial sum 0.4444444; no convergence-limit label is present."
+        },
+        {
+          "kind": "frame",
+          "t": 1085.0,
+          "what": "The series remains fully legible and its partial sum is 0.4979424, but the labelled limit is still absent."
+        },
+        {
+          "kind": "frame",
+          "t": 1086.0,
+          "what": "The series is visible but the upper limit label is mid-animation/obscured and cannot yet be read."
+        },
+        {
+          "kind": "frame",
+          "t": 1087.0,
+          "what": "The full series is legible and the complete yellow label reads 'Converges' to 1/2."
+        }
+      ],
+      "candidates": [
+        {
+          "question": "Is the requested answer available at 1077.0 s?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "This lies inside the declared distractor [1068.0,1078.4), and although the numerical series has appeared, its labelled limit is not visible."
+        },
+        {
+          "question": "Is the requested answer available at 1079.0 s?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "This is after the distractor, but the screen still provides only the series and a partial sum, not the labelled limit required by the question."
+        },
+        {
+          "question": "Is the requested answer available at 1085.0 s?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The ratio can be read from consecutive terms, but the labelled limit has not appeared."
+        },
+        {
+          "question": "Is the requested answer available at 1086.0 s?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The convergence label is still being drawn or obscured, so its value cannot genuinely be read from this frame."
+        },
+        {
+          "question": "Is the requested answer available at 1087.0 s?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Both the consecutive series terms establishing ratio 1/3 and the complete labelled limit 1/2 are now legible."
+        }
+      ],
+      "t_val": 1087.0,
+      "t_val_basis": "At 1087.0 s the screen simultaneously shows the complete numerical geometric series 1/3 + 1/9 + 1/27 + 1/81 + 1/243 + ... and the fully readable label 'Converges' to 1/2.",
+      "answer_at_t_val": "The displayed common ratio is 1/3 and the labelled limit is 1/2. Replacing only the first term with 1/4 while retaining ratio 1/3 gives sum (1/4)/(1-1/3) = 3/8. This is 1/8 less than 1/2 and equals 75% of the displayed limit.",
+      "confidence": "high"
+    }
+  ],
+  "checks": [
+    {
+      "group": "shortcuts",
+      "item": "solvable-without-video",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1087.0,
+          "what": "The frame supplies the ratio-defining numerical terms and labelled limit that were absent from the question text."
+        }
+      ],
+      "findings": "Before viewing, the question supplied neither the numerical common ratio nor the numerical labelled limit; the inspected frame supplies both missing values.",
+      "criterion": "The question is solvable without video only if its wording plus general knowledge determines the requested quantities without inventing screen content.",
+      "steps": [
+        {
+          "question": "Can the new numerical sum be derived without assuming unseen screen values?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The geometric-sum formula is general knowledge, but its ratio is an unspecified displayed value."
+        },
+        {
+          "question": "Can the quantitative comparison be derived without the video?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The comparison target is an unspecified labelled limit that must be read from the screen."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "video-recognized",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1087.0,
+          "what": "The inspected mathematical animation was not a moment I had identified or recalled before viewing."
+        }
+      ],
+      "findings": "Before opening the transcript or frames, I could not identify this particular video or state its displayed ratio and limit from memory.",
+      "criterion": "The recognition shortcut fires only if this particular video and moment were recognized well enough to retrieve the answer before viewing.",
+      "steps": [
+        {
+          "question": "Did I recognize this particular video and answer from memory before viewing?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "I had no specific memory of the displayed numerical series, ratio, or labelled limit."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

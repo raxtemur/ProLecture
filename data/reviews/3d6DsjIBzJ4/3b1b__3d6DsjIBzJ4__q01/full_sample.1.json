@@ -1,0 +1,273 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q01",
+  "role": "full_sample",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q01/full_sample",
+  "budget": {
+    "frames_viewed": 38,
+    "sparse_step": 50.0,
+    "dense_intervals": [
+      {"t_start": 35.0, "t_end": 55.0},
+      {"t_start": 54.0, "t_end": 55.0},
+      {"t_start": 77.0, "t_end": 78.0},
+      {"t_start": 497.0, "t_end": 501.0}
+    ],
+    "transcript_cues": 1017,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "A second fully labelled pendulum display occurs near 499 s and should be represented in the trigger set.\nThe sole distractor also extends into a correct-answer moment: by 53 s all three requested labels are already visible.\nNo twin_of is present.",
+  "verdict": "FIX_INTERVALS",
+  "checks": [
+    {
+      "group": "triggers",
+      "item": "no-missed-trigger",
+      "target": null,
+      "looked_at": [
+        {"kind": "cue", "t": 14.9, "what": "Beginning of the transcript that was read sequentially through 1338.7 s."},
+        {"kind": "cue", "t": 494.9, "what": "The narration returns to physics problems involving cosine of a small angle."},
+        {"kind": "frame", "t": 499.0, "what": "The pendulum is shown again with R, theta, R(1-cos(theta)), and a cosine expansion visible together."},
+        {"kind": "frame", "t": 1300.0, "what": "Late-video summary screen contains derivative and approximation graphs, not the labelled pendulum construction."}
+      ],
+      "findings": "The complete transcript contains only the opening pendulum discussion, but the whole-video frame pass shows the fully labelled pendulum diagram again at 499 s. No other sampled scene contains that complete construction.",
+      "criterion": "Every distinct on-screen occurrence that literally reaches the question's state—all three named labels visible—must be represented as a trigger or explicitly excluded as a distractor.",
+      "steps": [
+        {"question": "Does the 499 s frame meet the literal visual condition in the question?", "answer_bool": true, "why": "R, theta, and R(1-cos(theta)) are simultaneously legible on the pendulum diagram."},
+        {"question": "Is the 499 s occurrence represented by the existing trigger or distractor set?", "answer_bool": false, "why": "The only trigger ends at 79.8 s and the only distractor ends at 54.7 s."}
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {"field": "triggers", "value": "add a second trigger for the reappearance around t=499 s; have a full-window reviewer set its exact bounds", "why": "At 499 s the screen independently satisfies the same literal condition and supports the same counterfactual answer."},
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "trigger-matches-criterion",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 54.0, "what": "The opening pendulum diagram simultaneously shows theta, R, and R(1-cos(theta))."},
+        {"kind": "cue", "t": 52.6, "what": "The narration completes the phrase identifying the angle between the pendulum and vertical."}
+      ],
+      "findings": "Within the sole annotated trigger, the displayed pendulum has all three elements named by the question and the narration is discussing that same geometry.",
+      "criterion": "An annotated trigger is valid only if its depicted event satisfies the question's condition literally, without broadening it from a complete labelled construction to a merely related pendulum scene.",
+      "steps": [
+        {"question": "Does trigger 0 contain a frame with all three requested visible elements?", "answer_bool": true, "why": "The 54 s frame visibly contains R, theta, and the exact vertical-height expression."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "question-anchored-to-screen",
+      "target": null,
+      "looked_at": [],
+      "findings": "The question names a displayed pendulum diagram, three visible labels R and theta and a vertical height expression, and an angle shown on that diagram.",
+      "criterion": "The wording must point to concrete visual content on a particular screen rather than asking only about the general mathematical topic.",
+      "steps": [
+        {"question": "Which words identify particular on-screen content?", "answer_text": "displayed pendulum diagram; labels R and theta; its vertical height expression; the angle shown", "why": "These phrases require identification of a specific diagram and its labels."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-within-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "The rubric requires the exact doubled-angle height, its quadratic approximation, correct factor handling, and rejection of answers that leave the displayed angle unchanged.",
+      "criterion": "Each grading requirement must follow from an explicit demand or condition in the question seen by the participant.",
+      "steps": [
+        {"question": "What question demand supports the exact expression rubric item?", "answer_text": "Give the exact new height expression", "why": "The question asks for the exact expression after doubling the shown angle."},
+        {"question": "What question demand supports the quadratic approximation rubric item?", "answer_text": "and its quadratic small-angle approximation in theta", "why": "The approximation is explicitly requested."},
+        {"question": "What supports checking the factor of four and one-half?", "answer_text": "the angle shown were doubled", "why": "A correct evaluation of the requested doubled-angle quadratic necessarily squares 2 theta and then applies the one-half coefficient."},
+        {"question": "What supports rejecting unchanged-angle expressions?", "answer_text": "suppose the angle shown were doubled", "why": "Expressions that retain theta in place of 2 theta do not answer the stated counterfactual."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "discriminator-in-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "The distractor is described as an incomplete construction, while the question says to act once all three labels are visible. The excluding rubric examples retain the original angle, while the question explicitly doubles it.",
+      "criterion": "The participant-facing wording must itself contain the distinction that excludes each distractor and each explicitly rejected answer.",
+      "steps": [
+        {"question": "Which wording excludes the intended incomplete-construction distractor?", "answer_text": "Once ... all three labels R, theta, and its vertical height expression [are] visible", "why": "It makes completeness of the three visual elements the gating condition."},
+        {"question": "Which wording excludes R(1-cos(theta)) and R theta squared over two?", "answer_text": "the angle shown were doubled", "why": "Both excluded forms leave the displayed angle unchanged."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-not-punishing-extra",
+      "target": null,
+      "looked_at": [],
+      "findings": "No rubric item uses exactly, only, a single answer, a maximum count, or a closed enumeration of allowable correct details. The negative item rejects only unchanged-angle answers.",
+      "criterion": "A rubric must not use a restrictive form that would reject an additional detail which also correctly answers the question.",
+      "steps": [
+        {"question": "Is there a closed or exclusive enumeration of acceptable answer details?", "answer_bool": false, "why": "The positive items require two requested expressions and the negative item only rules out failure to double the angle."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-fully-covered",
+      "target": {"distractor_idx": 0},
+      "looked_at": [
+        {"kind": "frame", "t": 35.0, "what": "The pendulum support and rod have begun to appear."},
+        {"kind": "frame", "t": 38.0, "what": "The bob, rod, and dotted swing arc are visible without labels."},
+        {"kind": "frame", "t": 41.0, "what": "The unlabelled pendulum continues swinging."},
+        {"kind": "frame", "t": 44.0, "what": "The pendulum and dotted arc remain visible, still without the complete labelled construction."},
+        {"kind": "frame", "t": 47.0, "what": "Theta and R are visible, while the full height expression is not yet present."},
+        {"kind": "frame", "t": 50.0, "what": "The height expression is still being assembled."},
+        {"kind": "frame", "t": 53.0, "what": "The exact height R(1-cos(theta)) is now fully visible with R and theta."}
+      ],
+      "findings": "The distractor starts with the first pendulum construction at 35 s and covers every sampled assembly stage through the completed formula at 53 s; there is no uncovered earlier part of this temptation.",
+      "criterion": "The distractor interval should include the whole visually tempting lead-in rather than starting after related content has already begun.",
+      "steps": [
+        {"question": "Does related pendulum content begin before the distractor's 35 s start?", "answer_bool": false, "why": "The 0 s overview is blank and the transcript first introduces the physics example around 33–36 s; the 35 s frame is the first construction frame in the checked stretch."},
+        {"question": "Are any assembly stages between 35 and 53 s left outside the distractor?", "answer_bool": false, "why": "The declared interval 35.0–54.7 includes all inspected assembly frames."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-not-correct-answer",
+      "target": {"distractor_idx": 0},
+      "looked_at": [
+        {"kind": "frame", "t": 50.0, "what": "The height expression is still incomplete while R and theta are visible."},
+        {"kind": "frame", "t": 53.0, "what": "R, theta, and R(1-cos(theta)) are all fully visible together inside the distractor interval."},
+        {"kind": "frame", "t": 54.0, "what": "The same complete labelled diagram remains visible inside the distractor interval."}
+      ],
+      "findings": "Although the early part of distractor 0 is genuinely incomplete, by 53 s the exact height expression is fully rendered alongside R and theta, and it remains so at 54 s. Both moments lie before the distractor end 54.7 s.",
+      "criterion": "A distractor must remain an incorrect time to answer throughout its interval; it cannot include a frame that already satisfies the participant-facing condition.",
+      "steps": [
+        {"question": "Does any frame inside distractor 0 already satisfy the question's gating condition?", "answer_bool": true, "why": "At 53 s all three named visible elements are present."},
+        {"question": "Would answering from that frame be a good-faith correct response?", "answer_bool": true, "why": "The exact displayed expression supplies the substitution basis and the later small-angle identity is not needed to identify the event itself."}
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {"field": "distractor_windows[0].t_end", "value": "move it earlier than the first fully completed three-label frame (approximately 53 s); coordinate with the semi-blind boundary finding", "why": "The current distractor labels a visibly complete, question-satisfying moment as incorrect."},
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-why-hides-answer",
+      "target": null,
+      "looked_at": [],
+      "findings": "The why text says only that the labelled construction is not yet complete; it does not state the exact doubled-angle height or its approximation.",
+      "criterion": "A distractor explanation may justify exclusion but must not disclose the answer that the evaluated model is supposed to derive.",
+      "steps": [
+        {"question": "Does the why text contain either required answer expression?", "answer_bool": false, "why": "It contains no formula and no doubled-angle calculation."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "reasoning-level-not-inflated",
+      "target": null,
+      "looked_at": [],
+      "findings": "The video displays the original height and the small-angle cosine approximation, but it never states the counterfactual result for doubling theta.",
+      "criterion": "L3 is appropriate when the required answer must be derived for a hypothetical change not directly supplied by the video, rather than merely read or linked across moments.",
+      "steps": [
+        {"question": "Can the required doubled-angle result be read directly from one video line or frame?", "answer_bool": false, "why": "Only the unchanged-angle expressions are displayed."},
+        {"question": "Must the participant derive a new result absent from the video?", "answer_bool": true, "why": "They must substitute 2 theta and square that factor in the quadratic term."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-matches-description",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 54.0, "what": "The frame shows the pendulum with R, theta, and R(1-cos(theta))."},
+        {"kind": "frame", "t": 77.0, "what": "The frame shows cos(theta) approximately 1-theta squared over 2 and the height R theta squared over 2."}
+      ],
+      "findings": "The two cited visual moments show the objects and formulas described by provenance: the exact height in the first and the cosine/height approximation in the second.",
+      "criterion": "Each provenance pointer must visually contain what its description claims, rather than merely occurring near a related discussion.",
+      "steps": [
+        {"question": "Does the first frame support its exact-height description?", "answer_bool": true, "why": "All named labels and R(1-cos(theta)) are visible."},
+        {"question": "Does the second frame support its approximation description?", "answer_bool": true, "why": "Both the cosine quadratic approximation and R theta squared over 2 are visible."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "references-consistent-with-windows",
+      "target": null,
+      "looked_at": [],
+      "findings": "The visual evidence times are 54.7 s and 77.1 s, while trigger 0 begins at 54.7 s and ends at 79.8 s. The mathematical derivation is counterfactual reasoning rather than a claim that the answer appeared earlier.",
+      "criterion": "A provenance record must not imply that the answer was already available before its trigger window opened; later corroboration is allowed.",
+      "steps": [
+        {"question": "Is any cited frame earlier than the trigger start at 54.7 s?", "answer_bool": false, "why": "The first citation equals 54.7 s and the second is later at 77.1 s."},
+        {"question": "Does the non-frame derivation claim an earlier in-video answer?", "answer_bool": false, "why": "It explicitly performs the counterfactual substitution absent from the video."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-answer-verified",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 54.0, "what": "The displayed original height is R(1-cos(theta))."},
+        {"kind": "frame", "t": 77.0, "what": "The displayed quadratic identity is cos(theta) approximately 1-theta squared over 2."}
+      ],
+      "findings": "Replacing theta by 2 theta in the displayed exact height gives R(1-cos(2 theta)). Applying cos(u) approximately 1-u squared over 2 with u=2 theta gives R times 4 theta squared over 2, namely 2R theta squared.",
+      "criterion": "The reference response must be independently supported by the cited video facts and a correct derivation, including all coefficients and transformed variables.",
+      "steps": [
+        {"question": "What exact expression follows after doubling the displayed angle?", "answer_text": "R(1-cos(2 theta))", "why": "The original display is R(1-cos(theta)), so theta is replaced by 2 theta."},
+        {"question": "What quadratic term results after squaring the doubled angle?", "answer_text": "R(2 theta)^2/2 = 2R theta^2", "why": "The square contributes a factor four and the cosine expansion contributes one-half."},
+        {"question": "Do these independently derived expressions match the reference response?", "answer_bool": true, "why": "Both the exact and approximate forms agree term for term."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "twins-agree-on-substance",
+      "target": null,
+      "looked_at": [],
+      "findings": "The supplied sample has no twin_of field, so there is no paired reference answer to compare.",
+      "criterion": "Substantive reference-answer agreement can only be assessed when the sample declares a twin pair.",
+      "steps": [],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

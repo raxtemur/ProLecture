@@ -1,0 +1,257 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q02",
+  "role": "full_window",
+  "iteration": 3,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q02/full_window0",
+  "budget": {
+    "frames_viewed": 14,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 139.0,
+        "t_end": 171.0
+      }
+    ],
+    "transcript_cues": 22,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "Dense head and boundary frames confirm the marking begins at 140 s and is fully legible by 141 s.\nThe spoken development through 172.3 s concerns the unreflected cosine approximation and does not reveal the counterfactual reflected polynomial.",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "group": "windows",
+      "item": "window-can-be-tightened",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 140.0,
+          "what": "All three coefficient arrows and the 'Free to change' label are beginning to appear over the displayed quadratic."
+        },
+        {
+          "kind": "frame",
+          "t": 141.0,
+          "what": "The arrows from 'Free to change' clearly point to c_0, c_1, and c_2 simultaneously; blue cos(x) and its graph remain visible."
+        },
+        {
+          "kind": "frame",
+          "t": 159.0,
+          "what": "The marked coefficient formula, blue cos(x), center cue x=0, and value 1 are visible while the explanation proceeds."
+        },
+        {
+          "kind": "frame",
+          "t": 161.0,
+          "what": "The screen begins transitioning from the free-control marking into evaluation of P at zero."
+        },
+        {
+          "kind": "cue",
+          "t": 160.2,
+          "what": "The author says the approximation should be good and begins explaining that it should equal one at x=0."
+        }
+      ],
+      "findings": "The requested marking starts at the left boundary, is fully legible one second later, and the subsequent animation preserves the already observed target state while giving answer-generation time through the right boundary.",
+      "criterion": "The interval should be shortened only if it contains a substantial stretch in which a correct streaming model cannot use the observed event or is merely waiting after useful latency; disappearance after a first-appearance event does not invalidate the observation.",
+      "steps": [
+        {
+          "question": "When is the simultaneous three-control marking first visible?",
+          "answer_number": 140.0,
+          "why": "At 139 s there is no marking, while at 140 s all three arrows and the label are appearing."
+        },
+        {
+          "question": "Does later animation erase the already observed state asked about?",
+          "answer_bool": false,
+          "why": "The question keys on the moment all controls are marked free; the fully visible state at 141 s remains available to the streaming model as it answers."
+        },
+        {
+          "question": "Is there a large unusable tail that warrants moving the right boundary?",
+          "answer_bool": false,
+          "why": "The tail supplies generation latency for an L3 counterfactual calculation, and the screen only starts transitioning to the next derivation near 161 s."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "windows",
+      "item": "author-says-answer-in-window",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 139.5,
+          "what": "The author introduces quadratics c_0 + c_1 x + c_2 x^2 with variable constants."
+        },
+        {
+          "kind": "cue",
+          "t": 145.4,
+          "what": "The author asks for the quadratic that resembles cosine near x=0."
+        },
+        {
+          "kind": "cue",
+          "t": 157.4,
+          "what": "The author states that cosine at zero is one."
+        },
+        {
+          "kind": "cue",
+          "t": 168.3,
+          "what": "The author derives c_0 for the unreflected cosine approximation and says it can be set equal to one."
+        },
+        {
+          "kind": "frame",
+          "t": 171.0,
+          "what": "The screen shows P(x)=1+c_1x+c_2x^2 and P(0)=1+0 for the unreflected approximation."
+        }
+      ],
+      "findings": "From 140.0 through 172.3 s the author discusses approximating cos(x), reaching c_0=1 for the unreflected function; neither speech nor screen gives the reflected target -cos(x), c_0=-1, c_1=0, c_2=1/2, or the finished reflected polynomial.",
+      "criterion": "For this L3 item, the check fires only if the stream inside the answer window or within ten seconds after it supplies the finished counterfactual reflected answer, rather than merely discussing the original target or one opposite-sign coefficient.",
+      "steps": [
+        {
+          "question": "What target does the author explicitly analyze in the checked span?",
+          "answer_text": "The original unreflected cos(x) near x=0.",
+          "why": "The transcript asks for resemblance to cosine and then evaluates cosine at zero as one."
+        },
+        {
+          "question": "Is the reflected quadratic or its complete coefficient triple stated by 172.3 s?",
+          "answer_bool": false,
+          "why": "The latest checked cue and frame only establish c_0=1 for the unreflected approximation; they do not state the reflected signs or polynomial."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "event-not-earlier-than-window",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 139.0,
+          "what": "The quadratic and blue cos(x) are visible, but there are no coefficient arrows and no 'Free to change' label."
+        },
+        {
+          "kind": "frame",
+          "t": 140.0,
+          "what": "Colored arrows toward c_0, c_1, and c_2 and the 'Free to change' label begin appearing."
+        },
+        {
+          "kind": "frame",
+          "t": 141.0,
+          "what": "The simultaneous marking of all three coefficients is fully opaque and clear."
+        }
+      ],
+      "findings": "The event condition is absent at 139 s, begins at 140 s, and is fully rendered by 141 s; the annotated window begins at 140.0 s.",
+      "criterion": "An event window must open where the event itself begins, not after the event has already been observable for some earlier interval.",
+      "steps": [
+        {
+          "question": "Is the trigger condition already present in the last checked pre-window frame?",
+          "answer_bool": false,
+          "why": "At 139 s the formula has no arrows or free-control label."
+        },
+        {
+          "question": "At what checked moment does the trigger animation begin?",
+          "answer_number": 140.0,
+          "why": "The 140 s frame first shows all three colored coefficient arrows together with the emerging label."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "depends-on-is-dependency",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [],
+      "findings": "The supplied trigger 0 specification contains no depends_on link, and its rubric asks for the target, center, and reflected coefficients directly from this event and earlier evidence.",
+      "criterion": "A dependency link is applicable only when satisfying this window's rubric requires the answer to another named trigger, not merely because another trigger occurs earlier.",
+      "steps": [
+        {
+          "question": "Does trigger 0 declare a depends_on window?",
+          "answer_bool": false,
+          "why": "No depends_on field or linked trigger was supplied for this window."
+        },
+        {
+          "question": "Does the rubric require an answer imported from another trigger window?",
+          "answer_bool": false,
+          "why": "The target and center come from earlier visual evidence, and reflection plus coefficient calculation are performed for this event without another trigger answer."
+        }
+      ],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "evidence-span-is-last",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 139.0,
+          "what": "The blue cos(x) target, centered axes, and the quadratic formula are visible before any free-control marking."
+        },
+        {
+          "kind": "frame",
+          "t": 140.0,
+          "what": "The final trigger fact arrives as all three coefficient arrows and the 'Free to change' label begin appearing."
+        },
+        {
+          "kind": "frame",
+          "t": 141.0,
+          "what": "The same three-control marking is fully legible, with no additional fact needed to derive the reflected quadratic."
+        }
+      ],
+      "findings": "The earlier evidence supplies the blue cos(x) target and center x=0; the last new fact needed for this trigger is the simultaneous free marking, which arrives at 140 s, matching the end of evidence_span [122,140].",
+      "criterion": "The evidence span must reach the moment the last fact required to derive the answer first appears, without being extended to later explanation that merely corroborates or works through the original, unreflected example.",
+      "steps": [
+        {
+          "question": "Which required fact arrives last for this question?",
+          "answer_text": "The simultaneous marking that c_0, c_1, and c_2 are all free to change.",
+          "why": "The blue cos(x) target and center were already shown, while the control status first appears at the trigger."
+        },
+        {
+          "question": "When does that last fact first appear in a real frame?",
+          "answer_number": 140.0,
+          "why": "It is absent at 139 s and begins appearing at 140 s."
+        },
+        {
+          "question": "Does the supplied evidence_span end at that derivability moment?",
+          "answer_bool": true,
+          "why": "Its endpoint is 140 s; later speech about c_0=1 concerns corroboration of the unreflected example rather than a newly needed premise."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ],
+  "window_idx": 0
+}

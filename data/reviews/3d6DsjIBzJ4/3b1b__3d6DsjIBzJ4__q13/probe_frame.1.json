@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q13",
+  "role": "probe_frame",
+  "iteration": 1,
+  "model": "gpt-5",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/3b1b__3d6DsjIBzJ4__q13/probe_frame_r1",
+  "budget": {
+    "frames_viewed": 1,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 0,
+    "screen_index_used": false
+  },
+  "violations": [],
+  "notes": "",
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 922.0,
+      "what": "The frame shows a shaded accumulated-area function f_area(x), a distinct white graph labelled d f_area/dx(x), and a narrow first-order strip with horizontal width dx."
+    }
+  ],
+  "steps": [
+    {
+      "question": "What geometric object supplies the correction beyond the first-order strip?",
+      "answer_text": "A small triangle (equivalently, the triangular wedge above the first-order rectangle).",
+      "why": "Across the interval from x to x+dx, the white derivative graph changes height, so the area missed by a constant-height rectangular strip is approximately triangular."
+    },
+    {
+      "question": "What are the triangle's base and height in the displayed symbols?",
+      "answer_text": "Its base is dx, and its height is [d f_area/dx](x+dx) - [d f_area/dx](x), approximately [d^2 f_area/dx^2](x) dx.",
+      "why": "The strip spans the endpoint displacement dx, while the wedge height is determined by the rise of the white graph between the base point x and endpoint x+dx."
+    }
+  ],
+  "answer": "The extra shape is a small triangular wedge on top of the first-order strip. Its base is dx, running from x to x+dx. Its height is set by how much the white graph rises over that interval: (d f_area/dx)(x+dx) - (d f_area/dx)(x), approximately (d^2 f_area/dx^2)(x) dx. Hence its area gives the second-order term, approximately one half (d^2 f_area/dx^2)(x) (dx)^2.",
+  "basis": "In the sole frame at 922 s, the shaded object is labelled f_area(x), the distinct white curve is labelled d f_area/dx(x), and the narrow strip is labelled dx. General Taylor/geometric reasoning then identifies the unfilled change above the constant-height strip as a triangle whose height is the white curve's endpoint-minus-base-point change.",
+  "confidence": "high",
+  "insufficient": false
+}

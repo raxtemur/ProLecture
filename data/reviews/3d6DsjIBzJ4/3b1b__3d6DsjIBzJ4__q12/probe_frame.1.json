@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q12",
+  "role": "probe_frame",
+  "iteration": 1,
+  "model": "gpt-5",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/3b1b__3d6DsjIBzJ4__q12/probe_frame_r1",
+  "budget": {
+    "frames_viewed": 1,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 0,
+    "screen_index_used": false
+  },
+  "violations": [],
+  "notes": "",
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 835.0,
+      "what": "A graph of the exponential curve and a vertical derivative tower whose entries are all e^x, with the graph's vertical axis marking x=0."
+    }
+  ],
+  "steps": [
+    {
+      "question": "Which function is shown by the curve and derivative tower?",
+      "answer_text": "f(x)=e^x",
+      "why": "Every visible level of the derivative tower is labeled e^x, matching the plotted exponential curve."
+    },
+    {
+      "question": "At which point is the Taylor data being evaluated?",
+      "answer_number": 0.0,
+      "why": "The displayed graph is organized around the vertical axis x=0, indicating the Maclaurin evaluation point."
+    },
+    {
+      "question": "What is the fourth-order Taylor coefficient there?",
+      "answer_text": "f^(4)(0)/4! = 1/4! = 1/24",
+      "why": "The frame shows that every derivative remains e^x; general Taylor-series knowledge then gives f^(4)(0)=e^0=1."
+    },
+    {
+      "question": "What full fourth-power term follows?",
+      "answer_text": "(1/24)(x-0)^4 = x^4/24",
+      "why": "Substituting the coefficient 1/24 and center 0 into the fourth-order Taylor term gives the result."
+    }
+  ],
+  "answer": "The function is f(x)=e^x, evaluated at x=0. Its fourth-power coefficient is 1/4!=1/24, so the full term is (1/24)(x-0)^4=x^4/24.",
+  "basis": "Frame t=835 s visibly shows e^x recurring at every level of the derivative tower and the exponential graph aligned with the vertical axis x=0. Using the general Taylor coefficient formula f^(4)(0)/4! and e^0=1 gives 1/24 and hence x^4/24. I did not recognize or recall the video answer beforehand.",
+  "confidence": "high",
+  "insufficient": false
+}

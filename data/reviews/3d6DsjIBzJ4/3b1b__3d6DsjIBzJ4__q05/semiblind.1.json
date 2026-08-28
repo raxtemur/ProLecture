@@ -1,0 +1,156 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q05",
+  "role": "semiblind",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q05/semiblind",
+  "budget": {
+    "frames_viewed": 17,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 333.0,
+        "t_end": 339.0
+      }
+    ],
+    "transcript_cues": 254,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The transcript and screen index account for the full 0.0-341.7 s stretch.\nSparse scene frames were sampled across the stretch; dense real-frame inspection was concentrated at 333-338 s.\nThe declared distractor [328.6, 335.3) was excluded from t_val even where both values momentarily appeared readable.\nThe one-second dense naming grid limits the boundary precision to about one second.",
+  "prior_answer": "It cannot be answered exactly on the merits because the question does not state the displayed estimate and displayed true value, including their displayed precision. If one assumes the standard radian Maclaurin quadratic 1 - x^2/2 and unrounded cos(0.1), the difference would be about 0.0000041653 and the quadratic would underestimate, but those assumptions fill in missing screen content.",
+  "prior_answer_assumptions": [
+    "The displayed quadratic is the Maclaurin polynomial 1 - x^2/2 evaluated in radians.",
+    "The requested subtraction uses unrounded mathematical values rather than the particular displayed decimal precision."
+  ],
+  "recognized_video": false,
+  "recognized_how": "The title was familiar, but I did not remember this specific moment or its displayed numbers well enough to answer from memory.",
+  "scans": [
+    {
+      "idx": 0,
+      "t_from": 0.0,
+      "t_to": 341.7,
+      "watched": [
+        {"kind": "frame", "t": 0.0, "what": "Black opening frame; no cosine comparison values are shown."},
+        {"kind": "frame", "t": 40.0, "what": "Pendulum scene; no displayed estimate and true value for cos(0.1)."},
+        {"kind": "frame", "t": 85.0, "what": "Cosine graph near theta equals zero with an unfinished approximation, but no cos(0.1) numeric comparison."},
+        {"kind": "frame", "t": 122.0, "what": "Cosine graph setup; no numeric estimate-versus-true-value display for cos(0.1)."},
+        {"kind": "frame", "t": 162.0, "what": "General quadratic P(x) and cosine value at x equals zero are displayed, not the requested cos(0.1) comparison."},
+        {"kind": "frame", "t": 207.0, "what": "Value and first-derivative matching construction for P(x); requested decimals absent."},
+        {"kind": "frame", "t": 251.0, "what": "Quadratic coefficient remains free while curvature is discussed; requested decimals absent."},
+        {"kind": "frame", "t": 297.0, "what": "Cosine second derivative and general c2 quadratic are displayed; requested decimals absent."},
+        {"kind": "frame", "t": 311.0, "what": "The coefficient -1/2 is substituted into P(x), but no cos(0.1) estimate and true value are displayed."},
+        {"kind": "frame", "t": 325.0, "what": "Only the symbolic approximation cos(x) approximately equals 1 - x^2/2 is shown."},
+        {"kind": "frame", "t": 329.0, "what": "The cos(0.1) polynomial evaluation is being written; the true cosine value is absent."},
+        {"kind": "frame", "t": 333.0, "what": "A transition overlays the emerging 0.9950042... digits on the former estimate line, so two separate readable values are not jointly available."},
+        {"kind": "frame", "t": 334.0, "what": "Estimate 0.995 and true value 0.9950042... are both readable, but this frame is inside the declared distractor interval."},
+        {"kind": "frame", "t": 335.0, "what": "Transition animation fragments and overlaps both formula lines, preventing a clean joint reading."},
+        {"kind": "frame", "t": 336.0, "what": "Two stable lines clearly show the quadratic estimate 0.995 and true cos(0.1) value 0.9950042...."},
+        {"kind": "frame", "t": 337.0, "what": "A transition fragments the displayed formulas after the accepted moment."},
+        {"kind": "frame", "t": 338.0, "what": "Both stable lines again clearly show 0.995 and 0.9950042...."},
+        {"kind": "cue", "t": 324.1, "what": "The narration begins setting up a numerical estimate for cos(0.1)."},
+        {"kind": "cue", "t": 329.6, "what": "The narrator states the polynomial estimate is 0.995."},
+        {"kind": "cue", "t": 332.7, "what": "The narrator introduces the true value of cos(0.1) without speaking its digits."}
+      ],
+      "candidates": [
+        {
+          "question": "Is the requested signed comparison available at 329.0 s?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The polynomial evaluation is still being written and no true value is jointly readable; this is also within the declared distractor."
+        },
+        {
+          "question": "Can 333.0 s serve as the first answerable moment?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The true digits are emerging through a transition on the estimate line rather than as two separately readable quantities, and the moment lies in the declared distractor."
+        },
+        {
+          "question": "Can the readable comparison at 334.0 s be accepted as t_val?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Although both values are readable in this real frame, 334.0 s lies inside the supplied distractor [328.6, 335.3), which must not count as t_val."
+        },
+        {
+          "question": "Is the requested signed comparison readable at 335.0 s?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The animation has fragmented and overlapped both formula lines, so the two numbers are not cleanly readable together."
+        },
+        {
+          "question": "Is the requested signed comparison available at 336.0 s?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": "0.9950042... - 0.995 = 0.0000042..., so the quadratic underestimates the true value.",
+          "why": "After the distractor has ended, both complete numeric lines are simultaneously clear and the positive subtraction can be performed directly."
+        }
+      ],
+      "t_val": 336.0,
+      "t_val_basis": "At 336.0 s the real frame clearly and simultaneously shows the quadratic estimate 0.995 and the true value 0.9950042..., after the declared distractor interval.",
+      "answer_at_t_val": "True value minus estimate is 0.9950042... - 0.995 = 0.0000042... (about 4.2e-6), which is positive; therefore the quadratic underestimates the true value.",
+      "confidence": "high"
+    }
+  ],
+  "checks": [
+    {
+      "group": "shortcuts",
+      "item": "solvable-without-video",
+      "target": null,
+      "looked_at": [
+        {"kind": "cue", "t": 324.1, "what": "Before viewing, only the supplied question wording was considered; it refers to displayed values without stating their digits or precision."}
+      ],
+      "findings": "The question text names a displayed quadratic estimate and a displayed true value but does not supply either displayed decimal or its precision.",
+      "criterion": "The sample is solvable without video only if the requested quantities and relation can be derived without inventing missing on-screen content.",
+      "steps": [
+        {
+          "question": "Does the question itself state both displayed numeric values and their precision?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "It refers to the displayed values but does not reproduce them."
+        },
+        {
+          "question": "Would a numeric prior answer require assumptions about unseen screen content?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "It would require assuming the precise Taylor polynomial, radians, and how the screen rounds the true value."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "video-recognized",
+      "target": null,
+      "looked_at": [
+        {"kind": "cue", "t": 0.0, "what": "Pre-viewing self-report: the exact moment and displayed answer were not retrievable from memory."}
+      ],
+      "findings": "The title was familiar, but the particular moment and exact displayed numbers were not remembered before viewing.",
+      "criterion": "Recognition fires only when this particular video moment permits the answer to be named from memory without inspecting the supplied material.",
+      "steps": [
+        {
+          "question": "Could the exact displayed comparison be named from memory before viewing?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "No exact remembered screen values or answer were available."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

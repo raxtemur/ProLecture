@@ -1,0 +1,53 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q01",
+  "role": "probe_frame",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q01/probe_frame",
+  "budget": {
+    "frames_viewed": 1,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 0,
+    "screen_index_used": false
+  },
+  "violations": [],
+  "notes": "",
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 67.0,
+      "what": "A pendulum diagram labeled R and theta, with the height-formula pieces R(1 - ) and cos(theta) visible on screen."
+    }
+  ],
+  "steps": [
+    {
+      "question": "What height expression is represented by the visible formula pieces?",
+      "answer_bool": null,
+      "answer_number": null,
+      "answer_text": "h = R(1 - cos(theta))",
+      "why": "The frame visibly contains R(1 - ) and cos(theta), together with the pendulum labels R and theta."
+    },
+    {
+      "question": "What is the exact height after replacing theta by 2 theta while keeping R fixed?",
+      "answer_bool": null,
+      "answer_number": null,
+      "answer_text": "h_new = R(1 - cos(2 theta))",
+      "why": "Direct substitution of the doubled angle into the displayed height relation."
+    },
+    {
+      "question": "What is the quadratic small-angle approximation in the original variable theta?",
+      "answer_bool": null,
+      "answer_number": null,
+      "answer_text": "h_new approximately equals 2 R theta^2",
+      "why": "General knowledge: cos(x) = 1 - x^2/2 + O(x^4); setting x = 2 theta gives 1 - cos(2 theta) = 2 theta^2 + O(theta^4)."
+    }
+  ],
+  "answer": "With the angle doubled, the exact height is h_new = R(1 - cos(2 theta)) (equivalently 2R sin^2(theta)). For small theta, h_new = 2R theta^2 + O(theta^4), so its quadratic approximation is 2R theta^2.",
+  "basis": "Frame t=67 s supplies the pendulum labels and the visible pieces of h = R(1 - cos(theta)); the angle substitution and cosine Taylor expansion are general knowledge.",
+  "confidence": "high",
+  "insufficient": false
+}

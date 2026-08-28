@@ -1,0 +1,62 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q02",
+  "role": "probe_text",
+  "iteration": 3,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q02/probe_text",
+  "budget": {
+    "frames_viewed": 0,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 119,
+    "screen_index_used": false
+  },
+  "violations": [],
+  "notes": "The transcript's earlier approximation phrase at 68.6–75.0 is garbled, so the numerical quadratic coefficient is derived from standard Taylor-polynomial mathematics rather than reconstructed from that phrase.",
+  "looked_at": [
+    {
+      "kind": "cue",
+      "t": 122.7,
+      "what": "The lecturer says the function under consideration is cosine of x."
+    },
+    {
+      "kind": "cue",
+      "t": 126.9,
+      "what": "The lecturer asks for a quadratic approximation near x = 0."
+    },
+    {
+      "kind": "cue",
+      "t": 134.2,
+      "what": "The general quadratic is stated as c0 + c1*x + c2*x^2."
+    },
+    {
+      "kind": "cue",
+      "t": 154.6,
+      "what": "The lecturer states that cosine has value 1 at input 0."
+    }
+  ],
+  "steps": [
+    {
+      "question": "What are the blue target function and its center?",
+      "answer_text": "The target is cos(x), and the center is x = 0.",
+      "why": "The transcript explicitly identifies cosine of x at 122.7–125.1 and a quadratic approximation near x = 0 at 126.9–131.3."
+    },
+    {
+      "question": "What function results from reflection across the x-axis?",
+      "answer_text": "The reflected target is f(x) = -cos(x).",
+      "why": "By general knowledge, reflection of y = g(x) across the x-axis replaces it with y = -g(x)."
+    },
+    {
+      "question": "What coefficients does its degree-two Taylor polynomial at x = 0 have?",
+      "answer_text": "c0 = -1, c1 = 0, and c2 = 1/2.",
+      "why": "For f(x) = -cos(x), f(0) = -1, f'(0) = sin(0) = 0, and f''(0) = cos(0) = 1; hence c2 = f''(0)/2! = 1/2."
+    }
+  ],
+  "answer": "The blue target is cos(x), centered at x = 0. Reflecting it across the x-axis gives -cos(x). Its quadratic Taylor polynomial at the same center is p(x) = -1 + (1/2)x^2, so c0 = -1, c1 = 0, and c2 = 1/2.",
+  "basis": "Transcript: at 122.7–125.1 the target is named as cosine of x; at 126.9–131.3 the quadratic approximation is centered near x = 0; at 134.2–145.3 its form is c0 + c1*x + c2*x^2; and at 154.6–160.2 cos(0) = 1 is stated. General knowledge: x-axis reflection negates a function, and a degree-two Taylor polynomial has coefficients f(0), f'(0), and f''(0)/2!.",
+  "confidence": "high",
+  "insufficient": false
+}

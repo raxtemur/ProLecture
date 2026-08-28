@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q02",
+  "role": "probe_frame",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q02/probe_frame",
+  "budget": {
+    "frames_viewed": 1,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 0,
+    "screen_index_used": false
+  },
+  "violations": [],
+  "notes": "",
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 152.0,
+      "what": "The frame displays the blue target cos(x), the quadratic P(x)=c0+c1x+c2x^2, and marks c0, c1, and c2 as free to change."
+    }
+  ],
+  "steps": [
+    {
+      "question": "What quadratic is obtained for the new target at center x=0?",
+      "answer_text": "Use the degree-2 Taylor polynomial of -cos(x) about x=0.",
+      "why": "The frame establishes the quadratic form and free coefficients; the question fixes the replacement target, center, and degree."
+    },
+    {
+      "question": "What are the constant, linear, and quadratic coefficients?",
+      "answer_text": "Since -cos(0)=-1, its first derivative sin(x) is 0 at 0, and its second derivative cos(x) is 1 at 0, c0=-1, c1=0, and c2=1/2.",
+      "why": "For a Taylor polynomial centered at 0, c0=f(0), c1=f'(0), and c2=f''(0)/2!."
+    }
+  ],
+  "answer": "c0=-1, c1=0, and c2=1/2, so the resulting polynomial is P(x)=-1+x^2/2.",
+  "basis": "Frame t=152 s visibly supplies the displayed quadratic form, the original blue target cos(x), and the fact that all three coefficients are free; general knowledge of the degree-2 Taylor polynomial of -cos(x) about 0 supplies the coefficient values.",
+  "confidence": "high",
+  "insufficient": false
+}

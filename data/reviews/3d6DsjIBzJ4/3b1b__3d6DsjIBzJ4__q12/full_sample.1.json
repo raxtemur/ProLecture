@@ -1,0 +1,321 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q12",
+  "role": "full_sample",
+  "iteration": 1,
+  "model": "gpt-5.6",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/3b1b__3d6DsjIBzJ4__q12/full_sample_r1",
+  "budget": {
+    "frames_viewed": 37,
+    "sparse_step": 55.0,
+    "dense_intervals": [
+      {
+        "t_start": 816.3,
+        "t_end": 840.4
+      }
+    ],
+    "transcript_cues": 1019,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The visible exponential curve is blue/cyan, not orange.\nBy 828 s, two successive derivative arrows already return e^x, making the stated qualitative trigger criterion defensibly true inside the distractor.\nMaking that distractor an optional trigger would leave this multi-trigger sample without a distractor; objective rewording is preferable.",
+  "verdict": "FIX_QUESTION",
+  "checks": [
+    {
+      "group": "triggers",
+      "item": "no-missed-trigger",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 0.0, "what": "Opening black frame."},
+        {"kind": "frame", "t": 58.7, "what": "Pendulum and cosine discussion."},
+        {"kind": "frame", "t": 112.4, "what": "Sine approximation near zero."},
+        {"kind": "frame", "t": 171.6, "what": "Cosine graph and quadratic polynomial."},
+        {"kind": "frame", "t": 229.6, "what": "Cosine value and first-derivative matching."},
+        {"kind": "frame", "t": 281.3, "what": "Cosine second-derivative matching."},
+        {"kind": "frame", "t": 332.6, "what": "Numerical cosine approximation."},
+        {"kind": "frame", "t": 386.3, "what": "Characters request more Taylor terms."},
+        {"kind": "frame", "t": 443.4, "what": "Cosine derivative tower."},
+        {"kind": "frame", "t": 497.0, "what": "Pendulum illustration."},
+        {"kind": "frame", "t": 550.1, "what": "Cosine polynomial with fourth-order continuation."},
+        {"kind": "frame", "t": 606.7, "what": "Taylor expansion about pi."},
+        {"kind": "frame", "t": 670.0, "what": "Cyclic cosine derivative values at zero."},
+        {"kind": "frame", "t": 717.8, "what": "Generic Taylor polynomial terms."},
+        {"kind": "frame", "t": 772.5, "what": "Generic derivative-over-factorial Taylor formula."},
+        {"kind": "frame", "t": 830.4, "what": "Blue exponential graph and repeated e^x derivative tower."},
+        {"kind": "frame", "t": 880.3, "what": "Geometric view of the quadratic term."},
+        {"kind": "frame", "t": 938.3, "what": "Area-function increment diagram."},
+        {"kind": "frame", "t": 993.0, "what": "Area diagram with quadratic correction."},
+        {"kind": "frame", "t": 1046.1, "what": "Cosine Taylor series recap."},
+        {"kind": "frame", "t": 1100.3, "what": "Geometric-series convergence example."},
+        {"kind": "frame", "t": 1157.2, "what": "Rendered e^x Taylor polynomial, without a newly forming derivative tower."},
+        {"kind": "frame", "t": 1210.0, "what": "Natural-log Taylor series graph."},
+        {"kind": "frame", "t": 1269.5, "what": "Closing discussion of error bounds and convergence."},
+        {"kind": "frame", "t": 1321.1, "what": "End-card material."},
+        {"kind": "cue", "t": 15.0, "what": "Transcript begins the Taylor-series lecture."},
+        {"kind": "cue", "t": 817.8, "what": "Narration introduces e^x around x=0."},
+        {"kind": "cue", "t": 827.0, "what": "Narration says the derivative of e^x is itself."},
+        {"kind": "cue", "t": 1184.0, "what": "Narration later introduces the natural-log series around x=1."},
+        {"kind": "cue", "t": 1302.3, "what": "Transcript reaches closing music and credits."}
+      ],
+      "findings": "The complete transcript and a 25-frame sparse pass show one exponential derivative-tower sequence at 816-840 s. Later e^x material at 1157 s is an already rendered series rather than a newly forming derivative tower; the later logarithm tower does not repeat e^x.",
+      "criterion": "Every other moment satisfying the question's event description must be represented as a trigger or an excluded distractor.",
+      "steps": [
+        {"question": "Does another newly forming e^x derivative tower occur elsewhere?", "answer_bool": false, "why": "The full transcript and sparse visual pass show no second such sequence."},
+        {"question": "Do the later e^x series or logarithm scenes satisfy the same event description?", "answer_bool": false, "why": "One is a completed polynomial and the other has nonrepeating logarithm derivatives."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "trigger-matches-criterion",
+      "target": {"trigger_idx": 0, "distractor_idx": null},
+      "looked_at": [
+        {"kind": "frame", "t": 816.3, "what": "A light blue/cyan curve begins drawing on the coordinate axes."},
+        {"kind": "frame", "t": 830.4, "what": "The exponential graph remains light blue/cyan while the e^x derivative tower is visible."},
+        {"kind": "frame", "t": 834.0, "what": "Repeated e^x entries continue down the derivative tower beside the blue/cyan curve."}
+      ],
+      "findings": "The annotated event does contain the intended exponential derivative tower, but its graph is consistently light blue/cyan; no orange curve is present.",
+      "criterion": "A trigger must instantiate the event literally described by the participant-facing question, including identifying visual attributes used to select it.",
+      "steps": [
+        {"question": "Is a derivative tower repeatedly returning e^x visible?", "answer_bool": true, "why": "The 830.4 and 834 s frames show repeated e^x entries joined by d/dx arrows."},
+        {"question": "Is the newly introduced curve orange as the question states?", "answer_bool": false, "why": "The curve is light blue/cyan in every inspected frame from 816.3 through 834 s."}
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {
+        "field": "question",
+        "value": "Replace 'newly introduced orange curve' with 'newly introduced blue exponential curve' (or omit the color).",
+        "why": "The trigger shows a blue/cyan exponential curve, so the current visual selector is factually wrong."
+      },
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "question-anchored-to-screen",
+      "target": null,
+      "looked_at": [],
+      "findings": "The question names a newly introduced colored curve, its displayed derivative tower, an evaluation point shown, and a term not yet rendered in the polynomial.",
+      "criterion": "The wording must direct the participant to identifiable objects and state changes on this particular screen rather than pose only a textbook topic question.",
+      "steps": [
+        {"question": "Which phrases anchor the task to visible screen content?", "answer_text": "'newly introduced ... curve', 'derivative tower', 'evaluation point shown', and 'before that term is rendered in the polynomial'", "why": "These phrases refer to visible objects and their render sequence."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-within-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "Rubric items 1 and 2 directly score the requested coefficient and full fourth-power term. Item 4 rejects a mathematically wrong proposed term. Item 3 additionally requires an explicit causal tie between numerator 1 and the derivative tower, although the question asks to identify and predict but does not ask to explain the derivation.",
+      "criterion": "Each scoring requirement must follow from an explicit request in the participant-facing question; the rubric cannot silently require an explanation the question never requests.",
+      "steps": [
+        {"question": "Does 'the coefficient 1/24 is stated' follow from the question?", "answer_bool": true, "why": "The question explicitly asks for the coefficient."},
+        {"question": "Does stating x^4/24 or x^4/4! follow from the question?", "answer_bool": true, "why": "The question explicitly asks for the full fourth-power term."},
+        {"question": "Does an explicit causal tie from the repeated tower at zero follow from the question?", "answer_bool": false, "why": "The question asks for identification and prediction, not an explanation or justification."},
+        {"question": "Is rejecting x^4/4 supported by the requested coefficient and term?", "answer_bool": true, "why": "x^4/4 gives the wrong fourth-order Taylor coefficient."}
+      ],
+      "result": "fail",
+      "confidence": "medium",
+      "proposal": {
+        "field": "question",
+        "value": "Add 'briefly explain how the repeated derivative values determine it' after the request for the term, or remove rubric[2].",
+        "why": "The current rubric requires an explicit derivational link that the participant was not told to provide."
+      },
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "discriminator-in-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "The phrase 'as soon as the derivative tower ... makes its repeating pattern clear' distinguishes the intended event from the earlier graph-only portion, and 'full fourth-power term' excludes reporting only a number. The factorial coefficient rule makes x^4/4 incorrect.",
+      "criterion": "Every stated distractor exclusion and negative rubric distinction must be inferable from wording that the participant actually sees.",
+      "steps": [
+        {"question": "Which wording is intended to exclude the graph-only distractor?", "answer_text": "'derivative tower ... makes its repeating pattern clear'", "why": "The earlier interval initially lacks a repeated derivative tower."},
+        {"question": "Which wording excludes giving only 1/24?", "answer_text": "'coefficient and full fourth-power term'", "why": "It requests both the coefficient and the complete term."},
+        {"question": "Is x^4/4 a good-faith correct term under the question?", "answer_bool": false, "why": "The fourth Taylor coefficient uses 4!, not 4."}
+      ],
+      "result": "ok",
+      "confidence": "medium",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-not-punishing-extra",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 772.5, "what": "The generic Taylor formula shows the nth derivative value divided by n! multiplying x^n."},
+        {"kind": "frame", "t": 840.0, "what": "The tower shows successive values e^0=1."},
+        {"kind": "frame", "t": 847.2, "what": "The polynomial visibly includes 1 times x^4 over 4!."}
+      ],
+      "findings": "The only excluding rubric item rejects x^4/4. The displayed generic rule and later confirmation both show that the fourth-order denominator is 4!, so x^4/4 is not a correct extra detail.",
+      "criterion": "A restrictive or excluding rubric item may reject an alternative only when that alternative is not another correct detail under the question and visible context.",
+      "steps": [
+        {"question": "Does any correct fourth-power term in this scene equal x^4/4?", "answer_bool": false, "why": "The generic rule uses 4!, and the confirmed term is x^4/4!."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-fully-covered",
+      "target": {"trigger_idx": null, "distractor_idx": 0},
+      "looked_at": [
+        {"kind": "frame", "t": 816.3, "what": "The blue/cyan exponential curve begins drawing, with no tower yet."},
+        {"kind": "frame", "t": 819.0, "what": "The exponential graph and e^x label are visible."},
+        {"kind": "frame", "t": 825.0, "what": "The first d/dx arrow returns e^x."},
+        {"kind": "frame", "t": 828.0, "what": "A second d/dx arrow also returns e^x."},
+        {"kind": "frame", "t": 830.4, "what": "The annotated trigger boundary arrives as the repeated tower continues."}
+      ],
+      "findings": "The temptation begins with the curve at the distractor start, then progresses through the label and first repeated derivatives until the trigger boundary. No earlier part of this newly introduced graph sequence lies outside the distractor.",
+      "criterion": "The distractor interval must cover the full continuous lead-in during which the participant could be tempted by the same scene before the intended event.",
+      "steps": [
+        {"question": "When does the lead-in for this newly introduced curve begin?", "answer_number": 816.3, "why": "The curve begins drawing in the exact 816.3 s frame."},
+        {"question": "Is the lead-in continuously covered until the trigger boundary?", "answer_bool": true, "why": "Frames at 819, 825, 828, and 830.4 show one uninterrupted construction sequence."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-not-correct-answer",
+      "target": {"trigger_idx": null, "distractor_idx": 0},
+      "looked_at": [
+        {"kind": "frame", "t": 825.0, "what": "One differentiation maps e^x to e^x."},
+        {"kind": "frame", "t": 828.0, "what": "Two successive d/dx arrows both map e^x to e^x."},
+        {"kind": "cue", "t": 827.0, "what": "The narrator says the derivative of e^x is itself."},
+        {"kind": "cue", "t": 829.7, "what": "The narrator begins stating that the second derivative is also e^x."}
+      ],
+      "findings": "At 828 s, inside the distractor, the tower already contains two successive differentiations returning e^x to e^x. The narration simultaneously states the self-derivative rule and begins confirming the second derivative.",
+      "criterion": "A distractor must not contain a moment that a careful participant could reasonably regard as satisfying the literal event criterion and answer in good faith.",
+      "steps": [
+        {"question": "Can two identical successive derivative results make a repeating pattern clear?", "answer_bool": true, "why": "At 828 s the tower visibly repeats e^x after both displayed differentiations."},
+        {"question": "Does the question specify a more objective completion marker that excludes 828 s?", "answer_bool": false, "why": "It says only that the pattern becomes clear, without requiring a numbered derivative or a fixed tower length."}
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {
+        "field": "question",
+        "value": "Replace the subjective trigger phrase with an objective cue such as 'when the third derivative is added to the e^x tower'.",
+        "why": "A reasonable participant can already recognize the repeated pattern around 828 s, which is currently penalized as a distractor."
+      },
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-why-hides-answer",
+      "target": null,
+      "looked_at": [],
+      "findings": "The distractor reason says only that the graph is visible and the repeated derivative pattern is not yet complete; it does not reveal e^x, x=0, 1/24, or x^4/24.",
+      "criterion": "Distractor metadata should explain why the interval is excluded without embedding the answer that the participant must derive.",
+      "steps": [
+        {"question": "Does the distractor explanation state any scored answer value?", "answer_bool": false, "why": "It contains none of the function, point, coefficient, or term values."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "reasoning-level-not-inflated",
+      "target": null,
+      "looked_at": [],
+      "findings": "The requested fourth-order term is not rendered during the answer window. It must be derived by combining the repeated derivative value 1 at zero with the previously established nth-derivative-over-n-factorial coefficient rule.",
+      "criterion": "L3 is appropriate when the participant must derive a fact that is not directly presented during the answering event, rather than merely read it off or connect two explicit statements.",
+      "steps": [
+        {"question": "Is x^4/24 directly rendered inside the trigger window?", "answer_bool": false, "why": "The term appears only afterward, by the 847.2 s confirmation frame."},
+        {"question": "Must the participant compute the coefficient from the derivative tower and factorial rule?", "answer_bool": true, "why": "They must infer f^(4)(0)=1 and divide by 4! to obtain 1/24."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-matches-description",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 830.4, "what": "The left side shows repeated d/dx arrows returning e^x."},
+        {"kind": "frame", "t": 847.2, "what": "The polynomial shows 1*x^1/1! + 1*x^2/2! + 1*x^3/3! + 1*x^4/4! after the constant."},
+        {"kind": "frame", "t": 772.5, "what": "The generic displayed Taylor formula assigns f^(n)(0)/n! to x^n."}
+      ],
+      "findings": "Each cited visual moment contains the object described: the repeated exponential derivative tower at 830.4, the fourth-order confirmation at 847.2, and the generic derivative-over-factorial rule earlier in the lecture.",
+      "criterion": "A provenance record must point to real video evidence whose visible content matches the record's description.",
+      "steps": [
+        {"question": "Does the 830.4 s frame show repeated differentiation returning e^x?", "answer_bool": true, "why": "Multiple e^x entries are connected by d/dx arrows."},
+        {"question": "Does the 847.2 s frame confirm the fourth-power factorial term?", "answer_bool": true, "why": "It visibly includes 1 times x^4 divided by 4!."},
+        {"question": "Is the stated generic coefficient rule visibly established?", "answer_bool": true, "why": "The 772.5 s frame shows derivative values at zero over the corresponding factorials."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "references-consistent-with-windows",
+      "target": null,
+      "looked_at": [],
+      "findings": "The first answer-specific frame reference is exactly at t=830.4, the trigger start. The confirmation at 847.2 is after the trigger window, as expected for a prediction task. The earlier generic coefficient rule does not supply the exponential-specific numerator or requested term by itself.",
+      "criterion": "A reference contradicts the window only if it says the sample-specific answer was already available before the window opened; later confirmation is legitimate for prediction.",
+      "steps": [
+        {"question": "Does any provenance record place the complete sample-specific answer before 830.4 s?", "answer_bool": false, "why": "The earlier reference is only a generic rule, while the exponential-specific tower reference is at the boundary and the term confirmation is later."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-answer-verified",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 837.0, "what": "The repeated tower has changed to e^0 entries at the evaluation point zero."},
+        {"kind": "frame", "t": 840.0, "what": "Successive tower entries read e^0=1."},
+        {"kind": "frame", "t": 847.2, "what": "The later polynomial visibly confirms the x^4/4! term with numerator 1."},
+        {"kind": "cue", "t": 834.8, "what": "The narrator says that at x=0 all these derivatives equal 1."}
+      ],
+      "findings": "The function is e^x, the evaluation point is zero, every displayed derivative value there is 1, and the fourth-order Taylor coefficient is therefore 1/4!=1/24; the full term is x^4/24, equivalently x^4/4!.",
+      "criterion": "The reference response must be mathematically correct and supported by the observed function, point, derivative values, and coefficient rule.",
+      "steps": [
+        {"question": "What function and evaluation point are shown?", "answer_text": "e^x at x=0", "why": "The tower shows e^0 and the narration explicitly identifies x=0."},
+        {"question": "What is the fourth derivative value there?", "answer_number": 1.0, "why": "Every derivative remains e^x, and e^0=1."},
+        {"question": "What is the fourth-power coefficient?", "answer_text": "1/4! = 1/24", "why": "Taylor's rule divides the fourth derivative value by 4!."},
+        {"question": "What is the full fourth-power term?", "answer_text": "x^4/24 (equivalently x^4/4!)", "why": "Multiplying the coefficient by x^4 gives the term later confirmed on screen."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "twins-agree-on-substance",
+      "target": null,
+      "looked_at": [],
+      "findings": "The supplied sample has no twin_of field, so there is no paired reference response to compare.",
+      "criterion": "Substantive agreement can be checked only when the sample declares a twin with a second reference answer.",
+      "steps": [],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

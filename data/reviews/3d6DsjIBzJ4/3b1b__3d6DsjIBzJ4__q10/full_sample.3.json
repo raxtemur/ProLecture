@@ -1,0 +1,293 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q10",
+  "role": "full_sample",
+  "iteration": 3,
+  "model": "gpt-5",
+  "date": "2026-08-27",
+  "workspace": "/workspace-SR004.nfs2/rahmatullaev/rand_exps/PoC_for_rand_ideas/manim_play/.review_ws/3d6DsjIBzJ4/3b1b__3d6DsjIBzJ4__q10/full_sample_r3",
+  "budget": {
+    "frames_viewed": 33,
+    "sparse_step": null,
+    "dense_intervals": [
+      {"t_start": 737.0, "t_end": 738.0}
+    ],
+    "transcript_cues": 523,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The full transcript and a 30-frame scene pass found one literal concrete-to-general replacement.\nThe distractor remains valid, although its why is imprecise after 722.9: generic derivative labels are then visible, while the general formula is still absent.\nThe displayed general formula writes through x^3 and an ellipsis; the x^4 mapping is supported by the visible fourth-derivative row and the established color/order pattern.",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "group": "triggers",
+      "item": "no-missed-trigger",
+      "target": null,
+      "looked_at": [
+        {"kind": "cue", "t": 14.9, "what": "Beginning of the complete transcript pass."},
+        {"kind": "cue", "t": 643.2, "what": "The narrator begins the cosine derivative-cycle recap."},
+        {"kind": "cue", "t": 715.5, "what": "The narrator explicitly shifts from cosine to a general function."},
+        {"kind": "cue", "t": 817.8, "what": "The lecture switches to the exponential example."},
+        {"kind": "cue", "t": 1184.0, "what": "The lecture later switches to the logarithm series example."},
+        {"kind": "cue", "t": 1291.8, "what": "Closing summary of derivative information and approximation."},
+        {"kind": "frame", "t": 68.9, "what": "Early pendulum screen shows a concrete cosine approximation."},
+        {"kind": "frame", "t": 393.2, "what": "Concrete cosine derivative rows accompany a concrete cubic polynomial."},
+        {"kind": "frame", "t": 602.2, "what": "A polynomial centered at pi is shown, not a concrete-to-general replacement."},
+        {"kind": "frame", "t": 680.7, "what": "Concrete cosine derivative values 1, 0, -1, 0, 1 are visible."},
+        {"kind": "frame", "t": 736.7, "what": "The one matching general f formula replaces the concrete cosine polynomial."},
+        {"kind": "frame", "t": 801.1, "what": "The already-general formula is changed from center 0 to center a."},
+        {"kind": "frame", "t": 841.9, "what": "A new concrete exponential example is shown."},
+        {"kind": "frame", "t": 1187.9, "what": "A later concrete logarithm series and its derivatives are shown."},
+        {"kind": "frame", "t": 1297.0, "what": "Closing conceptual summary screen contains no matching replacement event."}
+      ],
+      "findings": "The transcript was followed in sequence through the whole 0-1339 second lecture and checked against 30 scene-change frames. Only the 715.5-736.7 transition changes the concrete cosine setup into the matching generic f-at-zero formula; later examples either change the expansion center or introduce a different concrete function.",
+      "criterion": "Every video moment that literally performs the concrete color-coded cosine-polynomial to generic-f-formula replacement named in the question must be annotated as a trigger or distractor.",
+      "steps": [
+        {"question": "Does any earlier scene replace this concrete cosine polynomial with the matching general f formula?", "answer_bool": false, "answer_number": null, "answer_text": null, "why": "Earlier scenes construct and analyze only concrete cosine polynomials or a polynomial centered at pi."},
+        {"question": "Does any later scene repeat that same concrete-to-general replacement?", "answer_bool": false, "answer_number": null, "answer_text": null, "why": "Later scenes generalize the center from 0 to a or introduce exponential, area, and logarithm examples without repeating the specified event."},
+        {"question": "How many literal replacement events satisfy the question?", "answer_bool": null, "answer_number": 1.0, "answer_text": null, "why": "The sole event is the transition completed at 736.7 seconds."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "trigger-matches-criterion",
+      "target": {"trigger_idx": 0, "distractor_idx": null},
+      "looked_at": [
+        {"kind": "frame", "t": 729.0, "what": "Generic derivative labels are present but the polynomial is still the concrete cosine polynomial."},
+        {"kind": "frame", "t": 736.7, "what": "The polynomial is now written with f(0), f'(0), f''(0), and f'''(0), color-matched to the generic derivative column."},
+        {"kind": "cue", "t": 735.4, "what": "The narrator says each x-to-the-n coefficient should use the nth derivative value."}
+      ],
+      "findings": "At the annotated trigger, the concrete coefficients 1, 0, -1/2, 0, and 1/24 have been replaced by a generic Taylor formula for f at zero while the matching generic derivative column remains on the left.",
+      "criterion": "A trigger belongs only if the on-screen replacement stated in the question has actually occurred, not merely because either the generic column or concrete polynomial is visible alone.",
+      "steps": [
+        {"question": "Is the pre-trigger polynomial still concrete at 729.0?", "answer_bool": true, "answer_number": null, "answer_text": null, "why": "It visibly reads 1 + 0x/1! - 1x^2/2! + 0x^3/3! + 1x^4/4! plus an ellipsis."},
+        {"question": "Has that polynomial become the matching general f formula by 736.7?", "answer_bool": true, "answer_number": null, "answer_text": null, "why": "The top row visibly uses f(0) and derivative values of f at 0 in the coefficient positions."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "question-anchored-to-screen",
+      "target": null,
+      "looked_at": [],
+      "findings": "The question names a concrete color-coded polynomial, its preceding derivative-value column, a visual replacement by a matching formula for f, and four coefficient slots.",
+      "criterion": "The wording must identify screen-specific objects or a screen transition rather than pose only a textbook mathematics problem.",
+      "steps": [
+        {"question": "Which phrases identify a particular visual state?", "answer_bool": null, "answer_number": null, "answer_text": "concrete color-coded polynomial; preceding derivative-value column; replaced by the matching general formula for f; coefficient slots", "why": "Those phrases depend on the layout, colors, order, and transition shown in this video."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-within-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "All five rubric requirements are requested by the question: identify the two vanishing slots, give the signs of both remaining slots, and perform the mapping from the derivative-value column to the generic coefficient slots.",
+      "criterion": "Each rubric demand must follow from an explicit requirement in the question string visible to the participant.",
+      "steps": [
+        {"question": "What supports requiring x and x^3 to be identified as zero?", "answer_bool": null, "answer_number": null, "answer_text": "Say which two vanish", "why": "The question explicitly asks which two of the four nonconstant entries vanish."},
+        {"question": "What supports requiring x^2 negative and x^4 positive?", "answer_bool": null, "answer_number": null, "answer_text": "give the signs of the two that remain", "why": "The question explicitly asks for both remaining signs."},
+        {"question": "What supports expressing the answer through derivatives at zero?", "answer_bool": null, "answer_number": null, "answer_text": "map the four nonconstant entries of the preceding derivative-value column onto the generic coefficient slots", "why": "That mapping instruction connects each slot to the corresponding displayed derivative value."},
+        {"question": "What supports rejecting an answer that gives only the vanished odd terms?", "answer_bool": null, "answer_number": null, "answer_text": "give the signs of the two that remain", "why": "Such an answer omits an explicitly requested half of the response."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "discriminator-in-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "The distractor is excluded by the temporal clause requiring the concrete polynomial to be replaced by the matching general formula for f; during the distractor the concrete polynomial remains displayed.",
+      "criterion": "The question itself must state the feature that separates an incorrect tempting moment from the intended trigger.",
+      "steps": [
+        {"question": "Which wording rules out answering while the concrete polynomial is still present?", "answer_bool": null, "answer_number": null, "answer_text": "When the concrete color-coded polynomial is replaced by the matching general formula for f", "why": "The requested event has not occurred anywhere in the distractor interval."},
+        {"question": "Does the excluding rubric instruction have a question-grounded discriminator?", "answer_bool": true, "answer_number": null, "answer_text": null, "why": "The question explicitly asks for the signs of the two nonzero entries, so a signless odd-term-only answer is incomplete."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-not-punishing-extra",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 680.7, "what": "The derivative-value column contains the constant value followed by exactly four displayed nonconstant values."},
+        {"kind": "frame", "t": 737.0, "what": "The generic column preserves those four nonconstant derivative rows, while the formula establishes the coefficient pattern."}
+      ],
+      "findings": "The closed enumeration is limited to the four nonconstant rows explicitly named by the question. The additional constant row is expressly excluded by the word nonconstant, and giving coefficient magnitudes such as -1/2 and 1/24 would remain compatible with every rubric item.",
+      "criterion": "A restrictive or closed rubric must not reject another visible detail that also falls within the question's stated scope.",
+      "steps": [
+        {"question": "Is there another nonconstant entry in the relevant column beyond the four named slots?", "answer_bool": false, "answer_number": null, "answer_text": null, "why": "The displayed nonconstant sequence through fourth order has exactly the x, x^2, x^3, and x^4 rows."},
+        {"question": "Would adding the actual coefficient magnitudes conflict with the rubric?", "answer_bool": false, "answer_number": null, "answer_text": null, "why": "The rubric requires the zero/sign mapping but does not forbid the compatible values 0, -1/2, 0, and 1/24."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-fully-covered",
+      "target": {"trigger_idx": null, "distractor_idx": 0},
+      "looked_at": [
+        {"kind": "frame", "t": 709.0, "what": "The complete concrete derivative-value column and concrete polynomial are visible."},
+        {"kind": "frame", "t": 711.6, "what": "The same complete concrete answer-bearing state remains visible."},
+        {"kind": "frame", "t": 717.8, "what": "The concrete polynomial remains while the derivative column has temporarily disappeared."},
+        {"kind": "frame", "t": 722.9, "what": "Generic f derivative labels begin appearing, but the polynomial remains concrete."},
+        {"kind": "frame", "t": 729.0, "what": "The generic derivative column is complete and the polynomial is still concrete."},
+        {"kind": "frame", "t": 736.7, "what": "The general f formula first replaces the concrete polynomial."},
+        {"kind": "cue", "t": 709.4, "what": "The narrator names the concrete polynomials as Taylor polynomials for cosine."},
+        {"kind": "cue", "t": 715.5, "what": "The narrator begins the transition to a more general function."}
+      ],
+      "findings": "From question time 709.0 until 736.7, the visible state is continuously tempting: first it directly shows the cosine values and polynomial, then it introduces generic derivative labels while retaining the concrete polynomial. The intended general-formula replacement occurs at the distractor's right boundary.",
+      "criterion": "The distractor interval must cover the entire pre-trigger stretch in which a model could be tempted by partial answer evidence but the question's replacement event has not yet occurred.",
+      "steps": [
+        {"question": "Does the tempting state begin by the distractor start?", "answer_bool": true, "answer_number": null, "answer_text": null, "why": "At 709.0 all four concrete nonconstant values and their polynomial slots are already visible."},
+        {"question": "Is there an uncovered gap before the true replacement?", "answer_bool": false, "answer_number": null, "answer_text": null, "why": "Scene frames at 711.6, 717.8, 722.9, and 729.0 cover each visual phase up to the 736.7 replacement."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-not-correct-answer",
+      "target": {"trigger_idx": null, "distractor_idx": 0},
+      "looked_at": [
+        {"kind": "frame", "t": 709.0, "what": "Only the concrete cosine polynomial and concrete values are shown."},
+        {"kind": "frame", "t": 729.0, "what": "Generic derivative labels are shown, but the polynomial has not been replaced by a formula for f."},
+        {"kind": "frame", "t": 736.7, "what": "The replacement required by the question is now visible at the trigger boundary."}
+      ],
+      "findings": "The distractor contains enough partial evidence to infer the mathematical signs, but never contains the event the question explicitly says to wait for: the concrete polynomial remains in place until 736.7.",
+      "criterion": "A distractor is legitimate only when an answer there fails a distinction explicitly imposed by the question rather than being another good-faith correct answer.",
+      "steps": [
+        {"question": "Could the signs be inferred during the distractor?", "answer_bool": true, "answer_number": null, "answer_text": null, "why": "The concrete values and their color-coded slots are visible at the start, making the interval genuinely tempting."},
+        {"question": "Has the stated concrete-to-general formula replacement occurred anywhere inside the distractor?", "answer_bool": false, "answer_number": null, "answer_text": null, "why": "Even at 729.0 the formula still contains the concrete coefficients; it changes only at 736.7."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-why-hides-answer",
+      "target": null,
+      "looked_at": [],
+      "findings": "The distractor reason describes the visible concrete polynomial and the missing general state; it contains none of the zero, negative, or positive slot assignments from the response or rubric.",
+      "criterion": "A semi-blind reviewer must not be able to reconstruct the reference answer or a rubric item from the distractor's explanation.",
+      "steps": [
+        {"question": "Does the why reveal which slots vanish?", "answer_bool": false, "answer_number": null, "answer_text": null, "why": "It names no slot and no derivative value."},
+        {"question": "Does the why reveal either remaining sign?", "answer_bool": false, "answer_number": null, "answer_text": null, "why": "It contains no positive or negative coefficient claim."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "reasoning-level-not-inflated",
+      "target": null,
+      "looked_at": [],
+      "findings": "The concrete derivative values are established before the question time and the generic formula appears about 28 seconds later, so the answer requires binding two separated visual states. No fact outside the video must be derived.",
+      "criterion": "L2 is appropriate when the answer requires connecting information from separated moments; L1 would require a direct read-off from one line or state, and L3 would require external derivation.",
+      "steps": [
+        {"question": "Are all answer facts supplied in one spoken line or one self-contained screen?", "answer_bool": false, "answer_number": null, "answer_text": null, "why": "The concrete values and the matching generic notation occur in successive but distinct visual phases."},
+        {"question": "Must any missing mathematical fact be derived from outside the video?", "answer_bool": false, "answer_number": null, "answer_text": null, "why": "The concrete values, order, colors, factorial pattern, and generic derivative labels are all displayed."},
+        {"question": "Which level matches the required cross-moment binding?", "answer_bool": null, "answer_number": null, "answer_text": "L2", "why": "The response maps an earlier concrete column onto a later generic formula."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-matches-description",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 680.7, "what": "The cosine-at-zero column visibly reads 1, 0, -1, 0, 1 in order."},
+        {"kind": "frame", "t": 737.0, "what": "A stable generic f-derivative column and color-matched Taylor formula are visible after the replacement."}
+      ],
+      "findings": "Both provenance descriptions match their cited frames. The first frame shows exactly the claimed derivative-value sequence, and the second shows the generic f column and formula replacing the concrete coefficients.",
+      "criterion": "Each provenance record must describe what is actually visible at its cited time, without adding content absent from that frame.",
+      "steps": [
+        {"question": "Does the 680.7 frame contain the claimed five-value sequence?", "answer_bool": true, "answer_number": null, "answer_text": null, "why": "The values aligned beside the colored derivative chain are visibly 1, 0, -1, 0, and 1."},
+        {"question": "Does the 737.0 frame contain the claimed stable general replacement state?", "answer_bool": true, "answer_number": null, "answer_text": null, "why": "The left column uses f and derivatives at zero, and the top polynomial uses matching generic derivative coefficients."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "references-consistent-with-windows",
+      "target": null,
+      "looked_at": [],
+      "findings": "The 680.7 evidence supplies only the earlier concrete values, while the 737.0 evidence supplies the generic mapping state inside the 736.7-772.5 trigger. The records are complementary and no pre-window record claims that the complete mapped answer was already available.",
+      "criterion": "A contradiction exists only if provenance says the complete answer was available before the trigger window opened; earlier evidence for one prerequisite is compatible when the decisive mapping arrives in the window.",
+      "steps": [
+        {"question": "Does the pre-window 680.7 record by itself establish the requested generic mapping?", "answer_bool": false, "answer_number": null, "answer_text": null, "why": "It shows concrete cosine values but no generic f formula onto which they are to be mapped."},
+        {"question": "Is the complementary generic mapping evidence inside the trigger window?", "answer_bool": true, "answer_number": null, "answer_text": null, "why": "The cited 737.0 frame falls after the 736.7 opening and before the 772.5 end."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-answer-verified",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 680.7, "what": "The four nonconstant derivative values are 0, -1, 0, and 1 in first-through-fourth order."},
+        {"kind": "frame", "t": 709.0, "what": "The concrete color-coded polynomial places those values over 1!, 2!, 3!, and 4!."},
+        {"kind": "frame", "t": 737.0, "what": "The replacement formula maps the same colors/orders to f'(0), f''(0), f'''(0), and the visible fourth-derivative row continuing the pattern."}
+      ],
+      "findings": "Independent recomputation from the frames gives f'(0)=0, f''(0)=-1, f'''(0)=0, and f''''(0)=1. Positive factorial denominators preserve the signs, so x and x^3 vanish, x^2 is negative, and x^4 is positive, exactly as stated in the response.",
+      "criterion": "The response must be independently recoverable from the visual evidence and the displayed coefficient rule, with every zero and sign correct.",
+      "steps": [
+        {"question": "What are the first-through-fourth nonconstant derivative values?", "answer_bool": null, "answer_number": null, "answer_text": "0, -1, 0, 1", "why": "They are displayed in order beside the cosine derivative chain at 680.7."},
+        {"question": "Which coefficient slots therefore vanish?", "answer_bool": null, "answer_number": null, "answer_text": "x and x^3", "why": "Their numerators are the first and third derivative values, both zero."},
+        {"question": "What are the signs of the remaining coefficient slots?", "answer_bool": null, "answer_number": null, "answer_text": "x^2 is negative; x^4 is positive", "why": "The second and fourth derivative values are -1 and +1, and the factorial denominators are positive."},
+        {"question": "Does the stored response match the independent mapping?", "answer_bool": true, "answer_number": null, "answer_text": null, "why": "It names the same two zero slots, the same two signs, and the corresponding derivative values at zero."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "twins-agree-on-substance",
+      "target": null,
+      "looked_at": [],
+      "findings": "The sample has no twin_of field, so there is no paired reference answer to compare.",
+      "criterion": "Substantive agreement can be checked only when the sample identifies a twin sample.",
+      "steps": [],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

@@ -1,0 +1,629 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q09",
+  "role": "full_sample",
+  "iteration": 4,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q09/full_sample",
+  "budget": {
+    "frames_viewed": 37,
+    "sparse_step": 45.0,
+    "dense_intervals": [
+      {
+        "t_start": 592.5,
+        "t_end": 602.0
+      }
+    ],
+    "transcript_cues": 1017,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The complete transcript and 30-frame whole-video scene pass from this reviewer were retained, with seven dense frames around the boundary.\nThe exact 601.0 frame already legibly shows P_pi(x) and c1(x-pi)^1; it is the first qualifying basis shift.\nThe later ln(x) scene near 1188 s remains excluded by the participant-visible word first.\nThe revised distractor [592.5,601.0) and evidence_span [601.0,613.9] are consistent.",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "group": "triggers",
+      "item": "no-missed-trigger",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 0.0,
+          "what": "opening black frame"
+        },
+        {
+          "kind": "frame",
+          "t": 51.8,
+          "what": "pendulum diagram with R(1-cos(theta))"
+        },
+        {
+          "kind": "frame",
+          "t": 101.4,
+          "what": "near-x=0 approximation setup"
+        },
+        {
+          "kind": "frame",
+          "t": 140.9,
+          "what": "cosine and polynomial in ordinary powers of x"
+        },
+        {
+          "kind": "frame",
+          "t": 191.1,
+          "what": "value matching at x=0"
+        },
+        {
+          "kind": "frame",
+          "t": 236.2,
+          "what": "slope matching at x=0"
+        },
+        {
+          "kind": "frame",
+          "t": 281.3,
+          "what": "second derivative matching at x=0"
+        },
+        {
+          "kind": "frame",
+          "t": 325.4,
+          "what": "quadratic cosine approximation"
+        },
+        {
+          "kind": "frame",
+          "t": 371.8,
+          "what": "coefficient constraints for the quadratic"
+        },
+        {
+          "kind": "frame",
+          "t": 421.8,
+          "what": "cubic extension in ordinary powers of x"
+        },
+        {
+          "kind": "frame",
+          "t": 471.7,
+          "what": "fourth-order extension in ordinary powers of x"
+        },
+        {
+          "kind": "frame",
+          "t": 510.9,
+          "what": "higher ordinary-power term c8 x^8"
+        },
+        {
+          "kind": "frame",
+          "t": 550.1,
+          "what": "ordinary-power polynomial summary"
+        },
+        {
+          "kind": "frame",
+          "t": 593.7,
+          "what": "cosine and moving approximation with no shifted-basis formula"
+        },
+        {
+          "kind": "frame",
+          "t": 602.2,
+          "what": "stable complete shifted basis P_pi(x) in powers of x-pi"
+        },
+        {
+          "kind": "frame",
+          "t": 636.6,
+          "what": "derivative-information summary"
+        },
+        {
+          "kind": "frame",
+          "t": 680.7,
+          "what": "cosine derivative cycle around zero"
+        },
+        {
+          "kind": "frame",
+          "t": 729.0,
+          "what": "general Taylor polynomial in ordinary powers around zero"
+        },
+        {
+          "kind": "frame",
+          "t": 785.1,
+          "what": "general shifted formula in powers of x-a"
+        },
+        {
+          "kind": "frame",
+          "t": 830.4,
+          "what": "exponential function example"
+        },
+        {
+          "kind": "frame",
+          "t": 880.3,
+          "what": "geometric view of second-order shifted term"
+        },
+        {
+          "kind": "frame",
+          "t": 930.0,
+          "what": "area-function diagram"
+        },
+        {
+          "kind": "frame",
+          "t": 981.2,
+          "what": "triangle correction in geometric derivation"
+        },
+        {
+          "kind": "frame",
+          "t": 1030.9,
+          "what": "quadratic area approximation"
+        },
+        {
+          "kind": "frame",
+          "t": 1081.1,
+          "what": "unrelated numerical series example"
+        },
+        {
+          "kind": "frame",
+          "t": 1135.0,
+          "what": "exponential Taylor convergence"
+        },
+        {
+          "kind": "frame",
+          "t": 1179.6,
+          "what": "transition toward finite radius-of-convergence example"
+        },
+        {
+          "kind": "frame",
+          "t": 1187.9,
+          "what": "later ln(x) target with powers of x-1 around marked center 1"
+        },
+        {
+          "kind": "frame",
+          "t": 1253.5,
+          "what": "ln(x) series and radius of convergence"
+        },
+        {
+          "kind": "frame",
+          "t": 1306.4,
+          "what": "closing supporter screen"
+        },
+        {
+          "kind": "cue",
+          "t": 592.5,
+          "what": "speaker begins the nonzero-center example and proposes x=pi"
+        },
+        {
+          "kind": "cue",
+          "t": 1184.0,
+          "what": "speaker introduces the later natural-log series around x=1"
+        },
+        {
+          "kind": "frame",
+          "t": 601.0,
+          "what": "first faint but legible P_pi(x) shifted-basis display with c1(x-pi)^1"
+        }
+      ],
+      "findings": "The transcript was read sequentially through 1338.7 s and the visual pass spans the full 0-1339 s video. Ordinary powers of x are displayed before the question; the first post-question shift is already legible in the cosine example at 601.0 s, where P_pi(x) and c1(x-pi)^1 appear. A later shifted-basis scene for ln(x) around 1 appears at 1187.9 s, after the first event.",
+      "criterion": "Every scene after question_time that could satisfy the literal display-shift condition must be represented, while later candidates are excluded when the question explicitly asks for the first one.",
+      "steps": [
+        {
+          "question": "What is the first post-question displayed change from powers of x to powers around a marked nonzero center?",
+          "answer_text": "At 601.0 s, P_pi(x) and c1(x-pi)^1 are legible over the blue cosine graph with pi marked.",
+          "why": "The exact 601.0 s frame shows the shifted notation and graph together, following the ordinary-power scenes."
+        },
+        {
+          "question": "Does the later ln(x) scene around 1 require another trigger?",
+          "answer_bool": false,
+          "why": "It is at 1187.9 s and is therefore excluded by the word first after the qualifying pi/cosine scene at 601.0 s."
+        },
+        {
+          "question": "Did the full transcript or scene pass reveal any earlier post-question qualifying shift?",
+          "answer_bool": false,
+          "why": "Frames through 600.0 s show no shifted-basis formula; the exact 601.0 s frame is the first legible appearance."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "trigger-matches-criterion",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 550.1,
+          "what": "pre-question polynomial remains in powers of x"
+        },
+        {
+          "kind": "frame",
+          "t": 600.0,
+          "what": "pi center and curves are visible but no shifted formula is present"
+        },
+        {
+          "kind": "frame",
+          "t": 601.0,
+          "what": "P_pi(x) and c1(x-pi)^1 are faint but legible with blue cosine and pi marker"
+        },
+        {
+          "kind": "frame",
+          "t": 602.0,
+          "what": "complete P_pi formula uses powers of x-pi with blue cosine and pi marker"
+        },
+        {
+          "kind": "cue",
+          "t": 599.8,
+          "what": "speaker says the polynomial must be written in powers of x-pi"
+        }
+      ],
+      "findings": "Trigger 0 at 601.0 s is the first post-question display where the basis visibly changes from x^n to (x-pi)^n: P_pi(x) and c1(x-pi)^1 are legible, the nonzero center pi is marked, and the blue target is the cosine curve.",
+      "criterion": "The trigger must literally instantiate the first post-question shifted-basis display named by the question, including the marked center and target curve needed for the answer.",
+      "steps": [
+        {
+          "question": "Is the displayed basis shifted from ordinary powers of x?",
+          "answer_bool": true,
+          "why": "The exact 601.0 s frame already contains P_pi(x) and the shifted factor x-pi."
+        },
+        {
+          "question": "Are the nonzero center and blue target visible at this trigger?",
+          "answer_bool": true,
+          "why": "Pi is marked at the yellow point and the blue cosine curve is visible at 601.0 s."
+        },
+        {
+          "question": "Is this the first such display after 592.5 s?",
+          "answer_bool": true,
+          "why": "The 600.0 s frame has no formula, while the 601.0 s frame has legible shifted notation."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "question-anchored-to-screen",
+      "target": null,
+      "looked_at": [],
+      "findings": "The question refers to the displayed polynomial basis, the marked nonzero center, the blue target curve, and what appears first after the question.",
+      "criterion": "A screen-grounded question must identify visible objects or their visual attributes and temporal placement, rather than ask only a generic textbook exercise.",
+      "steps": [
+        {
+          "question": "Which words anchor the requested objects to a particular screen?",
+          "answer_text": "'displayed polynomial basis', 'marked nonzero center', 'blue target curve from the screen', and 'first shifts after this question'.",
+          "why": "These phrases require observing screen color, marking, notation, and event order."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-within-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "Each rubric item corresponds to computing the first three coefficients at the identified center and stating the resulting quadratic in the displayed shifted basis.",
+      "criterion": "Every judged requirement must be demanded by the participant-visible question, item by item, without relying on hidden notes or context.",
+      "steps": [
+        {
+          "question": "What asks for c0=-1, c1=0, and c2=1/2?",
+          "answer_text": "The request to compute the first three coefficients there.",
+          "why": "At the identified center, these are precisely coefficients c0 through c2."
+        },
+        {
+          "question": "What asks for -1+(x-pi)^2/2?",
+          "answer_text": "The request to give the resulting quadratic in the shifted basis.",
+          "why": "Combining the three coefficients in the displayed shifted basis yields that quadratic."
+        },
+        {
+          "question": "What supports requiring powers centered at pi rather than reverting to x?",
+          "answer_text": "The phrases 'there' and 'in the shifted basis'.",
+          "why": "They explicitly bind the requested polynomial to the identified displayed center and basis."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "discriminator-in-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "The sole distractor is excluded by the requirement that the displayed basis first shifts; before 601.0 s the center and curves develop but the shifted basis has not appeared. The word first also excludes the later ln(x) shift around 1.",
+      "criterion": "Every tempting non-answer must be rejected by wording visible to the participant, including distinctions based on order or accompanying display conditions.",
+      "steps": [
+        {
+          "question": "Which phrase excludes answering during 592.5-601.0?",
+          "answer_text": "'Once the displayed polynomial basis first shifts'.",
+          "why": "The required basis has not yet appeared in that half-open interval."
+        },
+        {
+          "question": "Which word excludes the later ln(x) shifted-basis scene?",
+          "answer_text": "'first'.",
+          "why": "The pi/cosine shifted display occurs hundreds of seconds earlier."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-not-punishing-extra",
+      "target": null,
+      "looked_at": [],
+      "findings": "The rubric contains affirmative requirements only and no closed enumeration or wording such as exactly, only, single, or no more than that would penalize an additional correct detail.",
+      "criterion": "A rubric must not reject accurate extra information unless the participant-visible question clearly requires an exclusive or closed-form response.",
+      "steps": [
+        {
+          "question": "Does any rubric item impose an exclusive enumeration or forbid additional correct details?",
+          "answer_bool": false,
+          "why": "All five rubric lines require named mathematical content; none restricts extra correct explanation."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-fully-covered",
+      "target": {
+        "trigger_idx": null,
+        "distractor_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 592.0,
+          "what": "cosine and approximation visible with no shifted-basis formula"
+        },
+        {
+          "kind": "frame",
+          "t": 594.0,
+          "what": "yellow point begins moving while formula remains absent"
+        },
+        {
+          "kind": "frame",
+          "t": 596.0,
+          "what": "point moves toward the right-hand nonzero center"
+        },
+        {
+          "kind": "frame",
+          "t": 598.0,
+          "what": "point and approximation approach the pi minimum"
+        },
+        {
+          "kind": "frame",
+          "t": 600.0,
+          "what": "point sits at the pi minimum but shifted formula is absent"
+        },
+        {
+          "kind": "frame",
+          "t": 601.0,
+          "what": "faint but legible P_pi(x) and c1(x-pi)^1 appear as the trigger begins"
+        }
+      ],
+      "findings": "Across the dense sequence, the marked point moves from zero to pi and makes the center/curve increasingly tempting, but the shifted-basis formula remains absent through 600.0 s and becomes legible at 601.0 s. The distractor [592.5,601.0) covers the full pre-basis temptation and stops where the qualifying display appears.",
+      "criterion": "A distractor must span the entire contiguous interval in which a model could plausibly answer from partial cues, ending when the required condition becomes true.",
+      "steps": [
+        {
+          "question": "When does the pre-trigger visual temptation begin?",
+          "answer_number": 592.5,
+          "why": "The distractor begins with the question and the animation already displays the relevant cosine/approximation context."
+        },
+        {
+          "question": "When does the missing shifted-basis condition first become visible?",
+          "answer_number": 601.0,
+          "why": "The exact 601.0 s frame first shows legible P_pi(x) and c1(x-pi)^1."
+        },
+        {
+          "question": "Is any contiguous tempting portion outside the annotated distractor?",
+          "answer_bool": false,
+          "why": "The dense sequence now includes the previously omitted 601.0 s transition frame."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-not-correct-answer",
+      "target": {
+        "trigger_idx": null,
+        "distractor_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 598.0,
+          "what": "centerward motion is visible but no shifted polynomial basis"
+        },
+        {
+          "kind": "frame",
+          "t": 600.0,
+          "what": "pi point is visible without the shifted-basis formula"
+        },
+        {
+          "kind": "frame",
+          "t": 601.0,
+          "what": "shifted-basis notation first becomes legible at the distractor end"
+        }
+      ],
+      "findings": "Within the revised half-open distractor [592.5,601.0), the screen has not yet displayed the basis shift required by the opening clause, even though the curve and eventual center can be inferred near its end.",
+      "criterion": "A distractor must not itself satisfy the literal question; partial contextual clues are insufficient when a named visual event has not occurred.",
+      "steps": [
+        {
+          "question": "Does any frame strictly before 601.0 display the shifted polynomial basis?",
+          "answer_bool": false,
+          "why": "The 592-600 dense frames show curves and a moving point only; shifted notation first appears at 601.0."
+        },
+        {
+          "question": "Would answering there satisfy the opening condition of the question?",
+          "answer_bool": false,
+          "why": "The question says to answer once the displayed basis shifts, which has not happened yet."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-why-hides-answer",
+      "target": null,
+      "looked_at": [],
+      "findings": "The distractor explanation says only that a marked center and target may be visible before the shifted basis is complete; it does not name pi, cosine, any coefficient, or the quadratic.",
+      "criterion": "Distractor metadata must explain the temptation without revealing the answer that a participant is expected to derive.",
+      "steps": [
+        {
+          "question": "Does distractor.why disclose the center or target identity?",
+          "answer_bool": false,
+          "why": "It uses only generic phrases 'marked center' and 'target'."
+        },
+        {
+          "question": "Does distractor.why disclose coefficients or the final polynomial?",
+          "answer_bool": false,
+          "why": "No numerical coefficient or polynomial expression is present."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "reasoning-level-not-inflated",
+      "target": null,
+      "looked_at": [],
+      "findings": "The screen supplies the center pi, blue cosine target, and shifted basis, but not the requested first three coefficient values or the assembled quadratic. Those must be derived from cosine and its derivatives at pi.",
+      "criterion": "L3 is warranted when answering requires a mathematical derivation beyond reading or linking facts explicitly presented in the video.",
+      "steps": [
+        {
+          "question": "Are all requested coefficients stated together on screen or in one cue?",
+          "answer_bool": false,
+          "why": "The scene presents the symbolic basis and graph but not c0=-1, c1=0, c2=1/2."
+        },
+        {
+          "question": "Must the participant evaluate derivatives and divide by factorials?",
+          "answer_bool": true,
+          "why": "The answer requires cos(pi), -sin(pi), and -cos(pi)/2! to obtain the three coefficients."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-matches-description",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 602.2,
+          "what": "complete P_pi shifted-basis formula, blue cosine, and marked pi are jointly visible"
+        }
+      ],
+      "findings": "The cited frame shows exactly the described complete shifted-basis P_pi formula, blue cosine curve, and yellow point at pi.",
+      "criterion": "A provenance record must accurately describe what its cited real frame visibly contains.",
+      "steps": [
+        {
+          "question": "Does the 602 s frame contain all three objects named by the evidence description?",
+          "answer_bool": true,
+          "why": "The top formula uses x-pi, the blue curve is visible, and pi is marked at the yellow point."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "references-consistent-with-windows",
+      "target": null,
+      "looked_at": [],
+      "findings": "The stable frame evidence is at 602.0 s, after the revised trigger start 601.0 s, and the derivation evidence has no earlier time claim. The revised evidence_span 601.0-613.9 lies inside trigger 0s 601.0-623.8 window.",
+      "criterion": "A reference must not imply that the complete answer-bearing evidence was available before the annotated trigger window begins.",
+      "steps": [
+        {
+          "question": "Is any timed provenance evidence earlier than revised trigger t_start=601.0?",
+          "answer_bool": false,
+          "why": "The only timed provenance frame is t=602.0, which is after the revised start."
+        },
+        {
+          "question": "Is the stated evidence span contained in the trigger window?",
+          "answer_bool": true,
+          "why": "601.0-613.9 is contained in 601.0-623.8."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-answer-verified",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 602.2,
+          "what": "screen identifies cosine, center pi, and coefficient basis c0+c1(x-pi)+c2(x-pi)^2+..."
+        },
+        {
+          "kind": "cue",
+          "t": 599.8,
+          "what": "speaker identifies powers of x-pi for approximation near pi"
+        }
+      ],
+      "findings": "For the displayed target f(x)=cos(x) and center a=pi, f(pi)=-1, f'(pi)=-sin(pi)=0, and f''(pi)=-cos(pi)=1. Taylor coefficients are c0=f(pi), c1=f'(pi), and c2=f''(pi)/2!, yielding -1+(x-pi)^2/2.",
+      "criterion": "The reference response and every rubric value must follow correctly from the screen-bound objects and the required mathematical derivation.",
+      "steps": [
+        {
+          "question": "What is the constant coefficient at pi?",
+          "answer_text": "c0=-1",
+          "why": "cos(pi)=-1."
+        },
+        {
+          "question": "What is the linear coefficient at pi?",
+          "answer_text": "c1=0",
+          "why": "The derivative is -sin(x), and -sin(pi)=0."
+        },
+        {
+          "question": "What is the quadratic coefficient at pi?",
+          "answer_text": "c2=1/2",
+          "why": "The second derivative is -cos(x), so f''(pi)=1 and division by 2! gives 1/2."
+        },
+        {
+          "question": "What quadratic follows in the displayed shifted basis?",
+          "answer_text": "-1+(x-pi)^2/2",
+          "why": "Substitution of c0, c1, and c2 into c0+c1(x-pi)+c2(x-pi)^2 gives the stated result."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "twins-agree-on-substance",
+      "target": null,
+      "looked_at": [],
+      "findings": "The sample has no twin_of field, so there is no paired reference answer to compare.",
+      "criterion": "Substantive agreement can be assessed only when a twin sample exists.",
+      "steps": [],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

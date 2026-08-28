@@ -1,0 +1,57 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q11",
+  "role": "probe_vision",
+  "iteration": 1,
+  "model": "gpt-5.6",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/3b1b__3d6DsjIBzJ4__q11/probe_vision_r1",
+  "budget": {
+    "frames_viewed": 2,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 0,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The visual screen index was used only to locate the transition; one 240-line excerpt and a targeted regex result were read. No transcript or audio cues were used.",
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 785.0,
+      "what": "The old centered-at-zero formula is visible: f(0), derivative values evaluated at 0, powers x^1, x^2, x^3, and denominators 1!, 2!, 3!."
+    },
+    {
+      "kind": "frame",
+      "t": 798.0,
+      "what": "The new centered-at-a formula is visible: f(a), the same derivative orders evaluated at a, powers (x-a)^1 and (x-a)^2, with 1! and 2! still underneath."
+    }
+  ],
+  "steps": [
+    {
+      "question": "What changes in the function-value term?",
+      "answer_text": "f(0) is replaced by f(a).",
+      "why": "The blue function-value term is f(0) at 785 s and f(a) at 798 s."
+    },
+    {
+      "question": "What changes in every derivative evaluation?",
+      "answer_text": "Each f^(n)(0) is replaced by f^(n)(a), including df/dx(0) to df/dx(a) and d^2f/dx^2(0) to d^2f/dx^2(a).",
+      "why": "The color-matched derivative entries at 785 s end in (0), while those at 798 s end in (a)."
+    },
+    {
+      "question": "What changes in the polynomial powers?",
+      "answer_text": "Each x^n is replaced by (x-a)^n.",
+      "why": "The powers x^1 and x^2 at 785 s become (x-a)^1 and (x-a)^2 at 798 s."
+    },
+    {
+      "question": "What happens to the factorial denominators?",
+      "answer_text": "They do not change: the nth term keeps n! in the denominator.",
+      "why": "Both viewed formulas visibly retain 1! and 2! under their first- and second-order power factors."
+    }
+  ],
+  "answer": "The three simultaneous substitutions are f(0) -> f(a), f^(n)(0) -> f^(n)(a) for every derivative evaluation, and x^n -> (x-a)^n for every power. The factorial denominators are unchanged: the nth-order term still has n! (1!, 2!, 3!, ...).",
+  "basis": "Frames t000785.jpg (old center 0) and t000798.jpg (new center a).",
+  "confidence": "high",
+  "insufficient": false
+}

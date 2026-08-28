@@ -1,0 +1,197 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q04",
+  "role": "semiblind",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q04/semiblind",
+  "budget": {
+    "frames_viewed": 5,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 280.0,
+        "t_end": 285.0
+      }
+    ],
+    "transcript_cues": 227,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The full 0-300 s transcript and screen-text timeline were covered. The accepted time is the first inspected whole-second frame after the declared distractor ends at 281.3 s; the content is stable across the neighboring 281 s and 282 s frames.",
+  "prior_answer": "It cannot be answered on the merits from the question alone: the displayed target second-derivative value is not supplied, so neither the matching numerical equation nor the coefficient can be determined.",
+  "prior_answer_assumptions": [],
+  "recognized_video": true,
+  "recognized_how": "Before opening the transcript, I recognized the supplied title as 3Blue1Brown's Taylor-series chapter and remembered the cosine-at-zero quadratic-matching episode, including a likely target value -1 and coefficient -1/2; this memory was kept separate from the no-video answer because those numerical data are absent from the question text.",
+  "scans": [
+    {
+      "idx": 0,
+      "t_from": 0.0,
+      "t_to": 300.0,
+      "watched": [
+        {
+          "kind": "cue",
+          "t": 122.7,
+          "what": "The narration begins constructing a quadratic approximation to cosine near x=0."
+        },
+        {
+          "kind": "cue",
+          "t": 244.2,
+          "what": "The narration begins the final curvature condition and proceeds toward the second derivative."
+        },
+        {
+          "kind": "cue",
+          "t": 263.7,
+          "what": "The narration derives the second derivative of cosine and later states its value at zero as -1."
+        },
+        {
+          "kind": "cue",
+          "t": 281.4,
+          "what": "The narration begins explaining that the second derivatives should match."
+        },
+        {
+          "kind": "frame",
+          "t": 236.0,
+          "what": "P(x)=1+0x+c_2x^2 and Free to change are readable, but only the value and first-derivative rows for cosine are present."
+        },
+        {
+          "kind": "frame",
+          "t": 251.0,
+          "what": "The free c_2 term remains readable while the curvature is illustrated, but no numeric second-derivative row is present."
+        },
+        {
+          "kind": "frame",
+          "t": 280.0,
+          "what": "The target row d^2(cos)/dx^2(0)=-cos(0)=-1 and free c_2x^2 term are both readable, inside the declared distractor."
+        },
+        {
+          "kind": "frame",
+          "t": 281.0,
+          "what": "The same complete target row and free quadratic coefficient remain readable, still inside the declared distractor."
+        },
+        {
+          "kind": "frame",
+          "t": 282.0,
+          "what": "After the distractor, the complete blue-target second-derivative row and P(x)=1+0x+c_2x^2 with Free to change are simultaneously readable."
+        }
+      ],
+      "candidates": [
+        {
+          "question": "Can the requested coefficient be determined at 236 s?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The free c_2x^2 term is visible, but the target's numeric second-derivative row has not appeared."
+        },
+        {
+          "question": "Can the requested coefficient be determined at 251 s?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The screen visually develops curvature while keeping c_2 free, but still does not show the required numeric second-derivative row."
+        },
+        {
+          "question": "Is 280 s an admissible earliest answer moment?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Both needed expressions are readable in the frame, but 280 s lies inside the declared distractor [244.2,281.3), which must not be selected."
+        },
+        {
+          "question": "Is 281 s an admissible earliest answer moment?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The information remains complete, but 281 s is still inside the declared distractor ending at 281.3 s."
+        },
+        {
+          "question": "Can the requested coefficient be determined at 282 s?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": "The displayed target value is -1; matching second derivatives gives 2c_2=-1, so c_2=-1/2.",
+          "why": "This is the first inspected frame after the distractor, and both the complete target row and the still-free c_2x^2 term are simultaneously readable."
+        }
+      ],
+      "t_val": 282.0,
+      "t_val_basis": "At 282 s, after the declared distractor, the frame simultaneously shows d^2(cos)/dx^2(0)=-cos(0)=-1 and P(x)=1+0x+c_2x^2 with c_2 marked Free to change. Since P''(0)=2c_2, matching the displayed target value gives 2c_2=-1.",
+      "answer_at_t_val": "Displayed derivative value: -1. Matching equation: 2c_2=-1. Coefficient: c_2=-1/2.",
+      "confidence": "high"
+    }
+  ],
+  "checks": [
+    {
+      "group": "shortcuts",
+      "item": "solvable-without-video",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 244.2,
+          "what": "The video must introduce the curvature condition and its displayed numeric target after the question time."
+        }
+      ],
+      "findings": "The question refers to a target value shown in a row but does not itself supply that number; the numerical equation and coefficient therefore cannot be derived from the question text alone.",
+      "criterion": "This item fires only if all sample-specific quantities needed for the requested numerical answer are available without viewing; here the displayed derivative value is indispensable and absent from the question.",
+      "steps": [
+        {
+          "question": "Does the question text state the target second-derivative value?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "It says to use the value shown in the row but gives no numerical value."
+        },
+        {
+          "question": "Can a numerical coefficient be derived without that target value?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The relation P''(0)=2c_2 determines c_2 only after the target derivative is known."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "video-recognized",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 282.0,
+          "what": "The distinctive 3Blue1Brown cosine and polynomial derivative-matching scene is visible; this frame was opened only after the recognition self-report was fixed."
+        }
+      ],
+      "findings": "Before viewing, the supplied title triggered recognition of the particular 3Blue1Brown chapter and memory of this cosine quadratic-matching episode, including the likely numerical result.",
+      "criterion": "Recognition fires when the reviewer can identify the particular video and recall the answer-bearing moment before inspecting the supplied transcript or frames.",
+      "steps": [
+        {
+          "question": "Was the particular video recognized before viewing?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The title and chapter were familiar from prior exposure."
+        },
+        {
+          "question": "Could the likely answer be named from that memory?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "I recalled the cosine-at-zero second derivative as -1 and the quadratic coefficient as -1/2 before opening the transcript."
+        }
+      ],
+      "result": "fail",
+      "confidence": "medium",
+      "proposal": {
+        "field": "sample",
+        "value": "exclude this review from uncontaminated semi-blind evidence or rerun with a reviewer who does not recognize the video",
+        "why": "This reviewer's prior familiarity can bypass the intended need to obtain the numerical answer from the video."
+      },
+      "uncovered": null
+    }
+  ]
+}

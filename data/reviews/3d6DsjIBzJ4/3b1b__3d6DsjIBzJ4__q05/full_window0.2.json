@@ -1,0 +1,291 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q05",
+  "role": "full_window",
+  "iteration": 2,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q05/full_window0",
+  "budget": {
+    "frames_viewed": 18,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 328.0,
+        "t_end": 342.0
+      },
+      {
+        "t_start": 343.0,
+        "t_end": 352.0
+      }
+    ],
+    "transcript_cues": 23,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The distractor [328.6,333.0) is uncontaminated: at 332 s only the estimate is visible; the true-value line begins fading in at 333 s. The requested subtraction and underestimate/overestimate classification are never displayed or spoken. The roughly one-second fade-in slack and sub-two-second fade-out slack are within the prompt's no-fix tolerance.",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "group": "windows",
+      "item": "window-can-be-tightened",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 333.0,
+          "what": "The true-value digits have begun to fade in but remain dim; the estimate is readable."
+        },
+        {
+          "kind": "frame",
+          "t": 334.0,
+          "what": "Both 0.995 and 0.9950042... are fully readable."
+        },
+        {
+          "kind": "frame",
+          "t": 338.0,
+          "what": "Both displayed values remain fully readable and unchanged."
+        },
+        {
+          "kind": "frame",
+          "t": 340.0,
+          "what": "The two formulas are fading out."
+        },
+        {
+          "kind": "frame",
+          "t": 341.0,
+          "what": "The formulas have disappeared; only the pi characters remain."
+        }
+      ],
+      "findings": "The true-value line fades in at 333 s, is fully clear from 334 through 339 s, fades out at 340 s, and is gone at 341 s. The annotated window is [333.0,341.7).",
+      "criterion": "A boundary fix is warranted only when a substantial part of the window lacks enough visible information to answer; one or two seconds of animation slack should be retained.",
+      "steps": [
+        {
+          "question": "When are both numerical values first fully clear?",
+          "answer_number": 334.0,
+          "why": "At 333 s the lower value is dim during its fade-in, while at 334 s both rows are clear."
+        },
+        {
+          "question": "What is the last sampled second with both values fully clear?",
+          "answer_number": 339.0,
+          "why": "The 339 s frame is stable and readable; the formulas are already fading at 340 s."
+        },
+        {
+          "question": "Is either unusable margin large enough to justify tightening?",
+          "answer_bool": false,
+          "why": "The left fade slack is about one second and the right fade/disappearance slack is under two seconds, both within the stated tolerance."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "windows",
+      "item": "author-says-answer-in-window",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 329.6,
+          "what": "The author says the polynomial estimate is 0.995."
+        },
+        {
+          "kind": "cue",
+          "t": 332.7,
+          "what": "The author identifies the newly displayed lower line as the true value of cosine of 0.1."
+        },
+        {
+          "kind": "cue",
+          "t": 336.6,
+          "what": "The author calls it a really good approximation, without giving the signed difference."
+        },
+        {
+          "kind": "cue",
+          "t": 340.3,
+          "what": "The narration moves on to reflecting on the quadratic's degrees of freedom."
+        },
+        {
+          "kind": "cue",
+          "t": 348.2,
+          "what": "The author discusses coefficients c0, c1, and c2 rather than the numerical error."
+        },
+        {
+          "kind": "frame",
+          "t": 334.0,
+          "what": "The screen shows the estimate and true value as raw inputs, not their difference or an underestimate label."
+        },
+        {
+          "kind": "frame",
+          "t": 338.0,
+          "what": "The screen still shows only the same two numerical values."
+        },
+        {
+          "kind": "frame",
+          "t": 343.0,
+          "what": "The display has changed to a graph and a general polynomial expression."
+        },
+        {
+          "kind": "frame",
+          "t": 351.0,
+          "what": "The display concerns polynomial coefficients and function matching, with no numerical difference or direction label."
+        }
+      ],
+      "findings": "From 333.0 through 351.7 s the author supplies the two operands and describes the approximation as good, then discusses quadratic coefficients. Neither speech nor screen gives +0.0000042, 4.2e-6, or says that the quadratic underestimates.",
+      "criterion": "For an L3 sample this item fires only if the stream gives the requested computed conclusion in finished form during the window or within ten seconds after it, rather than merely showing facts the model must combine.",
+      "steps": [
+        {
+          "question": "Does the stream state or display the signed numerical difference?",
+          "answer_bool": false,
+          "why": "Only 0.995 and 0.9950042... appear; their subtraction is not performed."
+        },
+        {
+          "question": "Does the stream state whether the estimate is low or high?",
+          "answer_bool": false,
+          "why": "The narration calls the approximation good but never classifies it as an underestimate or overestimate."
+        },
+        {
+          "question": "Can the requested answer be copied without the L3 comparison and arithmetic?",
+          "answer_bool": false,
+          "why": "A participant must subtract the displayed values and infer the sign; the finished response is absent."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "event-not-earlier-than-window",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 332.0,
+          "what": "Only the estimate 0.995 is visible; the true-value line is absent."
+        },
+        {
+          "kind": "frame",
+          "t": 333.0,
+          "what": "The true-value digits begin appearing in a dim fade exactly at the window boundary."
+        },
+        {
+          "kind": "frame",
+          "t": 334.0,
+          "what": "Both the estimate and true value are fully readable."
+        }
+      ],
+      "findings": "The second required numerical line is absent at 332 s, begins its appearance at 333 s, and is fully clear by 334 s. No observed pre-window frame contains both readable values.",
+      "criterion": "An event window must not open after the trigger condition has already begun; the onset of the second required display should be at or after the annotated start.",
+      "steps": [
+        {
+          "question": "Was the complete two-value display already present before 333.0 s?",
+          "answer_bool": false,
+          "why": "At 332 s the lower true-value line is absent."
+        },
+        {
+          "question": "When does the missing true-value line begin to appear?",
+          "answer_number": 333.0,
+          "why": "The 333 s frame shows the start of its fade-in, aligned with the window opening."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "depends-on-is-dependency",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [],
+      "findings": "Window 0 has no depends_on field, and there is no earlier trigger answer for this first window to depend upon.",
+      "criterion": "A dependency link is applicable only when this window's rubric requires an earlier window's answer; an absent link on the first independent window needs no change.",
+      "steps": [
+        {
+          "question": "Is a depends_on link present for window 0?",
+          "answer_bool": false,
+          "why": "The supplied sample facts explicitly say depends_on is absent."
+        },
+        {
+          "question": "Could window 0 require the answer to an earlier trigger?",
+          "answer_bool": false,
+          "why": "Index 0 has no earlier trigger and the requested calculation uses only its own displayed values."
+        }
+      ],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "evidence-span-is-last",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 332.0,
+          "what": "The estimate is readable but the true value is not yet on screen."
+        },
+        {
+          "kind": "frame",
+          "t": 333.0,
+          "what": "The true-value line starts fading in."
+        },
+        {
+          "kind": "frame",
+          "t": 334.0,
+          "what": "The true value 0.9950042... and estimate 0.995 are both fully readable."
+        },
+        {
+          "kind": "frame",
+          "t": 338.0,
+          "what": "Both values remain stable and readable at the end of the annotated evidence span."
+        }
+      ],
+      "findings": "The estimate precedes the trigger; the last new fact needed is the true-value line, which begins appearing at 333 s and is unequivocally readable by 334 s. The supplied evidence span is [333.0,338.0].",
+      "criterion": "The evidence span must include the arrival of the last fact needed to derive the response, without being extended merely to later narration that corroborates it.",
+      "steps": [
+        {
+          "question": "What is the last new fact required for the answer?",
+          "answer_text": "The displayed true value 0.9950042...",
+          "why": "The estimate 0.995 is already present, but subtraction and sign classification require the true value too."
+        },
+        {
+          "question": "Does [333.0,338.0] cover the arrival of that last fact?",
+          "answer_bool": true,
+          "why": "The lower line begins at 333 s and is fully readable at 334 s, both inside the span."
+        },
+        {
+          "question": "Is later spoken commentary needed as evidence?",
+          "answer_bool": false,
+          "why": "Once both numbers are visible, the signed difference and underestimate classification are derivable directly."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ],
+  "window_idx": 0
+}

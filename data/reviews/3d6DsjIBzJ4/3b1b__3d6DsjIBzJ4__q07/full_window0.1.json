@@ -1,0 +1,261 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q07",
+  "role": "full_window",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q07/full_window0",
+  "budget": {
+    "frames_viewed": 8,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 528.0,
+        "t_end": 532.0
+      }
+    ],
+    "transcript_cues": 26,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The completed 8! brace and symbolic c_8 are visible at the left edge. Before the window closes, the visual recap and narration supply 4! = 24, so the combined stream exposes the requested answer for an L2 task.",
+  "verdict": "CRITICAL_FAIL",
+  "checks": [
+    {
+      "group": "windows",
+      "item": "window-can-be-tightened",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 530.7,
+          "what": "The eighth-derivative formula already has the full 1 through 8 product, a complete brace labelled 8!, and c_8 still present symbolically."
+        },
+        {
+          "kind": "frame",
+          "t": 533.9,
+          "what": "The same completed 8! demonstration remains visible, now with the rule setting c_8 to a desired derivative value divided by 8!."
+        },
+        {
+          "kind": "frame",
+          "t": 544.3,
+          "what": "The earlier fourth-power calculation is visibly recapped as 1·2·3·4·1/24 and 24·1/24."
+        },
+        {
+          "kind": "cue",
+          "t": 543.6,
+          "what": "The narrator continues through the end of the window that the x-fourth coefficient is the fourth derivative of cosine, divided by 4 factorial, 24."
+        }
+      ],
+      "findings": "The requested new brace is complete at the opening frame. Its contents remain available to a streaming model after the animation advances, and the later part of the window revisits rather than removes the remembered factorial relation.",
+      "criterion": "A boundary needs tightening only when a substantial part of the window precedes the answerable state or follows it without preserving the already observed answer; a later screen change does not erase information already seen.",
+      "steps": [
+        {
+          "question": "Is the complete higher-power factorial display available at the window start?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The real frame at 530.7 shows the completed brace labelled 8!, the full product, and c_8."
+        },
+        {
+          "question": "Does a large unusable tail begin after the target display disappears?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The model can retain the observed 8! display, while the subsequent recap supplies the linked fourth-power factorial information through the boundary."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "windows",
+      "item": "author-says-answer-in-window",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 530.7,
+          "what": "The screen gives 1·2·3·4·5·6·7·8 under a brace labelled 8!, with c_8 remaining a symbol."
+        },
+        {
+          "kind": "frame",
+          "t": 544.3,
+          "what": "The screen gives the linked lower-power product 1·2·3·4 and rewrites it as 24 in the coefficient calculation."
+        },
+        {
+          "kind": "cue",
+          "t": 543.6,
+          "what": "The narrator explicitly says that the x-fourth coefficient uses the fourth derivative of cosine divided by 4 factorial, 24, finishing at 549.4."
+        }
+      ],
+      "findings": "Inside [530.7, 549.4), the combined stream exposes every requested component: the new screen shows 8! and leaves c_8 symbolic, then the recap shows and the narration explicitly states 4 factorial, 24 before the endpoint.",
+      "criterion": "For an L2 question, it is a critical failure when the author supplies the finished answer visually or verbally inside the answer window or within ten seconds after it, because ordinary response latency rewards waiting for the stream instead of doing the intended reasoning.",
+      "steps": [
+        {
+          "question": "Does the stream provide the higher-power factorial and the undetermined coefficient symbol?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "At 530.7 the real frame shows the 1-through-8 product, its 8! brace, and symbolic c_8."
+        },
+        {
+          "question": "Does the stream also provide the earlier fourth-power factorial value before the window ends?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The 544.3 frame shows 1·2·3·4 and 24, and the cue beginning at 543.6 audibly completes '4 factorial, 24' by 549.4."
+        },
+        {
+          "question": "Is the sample reasoning level one for which this exposure is disqualifying?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The supplied sample is L2, so the prompt's item 2.5 rule requires CRITICAL_FAIL."
+        }
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {
+        "field": "question",
+        "value": "Move the question to a moment with several seconds of slack before the 4! = 24 recap, or redesign it so the author's displayed and spoken factorial facts are insufficient.",
+        "why": "Changing only the current boundary cannot preserve a useful response interval while preventing the L2 answer from being delivered by the stream."
+      },
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "event-not-earlier-than-window",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 529.0,
+          "what": "The eighth-derivative expression is still in transition and no complete factorial brace is visible."
+        },
+        {
+          "kind": "frame",
+          "t": 530.0,
+          "what": "The brace has appeared, but its label is only 8 and the factorial exclamation mark is not yet present."
+        },
+        {
+          "kind": "frame",
+          "t": 530.7,
+          "what": "The brace and its 8! label are complete for the first inspected frame at the window boundary."
+        },
+        {
+          "kind": "frame",
+          "t": 531.0,
+          "what": "The completed brace and 8! label remain visible."
+        }
+      ],
+      "findings": "Dense real frames show the target completing between 530.0 and 530.7: at 530.0 the exclamation mark is absent, while at 530.7 the complete 8! brace is present.",
+      "criterion": "For an event trigger, the answer window must not open after the event has already begun; here the relevant event is specifically the brace reaching its complete factorial-labelled state.",
+      "steps": [
+        {
+          "question": "Is the complete 8! brace already present in the dense frame before the window?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "At 530.0 the brace label is incomplete and lacks the factorial mark."
+        },
+        {
+          "question": "Is the target complete at the annotated window start?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The indexed real frame at exactly 530.7 displays the complete brace labelled 8!."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "depends-on-is-dependency",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [],
+      "findings": "The supplied trigger has no depends_on field, so there is no declared inter-window dependency to test for necessity or superfluity.",
+      "criterion": "This item applies only when the window declares a depends_on link, or when its rubric requires another trigger answer that should have been linked.",
+      "steps": [
+        {
+          "question": "Is a depends_on link declared for trigger 0?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The supplied sample states that depends_on is absent."
+        }
+      ],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "evidence-span-is-last",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 530.0,
+          "what": "Immediately before the window the factorial label is incomplete, showing 8 without its exclamation mark."
+        },
+        {
+          "kind": "frame",
+          "t": 530.7,
+          "what": "At the evidence-span start the complete 8! brace, the full 1-through-8 product, and symbolic c_8 are all visible."
+        },
+        {
+          "kind": "frame",
+          "t": 541.1,
+          "what": "At the supplied evidence-span endpoint the video has returned to the fourth-power coefficient setup, while the previously observed 8! facts remain available from the stream."
+        }
+      ],
+      "findings": "The earlier fourth-power result is presupposed by the question's cross-moment wording. The last new facts needed at this trigger are the completed 8! label and the still-symbolic c_8, both first complete at 530.7, which lies within the supplied [530.7, 541.1] evidence span.",
+      "criterion": "The evidence span must include the moment when the final fact needed to derive the answer first becomes available; later repetition or narration of an already derivable answer is corroboration rather than the last evidence.",
+      "steps": [
+        {
+          "question": "What is the last new fact needed at this cross-moment trigger?",
+          "answer_bool": null,
+          "answer_number": null,
+          "answer_text": "The completed 8! brace together with the unchanged symbolic coefficient c_8.",
+          "why": "The question explicitly links this new screen to an earlier coefficient calculation, so only the new higher-power display remains to be observed."
+        },
+        {
+          "question": "Does the evidence span cover the first complete appearance of that last fact?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The real 530.7 frame at the span start contains both the full 8! brace and c_8."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ],
+  "window_idx": 0
+}

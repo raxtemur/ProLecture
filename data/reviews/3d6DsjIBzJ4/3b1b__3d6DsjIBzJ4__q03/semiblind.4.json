@@ -1,0 +1,167 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q03",
+  "role": "semiblind",
+  "iteration": 4,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q03/semiblind",
+  "budget": {
+    "frames_viewed": 6,
+    "sparse_step": 4.0,
+    "dense_intervals": [
+      {
+        "t_start": 362.0,
+        "t_end": 365.0
+      }
+    ],
+    "transcript_cues": 5,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The complete supplied 358.9–370.0 s stretch was covered through its full transcript and screen index, with real-frame confirmation around the only candidate transition. The declared distractor [358.9, 363.0) was not selected. No forbidden material was accessed.",
+  "prior_answer": "It cannot be answered on the merits from the question alone: the question does not specify the coefficient's on-screen color or symbol, its displayed value, or the particular geometry shown at x=0.",
+  "prior_answer_assumptions": [],
+  "recognized_video": false,
+  "recognized_how": "I knew the title named a Taylor-series lesson, but I did not recognize this particular moment and could not recall the requested answer before viewing.",
+  "scans": [
+    {
+      "idx": 1,
+      "t_from": 358.9,
+      "t_to": 370.0,
+      "watched": [
+        {
+          "kind": "cue",
+          "t": 361.0,
+          "what": "The narration says that the derivatives match at that point."
+        },
+        {
+          "kind": "cue",
+          "t": 366.3,
+          "what": "The narration moves on to c2 and matching the second derivatives."
+        },
+        {
+          "kind": "frame",
+          "t": 361.0,
+          "what": "The first-derivative equality is explicit and yellow c1 is shown above its x term, but no value for c1 is yet visible and the two curves do not yet share the same tangent at x=0."
+        },
+        {
+          "kind": "frame",
+          "t": 362.0,
+          "what": "The yellow c1 glyph is visibly mid-transition toward its replacement; the assignment is not yet legible as a settled value."
+        },
+        {
+          "kind": "frame",
+          "t": 363.0,
+          "what": "The formula now clearly reads P(x)=1+0x+c2x^2 with the zero yellow, the first-derivative equality remains visible, and the two curves meet at x=0 with the same horizontal tangent."
+        },
+        {
+          "kind": "frame",
+          "t": 364.0,
+          "what": "The yellow 0x assignment and the coincident horizontal tangent at x=0 remain stable while the derivative equality begins to fade."
+        },
+        {
+          "kind": "frame",
+          "t": 365.0,
+          "what": "The settled formula still shows the yellow 0x term and the two curves remain tangent at x=0."
+        },
+        {
+          "kind": "frame",
+          "t": 369.0,
+          "what": "The scene has advanced to the green c2 term and the second-derivative matching condition, confirming the earlier first-derivative event is complete."
+        }
+      ],
+      "candidates": [
+        {
+          "question": "Is the requested coefficient assignment and geometry jointly answerable at 361.0 s?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "This point lies inside the declared distractor. Yellow c1 and the derivative equality are visible, but c1 has not been set to a visible value and the displayed curves have not settled into the matching tangent geometry."
+        },
+        {
+          "question": "Is the requested coefficient assignment and geometry jointly answerable at 362.0 s?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "This point is still inside the declared distractor and the yellow c1 glyph is mid-animation rather than a clearly readable final assignment."
+        },
+        {
+          "question": "Is the requested coefficient assignment and geometry jointly answerable at 363.0 s?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "At the distractor's exclusive end, the accumulated frames identify the controlling symbol as yellow c1, and the current frame clearly shows its replacement by yellow 0 together with the two curves sharing a horizontal tangent at x=0."
+        }
+      ],
+      "t_val": 363.0,
+      "t_val_basis": "The 363.0 s real frame is the first checked frame outside the declared distractor where the yellow c1-to-0 assignment is settled, the first-derivative equality is still explicit, and the two displayed curves visibly share the same horizontal tangent at x=0.",
+      "answer_at_t_val": "The controlling coefficient is the yellow c1; it is set to 0, making the polynomial and cosine have the same horizontal tangent line at x=0.",
+      "confidence": "high"
+    }
+  ],
+  "checks": [
+    {
+      "group": "shortcuts",
+      "item": "solvable-without-video",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 181.0,
+          "what": "Before any viewing, only the supplied question text was considered; it asks for screen-specific color, symbol, value, and displayed geometry without naming them."
+        }
+      ],
+      "findings": "The question supplies no concrete coefficient identity, screen color, assigned value, or displayed curve configuration from which the requested triple could be derived.",
+      "criterion": "The item fires only if the requested answer can be obtained from the question and general subject knowledge without inventing unseen screen content.",
+      "steps": [
+        {
+          "question": "Can the coefficient's exact color, symbol, and value be derived from the question alone?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Those are video-specific presentation choices omitted from the wording."
+        },
+        {
+          "question": "Can the particular displayed geometric consequence at x=0 be stated without guessing the omitted frame content?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "General Taylor-series knowledge does not determine which two curves or which explicit matching state the unseen frame displays."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "video-recognized",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 181.0,
+          "what": "Before viewing, the supplied title and question were considered as the only recognition cues."
+        }
+      ],
+      "findings": "The lesson title was familiar as a topic, but this particular scene and its requested coefficient assignment were not recalled before viewing.",
+      "criterion": "Recognition requires memory of this specific video moment sufficient to name the answer before opening the supplied transcript or frames.",
+      "steps": [
+        {
+          "question": "Could the requested answer be named from memory of this particular video moment?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "No scene-specific color, coefficient, value, or geometric outcome was available from memory."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

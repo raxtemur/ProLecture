@@ -1,0 +1,279 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q05",
+  "role": "full_sample",
+  "iteration": 2,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q05/full_sample",
+  "budget": {
+    "frames_viewed": 41,
+    "sparse_step": 48.0,
+    "dense_intervals": [{"t_start": 328.0, "t_end": 342.0}],
+    "transcript_cues": 1016,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The whole transcript and a 28-frame 48 s grid were scanned; no second display of this estimate/true-value pair was found.\nAt real frame 333, not inferred from OCR, both decimals are already clearly readable.\nThe distractor therefore overlaps an answerable moment; its end and the trigger start should be reconciled around 333 s by the coordinator/left-boundary review.",
+  "verdict": "FIX_INTERVALS",
+  "checks": [
+    {
+      "group": "triggers",
+      "item": "no-missed-trigger",
+      "target": null,
+      "looked_at": [
+        {"kind": "cue", "t": 14.9, "what": "Beginning of the transcript read sequentially."},
+        {"kind": "cue", "t": 324.1, "what": "Narration introduces estimating cos(0.1) with the quadratic."},
+        {"kind": "cue", "t": 332.7, "what": "Narration gives the estimate 0.995 and introduces the true value."},
+        {"kind": "cue", "t": 1305.8, "what": "Closing transcript cues and music were read."},
+        {"kind": "frame", "t": 0.0, "what": "Start of the 48-second global visual grid."},
+        {"kind": "frame", "t": 336.0, "what": "The sole global-grid frame showing the estimate and true cos(0.1) value together."},
+        {"kind": "frame", "t": 672.0, "what": "Mid-video cosine derivative material, not the requested displayed numerical pair."},
+        {"kind": "frame", "t": 1008.0, "what": "Later area/Taylor diagram, not the requested numerical pair."},
+        {"kind": "frame", "t": 1296.0, "what": "End-region summary frame, not the requested numerical pair."}
+      ],
+      "findings": "The full transcript, the 48-second visual grid, and the screen index contain one episode where the displayed quadratic estimate 0.995 and displayed true value 0.9950042... occur together, around 333-340 s. That episode is already represented by trigger 0 and distractor 0; no separate firing episode was found.",
+      "criterion": "Every distinct episode satisfying the literal condition that both displayed values are readable must be represented, rather than silently left outside all annotations.",
+      "steps": [
+        {"question": "How many distinct matching display episodes occur in the full lecture?", "answer_number": 1, "why": "Sequential transcript reading, index search, and the global frame pass all converge on the single 328-341 s episode."},
+        {"question": "Is that episode represented in the supplied annotations?", "answer_bool": true, "why": "Trigger 0 and distractor 0 jointly cover the episode; the within-episode boundary defect is assessed under the distractor check."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "trigger-matches-criterion",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 334.0, "what": "Both cos(0.1) lines are fully visible: estimate 0.995 and true value 0.9950042... ."},
+        {"kind": "frame", "t": 338.0, "what": "Both displayed values remain clearly readable."}
+      ],
+      "findings": "Inside trigger 0, the quadratic estimate and true value are simultaneously readable and support the requested subtraction and comparison.",
+      "criterion": "A supplied trigger is legitimate only if its frames satisfy the condition stated in the question literally.",
+      "steps": [
+        {"question": "Is the quadratic estimate readable in trigger 0?", "answer_bool": true, "why": "The upper line visibly ends in 0.995."},
+        {"question": "Is the displayed true value readable in trigger 0?", "answer_bool": true, "why": "The lower line visibly reads 0.9950042... ."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "question-anchored-to-screen",
+      "target": null,
+      "looked_at": [],
+      "findings": "The question explicitly names the displayed quadratic estimate and the displayed true value, and conditions answering on both being readable.",
+      "criterion": "The wording must point to particular visible content rather than ask a generic textbook question about cosine.",
+      "steps": [
+        {"question": "Which words anchor the task to the video screen?", "answer_text": "displayed quadratic estimate; displayed true value; both readable", "why": "Those phrases require observing the particular numeric renderings in the video."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-within-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "The rubric checks a signed true-minus-estimate difference, its small decimal scale, and whether the estimate under- or overestimates; these are exactly the two operations requested. Rejecting wrong decimal magnitudes enforces the requested computation rather than adding a new task.",
+      "criterion": "Each judging requirement must follow from an explicit demand in the question seen by the participant.",
+      "steps": [
+        {"question": "What supports requiring a signed difference?", "answer_text": "compute true value minus estimate", "why": "The subtraction order is explicit in the question."},
+        {"question": "What supports requiring the direction label?", "answer_text": "say whether the quadratic underestimates or overestimates", "why": "The direction comparison is explicit in the question."},
+        {"question": "Does decimal-scale enforcement add an unstated task?", "answer_bool": false, "why": "It distinguishes the correct subtraction of the displayed decimals from misplaced-decimal answers."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "discriminator-in-question",
+      "target": null,
+      "looked_at": [],
+      "findings": "The distractor rationale says that before the true digits appear they are absent or too faint to read reliably. The question itself excludes such a state with the condition that both displayed values are readable.",
+      "criterion": "The participant-facing question must contain the distinction that makes every declared distractor ineligible for answering.",
+      "steps": [
+        {"question": "Which wording excludes a frame where only the estimate is readable?", "answer_text": "when ... both readable", "why": "Both requires the true value as well as the estimate to be legible."},
+        {"question": "Does the distractor rationale reveal a hidden origin requirement?", "answer_bool": false, "why": "Its claimed distinction is readability, which the question explicitly names."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "rubric",
+      "item": "rubric-not-punishing-extra",
+      "target": null,
+      "looked_at": [],
+      "findings": "The supplied rubric summary requires the signed difference, correct scale, and direction, and rejects incorrect decimal placement. It contains no exactly/only/single closed enumeration that would penalize an additional correct explanation.",
+      "criterion": "A rubric must not turn correct additional detail covered by the question into an error through an unnecessarily closed answer form.",
+      "steps": [
+        {"question": "Is any rubric item a restrictive closed enumeration of allowed correct details?", "answer_bool": false, "why": "The items are positive correctness requirements plus rejection of numerically wrong answers, not a ban on extra correct detail."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-fully-covered",
+      "target": {"trigger_idx": null, "distractor_idx": 0},
+      "looked_at": [
+        {"kind": "frame", "t": 328.0, "what": "The estimate expression is still being completed; no true-value line is present."},
+        {"kind": "frame", "t": 329.0, "what": "The estimate is appearing, with no true-value line."},
+        {"kind": "frame", "t": 330.0, "what": "The displayed estimate 0.995 is readable; the true-value line is absent."},
+        {"kind": "frame", "t": 332.0, "what": "The estimate remains readable and the true-value line is absent."},
+        {"kind": "frame", "t": 333.0, "what": "The true-value line has appeared and is readable, ending the estimate-only temptation."}
+      ],
+      "findings": "The estimate-only temptation begins by the distractor start and persists through frame 332. At frame 333 the true-value digits are clearly readable, so the temptation has ended. The distractor covers the whole temptation, although it also extends too far.",
+      "criterion": "The distractor must include the entire interval in which a participant could be tempted to answer from the estimate before the required true value is readable.",
+      "steps": [
+        {"question": "When is the estimate-only temptation visibly present?", "answer_text": "approximately 328.6 s through 332 s", "why": "Frames 329-332 show the estimate without a readable lower true-value line."},
+        {"question": "Does the declared distractor include that whole temptation?", "answer_bool": true, "why": "Its interval [328.6,334) contains the observed estimate-only stretch."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-not-correct-answer",
+      "target": {"trigger_idx": null, "distractor_idx": 0},
+      "looked_at": [
+        {"kind": "frame", "t": 331.0, "what": "Only the estimate line is present and readable."},
+        {"kind": "frame", "t": 332.0, "what": "Only the estimate line is present and readable."},
+        {"kind": "frame", "t": 333.0, "what": "Both lines are plainly legible, including the full shown digits 0.9950042... ."},
+        {"kind": "frame", "t": 334.0, "what": "Both lines remain plainly legible."}
+      ],
+      "findings": "Frame 333 lies inside distractor [328.6,334) and already shows both the estimate 0.995 and true value 0.9950042... at normal readable contrast. This is not a completion inferred from a faint fade-in; every requested digit is visibly formed.",
+      "criterion": "No part of a distractor may already permit a good-faith correct answer under the literal readability condition in the question.",
+      "steps": [
+        {"question": "Is the true value absent or too faint at frame 333?", "answer_bool": false, "why": "The complete lower expression cos(0.1) = 0.9950042... is directly readable in the original-resolution frame."},
+        {"question": "Does frame 333 fall inside the supplied distractor?", "answer_bool": true, "why": "333.0 is greater than 328.6 and less than the exclusive end 334.0."},
+        {"question": "Can the requested answer be computed at frame 333?", "answer_bool": true, "why": "Both displayed numbers are legible, so their signed difference and direction can be derived."}
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {
+        "field": "distractors[0].t_end",
+        "value": "333.0",
+        "why": "Exclude the clearly answerable frame at 333; the coordinator should reconcile the adjoining trigger start with the independent left-boundary review so no answerable gap remains."
+      },
+      "uncovered": null
+    },
+    {
+      "group": "distractors",
+      "item": "distractor-why-hides-answer",
+      "target": null,
+      "looked_at": [],
+      "findings": "The distractor explanation states only that the true digits are absent or too faint before the intended boundary. It does not disclose the digits, signed difference, scale, or under/over direction.",
+      "criterion": "A distractor explanation may identify why a moment is tempting but must not leak the answer the model is supposed to derive.",
+      "steps": [
+        {"question": "Does the explanation reveal the numerical answer or direction?", "answer_bool": false, "why": "It discusses visibility only and includes none of 0.9950042, 0.0000042, or underestimate."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "reasoning-level-not-inflated",
+      "target": null,
+      "looked_at": [],
+      "findings": "The screen supplies two decimal values, but it does not display their signed difference or the word underestimate. The answer requires subtraction and interpreting the sign.",
+      "criterion": "L3 is warranted when the requested result must be derived from visible facts rather than directly copied or merely joined across moments.",
+      "steps": [
+        {"question": "Is the signed difference directly displayed?", "answer_bool": false, "why": "Only 0.995 and 0.9950042... are displayed."},
+        {"question": "Must a new numerical fact be derived?", "answer_bool": true, "why": "The participant must compute 0.9950042 minus 0.995 and infer the approximation is lower."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-matches-description",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 334.0, "what": "The displayed estimate is 0.995 and the displayed true value is 0.9950042... ."},
+        {"kind": "frame", "t": 338.0, "what": "The same two values remain simultaneously readable."}
+      ],
+      "findings": "The evidence span 334-338 visibly contains exactly the displayed quadratic estimate and true value described by the sample provenance.",
+      "criterion": "The cited visual evidence must show the objects and values that the provenance claims it supports.",
+      "steps": [
+        {"question": "Does the evidence show the quadratic estimate?", "answer_bool": true, "why": "The upper expression evaluates to 0.995."},
+        {"question": "Does the evidence show the true value?", "answer_bool": true, "why": "The lower expression reads cos(0.1) = 0.9950042... ."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "references-consistent-with-windows",
+      "target": null,
+      "looked_at": [],
+      "findings": "The supplied provenance evidence is [334,338], and the supplied trigger is [334.0,341.7); the evidence begins at the trigger start and ends before its exclusive end.",
+      "criterion": "A provenance citation must not claim that the answer was already available before the trigger window opens.",
+      "steps": [
+        {"question": "Is the evidence start earlier than the trigger start?", "answer_bool": false, "why": "Both starts are 334.0 seconds."},
+        {"question": "Is the evidence span contained in the trigger?", "answer_bool": true, "why": "334 <= 338 < 341.7."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "reference-answer-verified",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 334.0, "what": "Visible values are estimate 0.995 and true value 0.9950042... ."},
+        {"kind": "frame", "t": 338.0, "what": "The same digits remain clear, confirming the reading."}
+      ],
+      "findings": "Using the displayed digits, true minus estimate is 0.9950042 - 0.9950000 = +0.0000042 = 4.2e-6. Because the estimate is smaller than the true value, the quadratic underestimates it.",
+      "criterion": "The reference response must be independently derivable from the cited material with the stated sign, decimal scale, and comparison direction.",
+      "steps": [
+        {"question": "What signed difference follows from the displayed values?", "answer_number": 0.0000042, "why": "Aligning decimal places gives 0.9950042 - 0.9950000 = 0.0000042."},
+        {"question": "Is the quadratic estimate below the true value?", "answer_bool": true, "why": "0.9950000 is less than 0.9950042."},
+        {"question": "What comparison direction follows?", "answer_text": "underestimate", "why": "A lower estimate underestimates the true value."}
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "provenance",
+      "item": "twins-agree-on-substance",
+      "target": null,
+      "looked_at": [],
+      "findings": "No twin_of field or twin sample was supplied for this sample.",
+      "criterion": "Substantive answer agreement can be compared only when the sample declares a twin.",
+      "steps": [
+        {"question": "Does this sample declare a twin to compare?", "answer_bool": false, "why": "The supplied sample metadata contains no twin_of relation."}
+      ],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

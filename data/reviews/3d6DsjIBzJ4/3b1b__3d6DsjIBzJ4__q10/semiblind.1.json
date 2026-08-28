@@ -1,0 +1,149 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q10",
+  "role": "semiblind",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q10/semiblind",
+  "budget": {
+    "frames_viewed": 26,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 737.0,
+        "t_end": 749.0
+      }
+    ],
+    "transcript_cues": 582,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The transcript and screen index were checked across the complete 0-772.5 s prefix.\nThe accepted point uses the completed spoken n-th-term rule plus the first stable inspected frame after it; the generic display itself writes only through x^3 and an ellipsis.",
+  "prior_answer": "It cannot be answered on the merits: the question does not state the four derivative-column values that must be mapped, so neither the vanishing slots nor the signs of the remaining slots can be determined.",
+  "prior_answer_assumptions": [],
+  "recognized_video": false,
+  "recognized_how": "I did not recognize this particular video and moment before opening the supplied material.",
+  "scans": [
+    {
+      "idx": 0,
+      "t_from": 0.0,
+      "t_to": 772.5,
+      "watched": [
+        {"kind": "frame", "t": 0.0, "what": "Black opening frame."},
+        {"kind": "frame", "t": 69.0, "what": "Pendulum and the small-angle cosine approximation."},
+        {"kind": "frame", "t": 141.0, "what": "Generic quadratic c0+c1x+c2x^2, with coefficients free to change."},
+        {"kind": "frame", "t": 207.0, "what": "Cosine value and first derivative at zero beside the quadratic."},
+        {"kind": "frame", "t": 297.0, "what": "First derivative 0 and second derivative -1 shown for cosine."},
+        {"kind": "frame", "t": 369.0, "what": "Second-derivative matching and the quadratic coefficient construction."},
+        {"kind": "frame", "t": 455.0, "what": "Full cosine derivative-value column through fourth order: 1, 0, -1, 0, 1."},
+        {"kind": "frame", "t": 517.0, "what": "Repeated power-rule differentiation example."},
+        {"kind": "frame", "t": 588.0, "what": "Color-coded derivative orders controlling polynomial coefficients through c4."},
+        {"kind": "frame", "t": 644.0, "what": "Cosine graph and a local polynomial approximation."},
+        {"kind": "frame", "t": 676.0, "what": "Derivative information at a point mapped to nearby output information."},
+        {"kind": "frame", "t": 686.0, "what": "Concrete derivative column 1,0,-1,0,1 beside P(x)=1+0 x/1!-1 x^2/2!+0 x^3/3!+1 x^4/4!+... ."},
+        {"kind": "frame", "t": 718.0, "what": "Concrete color-coded cosine Taylor polynomial through x^4 remains visible."},
+        {"kind": "frame", "t": 737.0, "what": "Generic f derivative column and generic formula visible only through x^3, followed by an ellipsis."},
+        {"kind": "frame", "t": 738.0, "what": "Same generic formula through x^3 and the fourth derivative entry at left."},
+        {"kind": "frame", "t": 739.0, "what": "Transition frame with much of the formula and column absent."},
+        {"kind": "frame", "t": 740.0, "what": "Generic formula through x^3 restored and readable."},
+        {"kind": "frame", "t": 741.0, "what": "Transition frame with the formula partially absent."},
+        {"kind": "frame", "t": 742.0, "what": "Generic formula and derivative column readable again."},
+        {"kind": "frame", "t": 743.0, "what": "Generic formula is readable while a new illustrative scene begins drawing."},
+        {"kind": "frame", "t": 744.0, "what": "Mid-transition frame; parts of the formula and left column are clipped or absent."},
+        {"kind": "frame", "t": 745.0, "what": "Stable full generic display: color-matched f derivatives at left and terms through x^3 plus ellipsis at top."},
+        {"kind": "frame", "t": 746.0, "what": "Another transient partially absent rendering."},
+        {"kind": "frame", "t": 747.0, "what": "Generic display readable in the explanatory scene."},
+        {"kind": "frame", "t": 748.0, "what": "Transition frame with portions absent."},
+        {"kind": "frame", "t": 751.0, "what": "Generic formula and derivative column persist with the graph restored."},
+        {"kind": "cue", "t": 643.2, "what": "Narrator introduces the cyclic higher derivatives of cosine."},
+        {"kind": "cue", "t": 692.5, "what": "Narrator says each polynomial coefficient follows the derivative-value pattern, divided by the appropriate factorial."},
+        {"kind": "cue", "t": 715.5, "what": "Narrator begins replacing cosine by an arbitrary function."},
+        {"kind": "cue", "t": 725.9, "what": "Narrator says to evaluate the arbitrary function and its derivatives at zero."},
+        {"kind": "cue", "t": 732.5, "what": "Narrator states the coefficient of each x-to-the-n term is the n-th derivative value."},
+        {"kind": "cue", "t": 740.0, "what": "Narrator completes the rule: evaluate at zero and divide by n factorial, ending at 743.6 s."}
+      ],
+      "candidates": [
+        {
+          "question": "Does the concrete display at 686 s already answer the requested generic mapping?",
+          "answer_bool": false,
+          "why": "It supplies the numerical pattern 0,-1,0,1 for nonconstant terms, but the requested replacement by the formula for an arbitrary f has not occurred."
+        },
+        {
+          "question": "Does the concrete Taylor-polynomial scene at 718 s count as the answer point?",
+          "answer_bool": false,
+          "why": "It lies in the declared distractor and still shows the concrete cosine polynomial rather than a completed generic mapping."
+        },
+        {
+          "question": "Is the first readable generic frame at 737 s sufficient for all four requested slots?",
+          "answer_bool": false,
+          "why": "The visible generic expression explicitly reaches only x^3 and then uses an ellipsis; the x^4 coefficient rule has not yet been completed in the narration, so assigning the fourth slot would require filling in unseen content."
+        },
+        {
+          "question": "Is the transition at 743-744 s a reliable complete answer point?",
+          "answer_bool": false,
+          "why": "The n-th-term sentence is only completing, and the inspected 744 s rendering is visibly mid-transition with parts of the formula and column missing."
+        },
+        {
+          "question": "Can all four nonconstant slots be answered at 745 s?",
+          "answer_bool": true,
+          "why": "By then the narration has completed the general n-th derivative over n-factorial rule, and a stable real frame shows the matching color-coded derivative column and generic formula. Combined with the preceding concrete 0,-1,0,1 column, all four slots are fixed."
+        }
+      ],
+      "t_val": 745.0,
+      "t_val_basis": "The cue ending at 743.6 s completes the general n-th coefficient rule, including the otherwise elided x^4 case, and the 745 s frame is the first inspected stable post-cue rendering of the color-matched generic f display.",
+      "answer_at_t_val": "The x slot gets 0, the x^2 slot gets a negative value (-1 before division by 2!), the x^3 slot gets 0, and the x^4 slot gets a positive value (+1 before division by 4!). Thus x and x^3 vanish; x^2 is negative and x^4 is positive.",
+      "confidence": "high"
+    }
+  ],
+  "checks": [
+    {
+      "group": "shortcuts",
+      "item": "solvable-without-video",
+      "target": null,
+      "looked_at": [
+        {"kind": "cue", "t": 709.0, "what": "Before viewing, only the supplied question text was considered; it does not state the four concrete derivative values."}
+      ],
+      "findings": "The question names four positions and asks for their values and signs, but none of the four source values is included in the wording.",
+      "criterion": "A blind answer must follow from the stated quantities and general knowledge without inventing the omitted on-screen column.",
+      "steps": [
+        {
+          "question": "Are the four derivative values stated in the question?",
+          "answer_bool": false,
+          "why": "Only their existence and the requested target slots are described."
+        },
+        {
+          "question": "Can the two zero positions and two signs be derived without those values?",
+          "answer_bool": false,
+          "why": "Different underlying functions produce different derivative patterns."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "video-recognized",
+      "target": null,
+      "looked_at": [
+        {"kind": "cue", "t": 709.0, "what": "Pre-view recognition self-report based only on the supplied question wording."}
+      ],
+      "findings": "No particular title, scene, or remembered answer came to mind before the supplied transcript or frames were opened.",
+      "criterion": "The recognition flag fires only if this exact video moment and its answer were known from memory before viewing.",
+      "steps": [
+        {
+          "question": "Was this exact video moment recognized before viewing?",
+          "answer_bool": false,
+          "why": "The wording suggested a Taylor-series topic but did not evoke a specific remembered scene or answer."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

@@ -1,0 +1,176 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q10",
+  "role": "semiblind",
+  "iteration": 2,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/3b1b__3d6DsjIBzJ4__q10/semiblind_r2",
+  "budget": {
+    "frames_viewed": 16,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 744.0,
+        "t_end": 747.0
+      },
+      {
+        "t_start": 736.0,
+        "t_end": 748.0
+      }
+    ],
+    "transcript_cues": 579,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The full 0-772.5 s stretch was covered by transcript and screen index. After detecting a possible stale-frame disagreement, the exact integer 736-747 s sequence was rebuilt at 1 fps and ten requested frames were reopened. The generic display is visually available before 745 s, while the narration completes the nth-coefficient rule at 743.6 s; both lie inside the declared distractor. The rebuilt 745 s frame is fully readable.",
+  "prior_answer": "It cannot be answered on the merits: the question does not state the four concrete derivative values that must be mapped to the x, x², x³, and x⁴ coefficient slots.",
+  "prior_answer_assumptions": [],
+  "recognized_video": false,
+  "recognized_how": "I did not recognize this particular video or moment before viewing.",
+  "scans": [
+    {
+      "idx": 0,
+      "t_from": 0.0,
+      "t_to": 772.5,
+      "watched": [
+        {
+          "kind": "cue",
+          "t": 643.2,
+          "what": "The narration introduces the cyclic derivatives of cosine and their values at zero."
+        },
+        {
+          "kind": "frame",
+          "t": 718.0,
+          "what": "The concrete color-coded polynomial is fully visible as 1 + 0 x/1! - 1 x²/2! + 0 x³/3! + 1 x⁴/4! + ellipsis."
+        },
+        {
+          "kind": "cue",
+          "t": 713.8,
+          "what": "The narration begins replacing the cosine-specific construction with a general function."
+        },
+        {
+          "kind": "frame",
+          "t": 736.0,
+          "what": "The generic f-derivative column and matching color-coded formula through the x³ term are fully visible, with the fourth derivative still listed at left and the x⁴ term represented by the ellipsis."
+        },
+        {
+          "kind": "cue",
+          "t": 740.0,
+          "what": "The narration states that the x-to-the-n coefficient is the nth derivative at zero divided by n factorial; this cue completes at 743.6 s."
+        },
+        {
+          "kind": "frame",
+          "t": 744.0,
+          "what": "The rebuilt exact integer frame catches a partial visual transition, and this moment is also inside the declared distractor."
+        },
+        {
+          "kind": "frame",
+          "t": 745.0,
+          "what": "On the clean rebuilt integer grid, the complete generic derivative column and color-matched formula are fully visible at the first instant outside the declared distractor."
+        },
+        {
+          "kind": "frame",
+          "t": 746.0,
+          "what": "The rebuilt exact integer frame catches another partial transition after answerability has already been established at 745 s."
+        },
+        {
+          "kind": "frame",
+          "t": 751.0,
+          "what": "The same complete generic derivative column and formula persist, confirming the answer remains available."
+        }
+      ],
+      "candidates": [
+        {
+          "question": "Does the concrete polynomial at 718 s already supply the requested mapping?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "It supplies all four concrete values and signs, but the matching general formula has not yet replaced it, and 718 s lies inside the declared 709-745 s distractor."
+        },
+        {
+          "question": "Is the generic display at 737 s an admissible earliest answer point?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The generic display is already visibly available around 736-740 s, but its explicit terms stop at x³ plus an ellipsis; the narration has not yet completed the nth-coefficient rule needed to license the implicit x⁴ slot, and the time is inside the declared distractor."
+        },
+        {
+          "question": "Is the first instant outside the distractor, 745 s, fully answerable?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "On the clean rebuilt integer grid, the full generic derivative column and formula are readable at 745 s, and the nth-coefficient narration had completed at 743.6 s."
+        },
+        {
+          "question": "Is the requested four-slot mapping fully available at 746 s?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The answer remains available from prior visual and audio context, but the rebuilt 746 s frame itself catches a partial transition and is not the earliest point."
+        }
+      ],
+      "t_val": 745.0,
+      "t_val_basis": "At 745 s, the first instant outside the declared distractor, the clean rebuilt integer frame shows the complete generic f-derivative column and color-matched Taylor formula. The narration had completed the nth-derivative-over-n-factorial rule at 743.6 s, so the x⁴ coefficient represented visually by the ellipsis can be mapped without filling in unseen content.",
+      "answer_at_t_val": "x maps to f'(0)/1! = 0, x² maps to f''(0)/2! = -1/2, x³ maps to f'''(0)/3! = 0, and x⁴ maps to f''''(0)/4! = +1/24. Thus the x and x³ coefficients vanish; the x² coefficient is negative and the x⁴ coefficient is positive.",
+      "confidence": "high"
+    }
+  ],
+  "checks": [
+    {
+      "group": "shortcuts",
+      "item": "solvable-without-video",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 709.0,
+          "what": "The supplied question text, considered before opening any transcript or frame, omits the concrete derivative values."
+        }
+      ],
+      "findings": "The question names four coefficient slots and refers to a preceding derivative-value column, but it does not state the four values in that column.",
+      "criterion": "A video-free answer must derive the requested values and signs from the question itself and general knowledge, without inventing the omitted on-screen entries.",
+      "steps": [
+        {
+          "question": "Can the four coefficient values and signs be derived from the question alone?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The identity of the concrete function and the four derivative values are not given in the question."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "video-recognized",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 709.0,
+          "what": "Before viewing, I considered whether the supplied wording identified a remembered video and answer."
+        }
+      ],
+      "findings": "I had no memory of this particular video or moment and could not name its concrete derivative column before viewing.",
+      "criterion": "This item fires only if the particular video and answer were recognized from memory before any supplied transcript or frame was opened.",
+      "steps": [
+        {
+          "question": "Did I recognize the particular video or know the answer from memory?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "No specific title, scene, or concrete derivative values came to mind before viewing."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q02",
+  "role": "probe_vision",
+  "iteration": 3,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q02/probe_vision",
+  "budget": {
+    "frames_viewed": 3,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": null,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The screen index was used only to locate the relevant frames; all visible claims were checked on those frames.",
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 112.0,
+      "what": "The screen explicitly says 'Near x = 0', establishing the center used for the displayed Taylor approximations."
+    },
+    {
+      "kind": "frame",
+      "t": 130.0,
+      "what": "The blue target is labeled cos(x), and a downward-opening quadratic approximation is centered on the vertical axis at x = 0."
+    },
+    {
+      "kind": "frame",
+      "t": 141.0,
+      "what": "The blue target is still labeled cos(x); the displayed polynomial is P(x) = c_0 + c_1 x + c_2 x^2, and arrows from 'Free to change' point to all three coefficients."
+    }
+  ],
+  "steps": [
+    {
+      "question": "What blue target function and center are shown?",
+      "answer_bool": null,
+      "answer_number": null,
+      "answer_text": "The target is cos(x), centered at x = 0.",
+      "why": "Frame t000130 labels the blue curve cos(x), while frame t000112 explicitly shows 'Near x = 0'; the graph in t000130 is centered on the same vertical axis."
+    },
+    {
+      "question": "What is the target after reflection across the x-axis?",
+      "answer_bool": null,
+      "answer_number": null,
+      "answer_text": "The reflected target is -cos(x).",
+      "why": "Reflection across the x-axis negates all function values."
+    },
+    {
+      "question": "What are the degree-two Taylor coefficients at x = 0?",
+      "answer_bool": null,
+      "answer_number": null,
+      "answer_text": "c_0 = -1, c_1 = 0, and c_2 = 1/2.",
+      "why": "For f(x) = -cos(x), f(0) = -1, f'(0) = 0, and f''(0) = 1, so c_2 = f''(0)/2 = 1/2."
+    }
+  ],
+  "answer": "The blue target is cos(x), and the center is x = 0. Reflecting it across the x-axis gives -cos(x). Its quadratic Taylor polynomial at the same center is P(x) = -1 + (1/2)x^2, so c_0 = -1, c_1 = 0, and c_2 = 1/2.",
+  "basis": "Frames t000112.jpg, t000130.jpg, and t000141.jpg, together with general knowledge of reflection and Taylor coefficients.",
+  "confidence": "high",
+  "insufficient": false
+}

@@ -1,0 +1,262 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q14",
+  "role": "full_window",
+  "iteration": 1,
+  "model": "gpt-5",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/3b1b__3d6DsjIBzJ4__q14/full_window0_r1",
+  "budget": {
+    "frames_viewed": 11,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 1015.0,
+        "t_end": 1022.0
+      }
+    ],
+    "transcript_cues": 25,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The complete three-term equation first appears at 1020.0. The central geometric diagram temporarily gives way to an animation, but the color-keyed pieces and full equation remain visible through that stretch and the geometric diagram returns at the window endpoint. No defect found.",
+  "verdict": "PASS",
+  "window_idx": 0,
+  "checks": [
+    {
+      "group": "windows",
+      "item": "window-can-be-tightened",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1020.0,
+          "what": "Blue, yellow, and pink pieces are simultaneously complete, and the full three-term color-matched equation is visible."
+        },
+        {
+          "kind": "frame",
+          "t": 1023.4,
+          "what": "The main graph has transitioned to an animation, while the three colored pieces and the full matching equation remain visible across the top."
+        },
+        {
+          "kind": "frame",
+          "t": 1026.9,
+          "what": "The three colored pieces and full equation still remain visible above the animation."
+        },
+        {
+          "kind": "frame",
+          "t": 1030.9,
+          "what": "At the window endpoint the complete graph, colored geometric regions, and color-matched equation are visible again."
+        }
+      ],
+      "findings": "The requested visual state is complete at 1020.0. From 1023.4 through 1026.9, the large graph is replaced by an animation, but the blue, yellow, and pink pieces and their full color-matched three-term equation persist at the top. At 1030.9, exactly the excluded endpoint, the larger geometric diagram is again present.",
+      "criterion": "A boundary should be tightened only if a substantial part of the legal window no longer supplies the evidence needed for the requested answer; a later animation does not invalidate a state already observed when the decisive color mapping also remains on screen.",
+      "steps": [
+        {
+          "question": "When is the requested simultaneous visual state complete?",
+          "answer_number": 1020.0,
+          "why": "The 1020.0 frame shows all three colored pieces and all three matching equation terms together."
+        },
+        {
+          "question": "Does the later animation remove the information needed to map the colors to terms?",
+          "answer_bool": false,
+          "why": "The 1023.4 and 1026.9 frames retain both the colored piece key and the complete color-coded equation at the top."
+        },
+        {
+          "question": "Is there a substantial evidence-free tail before t_end = 1030.9?",
+          "answer_bool": false,
+          "why": "The mappings remain visible throughout the intervening scene-change frames, and the full geometric diagram is visible again at 1030.9."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "windows",
+      "item": "author-says-answer-in-window",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1020.0,
+          "what": "The complete color-matched answer is displayed visually: blue first term, yellow derivative term, and pink half-second-derivative term."
+        },
+        {
+          "kind": "cue",
+          "t": 1019.7,
+          "what": "The narrator states that the little triangle is one half times the second derivative times (x-a) squared, finishing at 1023.4."
+        },
+        {
+          "kind": "cue",
+          "t": 1023.4,
+          "what": "The narrator says he likes the construction because each term has a clear meaning."
+        },
+        {
+          "kind": "cue",
+          "t": 1029.2,
+          "what": "The narrator says the meaning can be pointed to on the diagram, ending at 1033.6."
+        },
+        {
+          "kind": "cue",
+          "t": 1039.2,
+          "what": "The narrator calls Taylor polynomials a useful tool; no new color-to-term mapping is introduced before 1040.9."
+        }
+      ],
+      "findings": "The finished answer is shown on screen from 1020.0, and the narrator completes the pink triangular term during 1019.7-1023.4. The remaining speech through t_end+10 discusses the meanings of terms and Taylor polynomials. The sample is explicitly L1.",
+      "criterion": "A finished answer supplied by the author in or just after the window invalidates an L2 or L3 reasoning task, because generation latency can leak the answer; for an L1 alarm designed to fire when the cue appears, that coincidence is permitted.",
+      "steps": [
+        {
+          "question": "Is a finished version of the answer available inside the window?",
+          "answer_bool": true,
+          "why": "The 1020.0 frame visibly aligns all three colors with the complete equation, and the narrator is finishing the triangle term."
+        },
+        {
+          "question": "What reasoning level governs this check?",
+          "answer_text": "L1",
+          "why": "The handed sample labels reasoning_level as L1 and uses act = narrate at the completed visual cue."
+        },
+        {
+          "question": "Does author-provided answer content make this L1 window fail the item?",
+          "answer_bool": false,
+          "why": "For L1, reacting to the author-visible cue is the intended alarm behavior rather than a reasoning leak."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "event-not-earlier-than-window",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1018.0,
+          "what": "The three colored geometric pieces are visible, but the displayed equation still ends after the yellow derivative term with a trailing plus sign."
+        },
+        {
+          "kind": "frame",
+          "t": 1019.0,
+          "what": "The equation remains incomplete: the pink quadratic term has not yet been added to its third position."
+        },
+        {
+          "kind": "frame",
+          "t": 1020.0,
+          "what": "The pink quadratic term is now present, making the three-term equation and all three colored pieces simultaneously complete."
+        },
+        {
+          "kind": "frame",
+          "t": 1021.0,
+          "what": "The same completed three-piece and three-term state remains visible."
+        }
+      ],
+      "findings": "At 1018.0 and 1019.0 the colored geometry is present but the equation is still missing its final pink quadratic term. At 1020.0 that term appears and the exact simultaneous-completion condition is first satisfied; it remains satisfied at 1021.0.",
+      "criterion": "For an event-defined trigger, the legal window must not open after the event actually begins, because a model reacting correctly to the onset would otherwise be penalized.",
+      "steps": [
+        {
+          "question": "Is the complete three-term equation visible before 1020.0?",
+          "answer_bool": false,
+          "why": "The 1018.0 and 1019.0 frames end the equation after the yellow term and a plus sign."
+        },
+        {
+          "question": "When is the simultaneous-completion event first observed?",
+          "answer_number": 1020.0,
+          "why": "The 1020.0 dense frame is the first inspected second containing the final pink equation term with all colored pieces."
+        },
+        {
+          "question": "Does the event begin earlier than t_start = 1020.0?",
+          "answer_bool": false,
+          "why": "The state is incomplete at 1019.0 and complete at the opening frame 1020.0."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "depends-on-is-dependency",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [],
+      "findings": "The sample has one trigger, idx 0, and it has no depends_on field. Every rubric item concerns a color mapping visible in this same window, so none requires the answer to another trigger.",
+      "criterion": "A depends_on link is applicable only when a rubric requirement cannot be answered without another trigger's answer; absent both such a requirement and any dependency field, there is no dependency relation to judge.",
+      "steps": [
+        {
+          "question": "Does trigger 0 declare depends_on?",
+          "answer_bool": false,
+          "why": "No depends_on field is present in the handed trigger object."
+        },
+        {
+          "question": "Does any rubric requirement require an answer from another trigger?",
+          "answer_bool": false,
+          "why": "All four rubric requirements concern the blue, yellow, and pink mappings and descriptions available within trigger 0."
+        }
+      ],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "evidence-span-is-last",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1019.0,
+          "what": "The geometric color key is present, but the matching equation is still incomplete because its pink third term is absent."
+        },
+        {
+          "kind": "frame",
+          "t": 1020.0,
+          "what": "The final pink quadratic term has appeared, so all facts needed for the three requested mappings are simultaneously visible."
+        },
+        {
+          "kind": "frame",
+          "t": 1026.9,
+          "what": "The complete color-keyed pieces and equation are still visible at the stated evidence_span endpoint."
+        }
+      ],
+      "findings": "The handed evidence_span is [1020.0, 1026.9]. The geometric color identities are already visible at 1019.0, but the last required fact—the pink quadratic term in the matching equation—first appears at 1020.0. The complete mapping remains visible at 1026.9.",
+      "criterion": "The evidence span must include the moment when the last fact necessary to satisfy the rubric first becomes derivable, rather than merely a later corroborating explanation or the first partial cue.",
+      "steps": [
+        {
+          "question": "Which required fact appears last?",
+          "answer_text": "The pink third equation term, one half times the second derivative at a times (x-a) squared.",
+          "why": "The blue and yellow mappings and all geometric regions are already visible while this final equation term is still absent at 1019.0."
+        },
+        {
+          "question": "When is that last required fact first visible?",
+          "answer_number": 1020.0,
+          "why": "The complete three-term equation is present in the 1020.0 frame."
+        },
+        {
+          "question": "Does evidence_span include that moment?",
+          "answer_bool": true,
+          "why": "Its left endpoint is exactly 1020.0, and it extends through 1026.9."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

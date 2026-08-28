@@ -1,0 +1,281 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q05",
+  "role": "full_window",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q05/full_window0",
+  "budget": {
+    "frames_viewed": 13,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 329.0,
+        "t_end": 342.0
+      }
+    ],
+    "transcript_cues": 20,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "Dense real frames confirm the intended visual onset at 334.0 s: at 333.0 the true digits are still dark/faint, while at 334.0 both numbers are readable. The complete formulas later animate intermittently and are gone by 341.0, but the answer remains derivable from the already observed first readable state; the final roughly 1.4 s of visual slack is below the prompt's tightening threshold.",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "group": "windows",
+      "item": "window-can-be-tightened",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 334.0,
+          "what": "Both lines are readable: the quadratic estimate ends in 0.995 and the true-value line ends in 0.9950042..."
+        },
+        {
+          "kind": "frame",
+          "t": 335.0,
+          "what": "Both complete formulas remain clearly readable."
+        },
+        {
+          "kind": "frame",
+          "t": 337.0,
+          "what": "Both complete formulas are again clearly readable after an animation transition."
+        },
+        {
+          "kind": "frame",
+          "t": 339.0,
+          "what": "Both complete formulas remain readable near the end of their display."
+        },
+        {
+          "kind": "frame",
+          "t": 340.0,
+          "what": "The formulas are in the process of disappearing and only fragments remain."
+        },
+        {
+          "kind": "frame",
+          "t": 341.0,
+          "what": "The formulas have disappeared, leaving the pi characters."
+        }
+      ],
+      "findings": "The needed values are readable at the opening frame and recur fully through 339.0 s. They animate away around 340–341 s, leaving about 1.4 s before the 341.7 s boundary with no formulas on screen.",
+      "criterion": "The window should be shortened only when it contains a substantial stretch in which a correct answer cannot be formed; one or two seconds of tail slack does not justify a boundary fix, and an already observed state remains available while an answer is generated.",
+      "steps": [
+        {
+          "question": "Are all facts required by the question readable at the start of the window?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "At 334.0 the estimate 0.995 and true value 0.9950042... are both clear."
+        },
+        {
+          "question": "What is the last dense frame with both complete values still readable?",
+          "answer_bool": null,
+          "answer_number": 339.0,
+          "answer_text": null,
+          "why": "The 339.0 frame shows both full formulas; the 340.0 frame shows only fragments."
+        },
+        {
+          "question": "Is the visually empty tail large enough to warrant tightening?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The formulas are gone by 341.0 and the window ends at 341.7, while the disappearance begins around 340; this is only about one to two seconds and follows several readable opportunities."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "windows",
+      "item": "author-says-answer-in-window",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 332.7,
+          "what": "The narrator says, 'And this is the true value of cosine of 0.1.'"
+        },
+        {
+          "kind": "cue",
+          "t": 336.6,
+          "what": "The narrator says, 'It's a really good approximation.'"
+        },
+        {
+          "kind": "cue",
+          "t": 340.3,
+          "what": "The narration moves on to reflecting on what happened and then discusses the quadratic's degrees of freedom."
+        },
+        {
+          "kind": "frame",
+          "t": 334.0,
+          "what": "The two source values are shown, but no subtraction result or under/over direction is displayed."
+        },
+        {
+          "kind": "frame",
+          "t": 342.0,
+          "what": "A graph of the approximation is displayed; no signed difference is given."
+        }
+      ],
+      "findings": "From 334.0 through 351.7 s the narrator identifies the true-value line and calls the approximation good, then discusses the polynomial. Neither the narration nor the inspected frames state the signed difference approximately 0.0000042 or explicitly say underestimate/overestimate.",
+      "criterion": "For an L3 item this check fires only if the author supplies the requested answer in finished form during the window or within ten seconds after it; merely presenting the operands that the question requires the model to subtract is not a finished answer.",
+      "steps": [
+        {
+          "question": "Does the author state or display the requested signed difference?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The material shows 0.995 and 0.9950042... but never gives their difference."
+        },
+        {
+          "question": "Does the author state the requested underestimate-versus-overestimate direction?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Calling it a really good approximation does not specify the sign of the error."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "event-not-earlier-than-window",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 332.0,
+          "what": "Only the quadratic estimate is clearly readable; the true-value line is not yet readable."
+        },
+        {
+          "kind": "frame",
+          "t": 333.0,
+          "what": "The true-value digits are being drawn in a dark, faint overlay and are not yet reliably readable."
+        },
+        {
+          "kind": "frame",
+          "t": 334.0,
+          "what": "The true-value line has moved below the estimate and both 0.995 and 0.9950042... are clearly readable."
+        }
+      ],
+      "findings": "The visual condition named by the question is not met at 332.0 or 333.0 s because the true digits are absent or faint. It is met at the window's 334.0 s opening frame.",
+      "criterion": "For a trigger defined by the first moment when two displayed values are both readable, the window should open when that joint readability begins rather than later in the display.",
+      "steps": [
+        {
+          "question": "Are both requested values reliably readable one second before the window?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "At 333.0 the true-value digits are still faint and overlaid during the drawing transition."
+        },
+        {
+          "question": "At what inspected moment are both values first clearly readable?",
+          "answer_bool": null,
+          "answer_number": 334.0,
+          "answer_text": null,
+          "why": "The 334.0 frame clearly shows estimate 0.995 and true value 0.9950042... simultaneously."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "depends-on-is-dependency",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [],
+      "findings": "The supplied trigger has no depends_on link, and its rubric asks only for subtraction of the two values visible in this same window plus the sign direction.",
+      "criterion": "A depends_on link is applicable only when satisfying this window's rubric requires an answer produced by another named trigger; absence of both such a requirement and such a link makes the item inapplicable.",
+      "steps": [
+        {
+          "question": "Does this window declare a depends_on trigger?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "No depends_on field was supplied for trigger 0."
+        },
+        {
+          "question": "Does the rubric require information obtainable only from another trigger's answer?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Both operands and the comparison needed for direction are visible together in this window."
+        }
+      ],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "evidence-span-is-last",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 333.0,
+          "what": "The estimate is readable but the true-value digits are still faint and not reliable evidence."
+        },
+        {
+          "kind": "frame",
+          "t": 334.0,
+          "what": "The estimate and true-value digits are simultaneously clear, providing the last fact needed for subtraction and sign."
+        },
+        {
+          "kind": "frame",
+          "t": 338.0,
+          "what": "The formula animation is in transition, but no new numerical fact needed for the answer appears."
+        }
+      ],
+      "findings": "The estimate is already available before the window, while the true value becomes reliably readable at 334.0 s. No later fact is needed to compute true minus estimate or determine its positive sign; the supplied evidence span [334,338] covers that last-evidence moment.",
+      "criterion": "The evidence span must include the moment when the final necessary fact first becomes usable, rather than a later corroborating comment or the end of the display.",
+      "steps": [
+        {
+          "question": "Which required operand is the last one to become reliably readable?",
+          "answer_bool": null,
+          "answer_number": null,
+          "answer_text": "the true value 0.9950042...",
+          "why": "The estimate 0.995 is already clear by 331–332 s, whereas the true digits are faint at 333 s."
+        },
+        {
+          "question": "At what inspected moment does that last operand become usable?",
+          "answer_bool": null,
+          "answer_number": 334.0,
+          "answer_text": null,
+          "why": "Both full values are clearly legible in the 334.0 frame."
+        },
+        {
+          "question": "Does the supplied evidence span cover the last-evidence moment without relying on later corroboration?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The supplied [334,338] interval begins at 334.0, when the final operand becomes readable; later narration is unnecessary."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ],
+  "window_idx": 0
+}

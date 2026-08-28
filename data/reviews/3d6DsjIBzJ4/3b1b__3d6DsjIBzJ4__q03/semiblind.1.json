@@ -1,0 +1,217 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q03",
+  "role": "semiblind",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q03/semiblind",
+  "budget": {
+    "frames_viewed": 13,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 220.0,
+        "t_end": 232.0
+      }
+    ],
+    "transcript_cues": 173,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The complete transcript and screen index covered 0-236.2 s. The declared 181.0-199.1 s distractor was treated as premature and was not selected. The exact transition from c_1 to 0 was narrowed with a 1 fps dense pass; frame 228 is incomplete and frame 229 is the first complete state.",
+  "prior_answer": "The question cannot be answered on its merits from the text alone: it does not identify the two displayed curves, the color-coded coefficient, or the value chosen for it.",
+  "prior_answer_assumptions": [],
+  "recognized_video": true,
+  "recognized_how": "The supplied title identifies the familiar 3Blue1Brown Essence of Calculus chapter on Taylor series, but I did not recall this exact moment, its color coding, or the requested answer before viewing.",
+  "scans": [
+    {
+      "idx": 0,
+      "t_from": 0.0,
+      "t_to": 236.2,
+      "watched": [
+        {
+          "kind": "cue",
+          "t": 15.0,
+          "what": "The chapter introduction begins with examples of Taylor approximations."
+        },
+        {
+          "kind": "cue",
+          "t": 68.6,
+          "what": "The pendulum example introduces the quadratic approximation to cosine."
+        },
+        {
+          "kind": "cue",
+          "t": 120.6,
+          "what": "The discussion turns to constructing a quadratic approximation to cosine near x=0."
+        },
+        {
+          "kind": "cue",
+          "t": 154.6,
+          "what": "The value-matching argument starts and leads to c_0=1."
+        },
+        {
+          "kind": "cue",
+          "t": 181.0,
+          "what": "The polynomial value at x=0 remains fixed at 1; the tangent condition is not yet explicit."
+        },
+        {
+          "kind": "frame",
+          "t": 199.0,
+          "what": "Cosine and the quadratic meet at x=0 with a horizontal yellow line, while c_1 and c_2 remain free."
+        },
+        {
+          "kind": "frame",
+          "t": 207.0,
+          "what": "The left derivative is visibly evaluated as -sin(0)=0, and the horizontal tangent is shown."
+        },
+        {
+          "kind": "frame",
+          "t": 217.0,
+          "what": "The polynomial derivative at zero is displayed as c_1 + 2c_2 0."
+        },
+        {
+          "kind": "frame",
+          "t": 220.0,
+          "what": "The polynomial derivative simplifies visibly to c_1 + 0, making the yellow c_1 the slope controller."
+        },
+        {
+          "kind": "frame",
+          "t": 228.0,
+          "what": "The animation changing c_1 is still incomplete; no settled replacement value is yet legible."
+        },
+        {
+          "kind": "frame",
+          "t": 229.0,
+          "what": "The yellow c_1 has become 0 in P(x), the derivative at zero is 0, and the common horizontal tangent is visible."
+        },
+        {
+          "kind": "frame",
+          "t": 231.0,
+          "what": "The completed state persists with c_1=0 and both derivatives zero at x=0."
+        },
+        {
+          "kind": "cue",
+          "t": 231.0,
+          "what": "The narration states that the approximation also has a flat tangent line at this point."
+        }
+      ],
+      "candidates": [
+        {
+          "question": "Does the value match at about 173 seconds supply the requested tangent-line answer?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "It fixes c_0=1 only; neither the derivative-controlling coefficient nor the tangent consequence has appeared."
+        },
+        {
+          "question": "Is the declared 181.0-199.1 second distractor a complete answer?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The same-slope goal and a horizontal tangent are introduced, but the displayed derivative relation and chosen c_1 value are still absent."
+        },
+        {
+          "question": "Does the frame at 207 seconds provide all three requested parts?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "It establishes that cosine has derivative zero and a flat tangent, but does not yet show which polynomial coefficient controls the match."
+        },
+        {
+          "question": "Does the frame at 220 seconds provide all three requested parts?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "It makes c_1 the polynomial derivative at zero, but c_1 has not yet been set to zero."
+        },
+        {
+          "question": "Is the transition frame at 228 seconds already a complete readable answer?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The yellow c_1 is mid-animation and its replacement by 0 is not yet a settled, fully legible displayed condition."
+        },
+        {
+          "question": "Is the complete answer available in the frame at 229 seconds?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The display now shows the yellow c_1 replaced by 0, gives P'(0)=0, and shows the shared horizontal tangent at x=0."
+        }
+      ],
+      "t_val": 229.0,
+      "t_val_basis": "At frame 229 the transition is complete: the yellow c_1 term is visibly 0x, the polynomial derivative at x=0 visibly evaluates to 0, the cosine derivative is already shown as 0, and the graph shows their common horizontal tangent.",
+      "answer_at_t_val": "The yellow coefficient c_1 controls the match; it is set to 0, so at x=0 the polynomial and cos(x) have the same flat (horizontal) tangent line.",
+      "confidence": "high"
+    }
+  ],
+  "checks": [
+    {
+      "group": "shortcuts",
+      "item": "solvable-without-video",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 181.0,
+          "what": "Before viewing, the supplied question asks for an unnamed color-coded coefficient and value from two displayed curves."
+        }
+      ],
+      "findings": "The question text does not name the two curves, the coefficient, its color, or its chosen value.",
+      "criterion": "A question is solvable without video only if its wording plus general subject knowledge determines the requested quantities without inventing screen content.",
+      "steps": [
+        {
+          "question": "Can the requested coefficient and value be derived from the question text alone?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Several curve pairs and polynomial coefficients could satisfy a tangent-line matching condition, and the question does not identify which displayed instance is meant."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "video-recognized",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 0.0,
+          "what": "Before viewing, the supplied title identifies Taylor series as Chapter 11 of 3Blue1Brown's Essence of Calculus."
+        }
+      ],
+      "findings": "I recognized the particular video series and chapter from the supplied title, but did not remember this exact moment or its requested answer.",
+      "criterion": "The recognition flag fires when the particular source video was already recognized before opening the supplied transcript or frames, even if the exact answer was not recalled.",
+      "steps": [
+        {
+          "question": "Was this particular video recognized before any viewing?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The title directly names a familiar 3Blue1Brown chapter and series."
+        },
+        {
+          "question": "Could the answer to this exact moment be named from memory?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "I did not recall the coefficient color, the explicit displayed condition, or the exact timing before viewing."
+        }
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {
+        "field": "semiblind_reviewer",
+        "value": "repeat with a reviewer who does not recognize this source video",
+        "why": "An independent rerun would remove any possible familiarity bias while preserving this review as an explicit contaminated measurement."
+      },
+      "uncovered": null
+    }
+  ]
+}

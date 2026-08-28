@@ -1,0 +1,295 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q08",
+  "role": "full_window",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q08/full_window0",
+  "budget": {
+    "frames_viewed": 13,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 568.0,
+        "t_end": 574.0
+      }
+    ],
+    "transcript_cues": 29,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The exact caption onset is outside the assigned workspace: it is already fully visible at the 568.0 boundary.\nThe current evaluation is 12 c_4 x^2 at x=0, hence 0; the preceding fourth-derivative evaluation was 24 c_4 because no x remained.\nThe author explicitly supplies the remaining-x explanation inside the L2 window.",
+  "verdict": "CRITICAL_FAIL",
+  "checks": [
+    {
+      "group": "windows",
+      "item": "window-can-be-tightened",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 573.0,
+          "what": "The caption and complete second-derivative evaluation ending in =0 are visible."
+        },
+        {
+          "kind": "frame",
+          "t": 581.6,
+          "what": "The display has advanced to the general polynomial and its coefficient-control diagram."
+        },
+        {
+          "kind": "frame",
+          "t": 590.5,
+          "what": "At the right boundary the diagram shows which coefficient controls each derivative at zero."
+        },
+        {
+          "kind": "cue",
+          "t": 574.2,
+          "what": "The author begins explaining that the second derivative of any higher-order term vanishes at x=0."
+        }
+      ],
+      "findings": "The requested first-appearance state is complete at 573.0. The display changes by 581.6, but the observed comparison remains available to a streaming model while it finishes generating through the 590.5 boundary.",
+      "criterion": "For a question about a state at first appearance, a later animation does not by itself make the answer unavailable; tightening is warranted only for a large interval in which the requested state was never fully observable or the question demands the current display.",
+      "steps": [
+        {
+          "question": "When is the requested current evaluation fully readable inside the window?",
+          "answer_number": 573.0,
+          "why": "The dense 573.0 frame shows the caption, the 3 times 4 c_4 times zero squared contribution, and its =0 evaluation."
+        },
+        {
+          "question": "Does the later scene change erase the already observed first-appearance answer?",
+          "answer_bool": false,
+          "why": "The wording asks about the state when the caption appears, so a model may retain that observed state while answering."
+        },
+        {
+          "question": "Is there a large part of the window during which a correct streaming model cannot answer?",
+          "answer_bool": false,
+          "why": "The answer is complete at the left edge and remains answerable from the model's just-observed video history through the right edge."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "windows",
+      "item": "author-says-answer-in-window",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 573.0,
+          "what": "The displayed higher-order contribution is 3 times 4 c_4 times zero squared and is explicitly evaluated as 0."
+        },
+        {
+          "kind": "cue",
+          "t": 571.1,
+          "what": "The author says the reason is that x=0 is being substituted."
+        },
+        {
+          "kind": "cue",
+          "t": 574.2,
+          "what": "The author says the second derivative of any higher-order term is being considered."
+        },
+        {
+          "kind": "cue",
+          "t": 576.0,
+          "what": "The author says every such higher-order term still includes an x."
+        },
+        {
+          "kind": "cue",
+          "t": 578.9,
+          "what": "The author concludes that the remaining-x contribution washes away."
+        },
+        {
+          "kind": "frame",
+          "t": 581.6,
+          "what": "The screen has moved on to the general coefficient-control diagram after the explanation."
+        },
+        {
+          "kind": "frame",
+          "t": 590.5,
+          "what": "At the window end the general diagram explicitly maps c_4 to the fourth derivative at zero."
+        },
+        {
+          "kind": "frame",
+          "t": 593.7,
+          "what": "Within the ten-second slack after the window, the video has changed to a graph centered around zero and pi."
+        }
+      ],
+      "findings": "At the window opening the screen gives the current result 0. From 571.1 through roughly 579.5 the narration gives the decisive explanation: after only two derivatives a higher-order term still includes a power of x, and substituting x=0 makes it vanish. This supplies the answer's discriminating comparison logic during the L2 response window.",
+      "criterion": "An L2 comparison fails this check when the video itself presents the result and the reasoning needed to state it during the answer window or within ten seconds after it opens, because copying the stream replaces the intended reasoning.",
+      "steps": [
+        {
+          "question": "Is the current displayed derivative evaluation supplied in finished form?",
+          "answer_bool": true,
+          "why": "The 573.0 frame explicitly ends the c_4 second-derivative contribution with =0."
+        },
+        {
+          "question": "Does the narration state why this differs from the earlier fourth-derivative result?",
+          "answer_bool": true,
+          "why": "The 574.2-581.7 cue sequence says that higher-order terms retain an x after two derivatives and therefore wash away at x=0; the earlier fourth derivative leaves no x and yields 24 c_4."
+        },
+        {
+          "question": "Is the sample level one for which this spoken shortcut is disqualifying?",
+          "answer_text": "Yes, reasoning_level is L2.",
+          "why": "The handed sample labels this comparison as L2, not an L1 alarm."
+        }
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {
+        "field": "question",
+        "value": "Reject this firing or redesign it so the video does not state the remaining-power explanation while the model is answering.",
+        "why": "Shortening t_end cannot prevent a streaming answer from copying the explanation that starts immediately after the window opens."
+      },
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "event-not-earlier-than-window",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 568.0,
+          "what": "At the earliest permitted workspace frame, the full caption 'Doesn't affect previous terms' and the second-derivative expression are already visible."
+        },
+        {
+          "kind": "frame",
+          "t": 569.0,
+          "what": "The same caption and derivative expression remain visible during a transition."
+        },
+        {
+          "kind": "frame",
+          "t": 570.0,
+          "what": "The caption and derivative expression are again fully visible."
+        },
+        {
+          "kind": "frame",
+          "t": 573.0,
+          "what": "At the annotated window start the caption persists and the derivative contribution has additionally been marked =0."
+        }
+      ],
+      "findings": "The named visual event does not start at 573.0: the full caption is already present at the assigned workspace's 568.0 boundary and persists through the annotated start. Its exact onset is earlier than the material available to this reviewer.",
+      "criterion": "A window for an appearance event must open when that visual event begins; opening several seconds after an already visible caption rewards a late reaction and misses the actual onset.",
+      "steps": [
+        {
+          "question": "Is the trigger caption already present before t_start 573.0?",
+          "answer_bool": true,
+          "why": "Dense real frames at 568.0, 569.0, and 570.0 all show the caption."
+        },
+        {
+          "question": "How far before t_start is the caption proven to be present?",
+          "answer_number": 5.0,
+          "why": "The earliest assigned frame is 568.0, exactly five seconds before the 573.0 start, and the caption is already complete there."
+        },
+        {
+          "question": "Can the exact event onset be located within the assigned workspace?",
+          "answer_bool": false,
+          "why": "The caption is already present at the workspace's lower boundary, so locating its onset requires earlier source material."
+        }
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {
+        "field": "triggers[0].t_start",
+        "value": "no later than 568.0; locate the exact caption onset in an extended workspace",
+        "why": "The event is already fully underway at 568.0, so 573.0 cannot be its beginning; the distractor ending at 573.0 must be adjusted consistently."
+      },
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "depends-on-is-dependency",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [],
+      "findings": "Trigger 0 has no depends_on field, so there is no dependency edge whose necessity or absence can be tested for this first window.",
+      "criterion": "This check applies only when a rubric item requires an earlier trigger answer, or when an existing depends_on edge claims such a requirement.",
+      "steps": [
+        {
+          "question": "Does trigger 0 declare a depends_on edge?",
+          "answer_bool": false,
+          "why": "The handed trigger metadata says depends_on is absent."
+        },
+        {
+          "question": "Can a first trigger depend on an earlier trigger in this sample?",
+          "answer_bool": false,
+          "why": "There is no trigger with an index earlier than zero."
+        }
+      ],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "evidence-span-is-last",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 573.0,
+          "what": "The current contribution has a remaining squared power evaluated at zero and the finished result =0."
+        },
+        {
+          "kind": "cue",
+          "t": 576.0,
+          "what": "The author identifies that higher-order terms still include an x after the second derivative."
+        },
+        {
+          "kind": "cue",
+          "t": 578.9,
+          "what": "The author says that this remaining-x contribution washes away at x=0."
+        },
+        {
+          "kind": "frame",
+          "t": 581.6,
+          "what": "At the evidence-span endpoint the video transitions from the specific evaluation to the general coefficient-control diagram."
+        }
+      ],
+      "findings": "All new visual facts needed for the comparison are visible by 573.0, and the narration within the declared 573.0-581.6 span makes the remaining-power explanation explicit before the scene changes at 581.6.",
+      "criterion": "The evidence span must include the last newly supplied fact needed to derive the answer, while later repetition or corroboration need not extend it.",
+      "steps": [
+        {
+          "question": "What is the last new fact needed from this firing?",
+          "answer_text": "The c_4 contribution after two derivatives still has power x^2 and therefore evaluates to zero at x=0.",
+          "why": "That is the requested reason for the contrast with the earlier fourth derivative, where no x remained."
+        },
+        {
+          "question": "Does evidence_span 573.0-581.6 contain that last fact?",
+          "answer_bool": true,
+          "why": "The 573.0 frame visually contains zero squared and =0, and the 576.0-579.5 narration states the remaining-x logic within the span."
+        },
+        {
+          "question": "Does any necessary answer fact first appear after 581.6?",
+          "answer_bool": false,
+          "why": "Later frames generalize coefficient control and then move to expansion around pi; they do not add a fact required by this comparison."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ],
+  "window_idx": 0
+}

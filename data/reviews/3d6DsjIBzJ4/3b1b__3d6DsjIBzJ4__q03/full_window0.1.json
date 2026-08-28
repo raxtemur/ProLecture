@@ -1,0 +1,247 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q03",
+  "role": "full_window",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q03/full_window0",
+  "budget": {
+    "frames_viewed": 9,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 224.0,
+        "t_end": 230.0
+      }
+    ],
+    "transcript_cues": 21,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The indexed frame viewer failed because of bwrap, so the same indexed frames were viewed through temporary /tmp copies. No prior review files or annotation files were read.",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "group": "windows",
+      "item": "window-can-be-tightened",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 229.0,
+          "what": "The polynomial shows a yellow 0 in the linear term, its derivative at zero is expanded to 0, and a horizontal yellow tangent is visible at x=0."
+        },
+        {
+          "kind": "frame",
+          "t": 229.6,
+          "what": "The completed substitution and shared horizontal tangent remain fully visible."
+        },
+        {
+          "kind": "frame",
+          "t": 233.3,
+          "what": "The polynomial with yellow 0 and the horizontal tangent remain on screen."
+        },
+        {
+          "kind": "frame",
+          "t": 236.2,
+          "what": "At the right boundary the yellow 0 and horizontal tangent are still visible, together with the new Free to change note for c2."
+        }
+      ],
+      "findings": "At 229.0 the requested substitution and flat tangent are complete. They remain visible at 229.6, 233.3, and the 236.2 boundary frame; no long empty tail occurs.",
+      "criterion": "The interval needs tightening only if a substantial initial or final portion lacks the complete answer-bearing visual state.",
+      "steps": [
+        {
+          "question": "Is the complete answer-bearing state present at the start of the window?",
+          "answer_bool": true,
+          "why": "The 229.0 frame already shows the yellow 0, derivative equal to zero, and flat tangent."
+        },
+        {
+          "question": "Does the answer-bearing state persist through the right boundary?",
+          "answer_bool": true,
+          "why": "The same core visual facts are still present at 233.3 and 236.2."
+        },
+        {
+          "question": "Is there a large answer-empty portion to remove?",
+          "answer_bool": false,
+          "why": "All inspected points across the 7.2-second window retain the relevant state."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "windows",
+      "item": "author-says-answer-in-window",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 228.9,
+          "what": "The author says that the approximation also has a flat tangent."
+        },
+        {
+          "kind": "cue",
+          "t": 231.0,
+          "what": "The author completes: flat tangent line at this point."
+        },
+        {
+          "kind": "cue",
+          "t": 238.4,
+          "what": "Within ten seconds after the window, the author says the value and slope at x=0 are locked to match cosine."
+        },
+        {
+          "kind": "frame",
+          "t": 229.6,
+          "what": "The finished derivative equality and flat tangent are visually shown while the narration explains them."
+        }
+      ],
+      "findings": "The author states the flat-tangent consequence during the window and later says that the value and slope at x=0 match cosine. The sample is labeled L1.",
+      "criterion": "An answer spoken or shown during the response window is disqualifying here only for L2 or L3; an L1 alarm is allowed to coincide with the author's reveal.",
+      "steps": [
+        {
+          "question": "Is the answer stated in the window or the following ten seconds?",
+          "answer_bool": true,
+          "why": "The 228.9-233.6 cues state the flat tangent, and the 238.4 cue explicitly says the slope matches cosine."
+        },
+        {
+          "question": "Does the sample have an L2 or L3 reasoning label?",
+          "answer_bool": false,
+          "why": "The supplied sample labels reasoning_level as L1."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "event-not-earlier-than-window",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 228.0,
+          "what": "The yellow c1 is still present and visibly mid-transition; the replacement value is not yet cleanly shown."
+        },
+        {
+          "kind": "frame",
+          "t": 229.0,
+          "what": "The transition is complete: c1 has become a yellow 0 and the derivative is shown as zero."
+        },
+        {
+          "kind": "frame",
+          "t": 229.6,
+          "what": "The completed zero substitution remains stable immediately after the window opens."
+        }
+      ],
+      "findings": "At 228.0 the coefficient replacement is still being drawn, while at 229.0 the zero substitution and zero derivative are complete. The annotated window opens at 229.0.",
+      "criterion": "For this reveal event, the window should open when the requested explicit matching condition first becomes complete, not while its decisive replacement is still being drawn.",
+      "steps": [
+        {
+          "question": "Is the explicit c1-to-zero replacement already complete at 228.0?",
+          "answer_bool": false,
+          "why": "The 228.0 frame still shows c1 in a partially changing state rather than a clean zero."
+        },
+        {
+          "question": "Is the explicit replacement complete when the window opens at 229.0?",
+          "answer_bool": true,
+          "why": "The 229.0 frame cleanly shows yellow 0 in the polynomial and derivative."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "depends-on-is-dependency",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [],
+      "findings": "The supplied trigger has no depends_on field, and there are no other trigger windows in the supplied sample.",
+      "criterion": "A dependency link can be judged only when a trigger declares one or when a rubric step necessarily requires another trigger's answer.",
+      "steps": [
+        {
+          "question": "Does trigger 0 declare a depends_on link?",
+          "answer_bool": false,
+          "why": "No depends_on field is present in the supplied trigger object."
+        },
+        {
+          "question": "Is another trigger answer required by this window's rubric?",
+          "answer_bool": false,
+          "why": "The sample contains only trigger 0, and its rubric is self-contained."
+        }
+      ],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "evidence-span-is-last",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 224.0,
+          "what": "The polynomial and its derivative identify c1 in yellow, alongside cosine's zero derivative and a horizontal tangent."
+        },
+        {
+          "kind": "frame",
+          "t": 228.0,
+          "what": "The yellow c1 replacement is still in progress."
+        },
+        {
+          "kind": "frame",
+          "t": 229.0,
+          "what": "The final required fact appears cleanly: c1 has been replaced by yellow 0 and the derivative is shown as zero."
+        },
+        {
+          "kind": "frame",
+          "t": 229.6,
+          "what": "The completed zero substitution and flat tangent are stable at the annotated evidence-span endpoint."
+        }
+      ],
+      "findings": "The coefficient identity and color are visible by 224.0, but its replacement by zero is still incomplete at 228.0 and is complete by 229.0. The evidence span ends at 229.6.",
+      "criterion": "The evidence interval must include the moment when the last fact needed for the response first becomes visually derivable; later narration is corroboration, not the endpoint to chase.",
+      "steps": [
+        {
+          "question": "What is the last required fact to become explicit?",
+          "answer_text": "The yellow c1 is replaced by 0, producing a zero derivative and flat tangent.",
+          "why": "Coefficient identity and color precede the value substitution; the value completes the requested relation."
+        },
+        {
+          "question": "By what inspected time is that last fact complete?",
+          "answer_number": 229.0,
+          "why": "It is incomplete at 228.0 and cleanly complete at 229.0."
+        },
+        {
+          "question": "Does evidence_span [199.1, 229.6] cover that moment?",
+          "answer_bool": true,
+          "why": "The observed completion at 229.0 lies within the supplied interval and before its 229.6 endpoint."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ],
+  "window_idx": 0
+}

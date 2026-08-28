@@ -1,0 +1,271 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q15",
+  "role": "full_window",
+  "iteration": 1,
+  "model": "gpt-5",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/3b1b__3d6DsjIBzJ4__q15/full_window0_r1",
+  "budget": {
+    "frames_viewed": 22,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 1082.0,
+        "t_end": 1089.0
+      },
+      {
+        "t_start": 1099.0,
+        "t_end": 1106.0
+      }
+    ],
+    "transcript_cues": 27,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The complete counterfactual answer never appears in the window or following ten seconds.\nThe original display persists until the transition to the Taylor-series example, with only about one second of terminal slack.\nDense frames place the joint appearance of the complete series and labelled limit at the window opening.",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "group": "windows",
+      "item": "window-can-be-tightened",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1087.0,
+          "what": "The complete geometric series and the label ‘Converges’ to 1/2 are jointly visible."
+        },
+        {
+          "kind": "frame",
+          "t": 1103.0,
+          "what": "The complete series remains visible and now has an explicit equals 1/2 at the right."
+        },
+        {
+          "kind": "frame",
+          "t": 1104.0,
+          "what": "The geometric-series display has been replaced by the Taylor-series expression for e^x."
+        }
+      ],
+      "findings": "The required series and label are visible at 1087.0 and remain visible at 1103.0. By 1104.0 the next example is on screen, while the annotated window ends at 1104.6.",
+      "criterion": "A boundary fix is warranted only when a substantial part of the window no longer contains the state needed to answer; roughly one or two seconds of terminal transition is acceptable latency rather than actionable slack.",
+      "steps": [
+        {
+          "question": "What is the last inspected frame in which the relevant display is still present?",
+          "answer_number": 1103.0,
+          "why": "The 1103.0 dense frame still shows the full series, its convergence label, and the limit."
+        },
+        {
+          "question": "What is the first inspected frame in which the relevant display is gone?",
+          "answer_number": 1104.0,
+          "why": "The 1104.0 dense frame shows the unrelated Taylor-series example instead."
+        },
+        {
+          "question": "Is the resulting terminal slack large enough to justify tightening?",
+          "answer_bool": false,
+          "why": "The disappearance occurs between 1103.0 and 1104.0, leaving only 0.6 to 1.6 seconds before t_end=1104.6."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "windows",
+      "item": "author-says-answer-in-window",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 1088.2,
+          "what": "The author says the series converges to that value."
+        },
+        {
+          "kind": "cue",
+          "t": 1097.5,
+          "what": "The author describes the infinite sum as a whole."
+        },
+        {
+          "kind": "cue",
+          "t": 1100.7,
+          "what": "The author says the infinite sum equals the value it is converging to."
+        },
+        {
+          "kind": "cue",
+          "t": 1103.8,
+          "what": "The author begins a new example about the Taylor polynomial for e^x."
+        },
+        {
+          "kind": "cue",
+          "t": 1108.6,
+          "what": "The author substitutes x=1 in the Taylor-series example."
+        },
+        {
+          "kind": "cue",
+          "t": 1112.4,
+          "what": "The author says adding polynomial terms makes the total approach e."
+        },
+        {
+          "kind": "frame",
+          "t": 1101.0,
+          "what": "The original geometric series is explicitly equated to 1/2."
+        },
+        {
+          "kind": "frame",
+          "t": 1109.6,
+          "what": "The screen shows the e^1 Taylor series and a partial sum of 2.0000000."
+        }
+      ],
+      "findings": "From 1087.0 through 1114.6 the narration explains convergence and then moves to the e^x Taylor series. The screen states the unmodified series equals 1/2, but neither speech nor frames give 3/8 or a difference of 1/8.",
+      "criterion": "For this L3 item to fire, the stream during the answer window or the next ten seconds must supply the finished counterfactual answer, not merely one of the displayed inputs or the unmodified series’ value.",
+      "steps": [
+        {
+          "question": "Does the author state the retained common ratio as part of the counterfactual calculation?",
+          "answer_bool": false,
+          "why": "The narration discusses convergence generically and never performs the first-term replacement."
+        },
+        {
+          "question": "Does the author or screen give the new infinite sum 3/8?",
+          "answer_bool": false,
+          "why": "The observed material shows only the original limit 1/2 and then an unrelated Taylor series."
+        },
+        {
+          "question": "Does the author or screen state that the new sum is 1/8 below 1/2?",
+          "answer_bool": false,
+          "why": "No observed cue or frame contains that quantitative comparison."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "event-not-earlier-than-window",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1086.0,
+          "what": "The numerical geometric series is visible, but the labelled limit is absent."
+        },
+        {
+          "kind": "frame",
+          "t": 1087.0,
+          "what": "The numerical series and the label ‘Converges’ to 1/2 are jointly visible."
+        }
+      ],
+      "findings": "At 1086.0 the series is on screen without the labelled limit. At 1087.0 the label and limit have appeared above the complete series.",
+      "criterion": "The event begins when the display first contains all visually requested inputs together; the window should not open after that joint state has already begun.",
+      "steps": [
+        {
+          "question": "Is the labelled limit already visible in the last dense frame before the window?",
+          "answer_bool": false,
+          "why": "The 1086.0 frame has the series and running decimal but no convergence label or 1/2."
+        },
+        {
+          "question": "Are the complete series and labelled limit both visible at the window opening?",
+          "answer_bool": true,
+          "why": "Both are plainly present in the 1087.0 dense frame."
+        },
+        {
+          "question": "Did the joint visual event begin earlier than t_start=1087.0?",
+          "answer_bool": false,
+          "why": "The adjacent 1 fps frames bracket the label’s appearance at the annotated opening."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "depends-on-is-dependency",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [],
+      "findings": "Trigger 0 has no depends_on field, and the sample contains no other trigger whose answer could be required by this rubric.",
+      "criterion": "This check applies only when a dependency link exists or when the current rubric requires an earlier trigger’s answer and therefore needs such a link.",
+      "steps": [
+        {
+          "question": "Is a depends_on link present on trigger 0?",
+          "answer_bool": false,
+          "why": "The supplied trigger object contains no depends_on field."
+        },
+        {
+          "question": "Does any rubric item require an answer from another trigger?",
+          "answer_bool": false,
+          "why": "This is the sample’s only trigger, and every rubric item concerns the displayed series and its counterfactual modification."
+        }
+      ],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "evidence-span-is-last",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1084.6,
+          "what": "The complete numerical series is visible, but there is no labelled limit above it."
+        },
+        {
+          "kind": "frame",
+          "t": 1086.0,
+          "what": "The numerical series remains visible without the convergence label or 1/2."
+        },
+        {
+          "kind": "frame",
+          "t": 1087.0,
+          "what": "The labelled limit 1/2 is visible together with the complete numerical series."
+        }
+      ],
+      "findings": "The series itself supplies the successive terms needed to infer ratio 1/3 before 1087.0. The final missing visual fact, the labelled limit 1/2, is present at 1087.0, which is the endpoint of evidence_span [1078.4, 1087.0].",
+      "criterion": "The evidence span must reach the moment when the last fact needed to derive the requested answer appears, while not being extended merely to later corroboration.",
+      "steps": [
+        {
+          "question": "Which requested source fact is already derivable before 1087.0?",
+          "answer_text": "The common ratio 1/3",
+          "why": "The visible consecutive terms 1/3, 1/9, 1/27, 1/81, and 1/243 determine it."
+        },
+        {
+          "question": "Which requested source fact appears last?",
+          "answer_text": "The labelled limit 1/2",
+          "why": "It is absent in the inspected 1084.6 and 1086.0 frames and present at 1087.0."
+        },
+        {
+          "question": "Does the evidence_span include that last-evidence moment?",
+          "answer_bool": true,
+          "why": "Its right endpoint is exactly 1087.0."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ],
+  "window_idx": 0
+}

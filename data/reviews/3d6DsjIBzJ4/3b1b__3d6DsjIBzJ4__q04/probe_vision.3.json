@@ -1,0 +1,53 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q04",
+  "role": "probe_vision",
+  "iteration": 3,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q04/probe_vision",
+  "budget": {
+    "frames_viewed": 1,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 0,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The screen index was used only to locate the relevant stretch; all reported displayed values were verified in the cited frame.",
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 281.0,
+      "what": "The blue target is cos(x) at x=0; its second-derivative row reads d^2(cos)/dx^2(0) = -cos(0) = -1. At right, P(x) = 1 + 0x + c_2 x^2 is visible with an arrow labeling c_2 x^2 'Free to change'."
+    }
+  ],
+  "steps": [
+    {
+      "question": "What target second-derivative value is displayed at the center?",
+      "answer_bool": null,
+      "answer_number": -1.0,
+      "answer_text": "At x=0, the displayed row gives cos''(0) = -cos(0) = -1.",
+      "why": "The complete second-derivative row is directly readable in frame t000281.jpg."
+    },
+    {
+      "question": "What is the second derivative of the displayed quadratic polynomial at the same center?",
+      "answer_bool": null,
+      "answer_number": null,
+      "answer_text": "For P(x)=1+0x+c_2x^2, P''(0)=2c_2.",
+      "why": "The polynomial is directly readable in frame t000281.jpg, and differentiating its quadratic term twice gives 2c_2."
+    },
+    {
+      "question": "What equation and coefficient result when the target curvature is doubled?",
+      "answer_bool": null,
+      "answer_number": -1.0,
+      "answer_text": "Doubling -1 gives -2, so the altered matching equation is P''(0)=2c_2=-2, hence c_2=-1.",
+      "why": "This follows by doubling the displayed target curvature and equating it to the polynomial second derivative."
+    }
+  ],
+  "answer": "The displayed target value is cos''(0) = -1. Doubling that curvature gives -2 while retaining center x=0 and degree 2, so the altered match is P''(0)=2c_2=-2, and therefore the new quadratic coefficient is c_2=-1.",
+  "basis": "Frame t000281.jpg (281.0 s): the displayed cos''(0)=-1 row and P(x)=1+0x+c_2x^2 with c_2x^2 marked 'Free to change'; the counterfactual coefficient follows algebraically from differentiating that displayed polynomial twice.",
+  "confidence": "high",
+  "insufficient": false
+}

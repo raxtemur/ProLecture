@@ -1,0 +1,145 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q01",
+  "role": "semiblind",
+  "iteration": 2,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q01/semiblind",
+  "budget": {
+    "frames_viewed": 15,
+    "sparse_step": null,
+    "dense_intervals": [
+      {"t_start": 495.0, "t_end": 502.0}
+    ],
+    "transcript_cues": 311,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The full transcript for 79.8–507.0 s was read and both screen indexes were searched across the stretch. Indexes only located candidates; conclusions use real frames. The first frame at 80.0 s supplies the exact relation geometrically, while 498.0 s is the later literal formula recurrence.",
+  "prior_answer": "It cannot be answered on the merits from the question text alone because the referenced on-screen vertical height expression is not stated. Assuming the standard pendulum height h(theta) = R(1 - cos(theta)), doubling the angle would give h(2 theta) = R(1 - cos(2 theta)) = 2R sin^2(theta), with quadratic small-angle approximation 2R theta^2.",
+  "prior_answer_assumptions": [
+    "The unseen diagram uses the standard pendulum vertical-height expression h(theta) = R(1 - cos(theta))."
+  ],
+  "recognized_video": false,
+  "recognized_how": "The title and question did not evoke a memory of this particular video or moment before viewing.",
+  "scans": [
+    {
+      "idx": 1,
+      "t_from": 79.8,
+      "t_to": 507.0,
+      "watched": [
+        {"kind": "frame", "t": 80.0, "what": "The pendulum diagram shows R along the rod, theta from vertical, the bob's height above the lowest-level line, R theta^2/2 beside that height, and cos(theta) approximately 1 - theta^2/2."},
+        {"kind": "frame", "t": 101.0, "what": "The video has moved to an exponential-function graph; no pendulum is present."},
+        {"kind": "frame", "t": 172.0, "what": "A cosine graph and general quadratic polynomial are shown; no pendulum or R-height geometry is present."},
+        {"kind": "frame", "t": 251.0, "what": "The cosine graph and adjustable quadratic coefficient are shown; no pendulum is present."},
+        {"kind": "frame", "t": 325.0, "what": "The formula cos(x) approximately 1 - x^2/2 is shown without the pendulum height geometry."},
+        {"kind": "frame", "t": 400.0, "what": "Higher-order polynomial construction for cosine is shown; no pendulum is present."},
+        {"kind": "frame", "t": 448.0, "what": "A fourth-order cosine polynomial is being constructed; no pendulum is present."},
+        {"kind": "frame", "t": 478.0, "what": "The fourth-order coefficient 1/24 and cosine derivative data are visible; no pendulum is present."},
+        {"kind": "frame", "t": 495.0, "what": "An unlabelled pendulum rod and bob have appeared; R, theta, and the height expression are absent."},
+        {"kind": "frame", "t": 496.0, "what": "The unlabelled pendulum and trajectory are visible; the required labels and height expression are absent."},
+        {"kind": "frame", "t": 497.0, "what": "The pendulum remains unlabelled and incomplete, inside the declared distractor."},
+        {"kind": "frame", "t": 498.0, "what": "R, theta, R(1 - cos(theta)), and the cosine expansion have appeared, although still fading in; all are legible outside the half-open distractor."},
+        {"kind": "frame", "t": 499.0, "what": "The complete pendulum labels and R(1 - cos(theta)) are bright and fully legible."},
+        {"kind": "frame", "t": 500.0, "what": "The complete labelled pendulum and fourth-order cosine expansion remain static."},
+        {"kind": "frame", "t": 501.0, "what": "The complete formula begins moving apart, after its full recurrence."},
+        {"kind": "cue", "t": 81.4, "what": "The narration continues discussing how surprising the approximation might seem."},
+        {"kind": "cue", "t": 98.9, "what": "The narration asks how to find the particular quadratic approximation."},
+        {"kind": "cue", "t": 319.5, "what": "The narration states the quadratic cosine approximation 1 - one-half x squared."},
+        {"kind": "cue", "t": 434.1, "what": "The narration identifies 1 - one-half x squared as the best quadratic and cubic approximation."},
+        {"kind": "cue", "t": 495.0, "what": "The narration returns to physics problems involving cosine of a small angle."}
+      ],
+      "candidates": [
+        {
+          "question": "Can the full requested answer be obtained from the 80.0-second frame?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The real frame visibly fixes R as the rod length, theta as its angle from vertical, and the bob's height above the lowest-level line. Thus the vertical projection is R cos(theta), so the exact height is R - R cos(theta); the displayed R theta^2/2 and cosine approximation independently confirm the quadratic relation."
+        },
+        {
+          "question": "Does the 325.0-second cosine formula provide a new pendulum answer event?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "It gives the cosine quadratic in a generic variable x but shows neither R nor the pendulum height relation; in any event, the answer was already available at 80.0 seconds."
+        },
+        {
+          "question": "Is the repeated pendulum complete at 495.0–497.0 seconds?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Dense real frames show an unlabelled rod, bob, and trajectory only, and the whole interval is the declared distractor [495.0, 498.0)."
+        },
+        {
+          "question": "Does 498.0 seconds contain the later literal full construction?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The real frame legibly shows R, theta, and R(1 - cos(theta)) at the first sampled second outside the half-open distractor, but this is later than the already sufficient 80.0-second frame."
+        }
+      ],
+      "t_val": 80.0,
+      "t_val_basis": "At the first available real frame, 80.0 s, the diagram visibly supplies R as the pendulum length, theta from vertical, the bob's height relative to the lowest point, and R theta^2/2. The exact height R - R cos(theta) follows directly from this displayed geometry, without filling in unseen content.",
+      "answer_at_t_val": "Doubling the displayed angle gives the exact height R(1 - cos(2 theta)) = 2R sin^2(theta). Since cos(2 theta) = 1 - 2 theta^2 + O(theta^4), the quadratic small-angle approximation is 2R theta^2.",
+      "confidence": "medium"
+    }
+  ],
+  "checks": [
+    {
+      "group": "shortcuts",
+      "item": "solvable-without-video",
+      "target": null,
+      "looked_at": [
+        {"kind": "cue", "t": 35.0, "what": "Before the original viewing, the supplied question referred to an on-screen vertical height expression without stating that expression."}
+      ],
+      "findings": "The question text names R and theta but withholds the actual vertical-height formula that is to be transformed.",
+      "criterion": "The shortcut fires only if the exact requested result follows from the question and general knowledge without inventing unseen diagram content.",
+      "steps": [
+        {
+          "question": "Does the question text specify the starting height expression?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "It points to a displayed expression but does not reproduce it."
+        },
+        {
+          "question": "Does the prior computed formula require an assumption about the unseen diagram?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "It requires assuming the standard formula R(1 - cos(theta)), recorded explicitly in prior_answer_assumptions."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "video-recognized",
+      "target": null,
+      "looked_at": [
+        {"kind": "cue", "t": 35.0, "what": "Before the original viewing, only the supplied title and question wording were considered for recognition."}
+      ],
+      "findings": "Neither the title nor the wording evoked a memory of this particular video moment or its displayed formula.",
+      "criterion": "Recognition fires only if the particular video and answer can be recalled before any transcript, index, or frame is opened.",
+      "steps": [
+        {
+          "question": "Could the answer be named from memory of this particular video?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "No memory of this specific video or moment was available before viewing."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

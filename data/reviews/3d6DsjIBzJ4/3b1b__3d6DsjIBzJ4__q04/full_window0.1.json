@@ -1,0 +1,189 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q04",
+  "role": "full_window",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q04/full_window0",
+  "budget": {
+    "frames_viewed": 25,
+    "sparse_step": null,
+    "dense_intervals": [
+      {"t_start": 276.0, "t_end": 277.0},
+      {"t_start": 281.3, "t_end": 300.0},
+      {"t_start": 300.0, "t_end": 310.0}
+    ],
+    "transcript_cues": 29,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The required visual condition is already fully satisfied at the earliest available frame, 276.0 s.\nThe exact first simultaneous-readability onset is therefore outside or at the left edge of this workspace and needs an earlier boundary scan.\nNo finished coefficient is spoken or shown through t_end + 10 s.",
+  "verdict": "FIX_INTERVALS",
+  "checks": [
+    {
+      "group": "windows",
+      "item": "window-can-be-tightened",
+      "target": {"trigger_idx": 0},
+      "looked_at": [
+        {"kind": "frame", "t": 281.3, "what": "The blue target row ends in -1 and the polynomial still contains the free term c_2 x^2."},
+        {"kind": "frame", "t": 299.0, "what": "The same target row and free quadratic term remain visible; P'(x)=0+2c_2x is also visible."}
+      ],
+      "findings": "At both the opening and the last sampled second of [281.3,300.0), the displayed derivative value and the free quadratic coefficient are readable. The intervening one-second frames preserve those ingredients while the curves and tangent lines animate.",
+      "criterion": "A substantial leading or trailing stretch should be removed only if the answer cannot be derived there or the relevant display has already disappeared; a brief animation does not justify tightening when the needed state remains readable.",
+      "steps": [
+        {
+          "question": "Are the needed visual facts readable at the start of the required window?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The 281.3 s frame visibly contains cos''(0)=-1 and P(x)=1+0x+c_2x^2."
+        },
+        {
+          "question": "Are the needed visual facts still usable at the end of the required window?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "At 299.0 s both original ingredients remain visible, with the first polynomial derivative added."
+        },
+        {
+          "question": "Is there a substantial empty tail or head inside the required window?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "All one-second frames from the opening through 299 s retain the facts from which the coefficient can be derived."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "windows",
+      "item": "author-says-answer-in-window",
+      "target": {"trigger_idx": 0},
+      "looked_at": [
+        {"kind": "cue", "t": 298.8, "what": "The author begins saying that the second derivative of the polynomial will be computed."},
+        {"kind": "frame", "t": 302.0, "what": "The screen shows d^2P/dx^2(x)=2c_2 alongside the target row ending in -1."},
+        {"kind": "cue", "t": 307.0, "what": "The author says that this second derivative also equals -1 at x=0; the phrase 2*c_2 begins only after 310.0 s."},
+        {"kind": "frame", "t": 308.0, "what": "The two derivative expressions are visible, but neither 2c_2=-1 nor c_2=-1/2 is displayed."}
+      ],
+      "findings": "Inside [281.3,300.0) the author discusses matching curvature but does not state the coefficient. By 302 s the screen has added P''(x)=2c_2, and by about 307.8 s the narration supplies -1, but through 310.0 s neither the matching equation nor c_2=-1/2 is presented in finished form.",
+      "criterion": "For an L3 window this check fires only if the author supplies the finished requested answer during the window or within the following ten seconds, so that ordinary response latency would turn reasoning into copying.",
+      "steps": [
+        {
+          "question": "Is the finished coefficient stated or shown inside the required window?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Frames through 299 s keep c_2 free, and the transcript through 300.0 s does not state its value."
+        },
+        {
+          "question": "Is the finished equation and coefficient supplied by 310.0 s?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The post-window material supplies the derivative ingredients but not 2c_2=-1 or c_2=-1/2 in finished form before the ten-second cutoff."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "event-not-earlier-than-window",
+      "target": {"trigger_idx": 0},
+      "looked_at": [
+        {"kind": "frame", "t": 276.0, "what": "Already shows d^2(cos)/dx^2(0)=-cos(0)=-1 and P(x)=1+0x+c_2x^2, with an arrow marking c_2 as Free to change."},
+        {"kind": "frame", "t": 281.3, "what": "Shows the same two simultaneously readable facts at the annotated required-window start."}
+      ],
+      "findings": "The event condition is fully satisfied in the earliest available frame at 276.0 s: the blue target's second-derivative row gives -1 and the polynomial's c_2x^2 term is explicitly still free. The required window does not open until 281.3 s.",
+      "criterion": "For a question keyed to 'as soon as' a visual condition becomes readable, the scoring window must begin when that simultaneous-readability event begins, not several seconds after a correct model could already answer.",
+      "steps": [
+        {
+          "question": "By what latest observed time are both named visual ingredients simultaneously readable?",
+          "answer_bool": null,
+          "answer_number": 276.0,
+          "answer_text": null,
+          "why": "Both the -1 row and the free c_2x^2 term are fully legible in the 276.0 s frame."
+        },
+        {
+          "question": "Does that observed time precede the required-window start by a substantial amount?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "276.0 s is 5.3 s before 281.3 s, and the exact onset may be earlier because 276.0 s is the workspace boundary."
+        }
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {
+        "field": "triggers[0].required.t_start and distractors[0].t_end",
+        "value": "move to the true first simultaneous-readability onset, which is no later than 276.0 s; determine the exact onset with an earlier boundary scan",
+        "why": "A correct streaming model can derive the requested equation and coefficient at least 5.3 seconds before the current required window opens."
+      },
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "depends-on-is-dependency",
+      "target": {"trigger_idx": 0},
+      "looked_at": [],
+      "findings": "The supplied trigger has no depends_on link, so there is no dependency edge to evaluate for this window.",
+      "criterion": "A dependency check applies only when the trigger declares a depends_on edge or its rubric requires an undeclared earlier answer.",
+      "steps": [
+        {
+          "question": "Does trigger 0 declare a depends_on link?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "No depends_on value is present in the supplied trigger description."
+        }
+      ],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "evidence-span-is-last",
+      "target": {"trigger_idx": 0},
+      "looked_at": [
+        {"kind": "frame", "t": 276.0, "what": "Both the displayed target value -1 and the free quadratic term c_2x^2 are already simultaneously readable."},
+        {"kind": "frame", "t": 281.3, "what": "The same facts persist at the current evidence_span start rather than first appearing there."}
+      ],
+      "findings": "The last fact needed to derive the answer has appeared by 276.0 s, while the annotated evidence_span begins at 281.3 s. The workspace begins at 276.0 s, so the exact first appearance cannot be localized more precisely here.",
+      "criterion": "The evidence span must cover the moment when the final necessary fact first makes the answer derivable; a later interval where the same facts merely remain on screen does not identify that moment.",
+      "steps": [
+        {
+          "question": "Does the current evidence_span include the latest observed onset of full derivability?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Full derivability is visible already at 276.0 s, but the span starts at 281.3 s."
+        },
+        {
+          "question": "Can this workspace identify the exact first-appearance time?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The first available frame at the 276.0 s workspace boundary already contains the complete visual condition."
+        }
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {
+        "field": "validation.evidence_span",
+        "value": "replace with an interval covering the true first simultaneous-readability onset, no later than 276.0 s; locate its exact start with an earlier boundary scan",
+        "why": "The existing [281.3,292.3] span starts at least 5.3 seconds after the answer is already visually derivable."
+      },
+      "uncovered": null
+    }
+  ],
+  "window_idx": 0
+}

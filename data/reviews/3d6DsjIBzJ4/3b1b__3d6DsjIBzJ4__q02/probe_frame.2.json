@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q02",
+  "role": "probe_frame",
+  "iteration": 2,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q02/probe_frame",
+  "budget": {
+    "frames_viewed": 1,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 0,
+    "screen_index_used": false
+  },
+  "violations": [],
+  "notes": "The frames directory contained two adjacent files despite the single-frame protocol. Only t000152.jpg was viewed; t000151.jpg was not opened.",
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 152.0,
+      "what": "The frame labels the blue curve cos(x), shows the central vertical axis at x=0, and displays P(x)=c0+c1x+c2x^2 with all three coefficients marked free to change."
+    }
+  ],
+  "steps": [
+    {
+      "question": "What is the blue target function and what center is displayed?",
+      "answer_text": "The target is cos(x), and the displayed center is x=0.",
+      "why": "The frame explicitly labels the blue curve cos(x), while the central vertical axis is the x=0 axis and the shown quadratic is centered there."
+    },
+    {
+      "question": "What is the target after reflection across the x-axis?",
+      "answer_text": "The reflected target is -cos(x).",
+      "why": "Reflection across the x-axis negates every function value."
+    },
+    {
+      "question": "What degree-two polynomial at x=0 matches the reflected target?",
+      "answer_text": "Using -cos(x)=-1+x^2/2+O(x^4), the coefficients are c0=-1, c1=0, c2=1/2, so P(x)=-1+x^2/2.",
+      "why": "The frame supplies the target, center, degree, and coefficient form; the Taylor expansion at zero is general mathematical knowledge."
+    }
+  ],
+  "answer": "The blue target is cos(x), and the displayed center is x=0. Reflecting across the x-axis gives -cos(x). Keeping center 0 and degree 2 yields c0=-1, c1=0, and c2=1/2, hence P(x)=-1+x^2/2.",
+  "basis": "At t=152 s, the single viewed frame visibly labels the blue curve cos(x), places the approximation at the central x=0 axis, and shows P(x)=c0+c1x+c2x^2 with all coefficients free. The reflection rule and the degree-two Taylor expansion -cos(x)=-1+x^2/2+O(x^4) are general knowledge.",
+  "confidence": "high",
+  "insufficient": false
+}

@@ -1,0 +1,218 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q09",
+  "role": "semiblind",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q09/semiblind",
+  "budget": {
+    "frames_viewed": 9,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 592.0,
+        "t_end": 607.0
+      }
+    ],
+    "transcript_cues": 462,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The full supplied transcript and screen index were covered from 0 to 623.8 s.\nThe 1 fps boundary check makes 603.0 s the earliest confirmed real frame after the declared distractor; the remaining localization uncertainty is under 0.8 s.",
+  "prior_answer": "It cannot be answered on the merits: the question does not specify the marked nonzero center or the blue target curve, and both are required to compute the coefficients.",
+  "prior_answer_assumptions": [],
+  "recognized_video": false,
+  "recognized_how": "I recognized only the general 3Blue1Brown Taylor-series subject from the wording, not this particular video and moment or its answer.",
+  "scans": [
+    {
+      "idx": 0,
+      "t_from": 0.0,
+      "t_to": 623.8,
+      "watched": [
+        {
+          "kind": "cue",
+          "t": 15.0,
+          "what": "The narration introduces Taylor series and function approximation."
+        },
+        {
+          "kind": "cue",
+          "t": 122.7,
+          "what": "The narration begins constructing a quadratic approximation to cosine near x=0."
+        },
+        {
+          "kind": "cue",
+          "t": 319.5,
+          "what": "The narration gives the earlier centered-at-zero quadratic 1 - x^2/2."
+        },
+        {
+          "kind": "cue",
+          "t": 592.5,
+          "what": "The narration switches to approximation near a nonzero input."
+        },
+        {
+          "kind": "frame",
+          "t": 592.0,
+          "what": "The screen still shows how coefficients of an ordinary power-basis polynomial control derivatives at zero."
+        },
+        {
+          "kind": "frame",
+          "t": 597.0,
+          "what": "A blue cosine-shaped curve and a moving green polynomial are visible, but the marked point is still moving and this lies in the declared distractor."
+        },
+        {
+          "kind": "cue",
+          "t": 597.1,
+          "what": "The narration names x=pi as the example nonzero input."
+        },
+        {
+          "kind": "frame",
+          "t": 600.0,
+          "what": "The yellow point has reached the green curve at the x=pi tick, while the shifted polynomial basis is not yet on screen."
+        },
+        {
+          "kind": "frame",
+          "t": 601.0,
+          "what": "The shifted-basis formula has only begun to render faintly at the top of the frame."
+        },
+        {
+          "kind": "frame",
+          "t": 602.0,
+          "what": "The complete P_pi(x) power series in (x-pi) is visible, but 602.0 s remains inside the declared distractor interval."
+        },
+        {
+          "kind": "frame",
+          "t": 603.0,
+          "what": "The full shifted basis is stable and legible above the graph; the x=pi point is marked and the blue curve has cosine landmarks."
+        },
+        {
+          "kind": "frame",
+          "t": 604.0,
+          "what": "The same complete shifted-basis formula and graph remain stable."
+        },
+        {
+          "kind": "cue",
+          "t": 601.4,
+          "what": "The narration says to write the polynomial in powers of x-pi."
+        },
+        {
+          "kind": "cue",
+          "t": 610.8,
+          "what": "The narration explains that pi is being made to behave like zero in the shifted basis."
+        }
+      ],
+      "candidates": [
+        {
+          "question": "Can the requested center, curve, and shifted quadratic be determined at 592.0 s?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The real frame shows only the old polynomial in powers of x and derivative controls at zero; neither the marked nonzero center nor target graph is present."
+        },
+        {
+          "question": "Can the moving-curve scene at 597.0 s establish the requested answer?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Although the blue target curve appears, the marked point is still moving, the shifted basis is absent, and the moment is inside the declared distractor [592.5,602.2)."
+        },
+        {
+          "question": "Can the frame at 600.0 s establish the requested answer?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The marked point has reached pi, but the requested shift from powers of x to powers around that center has not yet appeared, and this remains within the declared distractor."
+        },
+        {
+          "question": "Can the partially rendered basis at 601.0 s establish the requested answer?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The formula is only faintly beginning to render and the moment lies within the declared distractor, so it is not accepted."
+        },
+        {
+          "question": "Is the visually complete frame at 602.0 s an admissible earliest answer time?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The full formula is visible, but 602.0 s is explicitly inside the declared distractor interval ending at 602.2 s; the search therefore continues."
+        },
+        {
+          "question": "Can the requested answer be determined from the real frame at 603.0 s?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": "The center is pi, the blue curve is cos(x), and the quadratic is -1 + (1/2)(x-pi)^2.",
+          "why": "This is the first inspected post-distractor frame: it stably shows P_pi in powers of x-pi, marks x=pi, and the blue curve's maxima at 0 and 2pi, minima at plus or minus pi, and intervening zeros identify cos(x)."
+        }
+      ],
+      "t_val": 603.0,
+      "t_val_basis": "At 603.0 s, the first inspected real frame after the distractor, the complete basis P_pi(x)=c_0+c_1(x-pi)+c_2(x-pi)^2+... is stable, x=pi is marked, and the blue curve is visually identifiable as cos(x) from its extrema and zeros.",
+      "answer_at_t_val": "The center is a=pi and the blue target is f(x)=cos(x). Thus c_0=f(pi)=-1, c_1=f'(pi)=-sin(pi)=0, and c_2=f''(pi)/2!=(-cos(pi))/2=1/2, giving P_2(x)=-1+(1/2)(x-pi)^2.",
+      "confidence": "medium"
+    }
+  ],
+  "checks": [
+    {
+      "group": "shortcuts",
+      "item": "solvable-without-video",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 592.5,
+          "what": "Before viewing, the supplied question text referred to an unnamed marked center and unnamed blue target curve."
+        }
+      ],
+      "findings": "The question text alone supplies neither the numerical center nor the function represented by the blue curve.",
+      "criterion": "A blind solution must name and compute the requested objects without inventing screen content; missing center and function data prevent that.",
+      "steps": [
+        {
+          "question": "Does the question text specify the nonzero center?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "It refers only to a marked nonzero center on screen."
+        },
+        {
+          "question": "Does the question text specify the blue target function?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "It refers only to a blue target curve on screen."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "video-recognized",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 592.5,
+          "what": "Before viewing, the video identifier and question wording did not evoke this exact video moment or its answer from memory."
+        }
+      ],
+      "findings": "I did not recognize the exact video and moment before opening the transcript or frames.",
+      "criterion": "This item fires only if prior memory of this particular video moment supplies the answer or materially identifies it.",
+      "steps": [
+        {
+          "question": "Could I name the center, curve, and coefficients from memory of this exact video?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Only the broad Taylor-series topic was familiar; the particular screen state and answer were not."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

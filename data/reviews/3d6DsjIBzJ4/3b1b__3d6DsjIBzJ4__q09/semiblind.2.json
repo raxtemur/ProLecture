@@ -1,0 +1,170 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q09",
+  "role": "semiblind",
+  "iteration": 2,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q09/semiblind",
+  "budget": {
+    "frames_viewed": 6,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 601.0,
+        "t_end": 604.0
+      }
+    ],
+    "transcript_cues": 464,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The full supplied transcript and screen index were covered. The declared 592.5-602.0 distractor was checked in real frames; the shifted basis is not cleanly displayed until 602 s.",
+  "prior_answer": "It cannot be answered on the merits: the question does not specify either the nonzero center or the blue target curve, so their derivatives and the three coefficients cannot be determined.",
+  "prior_answer_assumptions": [],
+  "recognized_video": false,
+  "recognized_how": "I did not recognize this particular video and moment before opening the supplied material.",
+  "scans": [
+    {
+      "idx": 0,
+      "t_from": 0.0,
+      "t_to": 623.8,
+      "watched": [
+        {
+          "kind": "cue",
+          "t": 15.0,
+          "what": "The narration introduces Taylor series and function approximation."
+        },
+        {
+          "kind": "cue",
+          "t": 122.7,
+          "what": "The narration identifies cosine of x as the function being approximated."
+        },
+        {
+          "kind": "cue",
+          "t": 592.5,
+          "what": "The narration begins the nonzero-center example after explaining zero-centered coefficients."
+        },
+        {
+          "kind": "cue",
+          "t": 597.1,
+          "what": "The narrator proposes the nonzero center x = pi."
+        },
+        {
+          "kind": "cue",
+          "t": 601.4,
+          "what": "The narrator says to write the polynomial in powers of x minus pi."
+        },
+        {
+          "kind": "frame",
+          "t": 592.0,
+          "what": "The old zero-centered polynomial basis and its derivative controls are still displayed."
+        },
+        {
+          "kind": "frame",
+          "t": 599.0,
+          "what": "A blue cosine-shaped curve, a green approximation, and a yellow marked point near the pi tick are visible, but no shifted polynomial basis is displayed."
+        },
+        {
+          "kind": "frame",
+          "t": 601.0,
+          "what": "The graph and marked pi center are visible; only a very faint partial formula is beginning to appear at the top."
+        },
+        {
+          "kind": "frame",
+          "t": 602.0,
+          "what": "The complete shifted basis P_pi(x) = c_0 + c_1(x-pi)^1 + c_2(x-pi)^2 + c_3(x-pi)^3 + c_4(x-pi)^4 is clearly legible above the blue target curve and marked pi center."
+        },
+        {
+          "kind": "frame",
+          "t": 603.0,
+          "what": "The complete shifted basis remains clearly visible with the blue curve and marked center."
+        },
+        {
+          "kind": "frame",
+          "t": 604.0,
+          "what": "The shifted-basis display remains stable and readable."
+        }
+      ],
+      "candidates": [
+        {
+          "question": "Is the requested answer available at 599 seconds?",
+          "answer_bool": false,
+          "why": "This lies in the declared 592.5-602.0 distractor: the graph and pi marker are present, but the displayed polynomial basis has not yet shifted from powers of x."
+        },
+        {
+          "question": "Is the requested answer available at 601 seconds?",
+          "answer_bool": false,
+          "why": "The new formula is only a faint, incomplete transition and is not yet genuinely readable as the requested shifted basis."
+        },
+        {
+          "question": "Is the requested answer available at 602 seconds?",
+          "answer_bool": true,
+          "why": "The shifted powers of x-pi are fully legible, the center pi is marked, and the accumulated screen and narration context identifies the blue target as cos(x), so the coefficients can be computed without filling in unseen content."
+        }
+      ],
+      "t_val": 602.0,
+      "t_val_basis": "At real frame 602 the complete P_pi basis in powers of (x-pi) is fully readable above the blue cosine curve, with x = pi visibly marked; frame 601 is still faint and incomplete.",
+      "answer_at_t_val": "The center is a = pi and the blue target curve is f(x) = cos(x). Thus c_0 = f(pi) = -1, c_1 = f'(pi) = -sin(pi) = 0, and c_2 = f''(pi)/2! = -cos(pi)/2 = 1/2. The quadratic is P_2(x) = -1 + (1/2)(x-pi)^2.",
+      "confidence": "high"
+    }
+  ],
+  "checks": [
+    {
+      "group": "shortcuts",
+      "item": "solvable-without-video",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 0.0,
+          "what": "Before viewing, the supplied question omitted the identity of the center and target curve."
+        }
+      ],
+      "findings": "The question names a marked nonzero center and a blue target curve but supplies neither identity in its text.",
+      "criterion": "A blind answer must determine every requested quantity from the question and general knowledge without inventing screen content.",
+      "steps": [
+        {
+          "question": "Can the center be identified from the question alone?",
+          "answer_bool": false,
+          "why": "The question calls it a marked nonzero center but gives no value."
+        },
+        {
+          "question": "Can the target curve be identified from the question alone?",
+          "answer_bool": false,
+          "why": "Its identity is only described by screen color, so the derivatives and coefficients are undetermined."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "video-recognized",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 0.0,
+          "what": "Pre-viewing self-report: this particular video and moment were not recognized."
+        }
+      ],
+      "findings": "Before opening the supplied transcript or frames, I could not identify the particular video moment or recall its answer.",
+      "criterion": "This item fires only if the reviewer recognized the particular video and could recover the answer from memory before viewing.",
+      "steps": [
+        {
+          "question": "Was this particular video moment recognized before viewing?",
+          "answer_bool": false,
+          "why": "I had no specific memory of this video moment or its displayed center and curve."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

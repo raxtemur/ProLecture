@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q09",
+  "role": "probe_frame",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q09/probe_frame",
+  "budget": {
+    "frames_viewed": 1,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 0,
+    "screen_index_used": false
+  },
+  "violations": [],
+  "notes": "",
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 613.0,
+      "what": "The screen shows P_pi(x) in powers of (x-pi), a yellow marked center at x=pi, and a blue cosine-shaped target curve with maxima at 0 and 2pi and a minimum at pi."
+    }
+  ],
+  "steps": [
+    {
+      "question": "What is the shifted-basis center shown on screen?",
+      "answer_text": "a = pi",
+      "why": "The polynomial is labeled P_pi(x), every displayed basis term is a power of (x-pi), and the marked yellow point lies at the tick pi."
+    },
+    {
+      "question": "What function is the blue target curve?",
+      "answer_text": "f(x) = cos(x)",
+      "why": "The blue curve has value 1 at 0, value -1 at pi, and value 1 again at 2pi, matching cosine."
+    },
+    {
+      "question": "What are the first three shifted Taylor coefficients at pi?",
+      "answer_text": "c0 = -1, c1 = 0, c2 = 1/2",
+      "why": "For f(x)=cos(x), c0=f(pi)=-1, c1=f'(pi)=-sin(pi)=0, and c2=f''(pi)/2!=(-cos(pi))/2=1/2."
+    },
+    {
+      "question": "What quadratic do those coefficients give in the shifted basis?",
+      "answer_text": "P_2(x) = -1 + (1/2)(x-pi)^2",
+      "why": "Substituting c0, c1, and c2 into c0+c1(x-pi)+c2(x-pi)^2 removes the zero linear term."
+    }
+  ],
+  "answer": "The marked center is a = pi and the blue target curve is f(x)=cos(x). At that center, c0=f(pi)=-1, c1=f'(pi)=0, and c2=f''(pi)/2!=1/2, so the shifted quadratic is P_2(x)=-1+(1/2)(x-pi)^2.",
+  "basis": "The single frame at t=613 s visibly labels P_pi(x), shows powers of (x-pi), marks pi, and shows the blue curve at a maximum near x=0, a minimum at x=pi, and a maximum at x=2pi; the coefficient calculation uses standard Taylor-series differentiation of the visually identified cosine.",
+  "confidence": "high",
+  "insufficient": false
+}

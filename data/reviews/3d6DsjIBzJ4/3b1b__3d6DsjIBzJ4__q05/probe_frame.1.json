@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q05",
+  "role": "probe_frame",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q05/probe_frame",
+  "budget": {
+    "frames_viewed": 1,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 0,
+    "screen_index_used": false
+  },
+  "violations": [],
+  "notes": "",
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 338.0,
+      "what": "The frame displays the quadratic estimate cos(0.1) ≈ 1 - (1/2)(0.1)^2 = 0.995 and the true value cos(0.1) = 0.9950042..."
+    }
+  ],
+  "steps": [
+    {
+      "question": "What quadratic estimate is displayed?",
+      "answer_number": 0.995,
+      "why": "The top equation in the frame ends with 0.995."
+    },
+    {
+      "question": "What true value is displayed?",
+      "answer_text": "0.9950042...",
+      "why": "The second equation in the frame reads cos(0.1) = 0.9950042..."
+    },
+    {
+      "question": "What is the displayed true value minus the estimate?",
+      "answer_text": "0.9950042... - 0.995 = 0.0000042...",
+      "why": "Direct subtraction of the two readable displayed values."
+    },
+    {
+      "question": "Does the quadratic estimate understate or overstate the true value?",
+      "answer_text": "It underestimates the true value.",
+      "why": "The difference true value minus estimate is positive."
+    }
+  ],
+  "answer": "True value minus estimate is 0.9950042... - 0.995 = 0.0000042... (about 4.2 × 10^-6). Since this is positive, the quadratic estimate underestimates the true value.",
+  "basis": "The single frame at t=338 s visibly shows both 0.995 for the quadratic estimate and 0.9950042... for the true value; the conclusion follows by subtraction and sign comparison.",
+  "confidence": "high",
+  "insufficient": false
+}

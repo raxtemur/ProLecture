@@ -1,0 +1,285 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q04",
+  "role": "full_window",
+  "iteration": 3,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q04/full_window0",
+  "budget": {
+    "frames_viewed": 21,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 271.0,
+        "t_end": 275.0
+      },
+      {
+        "t_start": 290.0,
+        "t_end": 293.0
+      },
+      {
+        "t_start": 296.0,
+        "t_end": 310.0
+      }
+    ],
+    "transcript_cues": 35,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The displayed original coefficient beginning to appear at 309-310 s is -1/2, not the finished counterfactual answer -1.\nNo interval, dependency, or evidence-span defect was found for window 0.",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "group": "windows",
+      "item": "window-can-be-tightened",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 272.0,
+          "what": "The complete target row d^2(cos)/dx^2(0) = -cos(0) = -1 and P(x)=1+0x+c_2x^2 with c_2 marked free are simultaneously readable."
+        },
+        {
+          "kind": "frame",
+          "t": 274.0,
+          "what": "The same complete target row and free quadratic polynomial remain on screen."
+        },
+        {
+          "kind": "frame",
+          "t": 290.0,
+          "what": "The displayed value -1 and the free c_2 term remain readable while curvature is illustrated."
+        },
+        {
+          "kind": "frame",
+          "t": 292.0,
+          "what": "Both required displayed facts remain readable during the slope illustration."
+        },
+        {
+          "kind": "frame",
+          "t": 296.0,
+          "what": "The original target row and polynomial with free c_2 remain fully visible."
+        },
+        {
+          "kind": "frame",
+          "t": 299.0,
+          "what": "Near the right boundary, the target row, polynomial, and newly added first-derivative row are visible."
+        }
+      ],
+      "findings": "From 272 s through the right edge at 300 s, the screen retains the target second-derivative value at x=0 and the polynomial's free quadratic term. Later animation adds explanatory material without removing the facts observed at their first appearance.",
+      "criterion": "A substantial leading or trailing stretch should be removed only if a correct model cannot obtain or retain the answer-relevant state there; a short latency allowance after a requested first appearance is legitimate.",
+      "steps": [
+        {
+          "question": "What is the first checked frame where the requested simultaneous display is complete?",
+          "answer_number": 272.0,
+          "why": "At 272 s the target row ends in -1 and the free c_2x^2 term is simultaneously readable."
+        },
+        {
+          "question": "Is there a large empty tail before t_end=300?",
+          "answer_bool": false,
+          "why": "Frames through 299 s retain the relevant rows, and the animation continues explaining their relationship."
+        },
+        {
+          "question": "Would tightening materially improve answerability rather than remove normal response latency?",
+          "answer_bool": false,
+          "why": "The question explicitly anchors to first appearance, so the observed state remains usable while the model formulates its counterfactual calculation."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "windows",
+      "item": "author-says-answer-in-window",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 298.8,
+          "what": "The author begins saying that the polynomial's second derivative is being computed."
+        },
+        {
+          "kind": "cue",
+          "t": 300.6,
+          "what": "The author says the polynomial's second derivative is exactly 2 times c_2."
+        },
+        {
+          "kind": "cue",
+          "t": 307.0,
+          "what": "The author says this original second derivative should equal -1 at x=0 and begins '2 times c_2 has to be'."
+        },
+        {
+          "kind": "frame",
+          "t": 302.0,
+          "what": "The screen shows the original symbolic derivative d^2P/dx^2(x)=2c_2, while the target remains -1."
+        },
+        {
+          "kind": "frame",
+          "t": 308.0,
+          "what": "The original target -1 and original symbolic polynomial derivative 2c_2 are shown; no doubled-curvature equation is shown."
+        },
+        {
+          "kind": "frame",
+          "t": 309.0,
+          "what": "An animation starts substituting the original coefficient into the polynomial-side expressions."
+        },
+        {
+          "kind": "frame",
+          "t": 310.0,
+          "what": "The emerging substitution is the original coefficient -1/2; neither 2c_2=-2 nor the counterfactual coefficient -1 appears."
+        }
+      ],
+      "findings": "Within [272,310], the author derives the original relation using target curvature -1 and begins showing the original coefficient -1/2. The altered target -2, altered equation 2c_2=-2, and resulting counterfactual coefficient c_2=-1 are not spoken or shown in finished form.",
+      "criterion": "For this L3 question, the item fires only if the stream supplies the complete requested counterfactual answer during the answer window or the following ten seconds, making the reasoning unnecessary.",
+      "steps": [
+        {
+          "question": "What complete answer must be leaked for the L3 counterfactual task to degenerate?",
+          "answer_text": "Displayed target -1; doubled curvature -2; altered matching equation 2c_2=-2; new coefficient c_2=-1.",
+          "why": "Those are the distinct requested outputs, including the counterfactual transformation."
+        },
+        {
+          "question": "Does the author provide the altered equation 2c_2=-2 by 310 s?",
+          "answer_bool": false,
+          "why": "The transcript and frames only develop the original equality to -1."
+        },
+        {
+          "question": "Is the later original value -1/2 the requested new counterfactual coefficient?",
+          "answer_bool": false,
+          "why": "Doubling the displayed curvature gives -2, so 2c_2=-2 yields c_2=-1 rather than -1/2."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "event-not-earlier-than-window",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 271.0,
+          "what": "The target second-derivative row is still incomplete after '-cos(0) ='; the final displayed value is not yet readable."
+        },
+        {
+          "kind": "frame",
+          "t": 272.0,
+          "what": "The row is complete through '= -1' while x=0 and the free c_2 quadratic term are also readable."
+        },
+        {
+          "kind": "cue",
+          "t": 271.3,
+          "what": "The spoken line completes the target value as -1 across 271.3-272.9 s."
+        }
+      ],
+      "findings": "Immediately before the window, the last numeric value in the target row is visually unfinished. At 272 s the displayed target value and the still-free quadratic term are simultaneously complete.",
+      "criterion": "For an as-soon-as visual event, the window must not open after the first frame where every named on-screen condition becomes readable.",
+      "steps": [
+        {
+          "question": "Are all named visual conditions readable at 271 s?",
+          "answer_bool": false,
+          "why": "The target row has not yet acquired its final -1 value."
+        },
+        {
+          "question": "When is the first checked complete simultaneous state?",
+          "answer_number": 272.0,
+          "why": "The 272 s frame contains x=0, the complete target value -1, and P(x) with c_2 free."
+        },
+        {
+          "question": "Does that first complete state precede t_start=272?",
+          "answer_bool": false,
+          "why": "The prior checked frame is incomplete and the complete checked frame coincides with t_start."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "depends-on-is-dependency",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [],
+      "findings": "Window 0 has no depends_on field, so there is no declared dependency link whose necessity or direction can be tested.",
+      "criterion": "This item applies only when a dependency is declared or when the current rubric requires another window's answer; absent either condition, no dependency edge is called for.",
+      "steps": [
+        {
+          "question": "Is a depends_on link declared for trigger 0?",
+          "answer_bool": false,
+          "why": "The supplied trigger metadata states that depends_on is absent."
+        },
+        {
+          "question": "Does answering this window require an answer from another trigger?",
+          "answer_bool": false,
+          "why": "The displayed target value and free quadratic term within this window suffice for the requested counterfactual calculation."
+        }
+      ],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "evidence-span-is-last",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 271.0,
+          "what": "The target second-derivative expression is unfinished and does not yet display its final value."
+        },
+        {
+          "kind": "frame",
+          "t": 272.0,
+          "what": "The final target value -1, center x=0, degree-two polynomial, and free c_2 term are all simultaneously readable."
+        },
+        {
+          "kind": "frame",
+          "t": 292.0,
+          "what": "The same evidence remains visible; subsequent animation illustrates consequences rather than adding a needed counterfactual input."
+        }
+      ],
+      "findings": "The last missing input becomes visually available at 272 s when the target row completes as -1. The supplied evidence span [272,292.3] contains that moment; later material is corroborating explanation and is not needed to compute the doubled-curvature equation.",
+      "criterion": "The evidence span must include the moment when the final fact needed to derive the answer first appears, without being forced to extend to later corroboration or the author's own solution.",
+      "steps": [
+        {
+          "question": "What is the last newly appearing fact needed for the answer?",
+          "answer_text": "The target's second-derivative value -1 at x=0, visible together with the free c_2 quadratic term.",
+          "why": "Once -1 is readable, doubling gives -2 and the displayed degree-two form implies 2c_2=-2."
+        },
+        {
+          "question": "When does that final needed fact first become readable?",
+          "answer_number": 272.0,
+          "why": "At 271 s the equality is incomplete; at 272 s it ends in -1."
+        },
+        {
+          "question": "Does evidence_span [272,292.3] cover that last-evidence moment?",
+          "answer_bool": true,
+          "why": "Its left endpoint is exactly 272 s and the interval continues through 292.3 s."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ],
+  "window_idx": 0
+}

@@ -1,0 +1,193 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q18",
+  "role": "semiblind",
+  "iteration": 1,
+  "model": "gpt-5.4",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/3b1b__3d6DsjIBzJ4__q18/semiblind_r1",
+  "budget": {
+    "frames_viewed": 7,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 1236.0,
+        "t_end": 1258.0
+      }
+    ],
+    "transcript_cues": 965,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The entire supplied transcript and screen index were covered. The dense visual check was restricted to the sole candidate sequence. At 1253 the label was still incomplete; 1254 is the first inspected whole-second frame where every requested detail is readable.",
+  "prior_answer": "It cannot be determined from the question alone: the bracket's exact label and the two marked locations it connects are unspecified visual content.",
+  "prior_answer_assumptions": [],
+  "recognized_video": false,
+  "recognized_how": "I did not recognize this particular video or moment before viewing.",
+  "scans": [
+    {
+      "idx": 0,
+      "t_from": 0.0,
+      "t_to": 1261.3,
+      "watched": [
+        {
+          "kind": "frame",
+          "t": 1244.0,
+          "what": "The Diverges callout is visible, but there is no bracket below the x-axis."
+        },
+        {
+          "kind": "frame",
+          "t": 1245.0,
+          "what": "A small bracket is being drawn from the yellow x-axis point toward the right dotted vertical line; no label is present."
+        },
+        {
+          "kind": "frame",
+          "t": 1252.0,
+          "what": "The bracket spans the yellow point to the right dotted vertical boundary, but there is still no text beneath it."
+        },
+        {
+          "kind": "frame",
+          "t": 1253.0,
+          "what": "The label beneath the bracket is only partially rendered and is not yet exactly readable."
+        },
+        {
+          "kind": "frame",
+          "t": 1254.0,
+          "what": "The full label Radius of convergence is readable beneath the completed bracket."
+        },
+        {
+          "kind": "frame",
+          "t": 1255.0,
+          "what": "The completed bracket and full label remain visible, confirming both endpoints."
+        },
+        {
+          "kind": "frame",
+          "t": 1256.0,
+          "what": "The completed Radius of convergence label remains visible as the scene begins transitioning."
+        },
+        {
+          "kind": "cue",
+          "t": 1244.1,
+          "what": "The narration begins defining the maximum distance from the approximation input to points where the polynomials converge."
+        },
+        {
+          "kind": "cue",
+          "t": 1252.6,
+          "what": "The narration names that maximum distance the radius of convergence."
+        }
+      ],
+      "candidates": [
+        {
+          "question": "Is the requested bracket and label available at 1244 seconds?",
+          "answer_bool": false,
+          "answer_number": 1244.0,
+          "answer_text": null,
+          "why": "The Diverges callout is present, but the below-axis bracket has not appeared."
+        },
+        {
+          "question": "Is the requested bracket and label available at 1245 seconds?",
+          "answer_bool": false,
+          "answer_number": 1245.0,
+          "answer_text": null,
+          "why": "The bracket begins to appear, but it has no label; this remains incomplete and lies in the declared distractor."
+        },
+        {
+          "question": "Is the requested bracket and label available at 1252 seconds?",
+          "answer_bool": false,
+          "answer_number": 1252.0,
+          "answer_text": null,
+          "why": "The bracket endpoints are visible, but its label has not appeared; this remains inside the declared distractor."
+        },
+        {
+          "question": "Is the exact requested label readable at 1253 seconds?",
+          "answer_bool": false,
+          "answer_number": 1253.0,
+          "answer_text": null,
+          "why": "Only a partially drawn Radius of conver... is visible, so exact text would require filling in unseen letters; this remains inside the declared distractor."
+        },
+        {
+          "question": "Is the complete requested answer visible at 1254 seconds?",
+          "answer_bool": true,
+          "answer_number": 1254.0,
+          "answer_text": "Radius of convergence; from the yellow point at x=1 to the right dotted vertical line at x=2.",
+          "why": "The full label is legible and the completed bracket visibly terminates at those two marked x-axis locations."
+        }
+      ],
+      "t_val": 1254.0,
+      "t_val_basis": "At 1254.0 the full text Radius of convergence is readable beneath a completed bracket running from the yellow x-axis point at the expansion center x=1 to the right dotted vertical convergence boundary at x=2.",
+      "answer_at_t_val": "The exact text is “Radius of convergence.” The bracket connects the yellow marked point on the x-axis at x=1 to the right-hand dotted vertical boundary at x=2.",
+      "confidence": "high"
+    }
+  ],
+  "checks": [
+    {
+      "group": "shortcuts",
+      "item": "solvable-without-video",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1254.0,
+          "what": "The frame supplies the specific label and marked bracket endpoints that the question itself omits."
+        }
+      ],
+      "findings": "Before viewing, the question did not specify either the label or the marked endpoints. The frame later supplied both video-specific details.",
+      "criterion": "A question is solvable without video only if its text and general knowledge determine the requested answer without assuming unseen screen content.",
+      "steps": [
+        {
+          "question": "Does the question state the bracket's exact label?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "It refers to a label that will appear but does not quote it."
+        },
+        {
+          "question": "Does the question identify the bracket's two marked endpoints?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "It asks which locations are connected but does not name them."
+        },
+        {
+          "question": "Did the prior answer supply the requested visual details?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The honest prior answer only identified that the visual data were missing."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "video-recognized",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1254.0,
+          "what": "The inspected scene did not correspond to any exact video moment I could name from pre-viewing memory."
+        }
+      ],
+      "findings": "I had no pre-viewing recognition of this exact video or moment and could not state its answer from memory.",
+      "criterion": "Recognition fires only when the reviewer can identify the particular video moment and answer from memory before opening the supplied material.",
+      "steps": [
+        {
+          "question": "Could I name the exact answer before viewing?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "No exact label or pair of endpoints came to mind before the transcript or frames were opened."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

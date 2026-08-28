@@ -1,0 +1,126 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q03",
+  "role": "semiblind",
+  "iteration": 3,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q03/semiblind",
+  "budget": {
+    "frames_viewed": 12,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 358.9,
+        "t_end": 370.0
+      }
+    ],
+    "transcript_cues": 5,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The complete clipped stretch was covered by the transcript, screen index, and real frames at 1 s spacing. The declared distractor [358.9, 364.0) was not selected as t_val. The first admissible frame is exactly its excluded-end boundary; timing finer than 1 s was not needed for this boundary check.",
+  "prior_answer": "It cannot be answered on the merits from the question alone: the question does not specify the coefficient's on-screen color or symbol, its assigned value, or the resulting geometry of the two displayed curves at x=0.",
+  "prior_answer_assumptions": [],
+  "recognized_video": false,
+  "recognized_how": "I recognized the title as an episode of the Essence of Calculus series, but did not recognize this particular moment and could not name its answer from memory.",
+  "scans": [
+    {
+      "idx": 1,
+      "t_from": 358.9,
+      "t_to": 370.0,
+      "watched": [
+        {"kind": "frame", "t": 359.0, "what": "The first-derivative matching equation is being drawn; yellow c_1 is shown, but no assigned value is yet visible."},
+        {"kind": "frame", "t": 360.0, "what": "The first-derivative equality at 0 is explicit; yellow c_1 remains unassigned and the two curves have visibly different slopes at the center."},
+        {"kind": "frame", "t": 361.0, "what": "The first-derivative equality and yellow c_1 remain visible while the pale curve is still changing."},
+        {"kind": "frame", "t": 362.0, "what": "Yellow c_1 is still displayed separately; the coefficient value has not yet replaced it in P(x)."},
+        {"kind": "frame", "t": 363.0, "what": "P(x)=1+0x+c_2x^2 is visible with the 0 in yellow, and the curves now share a horizontal tangent at x=0; this is inside the declared distractor."},
+        {"kind": "frame", "t": 364.0, "what": "The yellow 0 assignment persists in P(x), the first-derivative equality remains explicit, and the two curves share their tangent at x=0."},
+        {"kind": "frame", "t": 365.0, "what": "The tangent-matched curves and P(x)=1+0x+c_2x^2 remain visible."},
+        {"kind": "frame", "t": 366.0, "what": "The c_2 term begins to be highlighted after the completed c_1=0 tangent-match state."},
+        {"kind": "frame", "t": 367.0, "what": "A second-derivative matching equation appears, beginning the next coefficient condition."},
+        {"kind": "frame", "t": 368.0, "what": "The second-derivative condition and green c_2 are visible; the earlier yellow 0 remains in the polynomial."},
+        {"kind": "frame", "t": 369.0, "what": "The c_2 value starts being drawn, which is unrelated to the earlier tangent-line coefficient answer."},
+        {"kind": "frame", "t": 370.0, "what": "The later c_2=-1/2 assignment is complete while c_1's yellow 0 and the tangent match remain visible."},
+        {"kind": "cue", "t": 361.0, "what": "The narration says that the derivatives match at that point."},
+        {"kind": "cue", "t": 366.3, "what": "The narration moves on to c_2 and matching second derivatives."}
+      ],
+      "candidates": [
+        {
+          "question": "Is 360.0 s the earliest moment with the complete requested coefficient assignment and geometry?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The derivative-matching condition and yellow c_1 are visible, but c_1 has not yet been set to a visible value and the curves still have different slopes at x=0."
+        },
+        {
+          "question": "Does 363.0 s contain the complete answer?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The cumulative display identifies yellow c_1, replaces it by yellow 0, and shows the two curves with the same horizontal tangent at x=0, but 363.0 lies inside the declared distractor [358.9, 364.0)."
+        },
+        {
+          "question": "Is 364.0 s the earliest admissible moment outside the declared distractor with the complete answer?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "At the half-open distractor's end boundary, the yellow zero in the c_1 position and the explicit first-derivative equality persist, while the curves visibly share the tangent at x=0."
+        }
+      ],
+      "t_val": 364.0,
+      "t_val_basis": "The 364.0 s real frame is the first inspected moment outside the declared distractor. Together with the immediately preceding identification of c_1 in yellow, it shows c_1 replaced by a yellow 0 in P(x), the explicit equality of first derivatives at 0, and the two curves sharing a horizontal tangent there.",
+      "answer_at_t_val": "The controlling coefficient is the yellow c_1; it is set to 0, making the two displayed curves have the same first derivative and therefore the same horizontal tangent line at x=0.",
+      "confidence": "high"
+    }
+  ],
+  "checks": [
+    {
+      "group": "shortcuts",
+      "item": "solvable-without-video",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 364.0, "what": "The frame supplies the screen-specific yellow c_1, its replacement by 0, and the tangent geometry that are absent from the question text alone."}
+      ],
+      "findings": "Before viewing, the question did not identify the screen color, coefficient symbol, assigned value, or the particular displayed geometry needed for an answer.",
+      "criterion": "This item fires only if an answer naming all requested screen-specific quantities can be derived honestly from the question and general subject knowledge without inventing what appears in the video.",
+      "steps": [
+        {
+          "question": "Can all requested screen-specific quantities be named from the question alone?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "General knowledge explains what derivative matching means but does not determine the video's chosen coefficient label, color, value, or rendered curve state."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "video-recognized",
+      "target": null,
+      "looked_at": [
+        {"kind": "frame", "t": 359.0, "what": "The inspected scene later confirmed a specific animation that I had not been able to recall during the pre-viewing self-report."}
+      ],
+      "findings": "Before viewing, I knew the series title but did not recognize this exact scene or remember the requested coefficient assignment and geometry.",
+      "criterion": "Recognizing only the general series is not recognition of the particular video moment unless the answer can be named from memory before any supplied material is opened.",
+      "steps": [
+        {
+          "question": "Could I name the requested answer from memory before viewing?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "I had no memory of this exact tangent-matching scene or its on-screen color and coefficient value."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

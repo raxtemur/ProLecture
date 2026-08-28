@@ -1,0 +1,244 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q13",
+  "role": "full_window",
+  "iteration": 1,
+  "model": "gpt-5",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/3b1b__3d6DsjIBzJ4__q13/full_window0_r1",
+  "budget": {
+    "frames_viewed": 16,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 934.0,
+        "t_end": 946.0
+      }
+    ],
+    "transcript_cues": 43,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The base-point label a is absent throughout the counting window and first appears in the inspected 950.3 s frame. The triangular cap begins to appear by 944 s, but the complete requested symbolic answer is not shown within t_end+10.",
+  "verdict": "FIX_QUESTION",
+  "checks": [
+    {
+      "group": "windows",
+      "item": "window-can-be-tightened",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 907.3,
+          "what": "The shaded area is labelled f_area(x), the white boundary curve is distinct, and only the endpoint x is labelled."
+        },
+        {
+          "kind": "frame",
+          "t": 930.0,
+          "what": "A narrow first-order strip labelled dx is shown; there is still no base-point a."
+        },
+        {
+          "kind": "frame",
+          "t": 935.0,
+          "what": "At the end of the counting window the strip and dx remain, while no base-point a or x-a label is present."
+        },
+        {
+          "kind": "frame",
+          "t": 950.3,
+          "what": "After the window and leakage horizon, an arrow finally labels the left side of the strip as a."
+        }
+      ],
+      "findings": "Across the entire 905.0-935.8 s window, x or dx is visible but the requested base-point symbol a is not. The first inspected frame containing a is at 950.3 s, after a triangular cap has begun to be revealed and after the author has named it.",
+      "criterion": "A valid counting window must contain a substantial interval in which every visual fact explicitly required by the question is available; shortening alone cannot repair a window if a required symbol never appears anywhere inside it.",
+      "steps": [
+        {
+          "question": "Is the displayed endpoint or increment available during the window?",
+          "answer_bool": true,
+          "why": "The 907.3 s frame labels x and the 930.0 and 935.0 s frames label dx."
+        },
+        {
+          "question": "Is the displayed base-point symbol a available anywhere in the window?",
+          "answer_bool": false,
+          "why": "It is absent in the inspected window frames and first appears in the 950.3 s frame."
+        },
+        {
+          "question": "Can moving only one or both window boundaries preserve a prediction task while supplying a?",
+          "answer_bool": false,
+          "why": "The label a arrives only after the triangular correction is already being visually revealed and the narration proceeds to name it."
+        }
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {
+        "field": "question",
+        "value": "Rewrite the requested base and height using the symbols actually visible before the reveal (for example, base dx and height equal to local slope times dx), and update the response and rubric consistently.",
+        "why": "No tightening of 905.0-935.8 can supply the displayed base-point a demanded by the current wording."
+      },
+      "uncovered": null
+    },
+    {
+      "group": "windows",
+      "item": "author-says-answer-in-window",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 935.8,
+          "what": "The author begins saying that greater accuracy is needed for a finite change in x."
+        },
+        {
+          "kind": "cue",
+          "t": 943.5,
+          "what": "The author says one must take into account 'this portion right here' but does not yet identify its shape or dimensions."
+        },
+        {
+          "kind": "frame",
+          "t": 944.0,
+          "what": "A small pink triangular-looking cap is visible above the yellow strip, but a, x-a, and a height formula are absent."
+        },
+        {
+          "kind": "frame",
+          "t": 945.0,
+          "what": "The cap and strip remain, with a cursor highlight; the requested base-point and symbolic dimensions are still absent."
+        }
+      ],
+      "findings": "Within 905.0-945.8 s the author does not state the requested complete answer. A triangular-looking cap becomes visible near 944 s, but its base and height are not given in the question's symbols; the narration names it a triangle only in the cue beginning at 946.0 s, just outside the horizon.",
+      "criterion": "For an L2 prediction to critically leak, the author must speak or display the requested answer in finished form by t_end+10, not merely begin a reveal of one component without its required symbolic dimensions.",
+      "steps": [
+        {
+          "question": "Does the author verbally name the triangle by 945.8 seconds?",
+          "answer_bool": false,
+          "why": "The 943.5 s cue only calls it a portion; the cue naming a triangle starts at 946.0 s."
+        },
+        {
+          "question": "Is the complete requested base-and-height answer displayed by 945.8 seconds?",
+          "answer_bool": false,
+          "why": "Frames at 944 and 945 show a cap but not a, x-a, or the local-slope-times-x-a height."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "event-not-earlier-than-window",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 900.6,
+          "what": "The shaded accumulated area is already labelled f_area(x), bounded by a separately visible white curve, with endpoint x."
+        },
+        {
+          "kind": "frame",
+          "t": 904.6,
+          "what": "Immediately before t_start, the colored shaded area and white graph remain clearly distinct and x is labelled."
+        },
+        {
+          "kind": "frame",
+          "t": 907.3,
+          "what": "After t_start the same distinction remains; no new visual separation begins here."
+        }
+      ],
+      "findings": "The visual event named in the opening clause--clear separation of the colored accumulated area from the white boundary graph--is already present at 900.6 s and remains clear at 904.6 s, before the 905.0 s window start.",
+      "criterion": "When a trigger is keyed to the onset of a visible state, the window should open when that state first becomes clear rather than several seconds after it is already established.",
+      "steps": [
+        {
+          "question": "Is the shaded accumulated area visually distinguishable from the white graph before 905.0 seconds?",
+          "answer_bool": true,
+          "why": "At 900.6 and 904.6 s the filled colored region and thin white boundary curve are plainly separate visual objects."
+        },
+        {
+          "question": "Does a new separation event begin at or after 905.0 seconds?",
+          "answer_bool": false,
+          "why": "The 907.3 s frame preserves the already established state rather than introducing it."
+        }
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {
+        "field": "t_start",
+        "value": "900.6",
+        "why": "This is the first inspected frame where the colored area and separate white graph are already clearly distinguished."
+      },
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "depends-on-is-dependency",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [],
+      "findings": "Trigger 0 has no depends_on field, so there is no declared dependency edge to assess.",
+      "criterion": "This check applies only when a dependency is declared or when another trigger answer is logically required; this single-trigger sample has neither condition.",
+      "steps": [
+        {
+          "question": "Does trigger 0 declare depends_on?",
+          "answer_bool": false,
+          "why": "The supplied trigger object contains no depends_on key."
+        },
+        {
+          "question": "Does its rubric require an answer from another trigger?",
+          "answer_bool": false,
+          "why": "There is only one trigger and every rubric item concerns the triangle and its dimensions in this same scene."
+        }
+      ],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "evidence-span-is-last",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 919.6,
+          "what": "At the stated evidence-span end, the area, white graph, derivative label, endpoint x, and a thin strip are visible, but a is absent."
+        },
+        {
+          "kind": "frame",
+          "t": 950.3,
+          "what": "The base-point symbol a first appears in the inspected frames, pointing to the left edge of the increment."
+        }
+      ],
+      "findings": "The stated evidence_span ends at 919.6 s while one fact explicitly required by the question--the displayed base-point symbol a--has not appeared. It is visible in the 950.3 s frame.",
+      "criterion": "The evidence span must extend through the last fact needed to derive the requested answer in the requested notation, rather than ending after only the earlier graph/area distinction and derivative relation.",
+      "steps": [
+        {
+          "question": "Are all displayed symbols needed by the question present by 919.6 seconds?",
+          "answer_bool": false,
+          "why": "The 919.6 s frame has x but no displayed a."
+        },
+        {
+          "question": "When is the missing base-point symbol first verified in an inspected frame?",
+          "answer_number": 950.3,
+          "why": "The 950.3 s frame visibly labels the strip's left edge a."
+        }
+      ],
+      "result": "fail",
+      "confidence": "high",
+      "proposal": {
+        "field": "evidence_span",
+        "value": "[905.0, 950.4]",
+        "why": "The current notation-specific question is not fully supported until the displayed a appears around 950.3 s."
+      },
+      "uncovered": null
+    }
+  ],
+  "window_idx": 0
+}

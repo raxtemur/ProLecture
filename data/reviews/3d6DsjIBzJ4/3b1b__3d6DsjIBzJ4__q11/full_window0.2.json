@@ -1,0 +1,247 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q11",
+  "role": "full_window",
+  "iteration": 2,
+  "model": "gpt-5",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/3b1b__3d6DsjIBzJ4__q11/full_window0_r2",
+  "budget": {
+    "frames_viewed": 13,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 789.0,
+        "t_end": 814.0
+      }
+    ],
+    "transcript_cues": 33,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "Window 0 only. The screen index was used to locate the transition, and every cited visual fact was verified in real frames. The transient later animation does not undo the answer already visible at 792 s.",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "group": "windows",
+      "item": "window-can-be-tightened",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 792.0,
+          "what": "The general polynomial is fully displayed with f(a), derivative evaluations at a, powers of (x-a), and unchanged 1! and 2! denominators."
+        },
+        {
+          "kind": "frame",
+          "t": 793.0,
+          "what": "The completed shifted-center formula remains visible while the approximation point is shown on the graph."
+        },
+        {
+          "kind": "frame",
+          "t": 808.0,
+          "what": "The shifted-center formula is still visible while the graph and marked point animate."
+        },
+        {
+          "kind": "frame",
+          "t": 812.0,
+          "what": "Near the right boundary, the same formula remains visible with f(a), evaluations at a, (x-a) powers, and factorial denominators."
+        },
+        {
+          "kind": "frame",
+          "t": 813.0,
+          "what": "At the final sampled second of the half-open window, the shifted-center formula remains on screen."
+        }
+      ],
+      "findings": "The requested completed substitutions are visible at 792 s and the formula remains available through 813 s. Intervening graph animation changes the approximation curve and point but does not replace the already observed formula.",
+      "criterion": "A boundary should be tightened only if a substantial part of the window lacks the evidence needed to answer; later animation does not invalidate a first-appearance observation that a streaming model may still be verbalizing.",
+      "steps": [
+        {
+          "question": "At what inspected moment is the complete answer first visible within the window?",
+          "answer_number": 792.0,
+          "why": "The 792 s frame simultaneously shows f(a), derivative evaluations at a, (x-a) powers, and the same factorials."
+        },
+        {
+          "question": "Is there a substantial evidence-free tail before the 813 s window end?",
+          "answer_bool": false,
+          "why": "Frames at 808, 812, and 813 s continue to show the shifted-center formula."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "windows",
+      "item": "author-says-answer-in-window",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 791.4,
+          "what": "The author says the polynomial is written in powers of x minus a."
+        },
+        {
+          "kind": "cue",
+          "t": 794.4,
+          "what": "The author says all derivatives of f are evaluated at the input a."
+        },
+        {
+          "kind": "cue",
+          "t": 799.1,
+          "what": "The author calls this the fully general form of Taylor polynomials."
+        },
+        {
+          "kind": "frame",
+          "t": 792.0,
+          "what": "The completed shifted-center polynomial is shown in finished visual form."
+        }
+      ],
+      "findings": "Inside the window the author explicitly states the (x-a) powers and evaluation of derivatives at a, while the completed formula visually supplies all requested substitutions and unchanged factorials.",
+      "criterion": "Author-provided finished evidence is disqualifying here only for an L2 or L3 task; for this L1 alarm, coincidence with the author and display is permitted.",
+      "steps": [
+        {
+          "question": "Does the author or display provide the answer in finished form during the window or ten seconds after it?",
+          "answer_bool": true,
+          "why": "The formula is complete at 792 s, and the narration names the shifted powers and derivative evaluation point by 799.1 s."
+        },
+        {
+          "question": "Is this sample labeled L2 or L3, for which that coincidence would be critical?",
+          "answer_bool": false,
+          "why": "The supplied sample labels reasoning_level as L1."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "event-not-earlier-than-window",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 790.0,
+          "what": "The displayed polynomial still has f(0), every derivative evaluated at 0, and powers of x."
+        },
+        {
+          "kind": "frame",
+          "t": 791.0,
+          "what": "The side labels have changed to a, but the polynomial itself still shows f(0), derivative evaluations at 0, and x powers during the transition."
+        },
+        {
+          "kind": "frame",
+          "t": 792.0,
+          "what": "All three requested substitutions are complete together in the displayed polynomial."
+        }
+      ],
+      "findings": "Before 792 s the polynomial does not yet exhibit all three requested substitutions: at 791 s it still carries the old center notation. At 792 s the function value, derivative evaluations, and powers have all reached their new forms.",
+      "criterion": "For this question the triggering observable state begins when the displayed polynomial has completed all three simultaneously requested changes, rather than when surrounding labels start an incomplete transition.",
+      "steps": [
+        {
+          "question": "Before the window opens, does the polynomial already show all three new substitutions?",
+          "answer_bool": false,
+          "why": "The 791 s polynomial retains f(0), evaluations at 0, and powers of x."
+        },
+        {
+          "question": "At the 792 s opening, are all three substitutions simultaneously observable?",
+          "answer_bool": true,
+          "why": "The 792 s frame visibly contains f(a), evaluations at a, and powers of (x-a)."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "depends-on-is-dependency",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [],
+      "findings": "The supplied trigger has no depends_on field, and there is no other trigger whose answer is required to satisfy this window's rubric.",
+      "criterion": "A dependency link is applicable only when a rubric element for this window cannot be answered without a named earlier window's answer.",
+      "steps": [
+        {
+          "question": "Does trigger 0 declare a depends_on link that must be tested?",
+          "answer_bool": false,
+          "why": "No depends_on field appears in the supplied trigger."
+        },
+        {
+          "question": "Does any rubric item require information obtainable only from another trigger?",
+          "answer_bool": false,
+          "why": "All four rubric items concern the single displayed formula transition in this window."
+        }
+      ],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "evidence-span-is-last",
+      "target": {
+        "trigger_idx": 0,
+        "distractor_idx": null
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 789.0,
+          "what": "The old formula shows f(0), derivative evaluations at 0, powers x^n, and factorial denominators 1!, 2!, and 3!."
+        },
+        {
+          "kind": "frame",
+          "t": 791.0,
+          "what": "The displayed polynomial is still transitional and retains the old function value, derivative evaluation points, and x powers."
+        },
+        {
+          "kind": "frame",
+          "t": 792.0,
+          "what": "The new formula simultaneously shows f(a), derivative evaluations at a, (x-a) powers, and unchanged factorial denominators."
+        },
+        {
+          "kind": "frame",
+          "t": 808.0,
+          "what": "The same shifted-center formula remains visible within the declared evidence span."
+        }
+      ],
+      "findings": "Comparison with the old formula establishes that the final needed fact—the unchanged factorial denominators alongside all three completed substitutions—is derivable by 792 s. The declared evidence span starts at 792 s and continues through a frame where the completed formula remains visible.",
+      "criterion": "The evidence span must include the moment when the last fact required by the answer first becomes visually derivable; later persistence is corroboration and need not create a later last-evidence time.",
+      "steps": [
+        {
+          "question": "What is the last moment needed to derive all four answer components from inspected frames?",
+          "answer_number": 792.0,
+          "why": "Only at 792 s are the three new forms complete while the same factorial denominators are also visible for comparison with the old formula."
+        },
+        {
+          "question": "Does the declared evidence span cover that last-needed moment?",
+          "answer_bool": true,
+          "why": "The supplied evidence_span is [792.0, 808.5], which includes 792.0."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ],
+  "window_idx": 0
+}

@@ -1,0 +1,353 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q02",
+  "role": "full_window",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q02/full_window0",
+  "budget": {
+    "frames_viewed": 11,
+    "sparse_step": 6.0,
+    "dense_intervals": [
+      {
+        "t_start": 139.0,
+        "t_end": 141.0
+      },
+      {
+        "t_start": 159.0,
+        "t_end": 163.0
+      }
+    ],
+    "transcript_cues": 25,
+    "screen_index_used": true
+  },
+  "violations": [
+    {
+      "path": "data/bundles/3d6DsjIBzJ4/transcript.md",
+      "why": "A broad rg --files search was used to locate coordinator.md and review inputs.",
+      "what_seen": "Only this forbidden transcript path was printed; no file contents were opened."
+    },
+    {
+      "path": "data/bundles/GlYgs6v2YfU/transcript.md",
+      "why": "A broad rg --files search was used to locate coordinator.md and review inputs.",
+      "what_seen": "Only this unrelated forbidden transcript path was printed; no file contents were opened."
+    },
+    {
+      "path": "data/bundles/l6DKRf-fAAM/transcript.md",
+      "why": "A broad rg --files search was used to locate coordinator.md and review inputs.",
+      "what_seen": "Only this unrelated forbidden transcript path was printed; no file contents were opened."
+    }
+  ],
+  "notes": "The blind-solved flag does not stop full review under coordinator section 3. The indexed scene frame at 140.9 s was opened directly as permitted by frames.md; no bundle transcript or video was read.",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "group": "windows",
+      "item": "window-can-be-tightened",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 140.9,
+          "what": "The displayed quadratic, the blue cos(x) target, and three arrows from 'Free to change' to c0, c1, and c2 are all fully visible."
+        },
+        {
+          "kind": "frame",
+          "t": 147.0,
+          "what": "The same formula and all-three-free marking remain visible while the candidate parabola changes."
+        },
+        {
+          "kind": "frame",
+          "t": 153.0,
+          "what": "The target, quadratic formula, and all-three-free marking are still visible."
+        },
+        {
+          "kind": "frame",
+          "t": 159.0,
+          "what": "The formula and all-three-free marking remain, with a new x=0 to 1 annotation for the original cosine."
+        },
+        {
+          "kind": "frame",
+          "t": 161.0,
+          "what": "The formula is transitioning but remains readable; the earlier all-three-free state has already been observed."
+        },
+        {
+          "kind": "frame",
+          "t": 163.0,
+          "what": "Immediately after the window, P(0)=c0+c1 0+c2 0^2 is shown for the original cosine discussion."
+        },
+        {
+          "kind": "cue",
+          "t": 139.5,
+          "what": "The author introduces quadratics c0+c1*x+c2*x^2 and says the constants may be chosen."
+        },
+        {
+          "kind": "cue",
+          "t": 145.4,
+          "what": "The author asks for the quadratic that most resembles cosine near x=0."
+        },
+        {
+          "kind": "cue",
+          "t": 160.2,
+          "what": "The author begins explaining that a good approximation should share the value at x=0."
+        }
+      ],
+      "findings": "The complete marked-free state is present at the left boundary and remains available through the substantive part of the window. Near the right edge the presentation starts deriving the original cosine's constant term, but the model has already observed the requested first state and can still finish an answer about it.",
+      "criterion": "A window should be shortened only when a substantial portion no longer permits a correct answer; later animation does not invalidate an explicitly observed state, and ordinary response latency must remain available.",
+      "steps": [
+        {
+          "question": "Is the requested all-three-free state complete at the start of the window?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "At 140.9 s all three coefficient arrows and the 'Free to change' label are fully visible."
+        },
+        {
+          "question": "Is there a substantial unusable tail before t_end?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The relevant state remains visible through 159 s, and the transition at 161 s does not erase the state already observed."
+        },
+        {
+          "question": "Would tightening preserve needed generation latency for the state-at-appearance question?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The current right boundary provides time to compute and state three coefficients and the polynomial after the 140.9 s appearance."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "windows",
+      "item": "author-says-answer-in-window",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 145.4,
+          "what": "The author asks for a quadratic resembling the original cosine near x=0."
+        },
+        {
+          "kind": "cue",
+          "t": 157.4,
+          "what": "The author states that cos(0)=1."
+        },
+        {
+          "kind": "cue",
+          "t": 160.2,
+          "what": "The author says the approximation should also equal one at x=0."
+        },
+        {
+          "kind": "cue",
+          "t": 168.3,
+          "what": "The author simplifies the original-cosine evaluation to c0 and says it can be set equal to one."
+        },
+        {
+          "kind": "frame",
+          "t": 159.0,
+          "what": "The screen shows cos(x), x=0, and 1, while c0, c1, c2 are still marked free."
+        },
+        {
+          "kind": "frame",
+          "t": 163.0,
+          "what": "The screen begins P(0)=c0+c1 0+c2 0^2 for the original cosine."
+        },
+        {
+          "kind": "frame",
+          "t": 167.0,
+          "what": "The same unsimplified P(0) expression for the original cosine remains on screen."
+        },
+        {
+          "kind": "frame",
+          "t": 171.0,
+          "what": "The screen shows the original-cosine partial result c0=1 and P(0)=1+0, but no c1 or c2 result."
+        }
+      ],
+      "findings": "From 140.9 through 172.3 s the author discusses only the original cos(x). By 171 s the author has supplied c0=1 for that original target, but neither states nor displays the counterfactual coefficients c0=-1, c1=0, c2=1/2 or the resulting polynomial.",
+      "criterion": "For this L3 item, the check fires only if the author supplies the requested counterfactual answer in finished form during the window or within ten seconds after it, so that streaming response time collapses the reasoning task.",
+      "steps": [
+        {
+          "question": "Does the author state the requested negative-cosine coefficient triple by 172.3 s?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The transcript reaches only the original-cosine conclusion c0=1."
+        },
+        {
+          "question": "Do the frames show the complete requested polynomial by 172.3 s?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The latest inspected frame at 171 s shows only the original target's constant-term calculation."
+        },
+        {
+          "question": "Is the original-cosine c0=1 statement itself a finished answer to the counterfactual?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "It neither gives the sign-flipped c0 nor supplies c1 and c2."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "triggers",
+      "item": "event-not-earlier-than-window",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 139.0,
+          "what": "The quadratic formula is visible without any free-to-change label or coefficient arrows."
+        },
+        {
+          "kind": "frame",
+          "t": 140.0,
+          "what": "The free-to-change label and coefficient arrows are only faintly and partially being drawn."
+        },
+        {
+          "kind": "frame",
+          "t": 140.9,
+          "what": "The label and all three arrows are fully drawn and clearly mark c0, c1, and c2 as free to change."
+        },
+        {
+          "kind": "frame",
+          "t": 141.0,
+          "what": "The completed all-three-free marking remains clearly visible."
+        }
+      ],
+      "findings": "At 139.0 s no marking is present. At 140.0 s the marking is mid-animation and not yet fully rendered. At 140.9 s all three coefficient arrows and the label are complete.",
+      "criterion": "The window must open when the question's complete trigger condition first holds, not merely when an animation toward that condition has begun.",
+      "steps": [
+        {
+          "question": "Were all three coefficients already clearly marked free before 140.9 s?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The 140.0 s frame is visibly mid-draw, whereas the full three-arrow state is first confirmed at 140.9 s."
+        },
+        {
+          "question": "Does the complete trigger condition hold at 140.9 s?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The exact indexed boundary frame shows the finished label and all three arrows."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "depends-on-is-dependency",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [],
+      "findings": "The supplied trigger has no depends_on field and no earlier trigger answer is required by this single-window coefficient task.",
+      "criterion": "A dependency link is applicable only when satisfying this window's rubric requires an answer produced by another named window.",
+      "steps": [
+        {
+          "question": "Is a depends_on link present for trigger 0?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "No depends_on value is present in the supplied sample."
+        },
+        {
+          "question": "Does this answer require an earlier trigger's answer?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The coefficient triple follows directly from the displayed polynomial form and the counterfactual target."
+        }
+      ],
+      "result": "na",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "labels",
+      "item": "evidence-span-is-last",
+      "target": {
+        "trigger_idx": 0
+      },
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 139.0,
+          "what": "The quadratic and original cosine are visible, but the coefficients are not yet marked free."
+        },
+        {
+          "kind": "frame",
+          "t": 140.9,
+          "what": "The quadratic form and the completed all-three-free marking are simultaneously visible."
+        },
+        {
+          "kind": "frame",
+          "t": 153.0,
+          "what": "The same quadratic form and free-to-change marking remain visible within the annotated evidence span."
+        },
+        {
+          "kind": "cue",
+          "t": 139.5,
+          "what": "The author names the quadratic form and the three constants."
+        },
+        {
+          "kind": "cue",
+          "t": 145.4,
+          "what": "The author identifies cosine near x=0 as the original approximation target."
+        }
+      ],
+      "findings": "The last video-specific fact needed by this question is the completed marking that c0, c1, and c2 are all free; it is visible at 140.9 s together with the displayed quadratic. The supplied evidence span [140.9, 152.8] contains that moment.",
+      "criterion": "The evidence span must include the moment when the final fact necessary to derive the answer first becomes available; later explanation of the original cosine is corroboration, not required evidence for the counterfactual.",
+      "steps": [
+        {
+          "question": "What is the last video-specific fact needed for the answer?",
+          "answer_bool": null,
+          "answer_number": null,
+          "answer_text": "The completed indication that all three coefficients in the displayed quadratic are free to change.",
+          "why": "The transformation to -cos(x), center x=0, and unchanged degree are already specified in the question."
+        },
+        {
+          "question": "When is that last fact visibly complete?",
+          "answer_bool": null,
+          "answer_number": 140.9,
+          "answer_text": null,
+          "why": "The exact 140.9 s scene frame shows the full label and all three arrows."
+        },
+        {
+          "question": "Does evidence_span [140.9, 152.8] cover that moment?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Its left endpoint is exactly the first confirmed complete state."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ],
+  "window_idx": 0
+}

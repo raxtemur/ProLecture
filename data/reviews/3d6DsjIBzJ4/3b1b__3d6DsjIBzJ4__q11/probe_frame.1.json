@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q11",
+  "role": "probe_frame",
+  "iteration": 1,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/3b1b__3d6DsjIBzJ4__q11/probe_frame_r1",
+  "budget": {
+    "frames_viewed": 1,
+    "sparse_step": null,
+    "dense_intervals": [],
+    "transcript_cues": 0,
+    "screen_index_used": false
+  },
+  "violations": [],
+  "notes": "",
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 801,
+      "what": "The displayed general Taylor polynomial is written about a highlighted point a: f(a), derivatives evaluated at (a), and powers (x-a)^1 and (x-a)^2, with 1! and 2! beneath them."
+    }
+  ],
+  "steps": [
+    {
+      "question": "What substitution affects the function value?",
+      "answer_text": "f(0) is replaced by f(a).",
+      "why": "The cyan constant term visible in the frame is f(a), expressing the value at the new center a."
+    },
+    {
+      "question": "What substitution affects the derivative evaluations?",
+      "answer_text": "Every derivative evaluation at 0 is replaced by evaluation at a: f^(n)(0) becomes f^(n)(a).",
+      "why": "The color-matched derivative labels and polynomial coefficients visibly place (a) after df/dx, d^2f/dx^2, and the higher derivatives."
+    },
+    {
+      "question": "What substitution affects the powers?",
+      "answer_text": "Each x^n is replaced by (x-a)^n.",
+      "why": "The visible first and second power factors are (x-a)^1 and (x-a)^2."
+    },
+    {
+      "question": "What happens to the factorial denominators?",
+      "answer_text": "They do not change: the nth term remains divided by n!.",
+      "why": "The frame retains 1! and 2! under the corresponding first- and second-order powers."
+    }
+  ],
+  "answer": "The three simultaneous substitutions are f(0) → f(a), f^(n)(0) → f^(n)(a) for every derivative evaluation, and x^n → (x-a)^n. The factorial denominators are unchanged: the nth-order term is still divided by n!.",
+  "basis": "In the single frame at 801 s, the color-matched displayed formula reads f(a), shows derivative coefficients evaluated at (a), and uses (x-a)^1 and (x-a)^2, while retaining 1! and 2!. The old-center side of the substitutions is the standard center-0 notation implied by changing the Taylor polynomial's center to a.",
+  "confidence": "high",
+  "insufficient": false
+}

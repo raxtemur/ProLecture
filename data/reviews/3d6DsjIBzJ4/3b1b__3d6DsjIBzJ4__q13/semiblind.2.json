@@ -1,0 +1,172 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q13",
+  "role": "semiblind",
+  "iteration": 2,
+  "model": "gpt-5",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/3b1b__3d6DsjIBzJ4__q13/semiblind_r2",
+  "budget": {
+    "frames_viewed": 5,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 892.0,
+        "t_end": 897.0
+      }
+    ],
+    "transcript_cues": 707,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The full 0-935.8 s transcript and the screen index were covered. Real frames were inspected only at the final transition and its relevant lead-in. The half-open declared distractor was honored: 892 s was not accepted, while the first post-distractor frame at 893 s was. Exact sub-second onset inside the transition remains uncertain, but 893.0 s is directly evidenced.",
+  "prior_answer": "In general the extra second-order piece is a triangular wedge: its base is the displacement from the base point to the endpoint, and its height is the change in the underlying graph over that displacement, approximately the graph's slope at the base point times the displacement. The question text does not state the displayed base-point and endpoint symbols, so I cannot name the base and height in those exact symbols without seeing the video.",
+  "prior_answer_assumptions": [],
+  "recognized_video": false,
+  "recognized_how": "I recognized the general calculus construction, but not this particular video or moment, before viewing.",
+  "scans": [
+    {
+      "idx": 0,
+      "t_from": 0.0,
+      "t_to": 935.8,
+      "watched": [
+        {
+          "kind": "cue",
+          "t": 15.0,
+          "what": "The transcript begins the Taylor-series explanation and proceeds through approximation at a point."
+        },
+        {
+          "kind": "cue",
+          "t": 788.7,
+          "what": "The narrator names a as a general approximation base point and describes powers of x-a."
+        },
+        {
+          "kind": "frame",
+          "t": 880.0,
+          "what": "The geometric-view formula visibly uses base-point a and endpoint x, including the second-order (x-a)^2 term."
+        },
+        {
+          "kind": "cue",
+          "t": 875.2,
+          "what": "The narrator introduces a geometric understanding of the second-order Taylor term."
+        },
+        {
+          "kind": "frame",
+          "t": 892.0,
+          "what": "Inside the declared distractor, the new area scene is already emerging with shaded f_area(x), a white curve, and endpoint x."
+        },
+        {
+          "kind": "frame",
+          "t": 893.0,
+          "what": "The shaded region is clearly labeled f_area(x), its right endpoint is labeled x, and the separate white curve bounds the accumulated area."
+        },
+        {
+          "kind": "frame",
+          "t": 894.0,
+          "what": "The same stable area-function scene remains clearly visible immediately after 893 s."
+        },
+        {
+          "kind": "frame",
+          "t": 916.0,
+          "what": "The white graph is explicitly labeled as df_area/dx(x), confirming its role relative to the shaded f_area(x)."
+        },
+        {
+          "kind": "cue",
+          "t": 919.9,
+          "what": "The narrator explains that nudging the right bound by dx adds an approximately rectangular area equal to graph height times dx."
+        }
+      ],
+      "candidates": [
+        {
+          "question": "Can the requested area-based geometric prediction be made before the new area screen appears?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "At 880 s the symbols a and x and a second-order formula are visible, but neither the accumulated-area function nor the distinct white graph whose area it accumulates is on screen."
+        },
+        {
+          "question": "Should the visually suggestive 892 s area frame be accepted as t_val?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "It lies inside the declared distractor [889.0, 893.0), which must be excluded even though the scene is substantially drawn by this sampled instant."
+        },
+        {
+          "question": "Is the answer available on the first inspected frame outside the declared distractor?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "At 893.0 s the stable frame clearly separates shaded f_area(x) from its bounding white graph and shows endpoint x; together with the previously displayed a and x notation, this supports the triangle prediction without filling in unseen geometry."
+        }
+      ],
+      "t_val": 893.0,
+      "t_val_basis": "At 893.0 s the new screen visibly distinguishes the shaded accumulated-area quantity f_area(x) from the white graph above it and marks endpoint x; the earlier visible geometric-view formula supplies the retained base-point a and endpoint x symbols.",
+      "answer_at_t_val": "The extra correction is a triangle (triangular wedge). Its base is x-a. Its height is the change of the white graph from a to x, approximated by that graph's slope at a times x-a; because the white graph is f_area', this is f_area''(a)(x-a). Thus its area is one half of base times height, giving (1/2)f_area''(a)(x-a)^2.",
+      "confidence": "high"
+    }
+  ],
+  "checks": [
+    {
+      "group": "shortcuts",
+      "item": "solvable-without-video",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 886.7,
+          "what": "Before viewing, only the supplied question text was considered for the prior answer."
+        }
+      ],
+      "findings": "General calculus determines a triangular second-order correction and its slope-times-displacement height, but the supplied question text omits the actual displayed symbols it explicitly asks the answer to reuse.",
+      "criterion": "A question is solvable without video only if all quantities and relations needed for the requested answer, including the requested on-screen notation, are available from its text and general knowledge without guessed screen content.",
+      "steps": [
+        {
+          "question": "Can general knowledge determine the correction's geometric type and generic dimensions?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Integrating a first-order linear change produces a triangular wedge with area one half times base times height."
+        },
+        {
+          "question": "Does the question text itself provide the displayed base-point and endpoint symbols it demands?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "It refers to displayed symbols but does not name them in the text supplied before viewing."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "video-recognized",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 886.7,
+          "what": "Before viewing, the supplied video ID and question wording did not evoke a remembered specific video moment or answer."
+        }
+      ],
+      "findings": "The mathematical construction was familiar, but this particular video and moment were not recognized from memory before any transcript, screen index, or frame was opened.",
+      "criterion": "Video recognition fires only when the particular source and moment can be identified or answered from memory, not when the underlying mathematical topic is merely familiar.",
+      "steps": [
+        {
+          "question": "Could I identify this particular video moment and its on-screen answer from memory?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "No specific remembered source, scene, notation, or answer was available before viewing."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

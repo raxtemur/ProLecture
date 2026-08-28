@@ -1,0 +1,80 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q17",
+  "role": "probe_vision",
+  "iteration": 1,
+  "model": "gpt-5",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/3b1b__3d6DsjIBzJ4__q17/probe_vision_r1",
+  "budget": {
+    "frames_viewed": 9,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 1197.0,
+        "t_end": 1208.0
+      }
+    ],
+    "transcript_cues": 0,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The screen index was used only to locate the 1198-1204 s sequence; the answer was read from the real frames.",
+  "looked_at": [
+    {
+      "kind": "frame",
+      "t": 1198.0,
+      "what": "The brace covers the first term; beyond the right dashed line, the yellow first approximant runs above the blue target curve."
+    },
+    {
+      "kind": "frame",
+      "t": 1200.0,
+      "what": "The brace covers two terms; beyond the right dashed line, the green second approximant bends below the blue target curve."
+    },
+    {
+      "kind": "frame",
+      "t": 1202.0,
+      "what": "The brace covers three terms; beyond the right dashed line, the red third approximant rises above the blue target curve."
+    },
+    {
+      "kind": "frame",
+      "t": 1204.0,
+      "what": "The brace covers four terms; beyond the right dashed line, the pink fourth approximant falls below the blue target curve."
+    }
+  ],
+  "steps": [
+    {
+      "question": "Where is the first approximant relative to the blue target beyond the right dashed line?",
+      "answer_bool": null,
+      "answer_number": null,
+      "answer_text": "above",
+      "why": "Visible in frame t001198.jpg."
+    },
+    {
+      "question": "Where is the second approximant relative to the blue target beyond the right dashed line?",
+      "answer_bool": null,
+      "answer_number": null,
+      "answer_text": "below",
+      "why": "Visible in frame t001200.jpg."
+    },
+    {
+      "question": "Where is the third approximant relative to the blue target beyond the right dashed line?",
+      "answer_bool": null,
+      "answer_number": null,
+      "answer_text": "above",
+      "why": "Visible in frame t001202.jpg."
+    },
+    {
+      "question": "Where is the fourth approximant relative to the blue target beyond the right dashed line?",
+      "answer_bool": null,
+      "answer_number": null,
+      "answer_text": "below",
+      "why": "Visible in frame t001204.jpg."
+    }
+  ],
+  "answer": "In order from the first through the fourth approximant: above, below, above, below the blue target curve.",
+  "basis": "Frames t001198.jpg, t001200.jpg, t001202.jpg, and t001204.jpg show the brace reaching one, two, three, and four terms respectively and show the corresponding curves on the far side of the right dashed line.",
+  "confidence": "high",
+  "insufficient": false
+}

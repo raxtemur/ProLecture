@@ -1,0 +1,211 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q16",
+  "role": "semiblind",
+  "iteration": 1,
+  "model": "gpt-5.6",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/3b1b__3d6DsjIBzJ4__q16/semiblind_r1",
+  "budget": {
+    "frames_viewed": 14,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 1104.0,
+        "t_end": 1119.0
+      }
+    ],
+    "transcript_cues": 414,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The transcript and screen index were covered across 0-1119 s. Earlier visual candidates were checked at 16, 82, 118, 852, and 1100 s; only the final e-series sequence includes the specified substitution and running decimal subtotals. The 1112 s frame is mid-transition and was not used as evidence for a subtotal.",
+  "prior_answer": "It cannot be answered on the merits from the question alone: the substituted input, the displayed factorial-denominator terms, and the displayed subtotals are not provided.",
+  "prior_answer_assumptions": [],
+  "recognized_video": false,
+  "recognized_how": "I did not recognize this specific video or moment before viewing.",
+  "scans": [
+    {
+      "idx": 0,
+      "t_from": 0.0,
+      "t_to": 1119.0,
+      "watched": [
+        {
+          "kind": "frame",
+          "t": 16.0,
+          "what": "An introductory approximation for e^{-x^2} near x=0 is only beginning to be written; there is no input substitution or running subtotal."
+        },
+        {
+          "kind": "frame",
+          "t": 82.0,
+          "what": "A pendulum diagram and cosine approximation are displayed, not the requested substituted factorial series."
+        },
+        {
+          "kind": "frame",
+          "t": 118.0,
+          "what": "A sine polynomial approximation is displayed, with no running decimal subtotal."
+        },
+        {
+          "kind": "frame",
+          "t": 852.0,
+          "what": "The e^x factorial-denominator polynomial is displayed, but x has not been replaced by the shown numeric input and no running decimal subtotal appears."
+        },
+        {
+          "kind": "frame",
+          "t": 1100.0,
+          "what": "A geometric series is shown converging to 1/2; it is not the requested factorial-denominator sequence."
+        },
+        {
+          "kind": "frame",
+          "t": 1108.0,
+          "what": "The x-to-1 substitution is in progress with overlapping expressions; no stable running subtotal is readable."
+        },
+        {
+          "kind": "frame",
+          "t": 1109.0,
+          "what": "The brace includes through 1^1/1! and the displayed subtotal is 2.0000000."
+        },
+        {
+          "kind": "frame",
+          "t": 1110.0,
+          "what": "The display still shows the subtotal 2.0000000."
+        },
+        {
+          "kind": "frame",
+          "t": 1111.0,
+          "what": "The brace includes through 1^2/2! and the displayed subtotal is 2.5000000."
+        },
+        {
+          "kind": "frame",
+          "t": 1112.0,
+          "what": "The brace and decimal are visibly changing, so this transition frame does not provide a stable readable subtotal."
+        },
+        {
+          "kind": "frame",
+          "t": 1113.0,
+          "what": "The brace includes through 1^3/3! and the displayed subtotal is 2.6666667."
+        },
+        {
+          "kind": "frame",
+          "t": 1114.0,
+          "what": "The brace newly includes 1^4/4! and the stable displayed subtotal is 2.7083333."
+        },
+        {
+          "kind": "frame",
+          "t": 1115.0,
+          "what": "The same through-1^4/4! subtotal 2.7083333 remains visible, confirming the 1114 s reading."
+        },
+        {
+          "kind": "frame",
+          "t": 1116.0,
+          "what": "The brace advances through 1^5/5! and the subtotal becomes 2.7166667."
+        }
+      ],
+      "candidates": [
+        {
+          "question": "Does the early material at 16-118 s provide the requested substituted factorial series and running subtotal?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Frames at 16, 82, and 118 s show other approximation examples without the required substitution-and-subtotal sequence."
+        },
+        {
+          "question": "Is the factorial series at 852 s already sufficient to answer?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The e^x factorial polynomial is present, but the numeric input substitution and running decimal subtotal are absent."
+        },
+        {
+          "question": "Is the series visible at 1100 s the requested running factorial-denominator total?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The frame shows a different geometric series converging to 1/2."
+        },
+        {
+          "question": "Can the answer be read at 1108 s when the substitution begins?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The two expressions overlap during animation and no stable decimal subtotal is displayed."
+        },
+        {
+          "question": "Do the updates from 1109 through 1113 s cross the strict 2.7 threshold?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": "2.0000000, 2.5000000, and 2.6666667",
+          "why": "The stable real frames show only these below-threshold subtotals; this is also the declared distractor interval."
+        },
+        {
+          "question": "Is 1114 s the first stable frame where the running subtotal is strictly greater than 2.7?",
+          "answer_bool": true,
+          "answer_number": 1114.0,
+          "answer_text": "The newly included term is 1^4/4!, and the displayed subtotal is 2.7083333.",
+          "why": "At 1113 s the stable subtotal is still 2.6666667; at 1114 s the brace reaches 1^4/4! and 2.7083333 is fully readable, with the same value persisting at 1115 s."
+        }
+      ],
+      "t_val": 1114.0,
+      "t_val_basis": "At 1114 s the brace first stably extends through the displayed term 1^4/4!, and the decimal below it is fully readable as 2.7083333; the preceding stable update at 1113 s is 2.6666667.",
+      "answer_at_t_val": "The newly included term is \\frac{1^4}{4!}, and the exact displayed subtotal is 2.7083333.",
+      "confidence": "high"
+    }
+  ],
+  "checks": [
+    {
+      "group": "shortcuts",
+      "item": "solvable-without-video",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1114.0,
+          "what": "The requested exact term and decimal subtotal are specific visual content revealed by the video."
+        }
+      ],
+      "findings": "Before viewing, the question supplied neither the substituted input nor any displayed terms or subtotals; the exact requested pair therefore could not be derived from its wording.",
+      "criterion": "The item fires only if the requested answer can be obtained on the merits from the question and general knowledge, without inventing missing on-screen quantities.",
+      "steps": [
+        {
+          "question": "Can the exact newly included displayed term and exact displayed subtotal be derived from the question alone?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "Both values depend on omitted visual data: the substituted input and the sequence of displayed subtotal updates."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "video-recognized",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "frame",
+          "t": 1114.0,
+          "what": "This is the frame later inspected for the answer; it was not known or recalled before viewing."
+        }
+      ],
+      "findings": "Before opening the transcript or frames, I did not recognize the video ID, this specific moment, or its requested exact term and subtotal from memory.",
+      "criterion": "Recognition requires prior memory of this particular video and moment sufficient to name the answer without inspecting the supplied material.",
+      "steps": [
+        {
+          "question": "Could I name this video's exact requested answer from memory before viewing?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The identifier and question did not evoke a remembered scene or exact displayed values."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}

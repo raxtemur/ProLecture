@@ -1,0 +1,207 @@
+{
+  "schema_version": "1.2",
+  "checklist_version": "2026-08-24",
+  "sample_id": "3b1b__3d6DsjIBzJ4__q06",
+  "role": "semiblind",
+  "iteration": 2,
+  "model": "gpt-5.6-sol",
+  "date": "2026-08-27",
+  "workspace": ".review_ws/3d6DsjIBzJ4/q06/semiblind",
+  "budget": {
+    "frames_viewed": 16,
+    "sparse_step": null,
+    "dense_intervals": [
+      {
+        "t_start": 443.0,
+        "t_end": 454.0
+      }
+    ],
+    "transcript_cues": 349,
+    "screen_index_used": true
+  },
+  "violations": [],
+  "notes": "The full 0-466 s transcript and screen index were covered. Real frames, not the index, establish the boundary. One-second frame naming limits precision: the last clean no is 450.0 and the first clean yes is 451.0.",
+  "prior_answer": "It cannot be answered on the merits from the question alone: the derivative order, its target value, and the new term's exponent are screen-dependent and are not supplied.",
+  "prior_answer_assumptions": [],
+  "recognized_video": false,
+  "recognized_how": "",
+  "scans": [
+    {
+      "idx": 0,
+      "t_from": 0.0,
+      "t_to": 466.0,
+      "watched": [
+        {
+          "kind": "frame",
+          "t": 26.0,
+          "what": "An early exponential approximation is shown; there is no matching derivative-row construction."
+        },
+        {
+          "kind": "frame",
+          "t": 118.0,
+          "what": "A sine approximation with odd powers is shown, not the requested newly added even-power construction."
+        },
+        {
+          "kind": "frame",
+          "t": 386.0,
+          "what": "The transition announces more terms but supplies no requested exponent-and-derivative pair."
+        },
+        {
+          "kind": "frame",
+          "t": 400.0,
+          "what": "The polynomial has the odd term c_3 x^3 and the third-derivative expression is only beginning."
+        },
+        {
+          "kind": "frame",
+          "t": 422.0,
+          "what": "The completed cubic case shows the third derivative and an odd-power term, so it is not the requested new even-power case."
+        },
+        {
+          "kind": "frame",
+          "t": 443.0,
+          "what": "The screen still shows only P(x)=1-(1/2)x^2 and derivative rows through order three."
+        },
+        {
+          "kind": "frame",
+          "t": 444.0,
+          "what": "The c_4 x^4 term is still being drawn and there is no fourth-derivative row."
+        },
+        {
+          "kind": "frame",
+          "t": 445.0,
+          "what": "The term c_4 x^4 is complete, but the colored derivative list still ends at order three."
+        },
+        {
+          "kind": "frame",
+          "t": 446.0,
+          "what": "The complete c_4 x^4 term remains visible while the derivative list still ends at order three."
+        },
+        {
+          "kind": "frame",
+          "t": 447.0,
+          "what": "The complete c_4 x^4 term remains visible while the derivative list still ends at order three."
+        },
+        {
+          "kind": "frame",
+          "t": 448.0,
+          "what": "The complete c_4 x^4 term remains visible while the derivative list still ends at order three."
+        },
+        {
+          "kind": "frame",
+          "t": 449.0,
+          "what": "A clean distractor frame: c_4 x^4 is fully visible, but no fourth-derivative row is present."
+        },
+        {
+          "kind": "frame",
+          "t": 450.0,
+          "what": "The fourth row is mid-animation with overlapping partial glyphs and cannot be read completely."
+        },
+        {
+          "kind": "frame",
+          "t": 451.0,
+          "what": "Both c_4 x^4 and the complete colored row d^4(cos)/dx^4(0)=cos(0)=1 are clearly readable."
+        },
+        {
+          "kind": "frame",
+          "t": 452.0,
+          "what": "A transition partially occludes the otherwise complete fourth-derivative row."
+        },
+        {
+          "kind": "frame",
+          "t": 453.0,
+          "what": "The complete c_4 x^4 term and complete fourth-derivative target row are again clearly readable."
+        }
+      ],
+      "candidates": [
+        {
+          "question": "Does the earlier completed cubic construction answer the requested even-power case?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "At 422.0 the added term is c_3 x^3 and the matching row is order three, whereas the question requires a newly added even-power term."
+        },
+        {
+          "question": "Are both requested visual components complete in the clean distractor frame at 449.0?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The polynomial clearly contains c_4 x^4, but the colored derivative list ends at the third derivative."
+        },
+        {
+          "question": "Is the newly appearing fourth-derivative row fully readable at 450.0?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The row is mid-transition and its glyphs overlap; inferring the target would require completing unseen content."
+        },
+        {
+          "question": "Are the derivative order, target, and term exponent jointly readable at 451.0?",
+          "answer_bool": true,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The frame cleanly shows exponent 4 in c_4 x^4 and the complete matching order-four row ending in target value 1."
+        }
+      ],
+      "t_val": 451.0,
+      "t_val_basis": "At the first clean one-second frame after the transition, c_4 x^4 is complete and the matching colored row d^4(cos)/dx^4(0)=cos(0)=1 is also complete. The preceding 450.0 frame is visibly mid-animation.",
+      "answer_at_t_val": "The derivative order is 4, the target value is 1, and the term exponent is 4. Four differentiations give 4!c_4=1, hence c_4=1/4!=1/24, before substitution into P(x).",
+      "confidence": "high"
+    }
+  ],
+  "checks": [
+    {
+      "group": "shortcuts",
+      "item": "solvable-without-video",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 0.0,
+          "what": "Before opening the supplied material, the question text omitted all three numerical quantities it explicitly asks the viewer to read from the screen."
+        }
+      ],
+      "findings": "The question names a computation procedure but does not state the derivative order, target value, or new term exponent.",
+      "criterion": "The shortcut fires only if the requested coefficient and matching equation can be determined from the question and general knowledge without inventing screen content.",
+      "steps": [
+        {
+          "question": "Can the requested numerical coefficient be derived without supplying unseen screen values?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "The coefficient depends on the omitted derivative target and exponent, so no numerical answer stands without assumptions."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    },
+    {
+      "group": "shortcuts",
+      "item": "video-recognized",
+      "target": null,
+      "looked_at": [
+        {
+          "kind": "cue",
+          "t": 0.0,
+          "what": "Before viewing, neither the video ID nor the wording evoked a remembered specific frame or answer."
+        }
+      ],
+      "findings": "The particular video and moment were not recognized before the transcript or frames were opened.",
+      "criterion": "This item fires only when the reviewer can identify the particular video moment and answer it from memory before viewing supplied material.",
+      "steps": [
+        {
+          "question": "Could I name the screen-specific derivative row and coefficient from memory before viewing?",
+          "answer_bool": false,
+          "answer_number": null,
+          "answer_text": null,
+          "why": "No specific remembered scene or coefficient was available from the identifier and question wording alone."
+        }
+      ],
+      "result": "ok",
+      "confidence": "high",
+      "proposal": null,
+      "uncovered": null
+    }
+  ]
+}
