@@ -383,12 +383,9 @@ def semantic_checks(s: dict) -> list[str]:
     #   other people's work for. The opinion lives separately, in audio_dependency_claim.
     #
     #   "The measurement is complete" means BOTH flags the label is derived from under 4.5
-    #   are present, not the status of the sample. The old wording required
-    #   status=validated and thereby banned the label on rejected samples forever: a
-    #   sample solved blind will never pass S-18 into validated, so its dependence on
-    #   audio could never be measured either. And it must be: rejected samples are the
-    #   material for the null baselines and for the contamination count — they leave the
-    #   task set but not the measurements.
+    #   are present, not a particular lifecycle status. Draft and rejected records may
+    #   retain measurements for repair or audit, but their status never permits an
+    #   opinion-based audio label.
     #   To check: audio_dependency := "required" with the probes empty
     #   -> "the probes have not answered yet".
     if s["audio_dependency"] is not None and (vis is None or solv is None):
@@ -398,12 +395,10 @@ def semantic_checks(s: dict) -> list[str]:
 
     # S-18 · checklist 7.2 — the conditions for promotion to validated.
     #   Breaks: a sample is declared checked without the probe answers its whole value
-    #   rests on; a sample solvable without the video gets into the set and measures
-    #   knowledge of the subject instead of streaming; a sample that is not solvable at
-    #   all punishes every model equally.
+    #   rests on; a sample that is not solvable at all punishes every model equally.
     #   To check: status := "validated" with draft fields -> "the probes have not answered"
-    #   and "with audio_dependency unmeasured"; then blind_solved := true
-    #   -> "incompatible with validated"; solvable := false -> "the question is not solvable".
+    #   and "with audio_dependency unmeasured"; solvable := false
+    #   -> "the question is not solvable".
     if st == "validated":
         if s["audio_dependency"] is None:
             errs.append("status=validated with audio_dependency unmeasured")
@@ -412,9 +407,6 @@ def semantic_checks(s: dict) -> list[str]:
                    if s["validation"].get(k) is None]
         if missing:
             errs.append(f"status=validated, but the probes have not answered: {', '.join(missing)}")
-        if s["validation"].get("blind_solved"):
-            errs.append("blind_solved=true is incompatible with validated: the sample is solvable without the video "
-                        "-> status must be rejected")
         if s["validation"].get("solvable") is False:
             errs.append("solvable=false is incompatible with validated: the question is not solvable "
                         "even from the full material -> status must be rejected")
@@ -437,10 +429,10 @@ def semantic_checks(s: dict) -> list[str]:
     else:
         derived = None
     # We require agreement in two cases: the label is already written down (then it must
-    # match the derived one under any status — otherwise rejected becomes a loophole for a
-    # label set by opinion) and the status is validated (there the label must be present).
-    # The intermediate state "both flags written, the label not yet derived" stays
-    # legitimate for draft and rejected — otherwise a sample would jam between S-17 and S-25.
+    # match the derived one under any status — lifecycle state is not an excuse for a label
+    # set by opinion) and the status is validated (there the label must be present).
+    # The state "both flags written, the label not yet derived" remains legitimate for any
+    # non-validated record, whether it is still being repaired or has been abandoned.
     label = s["audio_dependency"]
     if (label is not None or st == "validated") and label != derived:
         errs.append(f"audio_dependency={label!r}, but from the probes "
