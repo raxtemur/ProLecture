@@ -25,60 +25,33 @@ compromising the sample (`validation.blind_solved = true`) only if it satisfies 
 conditions:
 
 - **correct** — it agrees with the rubric;
-- **honest** — it does not stand on assumptions about material that was not seen.
+- **honest** — it follows from the available context and prior knowledge, without
+  assumptions about unseen screen content.
 
-If the reviewer assumed **what would turn out to be on screen** — which numbers there
-would be, which example the author would take, how many bars there would be — and turned
-out to be right, that is **not** blind solving. Not even on an exact hit. Look at the
-`prior_answer_assumptions` field: a non-empty list almost always means the agreement was
-bought with guessing.
+Recalling a known historical or textbook fact counts as blind solving. Predicting which
+values, example, layout or other content will appear on screen does not, even when the
+prediction is exactly right. A non-empty `prior_answer_assumptions` is strong evidence of
+such guessing: if different screen content would make the answer wrong, the task was not
+solved blind.
 
-**Why.** The statement of the problem was guessed, the answer was not found. The
-participating model in a measurement gets no hint that "this is that familiar textbook
-example": it sees the screen and is obliged to read the actual numbers off it. The
-reviewer, meanwhile, guesses the distribution from the genre — and guesses well, because
-the authors of educational videos take common examples. If such hits are counted, exactly
-those tasks that require computing from what is visible will be washed out of the set —
-that is, the most valuable ones.
-
-The test "what if something else had been on screen": if with a different set of numbers
-(1/32 instead of 1/16, a fifth bar, other probabilities) the guessed answer would have
-been wrong, then the reviewer did not solve the task but placed a bet.
+**Why.** Blind solving measures whether the answer is available without the video, not
+whether a reviewer can luckily reconstruct unseen screen content from a familiar genre.
 
 **A hedged answer** ("2.5, and if otherwise then 2.0") counts only when the wrong branch
 would have cost the participant a point. Otherwise it is enough to list the plausible
 options to declare anything at all solved blind.
 
-**The pilot example the rule was written for.** The semi-blind reviewer on `q01` (a
-counterfactual on the table of codes) wrote: "I cannot name an exact number, I was given
-neither the code words nor the probabilities" — and offered a conditional guess of 2.5
-with 2.0 as an alternative, guessing the canonical example 1/2, 1/4, 1/8, 1/8. They gave
-themselves a `fail`. The coordinator's correct decision is **not to count it**: the sample
-stayed in the set. The same reviewer on `q07` guessed the series `p = 1/2, 1/4, 1/8, 1/16`
-and the heights 1, 2, 3, 4 — and that too is a bet, not a solution: with 1/32 or a fifth
-bar the answer would have been wrong.
-
-**What does count.** `q02`, `q02b`, `q03`, `q08` — there the blind answer rested on a
-commonly known fact (Shannon's estimate of ≈1 bit per character with ~100 characters of
-context; the i.i.d. condition for entropy; the experiment of guessing the next letter)
-rather than on a guess about the content of a frame. In these samples the video is needed
-only in order to work out **when** to speak. This sets `validation.blind_solved = true`,
-but it is not by itself a reason to stop reviewing the sample: blind-solved samples are
-repair targets, not work to discard before the full reviewers have seen them.
-
 **A blind-solved sample is carried to the end of the cycle.** Keep the contamination flag
-on the version that was actually measured, run `full_sample` and every `full_window` on
-it, and use their findings to try to move the discriminating part of the answer onto the
-video: a screen-specific value, relation, transition or counterfactual whose answer would
-change if the author had used different material. A wording wrapper that changes only
-*when* to repeat the same textbook fact is not a repair.
+on the version that was measured, run `full_sample` and every `full_window`, and try to
+repair it by making the answer depend on a screen-specific value, relation, transition or
+counterfactual. Changing only *when* to repeat the same known fact is not a repair.
 
 After a substantive rewrite, set the sample back to `draft` and follow the question-version
 rule in section 3: rerun the complete review cycle on the rewritten wording. Only the new
-reviews can clear `blind_solved` for the rewritten version. Set `status: rejected` only after
-the full reviews and a genuine repair attempt show that no faithful video-dependent task can be recovered from the
-moment. The coordinator record must say what was tried and why it failed; `blind_solved`
-alone is not an adequate rejection note.
+reviews can clear `blind_solved`. If the completed cycle finds the sample otherwise correct,
+it may finish as `status: validated` with `blind_solved: true`; keep it out of the primary
+benchmark and retain it as a blind baseline. Use `rejected` only for an independent defect or
+when repair/review is deliberately abandoned, and record that reason.
 
 **A consequence for the wording.** A question whose condition is named in full in the
 question itself and which requires the model to retrieve a known fact from memory is
@@ -100,52 +73,74 @@ is clean. They may have failed to recall a fact another model will recall.
 
 ---
 
-## 3. The order of the roles: five cheap ones first, then full review for every sample
+## 3. The order of the roles: five cheap ones first, then full review for every candidate
 
-`full_sample` and `full_window` are launched **last**, once the semi-blind reviewer and
-the probes have been consolidated and cheap fixes have been applied. They are not launched
-simultaneously with everyone else, as in round 1, but they are launched for **every**
-sample — including one currently marked `blind_solved` or `rejected`.
+Use a **work-conserving, cheap-first scheduler** across questions. Whenever a slot is free,
+give priority to a runnable `semiblind`, `probe_text`, `probe_vision` or `probe_frame` job.
+These four roles are independent and should run in parallel. There is no global stage
+barrier: one question may advance as soon as its own prerequisites are satisfied while
+cheap work for other questions continues to fill the remaining slots.
 
-**Why.** The full reviewers are the most expensive in frames and context, so running them
-before cheap defects are fixed wastes their judgement on stale wording and boundaries.
-But skipping them altogether is worse: a blind-solved or otherwise defective draft may
-still contain a strong video-dependent task, and the full reviewers are precisely the
-roles that inspect the rubric, distractors, trigger completeness, provenance and window
-semantics needed to recover it. Their work is evidence for repair, not a reward reserved
-for samples that already look clean.
+Normally, do not repair a question from the first cheap result while its other cheap
+reviewers are still running. Collect all four results for the same question version,
+consolidate their findings together, resolve disagreements once, and apply one coherent
+set of cheap fixes. This avoids serial boundary changes and repeated semiblind cycles.
 
-The order: semi-blind + `probe_text` + `probe_vision` + `probe_frame` (those four in
-parallel and independently) → the coordinator's decisions → `probe_full` where it is
-needed → cheap fixes and schema validation → `full_sample` plus one `full_window` per
-trigger on **all** samples → repair or acceptance → either the complete fresh cycle required
-for changed question wording or a targeted re-review for metadata-only changes.
+Before launching `full_sample` or any `full_window`, the question must pass this barrier:
 
-**`probe_full` is not always launched**, and that is not an economy but a logic: a
-positive answer from any single-modality probe already proves solvability. It is needed
-exactly where `text` and `vision` **both** answered incorrectly.
+- all four initial cheap reviews refer to the exact current `question` version;
+- the coordinator has consolidated all four results;
+- `blind_solved`, `textonly_solved`, `visiononly_solved`, `frozenframe_solved`,
+  `solvable` and `audio_dependency` have been derived;
+- conditional `probe_full`, if required, has finished;
+- cheap fixes have been applied, and every cheap role affected by a metadata-only fix has
+  been rerun;
+- the current JSONL passes `tools/validate_samples.py`.
 
-**A changed participant-visible question creates a new review version.** Once any reviewer
-has seen a sample, every edit to its `question` field invalidates the acceptance evidence
-for the old wording — even if the edit looks editorial. Set `validation.status` back to
-`draft`; keep the old JSON reviews as audit history, but do not use their verdicts or
-modality flags to validate the new version.
+Only then is that question eligible for the expensive queue. Runnable cheap jobs retain
+priority over full reviews. Once scheduled, run `full_sample` and one `full_window` per
+trigger independently; both are required for every non-terminal candidate, including one
+marked `blind_solved`. Do not schedule a sample already terminally `rejected` merely to fill
+missing measurements: rejection means an independent defect remains or the work was
+deliberately abandoned.
 
-Run the complete cycle again on the new wording: fresh and independent `semiblind`,
-`probe_text`, `probe_vision`, and `probe_frame`; conditional `probe_full` under the rule
-above; then fresh `full_sample` and every `full_window`. Use new iteration numbers and
-separate reviewer workspaces. Only results produced against the exact current question may
-support `validated` or clear a previous `blind_solved` finding.
+**Why.** Full reviewers are the most expensive in frames and context. The barrier keeps
+them from judging wording or boundaries that a cheap result is about to invalidate. They
+still run for every candidate because they inspect rubric alignment, distractors, trigger
+completeness, provenance and window semantics needed either for acceptance or repair.
 
-Targeted re-review is permitted only while the participant-visible `question` is unchanged.
-For interval, provenance, rubric, or other metadata-only edits, rerun every role whose
-owned checks or expected answer could be affected; unaffected review evidence may remain.
+**`probe_full` is conditional.** Launch it exactly when `probe_text` and `probe_vision`
+both answered incorrectly; a positive answer from either already proves solvability.
+
+**A changed participant-visible question creates a new review version.** Set
+`validation.status` back to `draft`; retain old reviews as audit history, but do not use
+their verdicts or modality flags for the new wording. Return the question to the start of
+the cheap queue and pass the barrier again before launching fresh `full_sample` and every
+`full_window` with new iteration numbers and separate workspaces.
+
+If the participant-visible `question` is unchanged, an interval, provenance, rubric or
+other metadata-only repair needs only the roles whose owned checks or expected answer may
+have changed. Consolidate all relevant findings before applying the repair, then rerun
+those affected roles; unaffected evidence may remain.
+
+**A follow-up is part of the same reviewer run.** It may ask an existing subagent to
+clarify or complete its current finding before a proposed edit is accepted, but it retains
+the agent's prior context and is not independent evidence. After any applied sample edit,
+for a new iteration or role/modality, or whenever independent confirmation is required,
+spawn a fresh subagent with a separate workspace and iteration.
 
 **Coordinator records use the review-version number, not a separate consolidation count.**
 Write the decision as `coordinator.<ROUND>.md`, where `<ROUND>` is the newest review
 iteration consolidated by that decision. The record may cite earlier reviews as history,
 but its filename and heading must match the current review version. Never call the second
 coordinator pass `coordinator.2.md` when it consolidates reviewer iteration 3 or 5.
+
+**Keep one append-only operational log per video.** Immediately after every successful
+subagent launch and terminal result, call `tools/coordinator_log.py <VIDEO_ID> spawn` or
+`finish`; after an applied sample change, call `sample-edit`. Only the coordinator writes
+`data/reviews/<VIDEO_ID>/coordinator.log`, never truncates it, and runs `check` before final
+acceptance. The log records scheduling and edits; it does not replace per-question
+`coordinator.<ROUND>.md` decisions.
 
 ---
 

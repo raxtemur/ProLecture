@@ -331,6 +331,7 @@
       "additionalProperties": false,
       "properties": {
         "status": {
+          "description": "Review lifecycle and correctness: validated means complete and correct; rejected means incorrect or deliberately abandoned. Primary benchmark eligibility is determined separately by blind_solved.",
           "enum": [
             "draft",
             "validated",
@@ -344,6 +345,7 @@
           ]
         },
         "blind_solved": {
+          "description": "Whether the answer was obtained without viewing the video. A true value excludes the sample from the primary benchmark but does not by itself prevent status=validated.",
           "type": [
             "boolean",
             "null"

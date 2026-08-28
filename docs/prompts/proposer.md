@@ -96,13 +96,13 @@ answerable inside it**. Everything else is a consequence.
 - **Questions whose answer the author speaks right after the window.** The task then
   degenerates into "repeat after the author"; see checklist item 2.5.
 
-### Historical and textbook material — the main source of rejection
+### Historical and textbook material — the main source of blind contamination
 
-This is not one of the items in the list above but **the commonest reason a sample gets
-thrown out**: four questions out of ten were lost this way on the pilot. It deserves a
-section of its own, because such questions look deceptively good — a hard topic, a long
-statement, a substantial answer — and what breaks them is not their form but where the
-answer comes from.
+This is not one of the items in the list above but **the commonest reason a candidate
+misses the primary benchmark**: four questions out of ten were contaminated this way on the
+pilot. It deserves a section of its own, because such questions look deceptively good — a
+hard topic, a long statement, a substantial answer — and what compromises them is not their
+form but where the answer comes from.
 
 There is one sign: **the content of the answer exists independently of the video.** Who
 discovered what, in which year, by which experiment, under which condition a formula holds,
@@ -133,7 +133,8 @@ until the author says…", "report before he tells it himself") fixes that: a wr
 
 Both quantities the rubric requires are named verbatim, without a single hedge and without a
 single frame. The question looks like an observation of the video and measures acquaintance
-with a paper from 1951. `blind_solved = true`, `status: rejected`.
+with a paper from 1951. Set `blind_solved = true`; if its full review is otherwise complete
+and correct, it may be `status: validated`, but it is excluded from the primary benchmark.
 
 #### Example 2 — "explain why" does not save it
 

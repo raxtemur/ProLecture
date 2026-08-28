@@ -51,12 +51,22 @@ The question "what is a Taylor series" is solved blind.
 
 Measures:
 - **A blind baseline is mandatory for every sample.** The model gets only the question, without
-  the video. If it solves it, the sample is thrown out or marked `contaminated: true`.
+  the video. If it solves it, set `blind_solved: true`: the sample is excluded from the
+  primary benchmark, but may remain `validated` when its review is otherwise complete and
+  correct.
 - **The pilot is built on 2026 videos** (`_2026/*`), released after the cutoff of most models, and
   **in parallel we take a control video from 2017**, so as to *measure* the size of the gap rather
   than deny the problem.
 - Question wordings are anchored to *this* exposition ("what method does the author use", not "what
   method is this solved by").
+
+The maintained selection rule is:
+
+```python
+primary_tasks = status == "validated" and not blind_solved
+blind_baselines = status == "validated" and blind_solved
+invalid_samples = status == "rejected"
+```
 
 ### 1.2. A benchmark is obliged to tell modalities apart
 
@@ -284,7 +294,7 @@ and why they are needed.
 | `evidence_span` | where the information for the answer lies; axis B is derived from it (with `post` it diverges from the answer window) |
 | `question_time_note` | why the question was issued at exactly this moment |
 | `provenance.evidence` | a mandatory reference to the transcript/frame — protection against an invented GT. This is **confirmation**, not evidence: unlike `evidence_span` it may lie later than the window (`predict`) or outside the video (`counterfact`) |
-| `validation.*` | the answers of the modality probes (checklist, group 4); `status` is `draft` → `validated` or `rejected` |
+| `validation.*` | the answers of the modality probes (checklist, group 4); `status` records draft/validated/rejected lifecycle, while `blind_solved` separately controls primary eligibility |
 
 ### 3.1. Multi-trigger samples (decided: allowed)
 
@@ -482,7 +492,8 @@ The candidates (all with a working source in `vendor/videos`):
 - [ ] `tools/run_shortcut_baselines.py`: blind / text-only / vision-only / frozen-frame /
       always-now / always-end / silent / **spam-every-N-seconds** (the last is mandatory: §3.1
       point 3 names spam as the main threat of multi-trigger samples)
-- [ ] filling in `validation.*`, automatic lowering of `status`
+- [ ] filling in `validation.*`; `rejected` is reserved for incorrect or deliberately
+      abandoned samples, while `blind_solved` controls primary-set eligibility
 - [ ] **measuring contamination**: compare the share of blind-solved on the 2026 video vs the 2017
       one. This is a result in its own right, worth publishing independently of the benchmark.
 - [ ] computing `audio_dependency` from the measurements

@@ -837,18 +837,20 @@ merged into 4.2; the former 4.7 (recognising the video) became 4.3; the former 4
   this is **not** blind solving: the statement of the problem was guessed, there are two
   branches, and all that was taken blind was the arithmetic. The sample stayed.
 
-  *What to do on a hit.* `status: rejected` — the sample does not go into the measurement: if
-  the answer is known in advance there is nothing to wait for, and what is tested is the
-  reaction to a command rather than understanding of the video. It is cured not by storage but
-  by rewording under 4.8, that is, by a new sample.
+  *What to do on a hit.* Set `blind_solved: true`, finish the review cycle and try to anchor
+  the answer to video-specific evidence under 4.8. Blind solving excludes the sample from the
+  primary benchmark, but is not itself a correctness defect: an otherwise correct and complete
+  sample finishes as `status: validated` and remains available as a blind baseline. Use
+  `status: rejected` only for an independent defect or deliberately abandoned work.
 
-  **But it is not deleted from the file, and the probe answers are kept along with it.** The
-  reason is not sentimental: the plan (Phase 3) requires comparing the share of blind-solvable
-  samples on the 2026 video against the 2017 control — that is a measurable result of its own
-  about contamination. If such samples were discarded silently during annotation, there would
-  be nothing to measure: the share would become identically zero on both videos, and the
-  composition of the dataset would turn into a function of the annotator model's memory that
-  nobody would ever learn about. Discarded samples are measurement data, not rubbish.
+  **Do not delete a validated blind baseline.** The plan (Phase 3) compares the share of
+  blind-solvable samples on the 2026 video against the 2017 control. The selection rules are:
+
+  ```python
+  primary_tasks = status == "validated" and not blind_solved
+  blind_baselines = status == "validated" and blind_solved
+  invalid_samples = status == "rejected"
+  ```
 
   *Status.* Not implemented.
 
@@ -1026,8 +1028,8 @@ merged into 4.2; the former 4.7 (recognising the video) became 4.3; the former 4
   semi-blind reviewer.
 
   *Status.* Step 0 of the sample reviewer, no frames needed. Verdict `FIX_QUESTION`. It is
-  cheapest to do this while the question is being written — after 4.2 fires the sample has to
-  be thrown out whole rather than reworded.
+  cheapest to do this while the question is being written — after 4.2 fires, rewording creates
+  a new question version and forces the complete review cycle to run again.
 
   *Frequency.* Caught.
 
@@ -1268,20 +1270,17 @@ in 1.2.
   exactly when both flags it is derived from are filled in — `visiononly_solved` and
   `solvable` — and is obliged to agree with what the rule from 4.5 derives. Symmetrically:
   the `validated` status requires all five `validation.*` flags to be filled in.
-  `blind_solved = true` and `solvable = false` are incompatible with `validated`: the first
-  sample is solved without the video, the second is not solved at all.
+  `solvable = false` is incompatible with `validated`; `blind_solved = true` is compatible
+  because it controls primary-set eligibility rather than correctness.
 
-  **The condition is completeness of the measurement, not the status, and that is a
-  correction.** The former wording required `status: validated` and thereby banned the label
-  for `rejected` forever: a sample solved blind will never reach `validated`, so its dependence
-  on sound could not be measured either. And it must be measured — see the box below.
+  **The condition is completeness of the measurement, not the status.** Draft and rejected
+  records may retain measurements for repair or audit, but no lifecycle status permits an
+  opinion-based `audio_dependency` value.
 
-  > **Rejected samples go through the probes on an equal footing with the rest.** `rejected`
-  > means "does not go into the task set", not "is not measured". They are needed as material
-  > for the dummy baselines (group 4) and for the contamination count, which the plan requires
-  > to be compared between the 2026 video and the 2017 control. A sample without measurements
-  > does not take part in that count, that is, rejecting it without probes zeroes out exactly
-  > the result the sample was kept in the file for.
+  > **Blind-solved candidates go through probes and full review on an equal footing.** A
+  > completed, correct candidate becomes a validated blind baseline. A terminal rejected
+  > sample is already known to be incorrect or deliberately abandoned and need not be sent
+  > through missing roles merely to complete its modality flags.
 
   *Checking algorithm.* Checking `audio_dependency` for compatibility with the probe flags
   (S-17, S-25) and `validation.status` against the filled-in fields (S-18).
@@ -1652,8 +1651,9 @@ reason: without it the same forks get discussed anew in a month.
 - **The granularity of the shortcut flags** — there are no runs any more; the flags are filled in
   by probes over the sample as a whole, with the aggregation rule "one required window is enough"
   (4.1).
-- **What to do with a sample solvable blind** — throw it out (4.2). There will be no tests of
-  "timing alone" in the set.
+- **What to do with a sample solvable blind** — finish its review, mark `blind_solved`, and
+  exclude it from primary tasks; if otherwise correct it remains a validated blind baseline
+  (4.2). There will be no tests of "timing alone" in the primary set.
 - **The scale of the rubric** — not needed at the annotation stage: the probe answers, the
   coordinator compares qualitatively, disputed cases are asked again pointwise and, if the
   disagreement persists, go to a human or are thrown out (4.1). Weights and thresholds are a

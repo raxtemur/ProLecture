@@ -130,7 +130,7 @@ file it is a single line):
   },
   "validation": {
     "status": "rejected",
-    "notes": "a key sample for timing: the correct number is visible on screen 1785 s before the answer; level L1: both facts are spoken in a single line 1822-1829, and the difficulty of the sample lies entirely in the timing rather than in the reasoning | blind: before viewing, the semi-blind reviewer named both quantities of the rubric (≈1 bit per character, ≥100 letters of context) with no assumptions about the screen — a commonly known fact about Shannon's experiment",
+    "notes": "a key sample for timing: the correct number is visible on screen 1785 s before the answer; level L1: both facts are spoken in a single line 1822-1829, and the difficulty of the sample lies entirely in the timing rather than in the reasoning | blind: before viewing, the semi-blind reviewer named both quantities of the rubric (≈1 bit per character, ≥100 letters of context) with no assumptions about the screen — a commonly known fact about Shannon's experiment | rejection: review cycle is incomplete; only the semi-blind review finished",
     "blind_solved": true
   },
   "question_time_note": "the question about the compression limit of text is raised by the video itself at 4.6-11.5, but the instruction has to be issued BEFORE the first distractor at 12 s, otherwise the trap with the on-screen “1.0 bits/ch  Limit?” at 40 s stops being a trap."
@@ -283,9 +283,9 @@ correct and false at once.
 
 | Field | Type | Req. | Meaning |
 |---|---|:---:|---|
-| `status` | enum | ✔ | `draft` → `validated` → (or) `rejected` |
+| `status` | enum | ✔ | review lifecycle: `draft` is active; `validated` is complete and correct; `rejected` is incorrect or deliberately abandoned. Primary eligibility is separate |
 | `solvable` | bool \| null | — | is it solvable at all, from the transcript and the frames together |
-| `blind_solved` | bool \| null | — | is it solvable from the question alone, with no video |
+| `blind_solved` | bool \| null | — | is it solvable from the question alone, with no video; `true` excludes it from the primary benchmark without forcing rejection |
 | `textonly_solved` | bool \| null | — | is it solvable from the question + the transcript |
 | `visiononly_solved` | bool \| null | — | is it solvable without the audio |
 | `frozenframe_solved` | bool \| null | — | is it solvable from a single frame at `t_ideal`, with no history |
@@ -419,8 +419,14 @@ for s in rows:
         if t["required"]:
             print(f"{s['id']}  [{t['t_start']:7.1f}, {t['t_end']:7.1f})  {t['response'][:60]}…")
 
-# only the validated ones, with audio dependency measured
-ready = [s for s in rows if s["validation"]["status"] == "validated"]
+# correctness/review status and benchmark eligibility are independent
+primary_tasks = [s for s in rows
+                 if s["validation"]["status"] == "validated"
+                 and not s["validation"]["blind_solved"]]
+blind_baselines = [s for s in rows
+                   if s["validation"]["status"] == "validated"
+                   and s["validation"]["blind_solved"]]
+invalid_samples = [s for s in rows if s["validation"]["status"] == "rejected"]
 ```
 
 ## 8. What has been annotated so far
@@ -442,10 +448,12 @@ release date falls after the cutoff of most models.
 | q07b | at_control_twin | counterfact / **at** / L3 | 963 | 0 s | 1 |
 | q08 | prediction_ahead | predict / pre / L1 | 1110 | 149 s | 1 +1 distr. |
 
-Four of the ten (q02, q02b, q03, q08) carry `status: rejected` after review round 1: their
-answers were given blind. They are kept in the file on purpose — the share of
-blind-solvable questions is a measurable result, and discarding them silently would zero it
-out.
+Four of the ten (q02, q02b, q03, q08) still carry `status: rejected` after the old
+review round. They remain rejected because their cycles were incomplete or left full-review
+defects unresolved, not because their answers were given blind. The separate
+`blind_solved: true` flag records the contamination result. The records are retained for
+audit; a completed and otherwise correct blind-solved sample would instead be a validated
+blind baseline.
 
 **The windows are anchored to information appearing on screen, not to the speech.** This is
 a pitfall of its own: the author often shows a table or the values tens of seconds before
@@ -480,8 +488,10 @@ probes have to confirm or refute:
   All seven have to be checked; the claims in `validation.notes` about resistance to blind
   solving are hypotheses, not measurements.
 - **q02, q02b and q08**: Shannon's estimate of ≈1 bit per character and the letter-guessing
-  experiment are in the textbooks. If the substantive part of the answer is given blind, all
-  three are thrown out: there will be no "timing only" tests in the set (checklist 4.2).
+  experiment are in the textbooks. Their `blind_solved` flags exclude them from primary
+  "timing only" tests. The current records remain rejected for incomplete or unresolved review;
+  a future otherwise correct and complete equivalent belongs in the validated blind-baseline
+  slice (checklist 4.2).
 - **q03 must not be solvable frozen-frame**: from a single frame with the formula one cannot
   name which two examples were gone through earlier in the same video.
 - **q07/q07b must not be solvable frozen-frame from a frame without the graph**, and must

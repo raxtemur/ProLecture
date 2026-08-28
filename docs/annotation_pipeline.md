@@ -384,11 +384,11 @@ What the coordinator does with all this:
   "probably the screen shows the canonical textbook example, in which case you get such-and-such"
   does not count: the statement of the problem was guessed, the answer was not found. A hedged
   answer with two branches counts only if the wrong branch would have cost the participant a
-  point. With `blind_solved = true` the sample is thrown out of the task set,
-  `status: rejected`. **But the probes are still run on it**: `rejected` means "does not go into
-  the measurement as a task", not "is not measured". Rejected samples are material for the dummy
-  baselines and for the contamination count, which the plan requires to be compared between the
-  2026 video and the 2017 control;
+  point. With `blind_solved = true` the candidate is excluded from the primary task set, but it
+  continues through the review DAG. If it is otherwise correct and complete, use
+  `status: validated` and retain it as a blind baseline. Use `status: rejected` only for an
+  independent defect or deliberately abandoned work; a terminal rejected record is not sent
+  through missing reviews merely to populate measurements;
 - the answer of a probe whose `basis` says "general knowledge", or which admits that the model
   recognised the video, **does not count as a solution from the material**. Otherwise a
   `visiononly_solved = true` obtained from memory of the subject would give
@@ -406,14 +406,22 @@ What the coordinator does with all this:
 - `frozenframe_solved = true` with `reasoning_level` `L2`/`L3` means the level is inflated, a
   `FIX_QUESTION` under 7.3. With `L1` this is normal and means nothing.
 
+Dataset consumers apply the two fields independently:
+
+```python
+primary_tasks = status == "validated" and not blind_solved
+blind_baselines = status == "validated" and blind_solved
+invalid_samples = status == "rejected"
+```
+
 The probes are asked again pointwise if their answers diverge between iterations of the cycle. A
 disagreement that persists is a signal that the wording of the question is vague: the sample goes
-to a human or is thrown out.
+to a human or becomes `rejected` if the repair is abandoned.
 
 ## Step 4. Edits and a repeat review
 
 The coordinator applies the proposed changes, re-runs the validator and sends the corrected
-question for a **new** review. The cycle runs until `PASS` on every question.
+question for a **new** review. Each cycle ends in `PASS` or an explicit terminal rejection.
 
 The reviews are saved: `data/reviews/<VIDEO_ID>/<SAMPLE_ID>/<role>.<ROUND>.json`, where the
 per-window ones have the window number appended to the role: `full_window3.1.json`. Without this
@@ -546,6 +554,31 @@ is the only participant who both **edits the samples** and **judges the probe an
 deliberately not separated those roles for now; in that case the only thing distinguishing a
 decision from arbitrariness is the recorded grounds.
 
+### Coordinator operational log
+
+The per-question record explains decisions; a separate append-only log preserves their chronology:
+
+```
+data/reviews/<VIDEO_ID>/coordinator.log
+```
+
+The coordinator writes one JSON object per line through `tools/coordinator_log.py`. Record `spawn`
+immediately after a subagent is successfully launched, `finish` when it completes, fails or is
+interrupted, and `sample-edit` after a change is actually applied. The finish summary names the
+artifact and the approximate result; the edit summary names the changed fields and the review that
+caused them. Timestamps come from the coordinator process in ISO 8601 with an offset. Subagents do
+not write this file, resumed sessions append to it rather than truncating it, and unknown historical
+start times are never reconstructed as facts.
+
+Before final acceptance, run:
+
+```bash
+python3 tools/coordinator_log.py <VIDEO_ID> check
+```
+
+The check validates the JSON lines and requires every recorded launch to have exactly one terminal
+event. The operational log supplements rather than replaces `coordinator.<ROUND>.md`.
+
 Before reporting, the subagent checks itself:
 
 ```bash
@@ -584,7 +617,7 @@ does **not** yield a `PASS`: see the limiters of step 4.
 | `PASS` | keep as is | — |
 | `FIX_INTERVALS` | window boundaries, the trigger set, distractors | the coordinator; a shift of boundaries is applied as is, adding a trigger requires writing `response`, `rubric`, `evidence_span`, `trigger_modality` |
 | `FIX_QUESTION` | the wording, the labels, the intent of the sample | the coordinator, with a revision of the rubric |
-| `CRITICAL_FAIL` | cannot be fixed, the sample is thrown out | the coordinator, deletion |
+| `CRITICAL_FAIL` | cannot be fixed, or repair is abandoned: `status: rejected` | the coordinator; retain the record for audit |
 
 **The mapping of checklist items to verdicts** (the default value; a reviewer may justify another):
 
@@ -597,7 +630,7 @@ does **not** yield a `PASS`: see the limiters of step 4.
 | 3.1 an uncovered candidate for a firing | `FIX_INTERVALS` (add a trigger or a distractor) or `FIX_QUESTION` if the wording is fixed |
 | 3.2 an inconsistent criterion | `FIX_QUESTION` |
 | 4.8 the question rests on the topic rather than on the screen | `FIX_QUESTION` |
-| 4.2 the answer was given without the video at all | the sample is thrown out: `status: rejected` |
+| 4.2 the answer was given without the video at all | set `blind_solved: true`; complete review and exclude it from primary tasks, but reject only for an independent defect or abandoned work |
 | 4.3 the video was recognised | `FIX_QUESTION` plus a flag: another video may be needed |
 | 4.7 the question is not solvable even from the full material | `CRITICAL_FAIL` |
 | 5.x, 6.x | `FIX_QUESTION` |
