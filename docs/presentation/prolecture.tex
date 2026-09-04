@@ -65,7 +65,7 @@
   \end{minipage}
 
   \vfill
-  {\color{muted}\small The material is 3Blue1Brown lectures. Status: a pilot, 10 samples, the annotation pipeline assembled.}
+  {\color{muted}\small The material is 3Blue1Brown lectures. Status: 3 videos through the whole cycle, 44 samples, the annotation pipeline assembled.}
   \vspace{0.8cm}
 \end{frame}
 
@@ -167,34 +167,34 @@
 % ------------------------------------------------------------------ 5
 \begin{frame}
   \frametitle{What else is in a sample}
-  \framesubtitle{what the answer is judged by, and what in the annotation is measured rather than declared}
+  \framesubtitle{what the answer is judged by, and what is measured rather than declared}
 
   \begin{columns}[T]
-    \begin{column}{0.47\textwidth}
-      {\bfseries In every window}\\[0.4em]
+    \begin{column}{0.48\textwidth}
+      {\bfseries In every window}\\[0.3em]
       {\small
-      \texttt{response} — the reference answer\\[0.2em]
-      \texttt{rubric} — what the judge scores against\\[0.2em]
-      \texttt{trigger\_modality} — visual / speech / sound\\[0.2em]
-      \texttt{depends\_on} — a reference to a previous window\\[0.5em]
-      The rubric is what replaces the MCQ. From \texttt{q01}:
+      \texttt{response} — the reference answer\\
+      \texttt{rubric} — what the judge scores against\\
+      \texttt{trigger\_modality} — visual / speech / sound\\
+      \texttt{depends\_on} — a link to an earlier window\\[0.5em]
+      The rubric replaces the MCQ. From \texttt{q01}:
       \begin{itemize}\setlength{\itemsep}{0pt}
         \item[] ``the number 2.5 is named''
         \item[] ``if a computation is shown, it is weighted, with 1/2, 1/4, 1/8, 1/8''
         \item[] \lead{``do NOT credit 1.75 — that is the original code, not the swapped one''}
       \end{itemize}}
     \end{column}
-    \begin{column}{0.47\textwidth}
-      {\bfseries \texttt{validation} — the results of the measurements}\\[0.4em]
+    \begin{column}{0.48\textwidth}
+      {\bfseries \texttt{validation} — the measurements}\\[0.3em]
       {\small
-      One flag per probe, each filled in by a \emph{model's answer} rather than by an opinion:\\[0.3em]
-      \texttt{solvable} — is it solvable at all\\[0.2em]
-      \texttt{blind\_solved} — solvable without the video\\[0.2em]
-      \texttt{textonly\_solved} — the transcript is enough\\[0.2em]
-      \texttt{visiononly\_solved} — the frames are enough\\[0.2em]
-      \texttt{frozenframe\_solved} — one frame is enough\\[0.6em]
-      \texttt{audio\_dependency} is derived from these; the annotator's opinion lives separately,
-      in \texttt{audio\_dependency\_claim}, and influences no conclusion.\\[0.4em]
+      One flag per probe, each filled in by a \emph{model's answer}, not by an opinion:\\[0.2em]
+      \texttt{solvable} — solvable at all\\
+      \texttt{blind\_solved} — without the video\\
+      \texttt{textonly\_solved} — the transcript is enough\\
+      \texttt{visiononly\_solved} — the frames are enough\\
+      \texttt{frozenframe\_solved} — one frame is enough\\[0.5em]
+      \texttt{audio\_dependency} is derived from these; the annotator's opinion lives in
+      \texttt{audio\_dependency\_claim} and influences no conclusion.\\[0.3em]
       \texttt{status}: \texttt{draft} $\rightarrow$ \texttt{validated} / \texttt{rejected}.}
     \end{column}
   \end{columns}
@@ -263,6 +263,43 @@
 
 % ------------------------------------------------------------------ 8
 \begin{frame}
+  \frametitle{The pipeline}
+  \framesubtitle{from a video to a sample that has been through review}
+
+  \begin{center}
+  \begin{tikzpicture}[
+      node distance=0.28cm,
+      box/.style={draw=accent, fill=soft, rounded corners=2pt, inner sep=4pt,
+                  align=center, font=\scriptsize, minimum height=1.05cm, text width=1.6cm},
+      lab/.style={font=\scriptsize, color=muted, align=center},
+      ar/.style={-{Latex[length=2mm]}, muted, thick}]
+    \node[box] (a) {video\\+ source};
+    \node[box, right=of a] (b) {bundle:\\transcript,\\frames, formulas};
+    \node[box, right=of b] (c) {proposer\\(agent)};
+    \node[box, right=of c] (d) {validator\\(schema)};
+    \node[box, right=of d] (e) {reviewers\\and probes};
+    \node[box, right=of e] (f) {human\\acceptance};
+    \draw[ar] (a) -- (b); \draw[ar] (b) -- (c); \draw[ar] (c) -- (d);
+    \draw[ar] (d) -- (e); \draw[ar] (e) -- (f);
+    \draw[ar] (e.south) .. controls +(0,-1.0) and +(0,-1.0) .. (d.south);
+    \node[lab] at ($(d.south)!0.5!(e.south)$) [below=0.95cm] {not PASS — the same question goes to fresh subagents};
+  \end{tikzpicture}
+  \end{center}
+
+  \vspace{0.4em}
+  \begin{itemize}
+    \item \textbf{The validator} plays the role of tests: non-overlapping windows, references only backwards,
+          a distractor not coinciding with a trigger, \texttt{temporal\_rel} agreeing with the evidence.
+          It returns code 1 on any error.
+    \item \textbf{The reviewers and the probes} are covered shortly: three roles check the annotation
+          from different sides, four probes fill in the \texttt{validation} flags by measurement.
+    \item \textbf{The round repeats} until every verdict is \texttt{PASS};
+          a repeat round goes to fresh subagents that have not seen the previous discussions.
+  \end{itemize}
+\end{frame}
+
+% ------------------------------------------------------------------ 9
+\begin{frame}
   \frametitle{How this works on live samples}
   \framesubtitle{one and the same blind check, opposite outcomes}
 
@@ -293,43 +330,6 @@
 
   \vspace{0.2em}
   {\color{muted}\footnotesize The rule: leaning on a commonly known fact is contamination; guessing the problem is not.}
-\end{frame}
-
-% ------------------------------------------------------------------ 9
-\begin{frame}
-  \frametitle{The pipeline}
-  \framesubtitle{from a video to a sample that has been through review}
-
-  \begin{center}
-  \begin{tikzpicture}[
-      node distance=0.28cm,
-      box/.style={draw=accent, fill=soft, rounded corners=2pt, inner sep=4pt,
-                  align=center, font=\scriptsize, minimum height=1.05cm, text width=1.6cm},
-      lab/.style={font=\scriptsize, color=muted, align=center},
-      ar/.style={-{Latex[length=2mm]}, muted, thick}]
-    \node[box] (a) {video\\+ source};
-    \node[box, right=of a] (b) {bundle:\\transcript,\\frames, formulas};
-    \node[box, right=of b] (c) {proposer\\(agent)};
-    \node[box, right=of c] (d) {validator\\(schema)};
-    \node[box, right=of d] (e) {reviewers\\and probes};
-    \node[box, right=of e] (f) {human\\acceptance};
-    \draw[ar] (a) -- (b); \draw[ar] (b) -- (c); \draw[ar] (c) -- (d);
-    \draw[ar] (d) -- (e); \draw[ar] (e) -- (f);
-    \draw[ar] (e.south) .. controls +(0,-1.0) and +(0,-1.0) .. (d.south);
-    \node[lab] at ($(d.south)!0.5!(e.south)$) [below=0.95cm] {not PASS — the same question goes to fresh subagents};
-  \end{tikzpicture}
-  \end{center}
-
-  \vspace{0.4em}
-  \begin{itemize}
-    \item \textbf{The validator} plays the role of tests: non-overlapping windows, references only backwards,
-          a distractor not coinciding with a trigger, \texttt{temporal\_rel} agreeing with the evidence.
-          It returns code 1 on any error.
-    \item \textbf{The reviewers and the probes} are the next two slides: three roles check the annotation
-          from different sides, four probes fill in the \texttt{validation} flags by measurement.
-    \item \textbf{The round repeats} until every verdict is \texttt{PASS};
-          a repeat round goes to fresh subagents that have not seen the previous discussions.
-  \end{itemize}
 \end{frame}
 
 % ------------------------------------------------------------------ 10
@@ -398,27 +398,27 @@
 
   \begin{columns}[T]
     \begin{column}{0.48\textwidth}
-      \textbf{Our own scene change detector}\\[0.5em]
+      \textbf{Our own scene change detector}\\[0.4em]
       {\small
-      The off-the-shelf detectors compare a frame with the previous one — while manim's typical
-      transition is a smooth travel over 2--4 seconds, where neighbouring frames barely differ.\\[0.5em]
+      Off-the-shelf detectors compare a frame with the previous one, while manim's typical
+      transition is a smooth 2--4 second travel where neighbouring frames barely differ.\\[0.3em]
       We compute the \lead{accumulated drift} from the last captured frame and capture
-      once the animation has settled.\\[0.5em]
+      once the animation has settled.\\[0.3em]
       One threshold per domain: \num{13.5} / \num{12.9} / \num{10.1} frames per minute
       on the videos from 2026 and 2017.\\[0.3em]
       On the control stretch: \num{18} states out of 18 against \num{10} for the uniform grid.}
     \end{column}
     \begin{column}{0.48\textwidth}
-      \textbf{A dense description of the video track}\\[0.5em]
+      \textbf{A dense description of the video track}\\[0.4em]
       {\small
-      A document like subtitles, only with what is happening on the screen instead of utterances.
-      The annotator reads text instead of looking through dozens of frames.\\[0.5em]
-      Two frames per second, windows of 5 seconds with an overlap, strict JSON against a schema
-      (guided decoding on the server side).\\[0.5em]
+      Like subtitles, only with what happens on the screen instead of utterances:
+      the annotator reads text instead of looking through dozens of frames.\\[0.3em]
+      Two frames per second, overlapping 5-second windows, strict JSON against a schema
+      (guided decoding).\\[0.3em]
       The pilot: \num{3878} frames, \num{485} fragments, \num{20} minutes on two A100s,
-      \num{1939} seconds out of 1939 covered by events.\\[0.3em]
-      \color{muted} The describing model is not shown the subtitles: it describes only the frames.
-      Otherwise the description could not be given to the vision-only probe instead of frames.}
+      \num{1939} seconds out of 1939 covered by events.\\[0.2em]
+      \color{muted} The describing model is not shown the subtitles, so the description
+      can stand in for the frames in the vision-only probe.}
     \end{column}
   \end{columns}
 \end{frame}
@@ -428,69 +428,33 @@
   \frametitle{Where we are now}
 
   \begin{columns}[T]
-    \begin{column}{0.46\textwidth}
-      \textbf{Done}
-      \begin{itemize}
-        \item[] {\small
-        the data pipeline: mapping $\rightarrow$ download $\rightarrow$ bundle;\\[0.3em]
-        the sample schema and the semantic validator;\\[0.3em]
-        the pilot: \num{10} samples, \num{24} triggers and \num{12} distractors,\\ zero validation errors;\\[0.3em]
-        the prompts of the proposer, three reviewers and four probes;\\[0.3em]
-        the scene detector and the description of the video track.}
-      \end{itemize}
+    \begin{column}{0.48\textwidth}
+      \textbf{Done}\\[0.3em]
+      {\small
+      the pipeline: mapping $\rightarrow$ download $\rightarrow$ bundle;\\[0.2em]
+      the schema and the semantic validator;\\[0.2em]
+      prompts: proposer, three reviewers, four probes;\\[0.2em]
+      the scene detector, the video-track description;\\[0.2em]
+      \num{3} videos through the whole cycle (entropy $\times 2$, 2026; Taylor series, 2017):
+      \num{44} samples, \num{43} validated, \num{61} triggers, \num{42} distractors;\\[0.2em]
+      first runs of streaming video models: \lead{the current tasks are too hard for them}.}
     \end{column}
-    \begin{column}{0.46\textwidth}
-      \textbf{Next}
-      \begin{itemize}
-        \item[] {\small
-        run the dummy baselines and see that they fail;\\[0.3em]
-        measure the blind gap on the 2017 control video;\\[0.3em]
-        the streaming harness and an LLM judge against the rubric;\\[0.3em]
-        expanding the annotation: the share of \texttt{L3} must grow;\\[0.3em]
-        optionally — re-rendering scenes with an injected error.}
-      \end{itemize}
+    \begin{column}{0.48\textwidth}
+      \textbf{Next}\\[0.3em]
+      {\small
+      run the dummy baselines and see that they fail;\\[0.2em]
+      measure the blind gap on the 2017 control video;\\[0.2em]
+      the streaming harness and an LLM judge against the rubric;\\[0.2em]
+      expanding the annotation: the share of \texttt{L3} must grow;\\[0.2em]
+      re-rendering scenes with an injected error.}
     \end{column}
   \end{columns}
 
-  \vspace{1.2em}
+  \vspace{0.6em}
   \begin{center}
-    {\color{muted}\small The open assumptions are written down separately and in Limitations rather than swept away:
-    the leak of the distractor's explanation, the high difficulty of the pilot, the small volume.}
+    {\color{muted}\footnotesize Open assumptions go to Limitations rather than being swept away: the leak of the
+    distractor's explanation, the difficulty (now confirmed on streaming models), the small volume.}
   \end{center}
-\end{frame}
-
-% ------------------------------------------------------------------ 14
-\begin{frame}
-  \frametitle{The metric}
-  \framesubtitle{designed but not yet implemented: groundwork for the measurement phase}
-
-  \begin{columns}[T]
-    \begin{column}{0.48\textwidth}
-      \textbf{PAUC.} On each window a polyline ``time $\rightarrow$ quality of the accumulated
-      answers'' is built, and the quality $s \in \{0,1,2\}$ is assigned by an LLM judge against the rubric.
-
-      \vspace{0.6em}
-      The starting point $(t_{\text{start}}, 0.5)$: silence is better than a confident wrong answer.
-
-      \vspace{0.6em}
-      \lead{A consequence we report explicitly:} the strategy ``always stay silent'' gets
-      \num{0.25} of the maximum. That is the floor of the scale, not a zero.
-    \end{column}
-    \begin{column}{0.48\textwidth}
-      \textbf{Mandatory alongside:}
-      \begin{itemize}
-        \item[] {\small
-        \textbf{False-Alarm Rate} — answers outside the windows\\[0.25em]
-        \textbf{Trap rate} — hits in the distractors, separately from the FAR\\[0.25em]
-        \textbf{Latency} — from $t_{\text{start}}$, as a distribution\\[0.25em]
-        \textbf{Silence rate}, \textbf{Trigger Recall}\\[0.25em]
-        \textbf{Responses-per-sample} — otherwise the spam strategy is invisible}
-      \end{itemize}
-      \vspace{0.4em}
-      {\color{muted}\small Aggregation over samples, not over windows: otherwise the result is a hostage
-      of the single simplest sample, the one with nine triggers.}
-    \end{column}
-  \end{columns}
 \end{frame}
 
 \end{document}
