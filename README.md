@@ -79,8 +79,8 @@ python3 tools/fetch_video.py --slug reinventing-entropy
 The script locates an interpreter that has `yt_dlp` installed (the list is
 `CANDIDATE_PYTHONS` at the top of the file), downloads the video, its metadata, and its
 subtitles, and prints a short report: duration, chapter count, whether manual English
-subtitles were found, and the size of every file produced. Re-running it is a no-op unless
-`--force` is passed.
+subtitles were found, and the size of every file produced. A second run is a no-op while
+all three files are present; `--force` re-downloads and overwrites them.
 
 Neither cookies nor a YouTube account are required. 3Blue1Brown ships **human** English
 subtitles (`subtitles`, not `automatic_captions`), so no Whisper pass is needed.
@@ -106,7 +106,7 @@ re-checked on 2026-08-27 against yt-dlp 2026.07.04:
 
 | Constraint | What happens |
 |---|---|
-| The player client must be pinned | yt-dlp's default `android_vr` client does list DASH formats up to 1080p, but downloading one of them ends in `HTTP Error 403: Forbidden`, and that client returns no subtitles at all. `player_client=android` returns format 18 plus the subtitles, and downloads without error. |
+| The player client must be pinned | yt-dlp's default clients (`android_vr`, `web_safari`) do list the DASH formats up to the video's top resolution, but downloading one of them ends in `HTTP Error 403: Forbidden`, and `--write-subs --sub-langs en` against them reports `There are no subtitles for the requested languages`. `player_client=android` returns format 18 plus the subtitles, and downloads without error. |
 | Anything above 360p needs a PO token | The `web` client, which does serve every format and every subtitle track, yields nothing usable without one: `Only images are available for download`. |
 | `--download-sections` is unusable | It hands the media URL to an external ffmpeg, which requests it without the headers the CDN expects. Download whole files and cut locally. |
 
@@ -121,30 +121,38 @@ bundle currently in the repository was built from 360p.
 by ffmpeg. Obtaining a URL the CDN will serve requires a **PO token**, which is minted by
 a small helper service — the `bgutil` provider. It needs no YouTube login.
 
-1. Install the yt-dlp side of the plugin into the same interpreter that runs yt-dlp:
+1. Install the yt-dlp side of the plugin into **the interpreter that actually runs
+   yt-dlp**. That is usually not the `python3` on your `PATH`:
+   `tools/fetch_video.py` searches `CANDIDATE_PYTHONS` for one that can `import yt_dlp`,
+   and installing the plugin anywhere else fails silently — no plugin, no PO token, the
+   same 403 with nothing in the log to explain it.
 
    ```bash
-   python3 -m pip install -U bgutil-ytdlp-pot-provider
+   YTDLP_PY=$(python3 -c "import sys; sys.path.insert(0, 'tools'); import fetch_video; print(fetch_video.find_python_with_ytdlp())")
+   "$YTDLP_PY" -m pip install "bgutil-ytdlp-pot-provider==1.3.2"
    ```
 
-   With the plugin present, every extraction probes the provider, so its absence is
-   visible in the log as `[pot:bgutil:http] Error reaching GET http://127.0.0.1:4416/ping`.
+   Pin the version: it has to match the provider started in the next step. With the plugin
+   present, every extraction probes the provider, so its absence becomes visible in the log
+   as `[pot:bgutil:http] Error reaching GET http://127.0.0.1:4416/ping`.
 
 2. Start the provider on port 4416. The published GitHub release contains only the plugin;
    the server itself comes from a container or from source, and **its version must match
    the plugin's**:
 
    ```bash
-   docker run --name bgutil-provider -d -p 4416:4416 \
+   docker run --name bgutil-provider -d --init -p 4416:4416 \
        brainicism/bgutil-ytdlp-pot-provider:1.3.2
    ```
 
-   Without Docker, build it (Node 18 or newer):
+   Without Docker, build it from the tag of the same version. `server/package.json` at
+   1.3.2 declares `"engines": {"node": ">=22", "npm": ">=9"}`, and the tag ships a
+   `package-lock.json` but no `yarn.lock`:
 
    ```bash
    git clone --branch 1.3.2 https://github.com/Brainicism/bgutil-ytdlp-pot-provider
    cd bgutil-ytdlp-pot-provider/server
-   yarn install --frozen-lockfile && npx tsc && node build/main.js
+   npm ci && npx tsc && node build/main.js
    ```
 
    `curl http://127.0.0.1:4416/ping` should answer, and the warning above should stop.
@@ -165,6 +173,11 @@ a small helper service — the `bgutil` provider. It needs no YouTube login.
 
    Prefer `bv*[height<=480]` over a literal `-f 135`: format numbers change, the selector
    does not. Substitute 720 or 1080 for a larger frame at a proportionally larger file.
+   Keep the `vcodec^=avc1` and `ext=m4a` filters. Every tool downstream addresses the video
+   as `<VIDEO_ID>.mp4` by name (`fetch_video.py`, `make_bundle.py`, `detect_scenes.py`,
+   `describe_video.py`); drop the filters and the best streams merge into `.webm` or
+   `.mkv`, after which the whole pipeline reports a missing video and `fetch_video.py`
+   re-downloads on every run.
 
 4. To make `tools/fetch_video.py` behave this way for every video, edit `PLAYER_CLIENT`
    and `FORMAT` at the top of the file. They are module-level constants rather than CLI
@@ -173,11 +186,29 @@ a small helper service — the `bgutil` provider. It needs no YouTube login.
 
 ### Re-downloading at a different resolution
 
-Replacing an MP4 invalidates the frames cut from it. Re-run step 2 **without**
-`--no-frames` so the bundle is re-cut, then regenerate the visual description in step 3,
-which reads those frames. Annotations and reviews reference timecodes rather than pixels
-and survive the change; the scene-change cut may shift slightly, because the detector
-measures frame-to-frame difference on the actual pixels.
+Every stage downstream caches, and every cache is keyed on timecodes rather than on pixels,
+so a resolution swap is invisible to all of them. Left alone, the pipeline will happily
+rebuild a "new" description out of the old low-resolution frames. Force each stage:
+
+1. **The video.** yt-dlp does not overwrite an existing video file by default — it
+   overwrites only the metadata beside it (`--no-force-overwrites`, its documented
+   default). `tools/fetch_video.py --force` therefore passes `--force-overwrites`
+   explicitly. Downloading by hand, pass it yourself, or delete the MP4 first; otherwise
+   you end up with an `info.json` describing a format that was never fetched.
+
+2. **The frames.** Re-run step 2 **without** `--no-frames`, so `make_bundle.py` re-cuts
+   `frames/`. Note that it deliberately leaves subdirectories alone: `frames/exact/`, the
+   notebook cache, keeps whatever resolution it was written at and has to be removed by
+   hand.
+
+3. **The description.** `describe_video.py` re-uses a cut whose median step matches the
+   requested one and skips any frame file that merely exists, so it will silently reuse the
+   old JPEGs. Pass `--force-frames`; the log line `[frames] taking the ready N from ...` is
+   the sign that you forgot.
+
+Annotations and reviews reference timecodes rather than pixels and survive the change. The
+scene-change cut may shift slightly, because the detector measures frame-to-frame
+difference on the actual pixels.
 
 ## 2. Create an annotation bundle
 
