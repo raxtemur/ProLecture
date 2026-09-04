@@ -6,17 +6,17 @@ __pycache__/
 # third-party repositories, cloned separately
 vendor/
 
-# heavy artifacts — reproduced by the scripts in tools/
+# per-video data — published as separate artifacts rather than through this repository.
+# Whatever is already tracked stays tracked; a new video adds nothing here by itself.
 data/videos/
-data/bundles/*/frames/
-data/bundles/*/frames_desc/
-data/bundles/*/frames_desc_*/
-data/bundles/*/frames_scenes/
-
-# trial description runs: the name is set by --out-prefix and starts with an underscore
-data/bundles/*/_*.jsonl
-data/bundles/*/_*.md
+data/bundles/
+data/reviews/
+data/annotations/
 demo/media/
+
+# runs of the models under evaluation: produced by scripts that live outside this repository,
+# so committing them would fix numbers nothing here can reproduce
+data/outputs/
 
 # paper sources: we keep only the reviews and the figures
 articles/*/paper.pdf
@@ -32,3 +32,6 @@ docs/presentation/*.out
 docs/presentation/*.snm
 docs/presentation/*.toc
 docs/presentation/page-*.png
+
+# local state of the CLI tools
+.codex/
