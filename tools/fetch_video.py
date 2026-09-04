@@ -87,6 +87,11 @@ def fetch(video_id: str, subs_langs: str = "en", force: bool = False) -> Path:
         "-o", str(out_dir / "%(id)s.%(ext)s"),
         f"https://www.youtube.com/watch?v={video_id}",
     ]
+    if force:
+        # without this yt-dlp keeps the existing mp4 and rewrites only info.json and the
+        # subtitles ("--no-force-overwrites" is its default) — after a change of FORMAT
+        # that leaves metadata describing a file that was never re-downloaded
+        cmd.insert(3, "--force-overwrites")
     print("[run]", " ".join(cmd[:6]), "...")
     res = subprocess.run(cmd, capture_output=True, text=True)
     if res.returncode != 0:
@@ -122,7 +127,8 @@ def main() -> None:
     ap.add_argument("video", help="a YouTube id, or a lesson slug with --slug")
     ap.add_argument("--slug", action="store_true", help="treat the argument as a lesson slug")
     ap.add_argument("--subs", default="en", help="subtitle languages (comma-separated)")
-    ap.add_argument("--force", action="store_true", help="re-download even if the file is there")
+    ap.add_argument("--force", action="store_true",
+                    help="re-download and overwrite even if the file is there")
     args = ap.parse_args()
 
     video_id = resolve_slug(args.video) if args.slug else args.video
