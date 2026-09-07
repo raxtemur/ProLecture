@@ -35,3 +35,6 @@ docs/presentation/page-*.png
 
 # local state of the CLI tools
 .codex/
+
+# working notes: reports are the user's own material, not project documentation
+docs/reports/

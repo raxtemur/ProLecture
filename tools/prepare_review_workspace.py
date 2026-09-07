@@ -11,6 +11,10 @@ separate directory is prepared for them, holding only what they are allowed to s
     # re-sample a stretch with a dense grid into the same folder
     prepare_review_workspace.py <video_id> --dense 930 960 --step 1 --out /tmp/rev_q07_blind
 
+    # stage C of the left-boundary check: the same material as the semi-blind reviewer's,
+    # cut at the sighted proposal t_s, in a folder marked as the verification probe's
+    prepare_review_workspace.py <video_id> --until 690 --screen --verify --out /tmp/verify_q10
+
     # the probe folders: one modality instead of two
     prepare_review_workspace.py <video_id> --until 992 --only transcript --out /tmp/probe_text
     prepare_review_workspace.py <video_id> --until 992 --only frames    --out /tmp/probe_vision
@@ -84,17 +88,17 @@ def load_description(vid: str) -> list[dict] | None:
 
 
 def write_screen(desc: list[dict], out: Path, t0: float, t1: float) -> tuple[int, int]:
-    """A text index of the video track: something to search with, not to prove with.
+    """The description of the video track: material to read, not evidence to cite.
 
     We put in two files of different purpose:
 
     * `screen.jsonl` — the chunks in full (a description of the beginning and the end,
-      per-second events, the recognised on-screen text). It is large and there is no
-      need to read it whole — it is there for `grep`;
+      per-second events, the recognised on-screen text). For the semi-blind roles this is
+      the main material of a stretch and is read in full (about 8 KB per twenty seconds
+      of video); the sighted roles, who know what they are looking for, may `grep` it;
     * `screen_text.md` — a timeline of the recognised text, deduplicated: a line gets
-      into it once, at the moment it first appears. That is the index proper: "where on
-      the screen is 1.75" becomes a single `grep` instead of an hour of looking at
-      frames.
+      into it once, at the moment it first appears. A quick way to see WHEN a formula or
+      a number came up.
 
     It is cut at the same boundaries as the transcript, and for the same reason: a chunk
     crossing `t1` is discarded whole. Otherwise the semi-blind reviewer would get a
@@ -117,7 +121,8 @@ def write_screen(desc: list[dict], out: Path, t0: float, t1: float) -> tuple[int
             f"# not for ASSERTING it. Found a line — go and look at the frame.\n"
             f"# A line gets in here when it appears; if it disappeared for more than\n"
             f"# {REAPPEAR_GAP:.0f} s and came back, that is a separate line of the timeline.\n"
-            f"# Search it with grep rather than reading it whole.\n\n")
+            f"# The full description, chunk by chunk, is in screen.jsonl: read THAT in full\n"
+            f"# over your stretch; this file only says when a text first came up.\n\n")
     last_at: dict[tuple[str, str], float] = {}
     rows: list[tuple[float, str, str]] = []
     for c in chunks:
@@ -149,9 +154,10 @@ def write_screen(desc: list[dict], out: Path, t0: float, t1: float) -> tuple[int
         encoding="utf-8")
 
     with (out / "screen.jsonl").open("w", encoding="utf-8") as f:
-        f.write(json.dumps({"_note": "a description of the video track made by a model; "
-                                     "for finding a moment, not for proving one. "
-                                     "Read it with grep rather than whole.",
+        f.write(json.dumps({"_note": "a description of the video track made by a model, "
+                                     "chunk by chunk. Material to READ in full over your "
+                                     "stretch, not evidence to cite: a number or a text "
+                                     "taken from here is confirmed on a real frame first.",
                             "from": t0, "until": t1, "chunks": len(chunks)},
                            ensure_ascii=False) + "\n")
         for c in chunks:
@@ -256,7 +262,7 @@ def check_dense_allowed(out: Path, force: bool) -> None:
                  f"--dense would re-sample somebody else's folder blindly; take a different --out "
                  f"or add --force")
     was = json.loads(stamp.read_text(encoding="utf-8"))["mode"]
-    if was in ("frames", "both", "both-index"):
+    if was in ("frames", "both", "both-index", "verify"):
         return
     reason = {
         "transcript": "this is the text probe's folder — frames in it cancel the whole point "
@@ -383,6 +389,14 @@ def main() -> None:
                     help="what to put in the folder with --until: both modalities "
                          "(the default), the transcript only (the text probe) or "
                          "the frames only (the vision probe)")
+    ap.add_argument("--verify", action="store_true",
+                    help="mark the folder as the verification probe's (stage C of the "
+                         "left-boundary check, checklist 2.2): the same material as the "
+                         "semi-blind reviewer's — transcript, scene frames as copies and the "
+                         "screen description — cut at the sighted proposal t_s. Requires "
+                         "--until and --screen; incompatible with --only and --index-only, "
+                         "because the probe must get both channels and must not see past "
+                         "the boundary")
     ap.add_argument("--screen", action="store_true",
                     help="put in the text index of the video track (screen_text.md "
                          "and screen.jsonl) from description.jsonl. Allowed for reviewers "
@@ -401,6 +415,15 @@ def main() -> None:
         sys.exit("name exactly one of --until, --dense, --frame or --cleanup")
     if args.only != "both" and args.until is None:
         sys.exit("--only only makes sense together with --until")
+    # The verification probe answers the task with the material up to t_s, and its answer
+    # decides whether the material up to t_s was ENOUGH. Both channels, copies of the
+    # frames (the boundary), the description (the dense reading of the visual channel):
+    # anything less and "not enough" would measure the folder rather than the video.
+    if args.verify and (args.until is None or not args.screen
+                        or args.only != "both" or args.index_only):
+        sys.exit("--verify needs --until and --screen, and takes neither --only nor "
+                 "--index-only: the verification probe gets both channels as copies, cut "
+                 "at t_s, and the description")
     # The screen index is built from frames ONLY (the description run's meta says
     # with_transcript: false), that is, it is a function of the visual channel and
     # nothing more. Hence the boundary does not run "reviewers against probes" but by
@@ -458,6 +481,8 @@ def main() -> None:
     mode = "frame" if args.frame is not None else (args.only if args.until is not None else None)
     if mode == "both" and args.index_only:
         mode = "both-index"
+    if mode == "both" and args.verify:
+        mode = "verify"
     if mode is not None:
         check_mode(out, mode, args.force)
     out.mkdir(parents=True, exist_ok=True)
@@ -515,7 +540,7 @@ def main() -> None:
             print("  frames       : deliberately not placed")
         if screen is not None:
             print(f"  screen       : {screen[0]} chunks, {screen[1]} lines of text "
-                  f"(an index for searching, not evidence)")
+                  f"(a model-made description: read in full, confirm on frames)")
         print("  there is no annotation in the folder and there must not be")
     else:
         check_dense_allowed(out, args.force)

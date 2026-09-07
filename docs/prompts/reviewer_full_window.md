@@ -34,12 +34,12 @@ first window, the rest went to `skipped`, and `skipped` forbids `PASS` — so th
 could not converge by construction. Now every window has its own reviewer and its own
 budget.
 
-**What you are not charged with.** The text of the question, the rubric, the distractors,
-the `provenance` references, the reference answer and the completeness of the trigger set
-are the sample reviewer's work: they are common to all windows and there is nothing to
-divide them along. The left boundary of the window (2.2, 2.3) is the semi-blind reviewer's
-work: you know the reference answer and therefore "recognise" it where it is not there
-yet. If along the way you notice a defect outside your list — write about it **in the text
+**What you are not charged with.** The text of the question, the rubric, the `provenance`
+references, the reference answer and the completeness of the trigger set are the sample
+reviewer's work: they are common to all windows and there is nothing to divide them along.
+The left boundary of the window (2.2, 2.3) is the semi-blind reviewer's work, with a
+verified proposal from the sample reviewer: you know the reference answer and therefore
+"recognise" it where it is not there yet. If along the way you notice a defect outside your list — write about it **in the text
 for the coordinator**, but there is no line for it in `checks` and there must not be.
 
 ## What you are given

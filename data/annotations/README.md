@@ -62,7 +62,6 @@ file it is a single line):
       "rubric": [
         "the value ≈1 bit per character is named",
         "the condition is named: at least 100 preceding letters of context",
-        "it is stated that this is an estimate from experiments with people rather than a measurement by an algorithm",
         "an answer with the number alone, without the condition about 100 letters, is partial (1 of 2)",
         "do NOT count 1.1 bits per character — that is the result of neural methods, from second 30",
         "do NOT count 4.2 bits per character — that is Huffman, from second 21"
@@ -77,19 +76,7 @@ file it is a single line):
       ]
     }
   ],
-  "distractor_windows": [
-    {
-      "t_start": 12.0,
-      "t_end": 34.0,
-      "why": "the screen runs through the series ASCII 8.0 -> Huffman ~4.2 -> Neural methods ~1.1 bits per character; these are achievements of compression methods, not Shannon's estimate"
-    },
-    {
-      "t_start": 34.0,
-      "t_end": 60.0,
-      "why": "the screen shows a speedometer reading 1.0 bits/ch with the caption “Limit?” — the number coincides with the correct answer, but this is the statement of the question rather than the answer, and it comes without the conditions it was obtained under"
-    }
-  ],
-  "audio_dependency": null,
+  "audio_dependency": "required",
   "audio_dependency_claim": "required",
   "provenance": {
     "annotator": "claude+rahmatullaev",
@@ -126,27 +113,37 @@ file it is a single line):
         "t": 40.0,
         "explanation": "the speedometer 1.0 bits/ch with the caption Limit?"
       }
-    ]
+    ],
+    "trap_note": "designed around an early plausible-but-wrong answer: the screen runs through the series ASCII 8.0 -> Huffman ~4.2 -> Neural methods ~1.1 bits per character; these are achievements of compression methods, not Shannon's estimate | the screen shows a speedometer reading 1.0 bits/ch with the caption “Limit?” — the number coincides with the correct answer, but this is the statement of the question rather than the answer, and it comes without the conditions it was obtained under"
   },
   "validation": {
-    "status": "rejected",
-    "notes": "a key sample for timing: the correct number is visible on screen 1785 s before the answer; level L1: both facts are spoken in a single line 1822-1829, and the difficulty of the sample lies entirely in the timing rather than in the reasoning | blind: before viewing, the semi-blind reviewer named both quantities of the rubric (≈1 bit per character, ≥100 letters of context) with no assumptions about the screen — a commonly known fact about Shannon's experiment | rejection: review cycle is incomplete; only the semi-blind review finished",
-    "blind_solved": true
+    "status": "validated",
+    "notes": "Salvage round 2: removed the unasked third rubric component and accepted the existing interval evidence. The complete answer was honestly available before viewing, while the transcript independently supplies both requested facts and visuals do not supply the 100-letter condition. Retained as a validated blind baseline.",
+    "blind_solved": true,
+    "textonly_solved": true,
+    "visiononly_solved": false,
+    "frozenframe_solved": false,
+    "solvable": true
   },
-  "question_time_note": "the question about the compression limit of text is raised by the video itself at 4.6-11.5, but the instruction has to be issued BEFORE the first distractor at 12 s, otherwise the trap with the on-screen “1.0 bits/ch  Limit?” at 40 s stops being a trap."
+  "question_time_note": "the question about the compression limit of text is raised by the video itself at 4.6-11.5, but the instruction has to be issued BEFORE the run of tempting numbers on screen (8.0 -> 4.2 -> 1.1 bits/ch from 12 s, the speedometer at “1.0 bits/ch  Limit?” at 40 s), otherwise an early answer there stops being a false alarm."
 }
 ```
 
 The same thing on the time axis:
 
 ```
- 0s  2     12      34       60                                 1822   1829       1860      1939s
- │   ▲     ├───────┼────────┤                                  ├────────●─────────┤          │
- │   │     │  D0   │   D1   │                                  │   t_ideal        │          ▲
- │   │     └── distractors ─┘                                  └──── trigger[0] ──┘          │
- │   question_time   an answer here = 0 points             the one window where          end of
-start   question issued  and it spoils all later ones      an answer counts               video
+ 0s  2                  12   21   30   40                       1822   1829       1860      1939s
+ │   ▲                  ·    ·    ·    ·                        ├────────●─────────┤          │
+ │   │                  8.0  4.2  1.1  "1.0 Limit?"            │   t_ideal        │          ▲
+ │   question_time      values on screen that tempt an         └──── trigger[0] ──┘          │
+start   question issued early answer: any answer here is a       the one window where      end of
+                        false alarm (FAR), no window needed      an answer counts           video
 ```
+
+Until 2026-09-07 the tempting stretches (12–34 and 34–60 s here) were annotated as
+`distractor_windows`. The field was removed: an answer outside the windows is a false alarm
+whether or not it is annotated, and the annotated decoys leaked `t_start` to the semi-blind
+reviewer. The proposer's intent survives as the optional `provenance.trap_note`.
 
 ## 4. Field reference
 
@@ -165,7 +162,6 @@ start   question issued  and it spoils all later ones      an answer counts     
 | `reasoning_level` | enum | ✔ | depth of reasoning (axis C) |
 | `template` | string | ✔ | a template from the catalogue in §2.1 of the plan; a free string, not an enum |
 | `triggers` | array ≥1 | ✔ | the windows in which an answer is expected |
-| `distractor_windows` | array | — | the windows in which one **must not** answer |
 | `audio_dependency` | enum \| null | ✔ | **derived from the probes** `visiononly_solved` and `solvable`, never set by hand; `null` until the probes have answered |
 | `audio_dependency_claim` | enum | — | what the annotator assumed; not a measurement |
 | `followup` | object | — | a non-proactive continuation (`question` + `answer`), scored separately |
@@ -229,9 +225,11 @@ sense but the window has not yet arrived. Three constraints, from below and from
 1. *The referents must exist.* q03 asks "which of the two examples gone through in this
    video" — at second zero that phrase has no referent, hence `question_time = 1480`,
    right after both examples have been gone through.
-2. *The distractors must be alive.* In q02 the traps are at 12–34 and 34–60 s, so the
-   question must be issued earlier: `question_time = 2.0`. A distractor lying entirely
-   before the question is issued is a validation error — there is nothing to catch there.
+2. *The tempting stretch must be ahead.* In q02 the screen runs through 8.0 → 4.2 → 1.1 bits
+   per character at 12–34 s and shows a speedometer at "1.0 bits/ch — Limit?" at 40 s; the
+   question is issued at `question_time = 2.0` so that the whole run-up counts as waiting,
+   and an answer there is a false alarm. (These stretches used to be annotated as
+   `distractor_windows`; the field was removed on 2026-09-07.)
 3. *Zero is sometimes right too.* q04 and q06 make sense from the first frame and require
    no context at all — their `question_time = 0.0` honestly.
 
@@ -261,22 +259,13 @@ The reason for the choice is recorded in `question_time_note` for every sample.
 | `depends_on` | array of int | — | the indices of earlier windows without which the answer is incomplete; only smaller `idx` values |
 | `evidence_span` | `[t1, t2]` | ✔ | where the **latest** piece of the information lies without which the question cannot be answered. Required: the field used to be optional, in which case the answer window was substituted for it — which made a `post` question indistinguishable from an `at` one. It often coincides with the window, but not always: for `post` questions the evidence went by long before it. This is the **evidence, not the corroboration**: what establishes that the reference answer is correct at all lives in `provenance.evidence` and may lie after the window (`predict`) or outside the video (`counterfact`) |
 
-### `distractor_windows[]`
-
-| Field | Type | Req. | Meaning |
-|---|---|:---:|---|
-| `t_start`, `t_end` | number | ✔ | the window; landing in it = a false positive |
-| `why` | string | ✔ | why an answer here is wrong — read by a human when disputed cases are analysed |
-
-Distractors do not intersect any trigger: otherwise one and the same answer would be
-correct and false at once.
-
 ### `provenance`
 
 | Field | Type | Req. | Meaning |
 |---|---|:---:|---|
 | `annotator` | string | ✔ | who annotated it |
 | `created` | string | ✔ | the date of annotation |
+| `trap_note` | string | — | optional: the proposer's note that the question was designed around an early plausible-but-wrong value (template 2). A record of intent only — no interval, not validated, not scored, shown to no reviewer. Replaced `distractor_windows` on 2026-09-07 |
 | `evidence` | array ≥1 | ✔ | **required references to the source** — protection against invented ground truth. Each record is structured, its kind set by the `type` field: `{"type": "frame", "t", "explanation"}`, `{"type": "speech", "t_start", "t_end", "explanation"}` (both boundaries exactly on transcript-line boundaries; align outwards) or `{"type": "other", "explanation"}` for references with no timecode (the scene source, the link to a twin). Prose is not accepted: a prose reference cannot be checked except by regular expression. This is where the **corroboration** lives — what establishes that the reference answer is correct; unlike `evidence_span` it may lie after the answer window (`predict`) or outside the video altogether (`counterfact`, `type: other`) |
 
 ### `validation`
@@ -380,15 +369,12 @@ Besides the schema, `tools/validate_samples.py` checks the semantics:
 - `t_start ≥ evidence_span[0]` and `evidence_span[1] ≤ t_end`; whether the `t_start`
   boundary itself is right is not checked by the machine — that is the reviewer's work
   (2.4, 3.3);
-- trigger windows do not intersect each other and do not intersect the distractors;
+- trigger windows do not intersect each other;
 - `depends_on` refers only to strictly smaller `idx` values;
 - `temporal_rel` matches the value derived from `question_time` and `evidence_span` (§4.1);
 - `question_time` is not greater than the duration; no answer window lies entirely before
   it;
-- a multi-trigger sample has at least one `distractor_window` (otherwise a spam strategy
-  goes unpunished);
 - `id` is unique across all the files being checked;
-- no distractor lies entirely before `question_time` — there is nothing to catch there;
 - `audio_dependency` stays `null` while `status == "draft"` — the label is derived from the
   answers of the modality probes (checklist 4.5), while the annotator's intent lives
   separately in `audio_dependency_claim`;
@@ -437,23 +423,21 @@ release date falls after the cutoff of most models.
 
 | id | template | act / rel / level | q_time | wait | triggers |
 |---|---|---|---|---|---|
-| q01 | counterfactual_on_appearance | counterfact / pre / L3 | 250 | 65 s | 1 +1 distr. |
-| q02 | premature_answer_trap | alert / pre / L1 | 2 | 1820 s | 1 +2 distr. |
+| q01 | counterfactual_on_appearance | counterfact / pre / L3 | 250 | 65 s | 1 |
+| q02 | premature_answer_trap | alert / pre / L1 | 2 | 1820 s | 1 |
 | q02b | post_control_twin | alert / **post** / L1 | 1900 | 0 s | 1 |
-| q03 | assumption_probe | alert / pre / L1 | 1480 | 142 s | 1 +1 distr. |
-| q04 | state_monitor | monitor / pre / L1 | 0 | 908 s | 6 (3 opt.) +2 distr. |
-| q05 | step_dependency | alert / pre / L1 | 370 | 1181 s | 1 +2 distr. |
-| q06 | speech_only_marker | ground / pre / L1 | 0 | 34 s | 9 (5 opt.) +2 distr. |
-| q07 | counterfactual_on_appearance | counterfact / pre / L3 | 930 | 16 s | 2 (1 opt.) +1 distr. |
+| q03 | assumption_probe | alert / pre / L1 | 1480 | 142 s | 1 |
+| q04 | state_monitor | monitor / pre / L1 | 0 | 908 s | 6 (3 opt.) |
+| q05 | step_dependency | alert / pre / L1 | 370 | 1181 s | 1 |
+| q06 | speech_only_marker | ground / pre / L1 | 0 | 34 s | 9 (5 opt.) |
+| q07 | counterfactual_on_appearance | counterfact / pre / L3 | 930 | 16 s | 2 (1 opt.) |
 | q07b | at_control_twin | counterfact / **at** / L3 | 963 | 0 s | 1 |
-| q08 | prediction_ahead | predict / pre / L1 | 1110 | 149 s | 1 +1 distr. |
+| q08 | prediction_ahead | predict / pre / L1 | 1110 | 149 s | 1 |
 
-Four of the ten (q02, q02b, q03, q08) still carry `status: rejected` after the old
-review round. They remain rejected because their cycles were incomplete or left full-review
-defects unresolved, not because their answers were given blind. The separate
-`blind_solved: true` flag records the contamination result. The records are retained for
-audit; a completed and otherwise correct blind-solved sample would instead be a validated
-blind baseline.
+All ten are `status: validated` after the second review round. Five of them (q02, q02b, q03,
+q05, q08) carry `blind_solved: true`: the semi-blind reviewer answered them before viewing, so
+they are excluded from the primary set and kept as blind baselines. The flag records the
+contamination result separately from the status; the records are retained for audit.
 
 **The windows are anchored to information appearing on screen, not to the speech.** This is
 a pitfall of its own: the author often shows a table or the values tens of seconds before

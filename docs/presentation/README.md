@@ -29,7 +29,7 @@ annotation grows:
 
 | What | Where to check it |
 |---|---|
-| 10 samples, 24 triggers, 12 distractors | `tools/validate_samples.py data/annotations/*.jsonl` |
+| 10 samples, 25 triggers | `tools/validate_samples.py data/annotations/*.jsonl` (the `distractor_windows` field the slides may still mention was removed on 2026-09-07) |
 | 140 videos with a live path to a manim source | `data/3b1b_mapping.json` |
 | 13.5 / 12.9 / 10.1 frames per minute | `tools/detect_scenes.py <id>` |
 | 3878 frames, 485 fragments, 20 minutes | `meta` in `data/bundles/<id>/description.jsonl` |

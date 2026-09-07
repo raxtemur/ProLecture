@@ -172,32 +172,6 @@
         }
       }
     },
-    "distractor_windows": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": [
-          "t_start",
-          "t_end",
-          "why"
-        ],
-        "additionalProperties": false,
-        "properties": {
-          "t_start": {
-            "type": "number",
-            "minimum": 0
-          },
-          "t_end": {
-            "type": "number",
-            "minimum": 0
-          },
-          "why": {
-            "type": "string",
-            "minLength": 10
-          }
-        }
-      }
-    },
     "audio_dependency": {
       "enum": [
         "required",
@@ -320,6 +294,11 @@
               }
             ]
           }
+        },
+        "trap_note": {
+          "type": "string",
+          "minLength": 10,
+          "description": "optional: the proposer's note that the question was designed around an early plausible-but-wrong value (template 2). A record of intent only: no interval, not validated, not scored, not shown to reviewers. Replaced the former distractor_windows field on 2026-09-07 — an early answer is penalised by FAR anyway, and the annotated windows only leaked t_start to the semi-blind reviewer"
         }
       }
     },

@@ -115,7 +115,6 @@ ones to spend time on first.
 | `[t_start, t_end)` | the answer window: an answer counts only inside it |
 | `t_ideal` | a service field, `t_start + 1`; latency is measured from `t_start`, see "Why `t_ideal` means nothing" |
 | `evidence_span` | where in the video the **latest** piece of evidence needed for the answer lies; not the corroboration — that is in `provenance.evidence` (1.9) |
-| `distractor_window` | a decoy window: an answer there is a false positive and is penalised |
 | `trigger_modality` | which modality the signal comes from: `visual` / `sound` / `speech` |
 
 
@@ -127,7 +126,7 @@ question checked**. The common order is progressive:
 | Operation | What it is | Cost |
 |---|---|---|
 | **reading the transcript `[a, b]`** | every available line with its timecode | cheap, taken in full in any quantity |
-| **searching the screen description `[a, b]`** | the boundary-clipped records from `description.jsonl`; a search index, not evidence | cheap, taken before opening frames |
+| **reading the screen description `[a, b]`** | the boundary-clipped records from `description.jsonl`, read in full over the stretch rather than searched; a model-made text, not evidence | cheap, taken before opening frames |
 | **scene-frame viewing `[a, b]`** | existing content-selected frames from `bundle.json["frames"]`, produced by `detect_scenes.py` | moderate |
 | **dense viewing `[a, b]`** | an on-demand grid requested with `--dense`; start at 1 fps (`--step 1`) | expensive: 50 frames cover at most 50 s at 1 fps |
 
@@ -205,19 +204,11 @@ versa (see 9.4).
 
   *Frequency.* Regularly, mostly as overlapping windows after a boundary was moved by hand.
 
-- `[A]` **1.2. Distractor geometry.** · `distractor-geometry`
-
-  *Statement.* A distractor is not inverted, lies inside the duration of the video, does
-  not overlap any trigger (otherwise one and the same answer is both correct and false) and
-  does not lie entirely before `question_time` — there is nothing to catch there, the
-  question has not been issued yet.
-
-  *Checking algorithm.* Arithmetic over the fields of the sample.
-
-  *Status.* Implemented.
-
-  *Frequency.* Caught; a distractor overlapping a trigger arises when the right boundary of
-  a window is moved forward.
+- ~~1.2. Distractor geometry~~ · `distractor-geometry` — **retired 2026-09-07** together with the
+  `distractor_windows` field; the reason is in the note that replaced group 6. The rules `S-14`,
+  `S-15`, `S-16`, `S-31` and `S-37` (a decoy on a window boundary, with its ten-second warning
+  under 2.5) were removed from the validator; `S-04` with 1.5 and `S-26` with 6.3. The name stays in the contract so
+  that the reviews saved under checklist 2026-08-24 still read.
 
 - `[A]` **1.3. Basic integrity of the sample.** · `sample-integrity`
 
@@ -251,21 +242,13 @@ versa (see 9.4).
 
   *Frequency.* Never.
 
-- `[A]` **1.5. A multi-trigger sample has at least one distractor.** · `multitrigger-has-distractor`
-
-  *Statement.* Distractors give what the overall false-positive statistic does not: a
-  penalty for a **specific** premature error at the place where it is easiest to fall for.
-  Without them a multi-trigger sample cannot tell a model that caught the condition from a
-  model that guessed the rhythm.
-
-  Talking non-stop is punished not by this item but by the false-positive metric and the
-  number of answers per sample — those are always counted.
-
-  *Checking algorithm.* `len(triggers) > 1` requires a non-empty `distractor_windows`.
-
-  *Status.* Implemented.
-
-  *Frequency.* Caught when triggers were added to a sample that started out single-shot.
+- ~~1.5. A multi-trigger sample has at least one distractor~~ · `multitrigger-has-distractor` —
+  **retired 2026-09-07**. Talking non-stop is punished by the false-alarm rate and by the number
+  of answers per sample (plan §3, item 3), and both are always computed; a spammer lands in any
+  interval, so an annotated one added nothing. What the rule did do was make the proposer
+  invent a distractor for every multi-trigger sample — and, read as "for every sample", for 19
+  of the 44: a gap `[question_time, t_start)` whose end betrayed `t_start` to the semi-blind
+  reviewer (see 2.2). Rule `S-04` removed.
 
 - `[A]` **1.6. `video.duration` is cross-checked against `bundle.json`.** · `duration-matches-bundle`
 
@@ -467,45 +450,76 @@ animation is running, and the picture looks incomplete.
   checker looking for the condition to be met will find nothing; a checker who tries to
   answer will answer.
 
-  *Checking algorithm.* The check is carried out by the **semi-blind reviewer**, and they do
-  not answer the question "could you answer?". For a sample with several windows that
-  question is meaningless — the answer is "yes, many times, that is the whole point". They
-  answer the question "**from which moment** can one answer?", and that is a single number
-  `t_val`.
+  *Checking algorithm.* Three stages, two of them by agents who do not know the reference
+  answer, one by an agent who does — and each is used where it is not biased. The
+  vocabulary: *blind* is the answer before any material (step 0, `prior_answer`);
+  *semi-blind* is an agent with material up to `until` and neither answer, nor rubric, nor
+  `t_start`; *sighted* is the full reviewer with the rubric.
 
-  The video is split into stretches, one per **every** window, required and optional alike:
-  stretch `k` runs from the `t_end` of the previous window to the `t_end` of its own. The
-  reviewer receives material only up to the upper bound of their stretch and looks inside it
-  for the earliest point `t_val` from which the question can be answered on the merits. The
-  comparison is done by the coordinator: `t_val[k] < t_start[k]` is a hit.
+  **Stage A — the semi-blind trajectory.** The video is split into stretches, one per
+  **every** window, required and optional alike: stretch `k` runs from the `t_end` of the
+  previous window to the `t_end` of its own. The reviewer receives the transcript, the
+  description of the video track and the scene frames up to the upper bound of the
+  stretch, reads the description of the stretch **in full** (not searches it), and at
+  **every** moment where the state of the screen or the speech relevant to the task
+  changed writes a complete answer from what is available up to that moment — the
+  `Candidate` records of the contract, the last one at the end of the stretch. They do not
+  answer "could I answer?" — for a multi-window sample that question is meaningless. They
+  answer at every point, and whether an answer is good enough is not theirs to decide: a
+  confidently wrong answer that settled early looks exactly like a right one. Points they
+  call sufficient, and any point where the description is ambiguous (the middle of an
+  animation), are confirmed on real frames.
 
-  **The distractors are handed to the reviewer**, with their windows and reasons. Otherwise
-  the check breaks against the sample's own traps: a reviewer who does not know a moment is
-  marked as a distractor will honestly put `t_val` there, the coordinator will derive 2.2
-  and move the boundary left — and the trap will disappear. On the pilot 8 of the 15
-  segments are built this way. The check is not weakened by this: whether a distractor
-  really is a distractor is answered by 6.2, and that is the work of the sample reviewer,
-  who has the reference answer. The semi-blind reviewer looks for moments **other than** the
-  declared ones.
+  **Adjudication.** The coordinator, who has the rubric, checks every answer of the
+  trajectory item by item and takes the first one that meets all the required items as
+  `t_val_A` (the table format is in `prompts/coordinator.md`). The reviewer's own `t_val`
+  is a self-report and has no status. Comparison: `t_val_A[k] < t_start[k]` is a hit.
 
-  The window boundaries are not named to the reviewer: the upper bound of the stretch is the
-  `until` field in the `limits.json` of their workspace, and `t_start`, which is exactly what
-  they are checking, is not shown to them at all. Hence the "semi-": they know the end of the
-  stretch from the structure of the task, and not the quantity under test.
+  **Stage B — the sighted proposal.** The full reviewer, who knows the answer, may name
+  `t_s`: the first moment from which, in their view, the rubric is satisfiable, with the
+  frame that shows it. They used to be forbidden the left boundary outright because of a
+  known bias — knowing the answer, they "recognise" it in a half-drawn frame and pull the
+  boundary left. The ban is lifted because a check now follows.
+
+  **Stage C — the semi-blind verification.** If `t_s < t_val_A`, a fresh semi-blind probe
+  (`probe_verify`) receives the task **without its when-clause** and the material exactly
+  up to `t_s`, and answers. Rubric met → `t_val = t_s`: the sighted reviewer found an
+  earlier form of the information that stage A walked past, and it objectively exists.
+  Not met → `t_val = t_val_A`: the sighted reviewer recognised the answer in a half-frame.
+  If `t_s ≥ t_val_A`, stage C is not needed. An early **correct** answer of an evaluated
+  model at `t_m < t_start` is a ready-made `t_s`: stage B is skipped and stage C runs at
+  `t_m` directly.
+
+  Nothing in the material names the window boundaries: the upper bound of the stretch is
+  the `until` field in the `limits.json` of the workspace, and `t_start`, which is exactly
+  what is being checked, is shown to nobody who is semi-blind. Hence the "semi-": they know
+  the end of the stretch from the structure of the task, and not the quantity under test.
+  **Nothing else may be passed to them either.** Until 2026-09-07 the declared distractor
+  windows were handed over as exclusion zones, and their `t_end` coincided with `t_start`
+  in 23 samples of 44; `t_val` landed within a second after that end in 19 of the 23 —
+  three different models, the same behaviour. The check had become a comparison of two
+  numbers the annotation itself supplied. The field is gone, and with it the leak.
+
+  Why a trajectory and not "the first moment you find sufficient": the pilot reviewers
+  wrote "supplies all four concrete values and signs" about a moment they then excluded,
+  and nobody read the phrase as "the rubric is met". A full answer per point makes the
+  hit visible to whoever has the rubric. The variety "the same information in another
+  form" is caught by construction: the reviewer is not looking for the condition of the
+  question to occur, they are answering.
 
   The split into stretches is there for coverage. A single prefix up to the `t_start` of the
   first window checks the left boundary of that window only; on the nine-window `q06` the
-  other eight are checked by nobody, because 2.2 and 2.3 are forbidden to the sample
-  reviewer.
+  other eight are checked by nobody.
 
-  "On the merits" here is a qualitative judgement by the checker rather than a score: a
+  "On the merits" here is a qualitative judgement against the rubric rather than a score: a
   numeric scale is needed by the metric that evaluates models, and at the annotation stage it
   would only create an appearance of precision.
 
-  On budget: the transcript in full (free), then sparse viewing of the stretch, then a binary
-  search between the last "no" and the first "yes" — two or three dense steps instead of a
-  fine grid over the whole stretch. On the pilot the stretches run up to thirty minutes, so
-  this is the ordinary case rather than the exception.
+  On budget: the transcript in full (free), the description of the stretch in full (about
+  8 KB per 20 s of gap on the pilot videos, free), the scene frames of the stretch (2–10),
+  and a dense pass at 1 fps only to confirm a chosen moment or to take apart the middle of
+  an animation. The description was made by a model: a number or a verbatim text is
+  confirmed on a frame before it goes into the review.
 
   *What to do on a hit.* Two options. Move `t_start` to the early moment — appropriate when
   the visual condition in the question was merely an anchor. Or keep the window and add an
@@ -513,12 +527,14 @@ animation is running, and the picture looks incomplete.
   the main window are correct; appropriate when the condition is substantive and forms part
   of the task.
 
-  *Status.* Not implemented. In the pipeline it is the semi-blind reviewer and the `t_val`
-  field in `scans`; the verdict is derived by the coordinator, because the reviewer has no
-  `t_start`.
+  *Status.* Not implemented as code. In the pipeline it is the semi-blind reviewer's
+  `scans[].candidates` (stage A), the full reviewer's `t_s` (stage B), the `probe_verify`
+  role (stage C) and the coordinator's adjudication table; the verdict is derived by the
+  coordinator, because the reviewer has no `t_start`.
 
   *Frequency.* Caught repeatedly, in both varieties. The commonest substantive annotation
-  error.
+  error. The audit of 2026-09-05 found that 7 of the 11 early correct answers of the
+  evaluated model on the pilot were 2.2 hits the previous form of the check had missed.
 
 - `[M]` **2.3. The answer was available even before `question_time`.** · `answer-available-before-question`
 
@@ -639,8 +655,8 @@ exhaustive one:
 - 3.2 and 3.3 work on each trigger separately, and a lone trigger is checked by them exactly
   as a ninth one is;
 - 3.1 is always needed: a moment that a model will in good faith take for a firing but that
-  is marked as neither a trigger nor a distractor turns a correct answer into a false alarm
-  — regardless of how many windows the sample has.
+  is not marked as a trigger turns a correct answer into a false alarm — regardless of how
+  many windows the sample has.
 
 **Exhaustiveness** — questions of the form "every time when …", "keep track of which
 quantities the author defines formally" — changes not the applicability of 3.1 but the
@@ -649,12 +665,12 @@ quantities the author defines formally" — changes not the applicability of 3.1
 | Question | An uncovered candidate is found |
 |---|---|
 | exhaustive | add a trigger: it promised to react to every such moment |
-| not exhaustive ("when for the first time …") | add a distractor with the reason for the exclusion, or refine the wording so the candidate falls out of it |
+| not exhaustive ("when for the first time …") | refine the wording so the candidate falls out of it; if the candidate is a genuine earlier form of the answer, it is a 2.2 hit and the window moves (or an optional trigger is added) |
 
 ⚠ There is no formal marker of exhaustiveness in the annotation: two samples on the pilot
 are exhaustive, and they have different `act` (`monitor` and `ground`), while being
 multi-trigger does not coincide with being exhaustive. The checker reads the wording and
-proposes a cure based on it; the choice between "trigger" and "distractor" is made by the
+proposes a cure based on it; the choice between "trigger" and "wording" is made by the
 coordinator. Whether to introduce an explicit flag — see "Open questions"; it no longer
 affects how the group works.
 
@@ -671,13 +687,13 @@ affects how the group works.
   cheaper than hunting for a gap afterwards.
 
   For visual conditions — sparse viewing of the whole video. If a stretch is found that is
-  covered by neither a trigger nor a distractor and that looks like a firing, dense viewing
-  of its surroundings follows, to confirm it and pin down the moment it begins.
+  covered by no trigger and that looks like a firing, dense viewing of its surroundings
+  follows, to confirm it and pin down the moment it begins.
 
   The result is checked against the trigger set: everything found must be either a trigger or
-  a distractor with the reason for the exclusion stated. There must be no third state — "the
-  moment meets the criterion but is not in the annotation" — for it is exactly that which
-  punishes the model for a correct answer.
+  excluded by the wording of the question itself. There must be no third state — "the moment
+  meets the criterion but is not in the annotation" — for it is exactly that which punishes
+  the model for a correct answer.
 
   What cures a candidate that has been found depends on whether the question is exhaustive
   (the table in the group's preamble). The checker proposes an option based on the wording
@@ -730,6 +746,34 @@ affects how the group works.
   *Status.* Not implemented, checked by hand.
 
   *Frequency.* Caught.
+
+- `[M]` **3.4. A task over elements that appear one by one has optional triggers on the elements.** · `elementwise-optional-triggers`
+
+  *Statement.* When the task is a mapping over N elements that the author draws in sequence
+  (three coloured pieces and the three terms they stand for), and the rubric splits into one
+  item per element, the best proactive behaviour is to report each element as it appears.
+  An annotation that opens the only window at "all N simultaneously complete" punishes
+  exactly that behaviour: on the pilot the evaluated model narrated blue at its appearance,
+  yellow at its appearance and pink at its appearance — and would have been charged two false
+  alarms out of three answers. `general.md` already defines an optional window as "do not
+  penalise an answer here".
+
+  The wording "simultaneously complete" is legitimate only when the joint state is needed
+  for the answer — a comparison between the elements — and not for the annotator's
+  convenience.
+
+  *Checking algorithm.* Does the rubric split by elements? Do the elements appear with gaps
+  of more than 3 s between them (scene frames, then dense viewing around the appearances)?
+  If both — every element whose appearance precedes the required window gets an **optional**
+  trigger from its appearance to the appearance of the next element, with the rubric item(s)
+  it makes answerable; the required trigger stays on the completion with the full rubric.
+  Windows must not overlap and are subject to 1.11 (no shorter than five seconds) and 2.1.
+  If the question insists on "simultaneously" without a reason — `FIX_QUESTION`, otherwise
+  `FIX_INTERVALS`. `na` when the rubric does not split by elements.
+
+  *Status.* Not implemented. The sample reviewer, with the frames of the assembly.
+
+  *Frequency.* Caught once (`3d6DsjIBzJ4` q14), from the traces of the evaluated model.
 
 ---
 ## 4. Solvability that bypasses the video
@@ -829,6 +873,30 @@ merged into 4.2; the former 4.7 (recognising the video) became 4.3; the former 4
   measurement for the wrong one; a reviewer who named two numbers must not be credited with
   the better of them — otherwise it is enough to list the plausible options to declare any
   sample solved blind.
+
+  **A caveat about notation, colour or verbatim wording is not an assumption about
+  content** (rule of 2026-09-07; the boundary between a guessed datum, a recalled datum and an
+  unguessable colour is still under discussion). Two answers that look alike are scored differently:
+
+  - "2.5, if the screen shows the standard example 1/2, 1/4, 1/8, 1/8" — the correctness of
+    the answer depends on an assumption about the screen. A guess; `prior_answer_assumptions`
+    is non-empty; `blind_solved = false`. This is the rule above, unchanged.
+  - "pᵢ f′(qᵢ) = λ → q f′(q) = λ → f = λ log q; which notation and colours the screen uses
+    I cannot say" — the correctness of the chain does not depend on the screen. The caveat
+    concerns what the rubric may demand *beyond* the content. Here the coordinator scores
+    `prior_answer` against the rubric **item by item, ignoring the caveat**: substantive
+    items (a quantity, a relation, a derivation) the reviewer named count as met; items
+    about the screen itself (a colour, a notation, a displayed number) that the reviewer
+    did not name count as not met. Only the substantive items decide `blind_solved`: if all
+    of them are met, the sample is solved blind, and a rubric item about a colour does not
+    rescue it — such a sample tests colour recognition, not the science, and is not the
+    `L1` alarm the benchmark wants. The verdict names in `coordinator.N.md` which items
+    were met blind, so that it is visible what the sample rests on.
+
+  The reviewer, in turn, is asked for **content, not a meta-statement about it**: "known
+  only the general Lagrangian derivation" is not an answer, the derivation itself followed
+  by the caveat is. A strong reviewer is an upper bound on blind solvability, and that is
+  the deliberate strictness of the criterion.
 
   *The pilot example the rule was written for.* The semi-blind reviewer on `q01` (the
   counterfactual "swap the code words") honestly wrote: "I cannot name an exact number, I was
@@ -1039,8 +1107,8 @@ merged into 4.2; the former 4.7 (recognising the video) became 4.3; the former 4
 This group is about the **participating model** — the one the benchmark will evaluate at
 measurement time (the plan, §1.3: generator ≠ judge ≠ participant). It will be given **only
 the `question` string**. Neither `response`, nor `rubric`, nor `question_time_note`, nor
-`distractor.why`, nor `validation.notes` will be shown to it: the rubric is an instruction to
-the judge, not part of the problem.
+`validation.notes` will be shown to it: the rubric is an instruction to the judge, not part of
+the problem.
 
 The checker, by contrast, sees the whole sample, and that is the entire point of the group: to
 compare the criterion available to them against what the participant will get. A discrepancy
@@ -1103,20 +1171,20 @@ asks, there is no point arguing about window boundaries.
 
 - `[M]` **5.3. Everything that separates a right answer from a wrong one is in the question itself.** · `discriminator-in-question`
 
-  *Statement.* The condition by which a trigger differs from a decoy is often formulated for
-  the first time in a service note — and stays there. The model does not see it and is caught
-  on a distinction it was never warned about.
+  *Statement.* The condition by which the correct answer differs from a plausible wrong one
+  — an early value later refined, a similar wording used about another object, the same
+  number with a different origin — is often formulated for the first time in a service
+  note or in an excluding rubric item, and stays there. The model does not see it and is
+  caught on a distinction it was never warned about.
 
-  *Checking algorithm.* Take each `distractor.why` and show which word or phrase of the
-  question cuts the decoy off. If there is no such word, the model is penalised for a
-  distinction it was not told about.
+  *Checking algorithm.* Take every excluding item of the rubric ("do NOT credit X") and every
+  plausible wrong answer visible in the material before or beside the window, and show
+  which word or phrase of the question cuts it off. If there is no such word, the model is
+  penalised for a distinction it was not told about.
 
-  Ask the same question of the excluding items of the rubric ("do NOT credit X"): if answer X
-  counts as wrong, the question is obliged to give grounds for rejecting it.
-
-  Look especially carefully at decoys where **the value of the answer itself** coincides and
-  the distinction rests only on its origin or on an accompanying condition. Such decoys are
-  legitimate, but only provided the origin is named in the question.
+  Look especially carefully at the cases where **the value of the answer itself** coincides
+  and the distinction rests only on its origin or on an accompanying condition. Such
+  distinctions are legitimate, but only provided the origin is named in the question.
 
   *Status.* Step 0 of the sample reviewer, no frames needed. Verdict `FIX_QUESTION`.
 
@@ -1145,94 +1213,35 @@ asks, there is no point arguing about window boundaries.
 
 ---
 
-## 6. Distractors
+## 6. Distractors — retired 2026-09-07
 
-A distractor is the place where a wrongly reasoning model will most likely speak up. It must
-catch misunderstanding, not nitpick the wording. The formal constraints on its boundaries are
-in 1.2.
+The group and the `distractor_windows` field it checked were removed. The numbers 6.1–6.4 are
+not reused; the names `distractor-fully-covered`, `distractor-not-correct-answer`,
+`twins-keep-legal-distractor`, `distractor-why-hides-answer` stay in the contract so that the
+reviews saved under checklist 2026-08-24 still read.
 
-- `[M]` **6.1. The decoy is covered by the window in full.** · `distractor-fully-covered`
+Why. The plan gave the field three jobs, and none of them needed it. (1) Template 2, "an
+answer in the early window must lower the score": an early answer, right or wrong, lies
+outside every window, earns no PAUC and raises the false-alarm rate — the score is lowered
+without an annotated interval. (2) Anti-spam for multi-trigger samples: a spammer lands in
+any interval, and the false-alarm rate plus the answers-per-sample count from the same
+paragraph of the plan catch spam more directly. (3) The trap rate: it measured hits on an
+**a priori guessed** decoy, and not one of the 44 was ever checked to catch anybody; the
+diagnostic "what do models fall for" is obtained honestly after the fact, by clustering the
+false alarms of several models in time.
 
-  *Statement.* The real temptation is almost always wider than the window the annotator sets:
-  discussion of the topic begins before the characteristic phrase is spoken, and the caption on
-  screen disappears somewhere other than where it seems. A model tempted five seconds before
-  the edge of the window will not be penalised.
+What the field cost. To satisfy the former 1.5 the proposer put a gap `[question_time,
+t_start)` under the name of a distractor in 19 samples of 44 — an interval that describes the
+*absence* of an answer, not a *wrong* one. Handed to the semi-blind reviewer as an exclusion
+zone, its end gave away `t_start`, and the key check 2.2 became a comparison of two numbers the
+annotation itself supplied (see the *Checking algorithm* of 2.2). The four items here, the
+passing of decoys to the reviewer and the "insurance policy" of the coordinator all rested on
+that field.
 
-  *Checking algorithm.* Take the reason for the distractor from `distractor.why`, find the
-  actual boundaries of that fragment in the transcript and the frames, and extend the window to
-  them.
-
-  *Status.* Not implemented, checked by hand.
-
-  *Frequency.* Caught.
-
-- `[M]` **6.2. The distractor is not a correct answer under the wording of the question.** · `distractor-not-correct-answer`
-
-  *Statement.* If the distinction between trigger and decoy rests on a single word in the
-  question, there is a risk that the distractor is in fact a second correct answer and the
-  annotation penalises it out of pedantry. The item is adjacent to 5.4 but is checked from the
-  other side: there we look at the rubric, here at the decoy.
-
-  *Checking algorithm.* Read the question, forgetting `distractor.why`, and decide: could this
-  moment be considered a firing in good faith? If it could, either sharpen the question or turn
-  the distractor into an optional trigger.
-
-  *Status.* Step 0 of the sample reviewer, no frames needed. Verdict `FIX_QUESTION`.
-
-  *Frequency.* Caught.
-
-- `[A]` **6.3. The twins have not lost a decoy they could both have had.** · `twins-keep-legal-distractor`
-
-  *Statement.* The item follows from 5.1. If one twin has a distractor and the other does not,
-  the trap-hit rates are incomparable and the pair's trap column becomes meaningless.
-
-  Full coincidence cannot be demanded, and that is not annotation sloppiness but geometry: for
-  the twin with the later `question_time` some decoys physically fall before the question is
-  issued and are forbidden by item 1.2. Such a decoy is obliged to be absent.
-
-  Hence the checkable form of the requirement: **a decoy that is legal for both is obliged to
-  be present in both**. A decoy is legal for a sample if it does not lie entirely before that
-  sample's `question_time`. Decoys dropped by that boundary are not an error.
-
-  A consequence to remember when reading the results: an `at`/`post` twin usually has no decoys
-  at all. The false-alarm metric is not compared across such a pair — `PAUC` is. That is a
-  limitation of the pair, not a defect of the sample.
-
-  *Checking algorithm.* For each pair: collect the decoys of both, discard those lying entirely
-  earlier than the `question_time` of the twin that lacks them, compare the remainder.
-
-  *Status.* Implemented: `S-26` in `cross_sample_checks`, the same place as 5.1.
-
-  *Frequency.* Never: in the pilot, both `at`/`post` twins lost their decoys legally at the
-  `question_time` boundary.
-
-- `[M]` **6.4. `distractor.why` does not name the correct answer.** · `distractor-why-hides-answer`
-
-  *Statement.* The reason for a decoy is passed to the semi-blind reviewer (2.2): without it
-  they will fall into the sample's own trap, and the coordinator will erase it by "fixing" the
-  window boundary. But the text of `why` is written by an annotator who knows the answer, and
-  the answer easily finds its way in — and then passing the decoys turns into passing the
-  reference answer, and the semi-blind reviewer stops being blind.
-
-  An example of the defect from the pilot, now removed: the former `q03` had in its `why` the
-  words "from 1621.8 the author himself states the assumption ('only … identical
-  distribution')" — that is, the answer to the question, verbatim, in quotation marks.
-
-  How it should be: `why` explains **what makes the moment tempting and what it lacks**. "The
-  bubble shows the naive code, but the code words are of equal length and there are no
-  probabilities beside them — the condition of the question is not met" will do: the temptation
-  is named, the answer is not.
-
-  *Checking algorithm.* Textual: read the `why` of each decoy and ask whether `response`, or at
-  least one item of the rubric, can be reconstructed from it. No frames needed.
-
-  *What to do on a hit.* A text-level `FIX_QUESTION`: rewrite `why`. The sample itself is
-  healthy — only the transmission channel is spoiled.
-
-  *Status.* Not implemented. Step 0 of the sample reviewer: they have both the `why` and the
-  reference answer, that is, exactly what the comparison needs.
-
-  *Frequency.* Caught once in the pilot.
+What remains of template 2 is a property of the wording: an early plausible but wrong value
+before the correct one. The proposer's intent is recorded, when they wish, in the optional
+`provenance.trap_note` — a string with no interval, not validated, not scored, shown to no
+reviewer.
 
 ---
 ## 7. Labels
@@ -1605,8 +1614,8 @@ with it. It is caught badly, because the eye slides over familiar text.
    The full working order of the verifier is described in
    [docs/annotation_pipeline.md](annotation_pipeline.md).
 
-3. `[H]` — there are **no** items that would wait for a human: the last three (4.8, 6.3, 7.4)
-   have been handed to the reviewer and the validator. The level remains an escalation point:
+3. `[H]` — there are **no** items that would wait for a human: the last ones (4.8, 7.4) have
+   been handed to the reviewer and the validator. The level remains an escalation point:
    everything the edit cycle has not closed in three iterations lands here, as do cases where the
    reviewers persistently disagree. Separate from that is acceptance (step 6 of the pipeline) —
    it is exhaustive, but it checks the checklist as a whole rather than individual items.
@@ -1620,7 +1629,7 @@ A separate case where the steps conflict: 2.2 requires shifting `t_start` to the
 where the answer is possible, while 1.1 forbids a window to start earlier than `question_time`.
 If that moment turns out to be earlier than the issue of the question, this is already case 2.3:
 what is fixed is not the window but the intent — either `question_time` is moved, or the sample
-is re-annotated as `post`. After that 7.1, 5.1 and 6.3 are re-checked.
+is re-annotated as `post`. After that 7.1 and 5.1 are re-checked.
 
 None of the three levels replaces the others. Tellingly, independent adversarial reviews of the
 pilot each found several substantive errors at a time when the validator was steadily showing
@@ -1635,6 +1644,12 @@ reason: without it the same forks get discussed anew in a month.
 
 ### Closed
 
+- **Distractor windows** — the field `distractor_windows`, its four items (group 6) and the
+  automatic rules 1.2 and 1.5 were removed on 2026-09-07. The reason is in the note that
+  replaced group 6: for scoring the field duplicated the false-alarm rate, for anti-spam the
+  answers-per-sample count, and in review it leaked `t_start` to the semi-blind reviewer.
+  Template 2 remains as a property of the wording; the intent goes into
+  `provenance.trap_note`.
 - **The semantics of `provenance.chapter`** — the field has been removed. It denormalised what is
   derived from `triggers` and `info.json`, and went stale when a window shifted across a chapter
   boundary. All its uses (human navigation, diversity control, cutting the video into intervals

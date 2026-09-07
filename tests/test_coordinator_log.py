@@ -60,7 +60,7 @@ class CoordinatorLogCliTest(unittest.TestCase):
         edit = self.run_cli(
             "sample-edit",
             "--sample-id", "sample-q05",
-            "--changes", "Added distractor window [1706,1720); question unchanged.",
+            "--changes", "Moved t_start of trigger 0 to 1706.0; question unchanged.",
             "--source", "full_sample.4.json",
         )
         self.assertEqual(edit.returncode, 0, edit.stderr)
@@ -74,6 +74,67 @@ class CoordinatorLogCliTest(unittest.TestCase):
         self.assertEqual(events[2]["source"], "full_sample.4.json")
         for event in events:
             self.assertIsNotNone(datetime.fromisoformat(event["ts"]).tzinfo)
+
+    def test_adjudicate_is_recorded_and_checked(self):
+        ok = self.run_cli(
+            "adjudicate", "--sample-id", "sample-q10", "--iteration", "3",
+            "--t-val-a", "704.0", "--t-s", "690.0", "--verified", "no",
+            "--t-val", "704.0", "--source", "semiblind.3.json",
+        )
+        self.assertEqual(ok.returncode, 0, ok.stderr)
+        events = self.read_events()
+        self.assertEqual(events[-1]["event"], "adjudicate")
+        self.assertEqual(events[-1]["t_val_a"], 704.0)
+        self.assertEqual(events[-1]["verified"], "no")
+        result = self.run_cli("check")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("1 adjudications", result.stdout)
+
+    def test_check_rejects_an_inconsistent_adjudication(self):
+        self.assertEqual(self.run_cli(
+            "adjudicate", "--sample-id", "sample-q10", "--iteration", "3",
+            "--t-val-a", "704.0", "--t-s", "690.0", "--verified", "yes",
+            "--t-val", "704.0", "--source", "semiblind.3.json",
+        ).returncode, 0)
+        result = self.run_cli("check")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("verified=yes but t_val != t_s", result.stderr)
+
+        self.assertEqual(self.run_for_video(
+            "other-video",
+            "adjudicate", "--sample-id", "sample-q11", "--iteration", "1",
+            "--t-val-a", "800.0", "--t-s", "790.0", "--verified", "na",
+            "--t-val", "800.0", "--source", "semiblind.1.json",
+        ).returncode, 0)
+        result = self.run_for_video("other-video", "check")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("no verification was run", result.stderr)
+
+    def test_check_rejects_unverified_and_unbound_adjudications(self):
+        cases = {
+            "no-t-val-a": (["--t-s", "690.0", "--verified", "na", "--t-val", "690.0"],
+                           "no verification was run"),
+            "unbound": (["--t-val-a", "704.0", "--verified", "na", "--t-val", "123.0"],
+                        "verified=na but t_val != t_val_a"),
+            "yes-without-t-s": (["--t-val-a", "704.0", "--verified", "yes"],
+                                "verified=yes without a t_s"),
+        }
+        for video, (args, message) in cases.items():
+            self.assertEqual(self.run_for_video(
+                video, "adjudicate", "--sample-id", "sample-q10", "--iteration", "1",
+                *args, "--source", "semiblind.1.json",
+            ).returncode, 0)
+            result = self.run_for_video(video, "check")
+            self.assertEqual(result.returncode, 1, video)
+            self.assertIn(message, result.stderr, video)
+
+    def test_check_accepts_an_adjudication_with_no_answer_and_no_proposal(self):
+        self.assertEqual(self.run_cli(
+            "adjudicate", "--sample-id", "sample-q10", "--iteration", "1",
+            "--verified", "na", "--source", "semiblind.1.json",
+        ).returncode, 0)
+        result = self.run_cli("check")
+        self.assertEqual(result.returncode, 0, result.stderr)
 
     def test_check_accepts_a_balanced_log(self):
         self.assertEqual(self.run_cli(

@@ -6,9 +6,10 @@ Working in parallel with you and knowing nothing about you are the semi-blind re
 ([reviewer_semiblind.md](reviewer_semiblind.md)) and one per-window reviewer for each
 window ([reviewer_full_window.md](reviewer_full_window.md)).
 
-Window boundaries are not your work. What belongs to you is everything that concerns the
-sample as a whole: the text of the question, the rubric, the distractors, the references,
-the reference answer and the completeness of the trigger set.
+Window boundaries are not your work, with one exception described below (`t_s`). What
+belongs to you is everything that concerns the sample as a whole: the text of the question,
+the rubric, the references, the reference answer, the completeness and the shape of the
+trigger set.
 
 The sample is handed over **in the body of the prompt** rather than read from a file:
 otherwise you would see the neighbouring questions about the same video and their
@@ -33,7 +34,11 @@ The fixes are applied by the coordinator.
 
 The checks on the left boundary of the window (2.2 and 2.3) are **not** charged to you:
 you know the reference answer and therefore "recognise" it where it is not there yet. They
-are done by the semi-blind reviewer.
+are done by the semi-blind reviewer. What you may do is **propose** an earlier moment —
+the `t_s` field, see step 2 — and the proposal moves nothing by itself: a fresh semi-blind
+probe will be given the material up to your `t_s` and asked to answer, and only if it
+answers to the rubric does the boundary move. So propose where you genuinely see the
+information on screen, not where you recognise the shape of the answer.
 
 The right boundaries and the insides of individual windows (2.4, 2.5, 3.3, 7.4, 7.5) are
 not charged to you either — they are taken apart by the per-window reviewers, each with a
@@ -44,7 +49,7 @@ went to `skipped`, and `skipped` forbids `PASS`.
 ## What you are given
 
 - **the whole sample** — in the body of this prompt: the question, `question_time`, the
-  windows, the reference answers, the rubrics, the distractors, the provenance, the notes;
+  windows, the reference answers, the rubrics, the provenance, the notes;
 - the workspace `<WORKSPACE>`:
   - `transcript.md` — the lines of speech with timecodes;
   - `frames.md` — an **index** of the available frames: the timecode and the directory to
@@ -79,7 +84,7 @@ Quotas per check, so that the budget is not eaten by the very first operation:
 | Check | Quota |
 |---|---|
 | 3.1 — scene-frame pass over the whole video | up to 30 frames |
-| 6.1 — distractors in full | up to 10 frames |
+| 3.4 — the assembly of the elements before the first window, and `t_s` | up to 10 frames |
 | 5.4 and 8.2 — pinpointed | the remainder |
 
 The budget is yours for the whole sample, and its main eater is 3.1: it is the one check
@@ -165,8 +170,8 @@ depends on the level.
 Then come three comparisons of the question against the rubric. All of them rest on one
 fact about how the sample will be used later.
 
-You see the sample in full: the question, the reference answer, the rubric, the reasons
-for the distractors. **The participating model that this sample will be used to evaluate
+You see the sample in full: the question, the reference answer, the rubric, the notes.
+**The participating model that this sample will be used to evaluate
 will see only the `question` string.** The rubric is an instruction to the judge, not part
 of the statement; the annotator's notes are shown to nobody. So everything that tells a
 correct answer from an incorrect one must follow from that one string.
@@ -191,16 +196,15 @@ the requirement that is missing. Whether to remove the item or add the requireme
 coordinator's decision.
 
 **Item 5.3 — everything that tells a correct answer from an incorrect one is in the
-question.** Take every `distractor.why` and show which word or turn of phrase in the
-question cuts the distractor off. If there is no such word, the participant is punished
-for a distinction they were not warned about.
+question.** Take every excluding rubric item ("do NOT count X") and every plausible wrong
+answer you can see in the material before or beside the window — an early value later
+refined, a similar wording about another object, the same number with a different origin —
+and show which word or turn of phrase in the question cuts it off. If there is no such
+word, the participant is punished for a distinction they were not warned about.
 
-Ask the same question of the excluding rubric items ("do NOT count X"): if X is deemed
-incorrect, the question is obliged to give grounds for rejecting it.
-
-Check separately those distractors where the **value itself** coincides and the
-distinction rests on its origin or on an accompanying condition. Such distractors are
-legitimate, but only if that origin is named in the question.
+Check separately the cases where the **value itself** coincides and the distinction rests
+on its origin or on an accompanying condition. Such distinctions are legitimate, but only
+if that origin is named in the question.
 
 **Item 5.4 — the rubric does not penalise a correct detail beyond what was expected.**
 Right now, without frames, only write out the **restrictive** items of the rubric: the
@@ -219,9 +223,6 @@ measures the difference between two tasks, and the pair's conclusion becomes inv
 judge sees exactly the `response`, so a divergence here is costlier than in any other
 field. No `twin_of` — put `na`.
 
-**Item 6.2 — the distractor really is incorrect** under the wording of the question,
-rather than being a second good-faith answer punished over a quibble about a word.
-
 **Item 4.8 — the question is anchored to the screen, not to the topic.** Name the words in
 the text of the question that point at a specific screen: objects, their position,
 captions, values on the axes. If not one is found and the question rests on the topic
@@ -237,15 +238,16 @@ the same defect is done by the semi-blind reviewer and is not charged to you.
 **Item 3.1 — completeness of the firings.** Always done, not only for questions of the
 form "every time when…". Walk the transcript **line by line, in sequence**, not by
 searching for words, and ask: does this line fall under the condition? Everything you find
-must be either a trigger or a distractor; a moment that meets the criterion and is marked
-as nothing punishes the model for a correct answer.
+must be either a trigger or excluded by the wording of the question; a moment that meets
+the criterion and is marked as nothing punishes the model for a correct answer.
 
 What the wording determines is not whether to do the check but what to propose when
 something is found:
 
 - an exhaustive question ("every time when…") — add a trigger;
-- a question about a single moment ("when for the first time…") — add a distractor with
-  the reason for the exclusion, or refine the wording so the candidate falls out of it.
+- a question about a single moment ("when for the first time…") — refine the wording so
+  the candidate falls out of it; if the candidate is a genuine earlier form of the answer,
+  that is a matter for the left boundary — name it in `t_s` (step 2).
 
 Propose an option, but do not insist: the coordinator chooses.
 
@@ -278,9 +280,26 @@ the question? If there is, the item punishes a correct detail. Propose either so
 the item or narrowing the question — the second is usually better, because it also removes
 the ambiguity for the participating model.
 
-**Item 6.1 — the distractor is covered in full.** The actual boundaries of the temptation
-are usually wider than the distractor window: the discussion of the topic begins before
-the characteristic phrase.
+**Item 3.4 — elements that appear one by one have optional triggers.** If the task is a
+mapping over N elements the author draws in sequence (three coloured pieces and their three
+terms) and the rubric splits into one item per element, look at the frames of the assembly
+before the first required window: do the elements appear with gaps of more than three
+seconds? If they do and there is no optional trigger per element, the best proactive
+behaviour — report each element as it appears — is charged with false alarms. Propose the
+optional windows (from an element's appearance to the next one's, no overlaps, no shorter
+than five seconds) with the rubric item each makes answerable; if the wording insists on
+"simultaneously complete" without the joint state being needed for the answer, that is
+`FIX_QUESTION`. `na` when the rubric does not split by elements.
+
+**`t_s` — your proposal for the left boundary (stage B).** From the frames you have already
+opened, name the first moment from which, in your view, **every required item of the
+rubric** of the first required window can be met, and in `t_s_basis` the frame and what on
+it meets each item. Leave `t_s` null if you see no moment earlier than `t_start`. This is a
+proposal, not a verdict: you know the answer and are biased leftwards — in a half-drawn
+frame you recognise what is not there yet. A fresh semi-blind probe will be given the
+material up to your `t_s` and asked to answer; if it does not answer to the rubric, the
+boundary stays. So the useful `t_s` is the one where the information is *shown*, not where
+the shape of the answer is *recognisable*.
 
 **Item 8.2 — what a reference points at matches its description.** Selectively: look at
 the frames mentioned in `provenance.evidence` and check them against what is written about
@@ -305,27 +324,24 @@ Reviews are not overwritten: from the accumulated files one can see that over th
 of fixes the question is going round in circles, and from a single last file that cannot
 be seen.
 
-**There must be a line in `checks` for every one of the fourteen items of your mode** —
-`no-missed-trigger`, `trigger-matches-criterion`, `question-anchored-to-screen`,
-`rubric-within-question`, `discriminator-in-question`, `rubric-not-punishing-extra`,
-`distractor-fully-covered`, `distractor-not-correct-answer`,
-`distractor-why-hides-answer`, `reasoning-level-not-inflated`,
+**There must be a line in `checks` for every one of the twelve items of your mode** —
+`no-missed-trigger`, `trigger-matches-criterion`, `elementwise-optional-triggers`,
+`question-anchored-to-screen`, `rubric-within-question`, `discriminator-in-question`,
+`rubric-not-punishing-extra`, `reasoning-level-not-inflated`,
 `reference-matches-description`, `references-consistent-with-windows`,
 `reference-answer-verified`, `twins-agree-on-substance` — including the ones that did not
-fire (`ok`) and the ones that do not apply (`na`, for example `distractor-fully-covered`
-on a sample with no distractors). A missing line is indistinguishable from a completed
+fire (`ok`) and the ones that do not apply (`na`, for example `twins-agree-on-substance`
+on a sample with no `twin_of`). A missing line is indistinguishable from a completed
 check, and that is exactly the error `skipped` exists for. The exact list is
 `ROLE_ITEMS[Role.FULL_SAMPLE]` in the contract; the contract will also refuse to save an
-incomplete review.
+incomplete review. Write `"checklist_version": "2026-09-07"` explicitly: a review that does
+not state its version is read under the previous checklist.
+
+Besides `checks`, fill in `t_s` and `t_s_basis` (step 2), or leave `t_s` null.
 
 Items are addressed **by name**, not by number: the checklist numbering changes, and a
 review saved under the key `"4.6"` reads, after a reordering, as a review of a different
 item. The numbers stayed in the checklist for humans.
-
-`target` is required for the distractor items (`distractor-fully-covered`,
-`distractor-not-correct-answer`) and names the `distractor_idx`: there can be several
-distractors, and one `ok` for all of them is unchecked distractors disguised as checked
-ones. One line each.
 
 Every check is filled in **top to bottom, in field order**, and that is not a formality:
 
@@ -347,7 +363,7 @@ The overall `verdict` equals the worst of the ones that fired:
 | Verdict | When |
 |---|---|
 | `PASS` | nothing fired and nothing was skipped |
-| `FIX_INTERVALS` | window boundaries, the trigger set, the distractors |
+| `FIX_INTERVALS` | window boundaries, the trigger set |
 | `FIX_QUESTION` | the wording, the labels, the design |
 | `CRITICAL_FAIL` | `references-consistent-with-windows`, if the contradiction shows that the answer is not inside the windows at all |
 
@@ -363,11 +379,6 @@ Check yourself before reporting:
 ```
 
 Fix and run again — hand the coordinator only what passed.
-
-One consequence of the fixes that has to be flagged in `notes`: turning a distractor into
-an optional trigger (the cure for `distractor-not-correct-answer`) makes the sample
-multi-trigger — and then it is obliged to have at least one distractor. A sample whose
-only distractor has been moved into the triggers will become invalid.
 
 Requirements for `findings` and `looked_at`: specifics that somebody else can check.
 "The window looks a bit large" is useless; "in the frames t=986…t=1000 the graph is

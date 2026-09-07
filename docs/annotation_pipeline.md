@@ -40,7 +40,7 @@ The pipeline is designed around three constraints:
    │  Step 3. Reviewers and probes               │  prompts/reviewer_semiblind.md
    │  semi-blind ─> the moment the answer became │  prompts/reviewer_full_sample.md
    │             possible, contamination flags   │  prompts/reviewer_full_window.md
-   │  per sample ─> question, rubric, decoys     │  prompts/probe_*.md
+   │  per sample ─> question, rubric, t_s        │  prompts/probe_*.md
    │  per window ─> boundaries, one per window   │  checklist groups 2–8
    │  probes  ──> validation.* and audio_dependency │
    └─────────┬──────────────────────────────────┘
@@ -53,7 +53,7 @@ The pipeline is designed around three constraints:
              ▼                      └──────────► back to step 2
    ┌─────────▼──────────┐
    │  Step 5. Checks    │  what is invisible from a single sample:
-   │  across samples    │  twins and their distractors
+   │  across samples    │  twin comparability (5.1)
    └─────────┬──────────┘  on a hit — back to step 4
              │  ▲__________________________________________
              │
@@ -134,9 +134,9 @@ the question, the rubric, the reference answer). Nine reviewers of a nine-window
 times answer the same thing about the rubric and nine times put `skipped` on trigger completeness,
 and `skipped` forbids `PASS` — that is, on multi-window samples the cycle would not converge by
 construction. The boundary is drawn by what the item refers to: what belongs to a window is what
-is settled by looking at that window and nothing more. Decoys, `provenance` references and the
-reference answer do not belong to a window — they are common, and there is nothing to divide them
-between launches by.
+is settled by looking at that window and nothing more. The `provenance` references, the
+reference answer and the shape of the trigger set do not belong to a window — they are common, and
+there is nothing to divide them between launches by.
 
 **The semi-blind reviewer** gets the text of the question, `question_time` and a working folder.
 They see neither `response`, nor `rubric`, nor `provenance`, nor the annotation file, nor the
@@ -155,8 +155,8 @@ candidate moments. Jumping straight to the end answers a question nobody asked.
 **They may answer only from what is visible.** Completing an indistinguishable caption from
 knowledge of the subject, recognising a familiar textbook problem in a half-drawn frame and
 substituting its numbers is forbidden at both steps: both when looking for `t_val` and when writing
-`prior_answer`. The error here is always one-directional — it moves `t_start` to the left and
-erases the trap the author of the question intended.
+`prior_answer`. The error here is always one-directional — it moves `t_start` to the left, to a
+moment where nothing has appeared yet.
 
 Why "semi-" rather than "blind". They do know the upper boundary of their stretch — without it the
 task cannot be set. What they do not know is where inside the stretch `t_start` runs, and that is
@@ -182,25 +182,40 @@ The first begins **at zero**, not at `question_time`: otherwise there is nothing
 The stretch ends at `t_end` rather than starting at `t_start`, and that is essential. The question
 "could you answer?" is meaningless for a multi-trigger sample — the answer is "yes, many times,
 that is the point". The question "**from what moment** can one?" is always meaningful. The reviewer
-knows that by the end of the stretch the answer is already available, and looks for the earliest
-point `t_val` from which the question can be answered on the merits.
+knows that by the end of the stretch the answer is already available — and walks the stretch as a
+**trajectory**: at every moment where the state of the screen or the speech relevant to the task
+changed they write a complete answer from what is available up to that moment, the last one at the
+end of the stretch (`Candidate` in the contract). Which of those answers is the first to meet the
+rubric is decided by the coordinator, not by the reviewer.
 
 The window boundaries are not named in the prompt: the upper boundary of the stretch is the `until`
 field in the `limits.json` of their own folder.
 
-**The distractors are passed to them — with windows and reasons.** Without this the mechanism
-breaks on the sample's own traps: a reviewer who does not know that a moment is marked as a decoy
-will honestly put `t_val` there, and the coordinator will derive 2.2 arithmetically and shift the
-boundary left. In the pilot **8 segments out of 15** are arranged this way, that is, this is not
-an edge case but the ordinary one. Passing the decoys does not weaken the check, because the
-division of labour is preserved: that a decoy really is a decoy is checked by the full reviewer
-under 6.2; the semi-blind reviewer takes it as given and looks for **other** moments where the
-answer becomes possible. They still know neither `t_start`, nor the reference answer, nor the
-rubric.
+**Nothing but the material is passed to them.** Until 2026-09-07 the declared distractor windows
+were handed over as exclusion zones, on the argument that otherwise the reviewer would fall into the
+sample's own trap. The argument was wrong in practice: the proposer had put a gap
+`[question_time, t_start)` under the name of a distractor in 19 samples of 44, its `t_end` was the
+window's `t_start`, and in 19 of the 23 samples with such a decoy `t_val` landed within a second
+after its end — three different models, the same behaviour. The check had become a comparison of
+two numbers the annotation itself supplied. The field is gone (see the note that replaced group 6
+of the checklist), and with it the leak and items 6.2 and 6.4.
 
-Hence a requirement on the text of `distractor.why`: it explains what makes the moment tempting and
-what it lacks, but **does not name the correct answer** — otherwise passing the decoys turns into
-passing the reference answer. This is item 6.4.
+**Three stages for the left boundary, two agents with opposite biases.** The semi-blind
+trajectory above is **stage A**; from it the coordinator derives `t_val_A` by checking every
+answer against the rubric (the adjudication table in `prompts/coordinator.md`). **Stage B**: the
+full reviewer, who knows the answer, may propose `t_s` — the first moment from which, in their
+view, the rubric is satisfiable, with the frame that shows it. They were forbidden the left
+boundary because of a known leftward bias; the ban is lifted because a check follows. **Stage C**:
+if `t_s < t_val_A`, a fresh semi-blind probe (`probe_verify`, prompt `prompts/probe_verify.md`)
+receives the task without its when-clause and the material up to `t_s`, and answers. Rubric met →
+`t_val = t_s`; not met → `t_val = t_val_A`. An early correct answer of an evaluated model at
+`t_m < t_start` is a ready-made `t_s`: stage C runs at `t_m` directly. The probe's folder is
+prepared exactly like the semi-blind one, with `--verify`:
+
+```bash
+/home/user/conda/bin/python3 tools/prepare_review_workspace.py <VIDEO_ID> \
+    --until <t_s> --screen --verify --out <WORKSPACE>
+```
 
 The folder is prepared and **extended** by the coordinator, stretch by stretch:
 
@@ -224,7 +239,7 @@ is a function of the visual channel and nothing beyond it:
 
 | To whom | `--screen` | Why |
 |---|---|---|
-| reviewers, `probe_vision`, `probe_full` | yes | the index is a dense reading of their own channel |
+| reviewers, `probe_vision`, `probe_full`, `probe_verify` | yes | the index is a dense reading of their own channel |
 | `probe_text` | no | it would get the visual channel in words, and `textonly_solved` would stop measuring anything |
 | `probe_frame` | no | the index is a timeline, and frozen-frame is obliged to see one frame and no history |
 
@@ -258,19 +273,18 @@ time, so nothing needs to be "unseen", and in total the frames come to one pass 
 instead of N prefixes.
 
 What the coordinator derives from `t_val` — the reviewer passes no verdicts on boundaries
-themselves:
+themselves, and `t_val` here is the **adjudicated** one (the first answer of the trajectory that
+meets the rubric, corrected by stage C), not the reviewer's self-report:
 
 | Condition | Conclusion |
 |---|---|
 | `t_val[0] < question_time` | 2.3: the answer was available before the question was issued |
 | `t_val[k] < t_start[k]` | 2.2: the window opens later than the answer became possible |
-| `t_val[k] = null` | there is no answer where there must be one: a signal for 2.5 or 4.7 |
+| `t_val[k] = null` | no answer of the trajectory meets the rubric: a signal for 2.5 or 4.7 |
 
-An insurance policy for the case where a decoy was passed on and the reviewer fell for it anyway:
-before declaring 2.2, the coordinator looks at **where** `t_val` landed. Inside a declared decoy or
-an optional window — not a hit. And the main thing the reviewer does not have and the coordinator
-does: comparing `answer_at_t_val` against the rubric. A decoy by definition gives an **incomplete**
-answer; a genuine early firing gives an answer that satisfies the rubric in full.
+Inside an optional window is not a hit. The main thing the reviewer does not have and the
+coordinator does is the rubric: no `PASS` on 2.2 is issued without the adjudication table, and a
+`t_val` compared against `t_start` without it is the pilot's mistake all over again.
 
 The separation is not cosmetic. A checker who knows the reference answer is biased in one
 direction: on a half-drawn frame where the object is still arriving, they "recognise" an answer
@@ -279,14 +293,16 @@ proposals, over three iterations the window drifts monotonically, and oscillatio
 — will not fire, because the drift is one-directional. For the same reason self-reporting on
 contamination (4.2, 4.3) only makes sense before the reference answer has entered the context.
 
-**The full reviewer** gets the whole sample and does everything else: 2.4, 2.5, group 3, 4.8,
-5.2–5.4, 6.1–6.2, 7.3–7.5, 8.2–8.3.
+**The full reviewer** gets the whole sample and does everything else: 2.4, 2.5, group 3
+(including 3.4, the optional triggers on elements that appear one by one), 4.8, 5.2–5.4,
+7.3–7.5, 8.2–8.3 — and the proposal `t_s` of stage B.
 
-On each stretch the reviewer returns not only `t_val` but also the **candidates**: which moments
-they considered and why they discarded them. From a bare number one cannot tell a reviewer's error
-from an annotation error; from the candidates one can. They must not be asked to name the moment
-"when the answer became confident": stability is not correctness, and a confidently wrong answer
-that stabilised early looks exactly like a right one.
+On each stretch the semi-blind reviewer returns the whole **trajectory**, not a single `t_val`: a
+full answer at every moment where the relevant state changed. From a bare number one cannot tell a
+reviewer's error from an annotation error; from the answers one can. They must not be asked to name
+the moment "when the answer became confident": stability is not correctness, and a confidently
+wrong answer that stabilised early looks exactly like a right one — which is exactly why the
+rubric check is done by the coordinator over every point and not by the reviewer over one.
 
 `full_window` is launched **one per window**, always, not only on multi-window samples: the frame
 budget is counted per window. `full_sample` is exactly one per sample, with a budget for the whole
@@ -455,14 +471,14 @@ Limiters without which the cycle may not converge:
 
 ## Step 5. Checks across samples
 
-Some items of the checklist are by construction invisible to an agent holding a single sample: 5.1
-(agreement of the twins' rubric criteria) and 6.3 (their decoys). They are done by the coordinator
+One item of the checklist is by construction invisible to an agent holding a single sample: 5.1
+(agreement of the twins' rubric criteria). It is done by the coordinator
 **after** all the questions have received a `PASS` — and necessarily after, because the edits of
 step 4 are exactly what breaks them: moving `question_time` on one twin changes the `temporal_rel`
 axis and makes the pair incomparable.
 
-With the appearance of the `twin_of` field both moved to the validator (`S-23`, `S-24`, `S-26`),
-but only on condition that both twins land **in the same run**: the checks are cross-sample and
+With the appearance of the `twin_of` field it moved to the validator (`S-23`, `S-24`), but only
+on condition that both twins land **in the same run**: the checks are cross-sample and
 will see nothing one file at a time. It remains for the coordinator to run the validator on the
 whole set rather than on individual files.
 
@@ -615,7 +631,7 @@ does **not** yield a `PASS`: see the limiters of step 4.
 | Verdict | Meaning | Who fixes it |
 |---|---|---|
 | `PASS` | keep as is | — |
-| `FIX_INTERVALS` | window boundaries, the trigger set, distractors | the coordinator; a shift of boundaries is applied as is, adding a trigger requires writing `response`, `rubric`, `evidence_span`, `trigger_modality` |
+| `FIX_INTERVALS` | window boundaries, the trigger set | the coordinator; a shift of boundaries is applied as is, adding a trigger requires writing `response`, `rubric`, `evidence_span`, `trigger_modality` |
 | `FIX_QUESTION` | the wording, the labels, the intent of the sample | the coordinator, with a revision of the rubric |
 | `CRITICAL_FAIL` | cannot be fixed, or repair is abandoned: `status: rejected` | the coordinator; retain the record for audit |
 
@@ -627,13 +643,14 @@ does **not** yield a `PASS`: see the limiters of step 4.
 | 2.3 the answer was available before `question_time` | `FIX_QUESTION` — the axis changes, not the window; derived from the semi-blind reviewer's `scans` |
 | 2.4 the window can be narrowed | `FIX_INTERVALS`, and only if the empty part is large |
 | 2.5 the answer is spoken inside the window or within 10 s after | `CRITICAL_FAIL` for `L2`/`L3`, `PASS` for `L1` |
-| 3.1 an uncovered candidate for a firing | `FIX_INTERVALS` (add a trigger or a distractor) or `FIX_QUESTION` if the wording is fixed |
+| 3.1 an uncovered candidate for a firing | `FIX_INTERVALS` (add a trigger) or `FIX_QUESTION` if the wording is fixed |
 | 3.2 an inconsistent criterion | `FIX_QUESTION` |
+| 3.4 elements appear one by one, no optional triggers on them | `FIX_INTERVALS`; `FIX_QUESTION` if the wording insists on "simultaneously" without a reason |
 | 4.8 the question rests on the topic rather than on the screen | `FIX_QUESTION` |
 | 4.2 the answer was given without the video at all | set `blind_solved: true`; complete review and exclude it from primary tasks, but reject only for an independent defect or abandoned work |
 | 4.3 the video was recognised | `FIX_QUESTION` plus a flag: another video may be needed |
 | 4.7 the question is not solvable even from the full material | `CRITICAL_FAIL` |
-| 5.x, 6.x | `FIX_QUESTION` |
+| 5.x | `FIX_QUESTION` |
 | 7.3 `reasoning_level` is inflated | `FIX_QUESTION`; check **before** 2.5, whose verdict depends on the level |
 | 7.4 `depends_on` is not confirmed by the rubric | `FIX_QUESTION` |
 | 7.5 `evidence_span` is not on the last piece of evidence | `FIX_QUESTION` — the axis changes |

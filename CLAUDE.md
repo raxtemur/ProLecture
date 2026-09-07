@@ -136,8 +136,9 @@ to break out of ignorance:
   set by the annotator's opinion. The opinion lives separately in `audio_dependency_claim`.
 
 What else is checked: non-overlapping windows, `t_ideal` inside its own window, `depends_on` only
-on earlier indices, a distractor not lying entirely before `question_time` and not overlapping a
-trigger, a multi-trigger sample having at least one distractor, the uniqueness of `id`.
+on earlier indices, the uniqueness of `id`. There is no `distractor_windows` field any more
+(removed 2026-09-07): an early answer is penalised by the false-alarm rate, and the annotated
+decoys only leaked `t_start` to the semi-blind reviewer.
 
 ## The principles the design grew out of
 

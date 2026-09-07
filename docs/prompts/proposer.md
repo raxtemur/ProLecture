@@ -197,8 +197,8 @@ the question still makes sense, but earlier than the window**. Zero is used only
 question is comprehensible from the start of the video. Three constraints:
 
 - every object the wording refers to has already been introduced by that moment;
-- the distractors the question is meant to catch on are still ahead: a distractor lying
-  entirely before `question_time` is useless;
+- the tempting stretch — the early plausible-but-wrong value the question is designed
+  around, if it has one — is still ahead: a question issued after it tests nothing;
 - if all the information for the answer has already gone by, this is not a `pre` question
   but a `post` one, and it must be annotated honestly as `post`.
 
@@ -241,11 +241,25 @@ evidence is treated as instantaneous, a question asked five seconds after the gr
 will come out as `post`, "answer from memory", even though the graph is still in front of
 your eyes.
 
-`distractor_windows` — the places where a model reasoning incorrectly will most likely speak
-up: an early plausible but incomplete answer; a similar wording used about something else.
-Set the boundaries by the actual boundaries of the temptation rather than by the
-characteristic phrase: the discussion of the topic usually begins before the marker word is
-spoken.
+There is **no field for decoys**. An answer outside the windows is a false alarm whether or
+not anybody annotated the place, so a premature-answer trap (template 2) is a property of
+the wording — an early plausible but *wrong* value before the correct one — and nothing
+more. If you designed the question around such a place, say so in one sentence in
+`provenance.trap_note`: it is a record of intent, it is not validated, scored or shown to
+reviewers. Do not describe the run-up to the window ("not yet complete", "still being
+assembled") as a trap: incomplete information is not a wrong answer, and the false-alarm
+rate already covers the stretch.
+
+**Elements that appear one by one.** If the task is a mapping over N elements the author
+draws in sequence (three coloured pieces and the three terms they stand for) and the rubric
+splits into one item per element, do not open the only window at "all N simultaneously
+complete": the best proactive behaviour is to report each element as it appears, and such
+an annotation charges it with false alarms. Give every element whose appearance precedes
+the last one an **optional** trigger from its appearance to the appearance of the next
+element, with the rubric item it makes answerable, and keep the required trigger on the
+completion with the full rubric. The wording "simultaneously complete" is legitimate only
+when the joint state is needed for the answer — a comparison between the elements — and not
+for the annotator's convenience (checklist 3.4).
 
 For multi-trigger questions ("every time when…") **walk the transcript in full, line by
 line**, rather than searching for keywords: the author expresses the same condition in
@@ -256,8 +270,7 @@ different words, and a missed firing turns correct behaviour by the model into a
 For each window — a `response` (the reference answer) and a `rubric` (the list of criteria by
 which the judge scores an answer). The requirements:
 
-- the model being evaluated will see **only the text of the question** — no rubric, no notes,
-  no reasons for the distractors;
+- the model being evaluated will see **only the text of the question** — no rubric, no notes;
   everything that tells a correct answer from an incorrect one must be in the question itself;
 - every rubric item corresponds to an explicit requirement of the question;
 - the rubric does not penalise a correct detail beyond what was expected; the penalty is for

@@ -41,6 +41,33 @@ whether a reviewer can luckily reconstruct unseen screen content from a familiar
 would have cost the participant a point. Otherwise it is enough to list the plausible
 options to declare anything at all solved blind.
 
+**A caveat about notation, colour or verbatim wording is not an assumption about content**
+(rule of 2026-09-07; the boundary between "guessed the concrete data", "recalled the data
+as a known fact" and "could not guess a colour or another when-condition unrelated to the
+science" is still under discussion). Two answers that
+look alike are scored differently:
+
+- "2.5, if the screen shows the standard example 1/2, 1/4, 1/8, 1/8" — the correctness
+  depends on an assumption about the screen: a guess, `prior_answer_assumptions` non-empty,
+  `blind_solved = false`. The rule above, unchanged.
+- "pᵢ f′(qᵢ) = λ → q f′(q) = λ → f = λ log q; which notation and colours the screen uses
+  I cannot say" — the correctness of the chain does not depend on the screen. Score
+  `prior_answer` against the rubric **item by item, ignoring the caveat**: substantive
+  items (a quantity, a relation, a derivation) the reviewer named are met; items about the
+  screen itself (a colour, a notation, a displayed number) that the reviewer did not name
+  are not. **Only the substantive items decide `blind_solved`.** If all of them are met,
+  the sample is solved blind, and a rubric item about a colour does not rescue it: such a
+  sample tests colour recognition, not the science, and is not the `L1` alarm the benchmark
+  wants — it is repaired or kept as a blind baseline like any other. Name in
+  `coordinator.N.md` which items were met blind, so that it is visible what the sample
+  rests on.
+
+The reviewer is asked for content, not a meta-statement about it ("known only the general
+Lagrangian derivation" scores nothing; the derivation itself does). A `prior_answer` that
+is a sentence *about* the reviewer's knowledge is sent back for the content before it is
+scored — that is a follow-up to the same subagent, not a new round. A strong reviewer is an
+upper bound on blind solvability, and that strictness is deliberate.
+
 **A blind-solved sample is carried to the end of the cycle.** Keep the contamination flag
 on the version that was measured, run `full_sample` and every `full_window`, and try to
 repair it by making the answer depend on a screen-specific value, relation, transition or
@@ -106,8 +133,9 @@ deliberately abandoned.
 
 **Why.** Full reviewers are the most expensive in frames and context. The barrier keeps
 them from judging wording or boundaries that a cheap result is about to invalidate. They
-still run for every candidate because they inspect rubric alignment, distractors, trigger
-completeness, provenance and window semantics needed either for acceptance or repair.
+still run for every candidate because they inspect rubric alignment, trigger completeness
+and shape, provenance and window semantics needed either for acceptance or repair — and
+because `full_sample` supplies the stage-B proposal `t_s` (section 6).
 
 **`probe_full` is conditional.** Launch it exactly when `probe_text` and `probe_vision`
 both answered incorrectly; a positive answer from either already proves solvability.
@@ -196,6 +224,7 @@ Use this source matrix; a boundary-clipped source is clipped to the permitted in
 | `probe_vision` | forbidden | clipped | existing scene frames, copied | allowed |
 | `probe_frame` | forbidden | forbidden | exactly one frozen frame | forbidden |
 | `probe_full` | clipped | clipped | existing scene frames, copied | allowed |
+| `probe_verify` | clipped to `t_s` | clipped to `t_s` | existing scene frames, copied | allowed |
 
 The initial visual material is the permitted part of `description.jsonl` plus the
 existing scene-change frames listed in `bundle.json["frames"]`. Those frames were
@@ -213,3 +242,67 @@ python3 tools/prepare_review_workspace.py <VIDEO_ID> \
 
 Keep an invalid or unconsolidated workspace for diagnosis. Never ask a validator to delete
 it, and never share one workspace between roles.
+
+---
+
+## 6. The left boundary: stages A–C and the adjudication table
+
+**The rule.** No `PASS` on 2.2 or 2.3 without an adjudication table, and no comparison of a
+`t_val` against `t_start` that the table did not produce.
+
+**Why.** On the pilot the semi-blind `t_val` was compared against `t_start` as two numbers,
+and in 19 of the 23 samples where a declared decoy abutted the window `t_val` was a
+function of the decoy's end, not of the video. The reviewers had written full answers
+about moments inside the decoys ("supplies all four concrete values and signs") and nobody
+read the phrase as "the rubric is met". The table makes the coordinator read every answer.
+
+**Vocabulary.** *Blind* — the answer before any material (`prior_answer`). *Semi-blind* —
+material up to `until`, no answer, no rubric, no `t_start`. *Sighted* — the full reviewer,
+with the rubric.
+
+**Stage A.** The semi-blind reviewer returns, per stretch, a trajectory: a `Candidate` with a
+full answer at every change of the relevant state, the last at the end of the stretch. The
+coordinator checks **every** answer against the rubric of the corresponding window, item by
+item. The first answer that meets all required items is `t_val_A`. The reviewer's own
+`t_val` and `sufficient` flags are self-reports and carry no status.
+
+**Stage B.** `full_sample` may return `t_s`, the sighted proposal for the first moment the
+rubric is satisfiable, with a frame in `t_s_basis`. If `t_s` is null or `t_s ≥ t_val_A`,
+nothing more is needed: `t_val = t_val_A`.
+
+**Stage C.** If `t_s < t_val_A`: prepare a fresh workspace with `--until <t_s> --screen
+--verify`, spawn `probe_verify` with the prompt `prompts/probe_verify.md`, giving it the
+task **without its when-clause** (strip the "when …" part by hand; if the clause defines
+the object of the task, give the task whole and treat "the object is not there yet" as an
+answer). Check its `answer` against the rubric. Met → `t_val = t_s`. Not met →
+`t_val = t_val_A`. One call, short material, only on disagreement.
+
+An early **correct** answer of an evaluated model at `t_m < t_start` (from
+`data/outputs`) is a ready-made `t_s`: skip stage B and run stage C at `t_m`. The absence
+of such an answer means nothing — the models are weak.
+
+**Then** derive 2.2 and 2.3 from `t_val` as before (`t_val[0] < question_time` → 2.3;
+`t_val[k] < t_start[k]` → 2.2). Inside an optional window is not a hit.
+
+**The table**, one per sample and iteration, in `coordinator.<ROUND>.md`:
+
+| t | answer (short) | rubric items ✓/✗ | reviewer's own view | classification |
+|---|---|---|---|---|
+| 704.0 | signs 0, −, 0, + via the cosine derivatives | 0 ✓ 1 ✓ 2 ✓ 3 ✓ | sufficient, high | **t_val_A** |
+| 718.0 | the same | all ✓ | sufficient, high | confirmation |
+| 737.0 | the same, through f | all ✓ | sufficient, high | (annotated t_start) |
+| 690.0 (t_s) | — | — | sighted proposal | verified: not met → stays t_val_A |
+
+Classifications: `t_val_A`, `confirmation`, `partial` (some items ✗ — name them), `no answer`,
+and one row for `t_s` with the stage-C outcome. Then record the decision in the log:
+
+```bash
+python3 tools/coordinator_log.py <VIDEO_ID> adjudicate --sample-id <SAMPLE_ID> \
+    --iteration <ROUND> --t-val-a 704.0 --t-s 690.0 --verified no --t-val 704.0 \
+    --source semiblind.<ROUND>.json
+```
+
+**What to do on a hit** is unchanged (checklist 2.2): move `t_start` to `t_val`, or keep the
+window and add an optional trigger for the early form when the condition in the question is
+substantive. Either is an interval edit; the windows it touches are re-reviewed by
+`full_window`.

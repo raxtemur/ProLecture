@@ -6,10 +6,19 @@ This is where the answers of the step-3 subagents of the pipeline live — one f
 data/reviews/<VIDEO_ID>/<SAMPLE_ID>/<role>.<ROUND>.json
 ```
 
-`<role>` is one of `semiblind`, `full`, `probe_text`, `probe_vision`, `probe_frame`,
-`probe_full`. The format is set by the classes in
-[../../schema/review.py](../../schema/review.py); to check a file, run
+`<role>` is one of `semiblind`, `full_sample`, `full_window`, `probe_text`, `probe_vision`,
+`probe_frame`, `probe_full`, `probe_verify` (the last is stage C of the left-boundary check:
+a semi-blind probe answering with material up to the sighted proposal `t_s`). The format is
+set by the classes in [../../schema/review.py](../../schema/review.py); to check a file, run
 `python3 schema/review.py --check <file>`.
+
+A review states the checklist it was made against in `checklist_version`. The files here
+made before 2026-09-07 (checklist `2026-08-24`, or no version at all) carry items that were
+retired with the `distractor_windows` field and the old shape of the semi-blind
+`candidates`; the contract reads them as legacy. `--check` refuses such a file unless it is
+told it is an old one: `python3 schema/review.py --check <file> --legacy`. A new review must
+state `2026-09-07` explicitly — without it the file is read under the old rules and `--check`
+fails, which is the point: forgetting the field must not buy the weaker rules.
 
 Three reasons this directory is under version control rather than in `/tmp`.
 
@@ -35,14 +44,18 @@ checkable is the link "these files → these changes" rather than a set of field
 
 At the video-directory level, `coordinator.log` is an append-only JSON-lines operational
 record. The coordinator writes `spawn` after each successful subagent launch, `finish`
-after each terminal result, and `sample_edit` after applying a sample change. It is the
-chronology of scheduling and edits, not a replacement for the per-question decision files.
-Write and validate it with:
+after each terminal result, `sample_edit` after applying a sample change, and `adjudicate`
+after deciding the left boundary of a sample (checklist 2.2, stages A–C: the semi-blind
+`t_val_a`, the sighted `t_s`, whether the verification probe met the rubric, the resulting
+`t_val`; the table itself is in `coordinator.<ROUND>.md`). It is the chronology of
+scheduling, edits and boundary decisions, not a replacement for the per-question decision
+files. Write and validate it with:
 
 ```bash
 python3 tools/coordinator_log.py <VIDEO_ID> spawn --help
 python3 tools/coordinator_log.py <VIDEO_ID> finish --help
 python3 tools/coordinator_log.py <VIDEO_ID> sample-edit --help
+python3 tools/coordinator_log.py <VIDEO_ID> adjudicate --help
 python3 tools/coordinator_log.py <VIDEO_ID> check
 ```
 

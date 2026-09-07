@@ -35,24 +35,27 @@ Caught by `solvable-without-video` (4.2) and `question-anchored-to-screen` (4.8)
 
 ## 2. Premature-answer trap
 
-An early plausible but incomplete answer, with the full one later; the early one is penalised
-by a distractor.
+An early plausible but wrong answer, with the correct one later; the early one is penalised by
+the false-alarm rate — it lies outside the window. (The former `distractor_windows` field was
+removed on 2026-09-07; the trap is a property of the wording, and the intent may be noted in
+`provenance.trap_note`.)
 
-**✗ "Name Shannon's estimate for English" with a distractor on the first mention of the number
-and the trigger on the second.**
-If the same number is spoken both times, there is nothing to tell the windows apart: a model
-that answered early answered correctly and was penalised for something it was not warned about.
-Caught by `discriminator-in-question` (5.3) and `distractor-not-correct-answer` (6.2).
+**✗ "Name Shannon's estimate for English" with the window on the second mention of the number
+while the first mention, forty seconds earlier, says the same number.**
+If the same number is spoken both times, the early answer is correct and is penalised as a
+false alarm for something the model was not warned about; and if the annotation opens the
+window only at the second mention, that is a 2.2 hit. The trap has to be a *different* value,
+and the question has to say what tells the two apart.
+Caught by `discriminator-in-question` (5.3) and `answer-possible-before-start` (2.2).
 
-**✗ A distractor `[t_end, t_end + 40]`, right behind the window, with the reason "further on the
-author tells it himself".**
-A streaming model spends seconds on generation: having started to answer on time, it will land
-in the decoy. A caveat in the question ("be quicker than the author") does **not** cure this —
-the warning does not change what is measured, and what is measured is generation speed. The only
-cure is headroom: between `t_end` and the moment where the author gives the answer there must
-lie noticeably more time than generation takes.
-Caught by `author-says-answer-in-window` (2.5); the validator warns about a decoy starting
-closer than ten seconds to `t_end`.
+**✗ A window closing a second before the author names the answer, with the caveat "be quicker
+than the author" in the question.**
+A streaming model spends seconds on generation: having started to answer on time, it will
+finish after `t_end`, and the author's line will be in its context. A caveat in the question
+does **not** cure this — the warning does not change what is measured, and what is measured is
+generation speed. The only cure is headroom: between `t_end` and the moment where the author
+gives the answer there must lie noticeably more time than generation takes.
+Caught by `author-says-answer-in-window` (2.5).
 
 ---
 

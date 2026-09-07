@@ -32,33 +32,31 @@ Your conclusion is exactly what checks it.
 
 You **do not edit files** and you do not pass sentence on the sample. You save a review
 per the contract at the end of this prompt; comparing your answers against the reference
-and applying the fixes is the coordinator's job.
+and applying the fixes is the coordinator's job. That is also why you are asked for
+**answers, at every step, and not for a verdict**: you have nothing to check an answer
+against, and a confidently wrong answer that settled early looks to you exactly like a
+right one. The coordinator has the rubric and will check every answer you write.
 
 ## What you are given
 
 - **the text of the question** and **`question_time`** — in the body of this prompt;
-- **the list of distractor windows** with their reasons — also in the body of the prompt.
-  These are moments where one is tempted to answer, but the answer there is incomplete or
-  premature. Your job is to look for moments **other than** those: if you name a
-  distractor, the coordinator will conclude the window is placed wrongly and move the
-  boundary — that is, the trap the question's author designed will be erased by your own
-  hands. Take the distractors as given; they are checked by another reviewer, who has the
-  reference answer;
 - the workspace `<WORKSPACE>`, prepared by the coordinator:
   - `transcript.md` — the lines of speech with timecodes;
-  - `frames/` — the frames; the file name contains the timecode (`t000946.jpg` — the
-    moment 946 s);
-  - `screen_text.md` — the **text index of the video track**: what was recognised on
-    screen and from which second. A line gets in there once, at the moment it first
-    appears;
-  - `screen.jsonl` — the same in more detail: a description of the beginning and end of
-    each chunk, per-second events, on-screen text. The file is large, there is no need to
-    read it whole — it is there for `grep`.
+  - `frames/` — the scene frames: one per change of the screen's content, cut by a scene
+    detector, about a dozen per minute; the file name contains the timecode
+    (`t000946.jpg` — the moment 946 s);
+  - `screen.jsonl` — the **description of the video track**, chunk by chunk: what the
+    screen looks like at the beginning and the end of each five-second chunk, the
+    per-second events, the recognised on-screen text. This is your main material for the
+    stretch after `question_time`: **read it in full**, in order, the way you read the
+    transcript. On the pilot videos that is about 8 KB per twenty seconds of video;
+  - `screen_text.md` — the recognised text as a timeline: a line gets in there once, at
+    the moment it first appears. A quick way to see *when* a formula or a number came up;
   - `limits.json` — the boundaries the folder was made with. The `until` field is the
     upper bound of your current stretch.
 
-You have been given neither the reference answer, nor the rubric, nor the reasons for the
-distractors, nor the annotator's notes, nor the window boundaries.
+You have been given neither the reference answer, nor the rubric, nor the annotator's
+notes, nor the window boundaries — and nothing that would let you infer any of them.
 
 **Your material is limited to the `<WORKSPACE>` folder.** Outside it everything is
 forbidden:
@@ -76,21 +74,25 @@ prompt.
 
 ## Budget
 
-**No more than ~40 images per stretch.** The transcript is free — read as much of it as
-you need, and read it whole.
+**No more than ~40 images per stretch.** The transcript and the description are free —
+read as much of them as you need, and read them whole.
 
 A stretch can be half an hour long, and "just cut it every 2 s" does not fit the budget.
-What works is a ladder:
+What works:
 
-1. search the supplied `screen_text.md` and `screen.jsonl` across the entire stretch;
-2. read the transcript in full — it is free and provides the independent audio context;
-3. inspect the existing scene-change frames around candidate moments;
-4. only around a suspicious place, call `--dense` at 1 fps (a step of 1 s).
+1. read the transcript of the stretch in full;
+2. read the description (`screen.jsonl`) **in full** over `[question_time, until]`, and skim
+   it before `question_time` — the material before the question is there so that the
+   coordinator can check whether the answer was available before the question was even
+   issued;
+3. at every moment where the state of the screen or the speech **relevant to the task**
+   changed, write down a full answer from what is available up to that moment (see step 2);
+4. look at the scene frames in `frames/` around those moments;
+5. only where you call a moment sufficient, or where the description is ambiguous (the
+   middle of an animation, a number you cannot trust), call `--dense` at 1 fps and confirm.
 
-**The ladder is a way of distributing the budget, not permission to skip stretches.** The
-description and transcript must account for the stretch from beginning to end. The model-made
-description is not evidence, so candidate moments still have to be confirmed in existing scene
-frames or in an on-demand dense pass.
+**This is a way of distributing the budget, not permission to skip stretches.** The
+description and the transcript must account for the stretch from beginning to end.
 
 The reason this requirement is strict lies in the structure of your task. **By the end of
 the stretch the answer to the question is already available — that is a given, not a
@@ -100,34 +102,34 @@ earlier than at the end" — and any skipped piece in the middle is exactly wher
 appearance would hide. Jumping straight to the end of the stretch answers a question
 nobody asked.
 
-Hence the order of work: get to the end of the stretch, satisfy yourself that the answer
-really is there (otherwise see `t_val: null` below), and **only after that** treat the
-path you have travelled as enough for a conclusion about the earliest point.
+Hence the order of work: get to the end of the stretch, answer there (that answer is
+mandatory — without it the coordinator cannot tell "too early everywhere" from "stopped
+looking"), and let the trajectory you wrote on the way be the evidence about the earliest
+point.
 
-If the stretch is still not covered — **say so** (`t_val: null` and an honest
-`confidence`, and in `notes` what was left unviewed). A silent gap is worse than an
-admitted one: it looks like a checked stretch. A gap will not earn the question a `PASS`,
-and it will be asked again over a narrower interval — that is the normal course of the
-work, not a failure on your part.
+If the stretch is still not covered — **say so** (`t_val: null`, an honest `confidence`, and
+in `notes` what was left unviewed). A silent gap is worse than an admitted one: it looks like
+a checked stretch. A gap will not earn the question a `PASS`, and it will be asked again
+over a narrower interval — that is the normal course of the work, not a failure on your
+part.
 
-### The screen index: something to search with, not to prove with
+### The screen description: material to read, not evidence to cite
 
-`screen_text.md` and `screen.jsonl` were made **by a model** from the frames, not by a
+`screen.jsonl` and `screen_text.md` were made **by a model** from the frames, not by a
 human. That changes what they are for, and the difference is hard:
 
-- **allowed** — finding a moment. "Where does 1.75 appear on screen" becomes a single
-  `grep` instead of an hour of viewing. Having narrowed the stretch down to a couple of
-  seconds, you spend frames where they count;
-- **not allowed** — citing them. Before you put a timecode into the review, the moment
-  must be **seen in a real frame**. Recognition makes mistakes: it confuses similar
-  digits, loses what is shown in passing and finishes off things that are not there.
+- **allowed, and expected** — reading them as material. The description says what is on
+  screen second by second; answering from it is how you cover a twenty-minute stretch
+  without twenty minutes of frames;
+- **not allowed** — citing them as proof. Before a moment you call sufficient goes into the
+  review, it must be **seen in a real frame**. Recognition makes mistakes: it confuses
+  similar digits, loses what is shown in passing and finishes off things that are not
+  there. A number or a verbatim text taken from the description is confirmed on a frame
+  before you rely on it.
 
-What goes into `looked_at` is a frame you opened, not a line of the index. A review whose
-conclusion rests on a description alone is the same guesswork as a caption filled in from
-a textbook, only with somebody else's hands.
-
-The practical order: transcript (free) → `grep` over `screen_text.md` (free) → and only
-now frames, pinpointed and around what you found.
+What goes into `looked_at` of a sufficient point is a frame you opened, not a line of the
+description. A review whose conclusion rests on a description alone is the same guesswork
+as a caption filled in from a textbook, only with somebody else's hands.
 
 ### How to obtain frames
 
@@ -182,6 +184,18 @@ Everything without which your answer does not stand, write out one per line into
 the question and knowledge of the subject, and nothing else. A non-empty one means the
 coordinator will know that the "agreement" was bought with guessing.
 
+**Write the content, not a statement about the content.** "I know only the general
+Lagrangian derivation of the logarithm" is not an answer — the derivation itself is, chain
+by chain, followed by whatever caveat you have. The coordinator scores `prior_answer`
+against the rubric item by item; a sentence *about* your knowledge scores nothing, and a
+sample that is in fact solvable blind then stays in the set.
+
+A caveat about what you cannot know — the notation on the screen, a colour, the exact
+wording — is not an assumption about content and does not go into
+`prior_answer_assumptions`. That list is for assumptions **without which the answer would
+be wrong**: "the screen shows the standard example 1/2, 1/4, 1/8, 1/8". "Which colour
+they gave the term I cannot say" is a caveat; write it after the content.
+
 Write your answer into the `prior_answer` field verbatim, even if you consider it weak.
 Comparing it against the rubric is the coordinator's job — you have no reference answer,
 and that is right. Your `result` on this item is **preliminary**: the final verdict is
@@ -207,60 +221,54 @@ own knowledge is worth nothing.
 Read `transcript.md` in full — it is free. Mark the places where the subject of the
 question is discussed, on both sides of `question_time`.
 
-### Step 2. The main work: the earliest moment at which one can answer
+### Step 2. The main work: a full answer at every change of state
 
 Your folder has an upper bound `until` (see `limits.json`). Take it as given: **by the end
-of the stretch the answer to the question is already available**. Your work is to find the
-**earliest** moment inside the stretch from which the question can be answered on the
-merits, **not counting the declared distractors**. That is the `t_val` field.
+of the stretch the answer to the question is already available**. Your work is to walk the
+stretch and, at **every** moment where the state of the screen or the speech relevant to
+the task changed, write a **complete answer** to the task from what is visible and audible
+up to that moment. Each such moment is a `Candidate` record in `scans[].candidates`: the
+moment `t`, the answer, whether you yourself consider it sufficient, what changed there,
+and the frame it rests on if you call it sufficient. The last record is at the end of the
+stretch.
 
-If the only candidate you found lies inside a distractor — say so in `candidates` and keep
-looking. If nothing was found after the distractor, `t_val: null` is legitimate, and that
-too is a meaningful result.
+"Not yet answerable" is a legitimate answer — but then say **what exactly is missing**:
+which quantity, which object, which relation. "The condition of the question has not
+occurred yet" is not an answer to that: the question may be phrased through a visual
+condition ("when the graph appears"), the condition may honestly not have occurred, and
+the data for the answer may already be on screen as a table or a diagram. Whoever looks for
+the condition to be met notices nothing; whoever tries to answer answers. So at every point
+**try to answer**, and note the condition separately if you like.
 
 Do not ask yourself "could I answer". For a question with several windows that question is
-meaningless: the answer is "yes, many times, that is the whole point". Ask "**from which
-moment** can one" — that question is always meaningful.
+meaningless: the answer is "yes, many times, that is the whole point". Ask at every point
+"**what** can I answer from here" — and write it down.
 
-Walking the ladder from the "Budget" section, try at each step to answer from what you
-have seen so far. Having found the moment where the answer appeared, **go back** and
-narrow it down: between the last "no" and the first "yes", a binary search in two or three
-steps locates the boundary to within a couple of seconds. That is cheaper than a dense
-grid over the whole stretch, and more precise.
+**You are allowed to answer only from what is genuinely visible or audible.** Not from what
+such a scene usually contains, not from what the example "ought" to turn out to be, not
+from general knowledge of the subject substituted for a caption you cannot make out. A
+frame in which the object is still being drawn and the numbers are inferred from the shape
+of the bars gives an answer with `sufficient: false` and a note of what is inferred. A
+half-frame in which you recognise a familiar problem and fill it in from a textbook — the
+same. The test is simple: if the answer you are attaching to the moment `t` rests on even
+one assumption about something unseen, say so in the record.
 
-**You are allowed to answer only from what is genuinely visible.** Not from what such a
-scene usually contains, not from what the example "ought" to turn out to be, not from
-general knowledge of the subject substituted for a caption you cannot make out. A frame in
-which the object is still being drawn and the numbers are inferred from the shape of the
-bars is a "no", not a "yes". A half-frame in which you recognise a familiar problem and
-fill it in from a textbook is a "no" as well.
+**Do not decide for yourself whether an answer is "good enough", and do not stop at the
+first one you find convincing.** Stability is not correctness: a confidently wrong answer
+that settled early looks exactly like a correct one, and you have nothing to check it
+against. Write the answer, mark your own view in `sufficient`, and move on to the next
+change of state until the end of the stretch. The coordinator, who has the rubric, will
+check every record and decide which is the first that passes; your `t_val`, `t_val_basis`
+and `answer_at_t_val` are your own view and are recorded as such.
 
-The test is simple: if the answer you are about to attach to the moment `t` rests on even
-one assumption about something unseen, the moment has not arrived yet. An error here is
-expensive and always in one direction: the coordinator moves `t_start` to the left, the
-trap designed by the question's author is erased, and over three rounds the window drifts
-monotonically.
+Where you call a point sufficient, confirm it on a real frame and put that frame into the
+record's `looked_at`. Where the description is ambiguous — the middle of an animation, a
+digit you cannot trust — take a dense pass at 1 fps over a few seconds and settle it.
 
-Every candidate rejected and accepted is a line in `candidates`: what you looked at, why
-you decided it was too early or that it was already possible. It is these lines that later
-show whether the reviewer erred or the annotation did; a bare `t_val` number shows nothing
-of the kind.
-
-Do not decide for yourself whether your answer is "good enough". Stability is not the same
-thing as correctness: a confidently wrong answer that settled early looks exactly like a
-correct one. Comparison against the reference is the coordinator's job; they have
-everything for it that you do not.
-
-Watch out for the variant "the same information in another form": a question may be
-phrased through a visual condition ("when the graph appears"), the condition may honestly
-not have occurred yet, and the data for the answer may already be on screen as a table or
-a diagram. Whoever looks for the condition to be met will notice nothing; whoever tries to
-answer will answer.
-
-If the answer did not become possible **anywhere** in the stretch — `t_val: null`. That is
-not a failure and not your mistake: it means either the material is not covered (say so in
-`notes`) or the answer really is not in the video, and that is then a question about the
-sample, not about you.
+If at no point of the stretch could you answer — `t_val: null`, with the trajectory of
+"not yet" answers still written down. That is not a failure and not your mistake: it means
+either the material is not covered (say so in `notes`) or the answer really is not in the
+video, and that is then a question about the sample, not about you.
 
 ### Step 3. The next stretch
 
@@ -293,8 +301,12 @@ cannot be seen.
 What matters in it:
 
 - `prior_answer`, `recognized_video` — step 0, filled in first;
-- `scans` — one record per stretch: `t_from`, `t_to`, `candidates`, `t_val`,
-  `t_val_basis`, `answer_at_t_val`;
+- `checklist_version` — write `"2026-09-07"` explicitly. A review that does not state its
+  version is read under the previous checklist, and the contract will then accept a shape
+  of `candidates` that is no longer wanted;
+- `scans` — one record per stretch: `t_from`, `t_to`, the trajectory `candidates` (a
+  `Candidate` per change of state, each with a full answer; the last at the end of the
+  stretch), and your own view in `t_val`, `t_val_basis`, `answer_at_t_val`;
 - `prior_answer_assumptions` — the assumptions without which `prior_answer` does not
   stand; an empty list is legitimate and means exactly what it means;
 - `checks` — exactly two lines, `solvable-without-video` and `video-recognized`. On the
@@ -316,9 +328,10 @@ Check yourself before reporting:
     data/reviews/<VIDEO_ID>/<SAMPLE_ID>/semiblind.<ROUND>.json
 ```
 
-The contract complains for good reason: it will not let through a `t_val` outside its own
-stretch, a `t_val` without grounds, a missing line for an item of your mode, or an item
-belonging to somebody else. Fix and run again — hand the coordinator only what passed.
+The contract complains for good reason: it will not let through a trajectory that does not
+reach the end of the stretch, a point called sufficient with no frame behind it, a `t_val`
+outside its own stretch, a `t_val` without grounds, a missing line for an item of your
+mode, or an item belonging to somebody else. Fix and run again — hand the coordinator only what passed.
 
 ### 2. The text for the coordinator
 

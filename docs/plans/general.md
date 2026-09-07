@@ -189,7 +189,7 @@ iteration of the annotation — all eight samples were labelled by the criterion
 comes from", which in fact encodes axis C).
 
 `question_time` is chosen as the latest moment when the question already makes sense but the window
-has not yet arrived: the referents in the wording must exist, and the distractors must remain later
+has not yet arrived: the referents in the wording must exist, and the evidence must remain later
 than the issue of the question.
 
 `pre` is the main regime and the main value. `post` is useful as a control: if a model solves
@@ -225,9 +225,12 @@ This is what the whole thing is for. Eight templates, sorted by value/cost ratio
    before the author does. Cheap and very strong.
 
 2. **Premature-answer trap** (`any`/`pre`/`L2`) — a question to which the video has an early
-   *plausible but incomplete* answer, with the full one later. An answer in the early window must
-   lower the score. It directly breaks the greedy strategy "answer at the first match". Implemented
-   through the `distractor_windows` field.
+   *plausible but wrong* answer, with the correct one later. An early answer lowers the score by
+   itself: it lies outside every window, earns no PAUC and raises the FAR. It directly breaks the
+   greedy strategy "answer at the first match". A property of the wording, not a field: the
+   former `distractor_windows` was removed on 2026-09-07 (it duplicated the FAR for scoring and
+   leaked `t_start` to the semi-blind reviewer); the proposer's intent may be recorded in the
+   optional `provenance.trap_note`.
 
 3. **Prediction-ahead** (`predict`/`pre`/`L3`) — "once the problem is posed, name the method of
    solution". The GT is what actually happened next. In streaming the model physically cannot peek.
@@ -287,7 +290,6 @@ and why they are needed.
 |---|---|
 | `t_start`/`t_end` instead of a point | a GT window rather than a moment — that is how PAUC works; nobody will guess the exact frame |
 | `t_ideal` | a service field, `t_start + 1`; it means nothing, the latency is measured from `t_start` |
-| `distractor_windows` | a penalty for a premature answer (template 2) |
 | `rubric` | the judge scores against explicit criteria rather than "by eye" |
 | `act` / `temporal_rel` / `reasoning_level` / `template` | the taxonomy axes; the breakdowns are computed over them too |
 | `audio_dependency: null` until validation | filled in by a **measurement**, not by the annotator (§1.2) |
@@ -324,9 +326,9 @@ resolving power), but additionally compute a chain metric — see §4.
 
 **3. The spam strategy is the main new threat.** With N windows a model can answer every 10 seconds
 and hit all of them. PAUC by itself does not penalise that. Therefore:
-- `distractor_windows` are mandatory for all multi-trigger samples, not only for
-  `premature_answer_trap`;
-- **the False-Alarm Rate goes into the main table alongside PAUC**, not into an appendix;
+- **the False-Alarm Rate goes into the main table alongside PAUC**, not into an appendix; a
+  spammer lands in any interval, so no annotated interval is needed to catch one (the former
+  requirement of a `distractor_window` on every multi-trigger sample was dropped on 2026-09-07);
 - in the report we always publish the average number of the model's answers per sample next to
   `n_triggers` — if a model produces 30 answers for 3 windows, that must be visible.
 
@@ -367,10 +369,11 @@ so the difference will be noticeable, and silently mixing the two quantities is 
 
 - **False-Alarm Rate** — the share of answers outside all GT windows. PAUC by itself does not
   penalise talkativeness outside the windows, and for us that is critical.
-- **Trap rate** — separately from the FAR: the share of `distractor_windows` the model answered in.
-  Counting the traps inside the general FAR is meaningless: "outside the windows" is 85–98 % of the
-  sample's duration, and against such a background a distractor adds no weight relative to any other
-  wrong point.
+- **Where the false alarms cluster** — a diagnostic, not a metric, and computed after the fact:
+  the false alarms of several models are clustered in time, and a cluster is an empirically
+  confirmed trap (on the pilot, `GlYgs6v2YfU` q03 at 519 s: the first configuration, before the
+  correct one). This replaced the former *trap rate* over annotated `distractor_windows`, which
+  measured hits on decoys guessed a priori and never checked to catch anybody.
 - **Latency** — `τ − t_start` for **the first answer inside the window**, as a distribution, not a
   mean. The count starts from `t_start` precisely: that is the moment when an instantaneously
   reasoning model could already have answered (`S-29` keeps `t_start ≥ evidence_span[0]`). The

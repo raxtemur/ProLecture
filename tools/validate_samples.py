@@ -213,15 +213,6 @@ def semantic_checks(s: dict) -> list[str]:
     if s["question_time"] > dur:
         errs.append(f"question_time={s['question_time']} is greater than the duration of the video {dur}")
 
-    # S-04 · checklist 1.5 — a multi-trigger sample has something to punish spam with.
-    #   Breaks: the strategy "talk all the time" scores full marks, because there is
-    #   nowhere for a false positive to happen.
-    #   To check: delete distractor_windows on a sample with >1 trigger
-    #   -> "multi-trigger sample with no distractor_windows".
-    if len(trigs) > 1 and not s.get("distractor_windows"):
-        errs.append("multi-trigger sample with no distractor_windows: a spam strategy goes unpunished "
-                    "(plan §3.1 item 3)")
-
     # S-05 · checklist 7.1 — the pre/at/post axis is derived rather than set by hand.
     #   Breaks: the label stops reflecting the position of question_time relative to the
     #   evidence; most often a post sample lives with the label at, and vice versa.
@@ -347,32 +338,6 @@ def semantic_checks(s: dict) -> list[str]:
             if dep >= t["idx"]:
                 errs.append(f"{tag}: depends_on={dep} is not earlier than the trigger itself")
 
-    for i, d in enumerate(s.get("distractor_windows", [])):
-        # S-14 · checklist 1.2 — the geometry of a distractor window.
-        #   Breaks: a distractor of zero length or one outside the video catches nothing
-        #   while looking, in the annotation, like protection against spam.
-        #   To check: t_end := t_start -> "t_start >= t_end";
-        #   t_end := duration + 10 -> "the window runs past the duration of the video".
-        if not (d["t_start"] < d["t_end"]):
-            errs.append(f"distractor[{i}]: t_start >= t_end")
-        if d["t_end"] > dur:
-            errs.append(f"distractor[{i}]: the window runs past the duration of the video")
-        # S-15 · checklist 1.2 — the distractor does not lie entirely before the question.
-        #   Breaks: there is nothing to catch — the model does not yet know the question
-        #   and stays silent under any strategy, while the annotation counts that as
-        #   protection against spam.
-        #   To check: question_time := the distractor's t_end + 1 -> "entirely before the question is issued".
-        if d["t_end"] <= s["question_time"]:
-            errs.append(f"distractor[{i}] lies entirely before the question is issued — there is "
-                        f"nothing there for a false positive to be")
-        # S-16 · checklist 1.2 — the distractor does not overlap a trigger.
-        #   Breaks: one and the same answer is correct and false at once.
-        #   To check: the distractor's t_start := t_start of the first trigger
-        #   -> "overlaps trigger".
-        for t in trigs:
-            if d["t_start"] < t["t_end"] and t["t_start"] < d["t_end"]:
-                errs.append(f"distractor[{i}] overlaps trigger[{t['idx']}]")
-
     st = s["validation"]["status"]
     vis = s["validation"].get("visiononly_solved")
     solv = s["validation"].get("solvable")
@@ -488,17 +453,6 @@ def semantic_checks(s: dict) -> list[str]:
             errs.append(f"trigger[{t['idx']}]: a required trigger depends on the "
                         f"optional {bad} — staying silent there is legitimate, and the chain breaks")
 
-    # S-31 · checklist 1.2 — distractors do not overlap each other.
-    #   Breaks: one premature answer counts as two false positives — the punishment is
-    #   disproportionate to the act.
-    #   To check: add a distractor covering two neighbouring ones
-    #   -> "distractors overlap".
-    ds = sorted(s.get("distractor_windows", []), key=lambda d: d["t_start"])
-    for i in range(1, len(ds)):
-        if ds[i]["t_start"] < ds[i - 1]["t_end"]:
-            errs.append(f"distractors overlap: [{ds[i-1]['t_start']}, {ds[i-1]['t_end']}] "
-                        f"and [{ds[i]['t_start']}, {ds[i]['t_end']}]")
-
     # S-32 · checklist 8.1 — at least one of the references carries a timecode.
     #   Breaks: provenance is declared to be protection against an invented reference
     #   answer, but a record of type other is checked by nothing — replace every reference
@@ -509,30 +463,6 @@ def semantic_checks(s: dict) -> list[str]:
     if not any(e["type"] in ("frame", "speech") for e in ev):
         errs.append("not a single reference with a timecode: a provenance of nothing but other "
                     "gives no way to re-check the reference answer")
-
-    # S-37 · checklist 2.5 — a distractor does not begin exactly on a window boundary.
-    #   Breaks: an answer that is correct on the merits but issued a second after the
-    #   window closes falls into a distractor and is penalised twice — as a miss and as a
-    #   false positive. The difference between "in time" and "a trap" becomes a difference
-    #   in generation speed.
-    #   A zero gap is an error; a non-zero but short one is a warning: sometimes a
-    #   distractor is supposed to begin close by, and then it is the reviewer who decides.
-    #   To check: a distractor with t_start := the trigger's t_end -> "begins exactly on
-    #   the window boundary".
-    for i, d in enumerate(s.get("distractor_windows", [])):
-        for tr in trigs:
-            if d["t_start"] == tr["t_end"]:
-                errs.append(f"distractor[{i}] begins exactly on the boundary of the window of "
-                            f"trigger[{tr['idx']}] ({tr['t_end']}): an answer that is correct but late "
-                            f"by a fraction of a second will fall into it and be punished twice")
-
-    for i, d in enumerate(s.get("distractor_windows", [])):
-        for tr in trigs:
-            gap = d["t_start"] - tr["t_end"]
-            if 0 < gap < 10:
-                warn(s["id"], f"distractor[{i}] begins {gap:.1f} s after the window of "
-                              f"trigger[{tr['idx']}]: a correct but late answer will fall "
-                              f"into it — that is a race on generation speed (checklist 2.5)")
 
     # S-33 · checklist 2.1 — a boundary shared by two windows does not cut a line in half.
     #   Breaks: an answer started on that phrase falls into the neighbouring window and is
@@ -674,34 +604,6 @@ def cross_sample_checks(samples: dict[str, dict]) -> dict[str, list[str]]:
             if samples[sid]["question_time"] == samples[base]["question_time"]:
                 add(sid, f"question_time coincides with twin {base}: "
                          f"the pair does not measure the price of timing")
-
-    # S-26 · checklist 6.3 — the twins have not lost a distractor they could both have had.
-    #   A pair of twins exists for the sake of comparing metrics, including the share of
-    #   hits on a trap. If a distractor is present for one and absent for the other with
-    #   no reason, that share is not comparable.
-    #   Absence is legitimate in exactly one case: the distractor lies entirely before the
-    #   question_time of the second twin, and there S-15 (checklist 1.2) forbids it. That
-    #   is exactly how both pairs of the pilot look, which is why the rule is phrased as
-    #   "one legitimate for both must be present for both" rather than "the sets coincide".
-    #   Breaks: a distractor was deleted from, or added to, only one of the pair, and the
-    #   false-positive column for the pair silently loses its meaning.
-    #   To check: on q07 (question_time=930) add a distractor [1000, 1010]
-    #   -> "distractor ... is present for ..., but not for the twin".
-    for group in twin_groups(samples):
-        for sid in group:
-            mine = samples[sid].get("distractor_windows", [])
-            for other in group:
-                if other == sid:
-                    continue
-                qt = samples[other]["question_time"]
-                theirs = samples[other].get("distractor_windows", [])
-                for d in mine:
-                    if d["t_end"] <= qt:
-                        continue          # for the twin it is forbidden under 1.2 — legitimate
-                    if not any(abs(x["t_start"] - d["t_start"]) <= 1.0
-                               and abs(x["t_end"] - d["t_end"]) <= 1.0 for x in theirs):
-                        add(sid, f"distractor [{d['t_start']}, {d['t_end']}] is present for {sid}, "
-                                 f"but not for twin {other}, where it would be legitimate")
 
     return errs
 
