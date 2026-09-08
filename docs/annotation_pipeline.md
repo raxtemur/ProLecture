@@ -639,10 +639,10 @@ does **not** yield a `PASS`: see the limiters of step 4.
 
 | Item | Verdict on a hit |
 |---|---|
-| 2.2 the answer is possible earlier than `t_start` | `FIX_INTERVALS` |
-| 2.3 the answer was available before `question_time` | `FIX_QUESTION` — the axis changes, not the window; derived from the semi-blind reviewer's `scans` |
+| 2.2 the answer is possible earlier than `t_start` | `FIX_INTERVALS` for a gap of up to 10 s or a substantive when-clause (optional trigger); `FIX_QUESTION` for an empty when-clause — the ladder of checklist 2.2 |
+| 2.3 the answer was available before `question_time` | `FIX_QUESTION` — the axis changes, not the window; derived from the adjudicated `t_val`; cured by the ladder of checklist 2.2 (move `question_time` back, or re-label `at`/`post`), a gap of up to 10 s by moving `question_time` alone |
 | 2.4 the window can be narrowed | `FIX_INTERVALS`, and only if the empty part is large |
-| 2.5 the answer is spoken inside the window or within 10 s after | `CRITICAL_FAIL` for `L2`/`L3`, `PASS` for `L1` |
+| 2.5 the answer is spoken inside the window or within 10 s after | `CRITICAL_FAIL` for `L2`/`L3` when the whole answer is in the stream (empty residue); `FIX_QUESTION` with a re-level when only an ingredient is; `PASS` for `L1` |
 | 3.1 an uncovered candidate for a firing | `FIX_INTERVALS` (add a trigger) or `FIX_QUESTION` if the wording is fixed |
 | 3.2 an inconsistent criterion | `FIX_QUESTION` |
 | 3.4 elements appear one by one, no optional triggers on them | `FIX_INTERVALS`; `FIX_QUESTION` if the wording insists on "simultaneously" without a reason |
@@ -651,7 +651,7 @@ does **not** yield a `PASS`: see the limiters of step 4.
 | 4.3 the video was recognised | `FIX_QUESTION` plus a flag: another video may be needed |
 | 4.7 the question is not solvable even from the full material | `CRITICAL_FAIL` |
 | 5.x | `FIX_QUESTION` |
-| 7.3 `reasoning_level` is inflated | `FIX_QUESTION`; check **before** 2.5, whose verdict depends on the level |
+| 7.3 `reasoning_level` is inflated | `FIX_QUESTION`; the level is that of the cheapest route to the rubric; check **before** 2.5, whose verdict depends on the level |
 | 7.4 `depends_on` is not confirmed by the rubric | `FIX_QUESTION` |
 | 7.5 `evidence_span` is not on the last piece of evidence | `FIX_QUESTION` — the axis changes |
 | 8.2 the reference describes something other than what is in the frame | `FIX_INTERVALS` |

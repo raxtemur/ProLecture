@@ -15,12 +15,27 @@ Examples::
         --artifact data/reviews/VIDEO/sample-q05/semiblind.4.json \
         --summary "Prior could not answer; t_val=951.0."
     python3 tools/coordinator_log.py VIDEO sample-edit \
-        --sample-id sample-q05 --changes "Moved t_start of trigger 0 to 704.0." \
-        --source full_sample.4.json
+        --sample-id sample-q05 --kind boundary \
+        --changes "Moved t_start of trigger 0 to 704.0." --source full_sample.4.json
+    python3 tools/coordinator_log.py VIDEO note --agent /root/q05_semiblind_r4 \
+        --text "Relaunched after HTTP 429 under the same name; the first run left no artifact."
     python3 tools/coordinator_log.py VIDEO adjudicate \
         --sample-id sample-q10 --iteration 3 --t-val-a 704.0 --t-s 690.0 \
         --verified no --t-val 704.0 --source semiblind.3.json
     python3 tools/coordinator_log.py VIDEO check
+    python3 tools/coordinator_log.py VIDEO check --final
+
+The log is append-only: a line is never edited or deleted. A wrong or missing record is
+repaired by appending a ``note`` that names the agent; ``check`` then tolerates the
+unmatched ``spawn`` or ``finish`` of that agent instead of rejecting the log.
+
+``sample-edit`` carries a ``kind`` naming what changed while the participant-visible
+question stayed the same (``boundary``, ``rubric``, ``level``, ``timing``, ``metadata``) or
+``wording`` when it did not. Each kind names the roles that must be rerun afterwards
+(``RERUN_AFTER``, the table in ``docs/prompts/coordinator.md`` §3); a window review logged
+per window (``full_window0``) counts as ``full_window``. ``check`` lists a missing
+rerun as pending and passes; ``check --final`` fails on it. Edits without a kind — the lines
+written before the field existed — are not checked.
 
 The ``adjudicate`` event records the outcome of the left-boundary check (checklist 2.2,
 stages A–C): ``t_val_a`` is the first answer of the semi-blind trajectory that met the
@@ -63,22 +78,56 @@ def append_event(path: Path, event: dict) -> None:
         stream.write(json.dumps(event, ensure_ascii=False, separators=(",", ":")) + "\n")
 
 
-def validate_log(path: Path) -> int:
+EDIT_KINDS = ("boundary", "rubric", "level", "timing", "metadata", "wording")
+
+# Which roles a sample edit of each kind must be followed by (the table in
+# docs/prompts/coordinator.md, section 3). The probes are listed once for "wording": a
+# changed question is a new review version and every role runs again.
+RERUN_AFTER: dict[str, frozenset[str]] = {
+    "boundary": frozenset({"full_window"}),
+    "rubric": frozenset({"full_sample", "full_window"}),
+    "level": frozenset(),
+    "timing": frozenset({"full_sample"}),
+    "metadata": frozenset(),
+    "wording": frozenset({"semiblind", "probe_text", "probe_vision", "probe_frame",
+                          "full_sample", "full_window"}),
+}
+
+
+def base_role(role: str | None) -> str:
+    """The role a spawn counts as for the rerun table.
+
+    Window reviews are logged per window (``full_window0``, ``full_window3``); a
+    trailing index is dropped so that any of them satisfies a ``full_window`` requirement.
+    """
+    return re.sub(r"\d+$", "", role or "")
+
+
+def validate_log(path: Path, final: bool = False) -> int:
     if not path.exists():
         print(f"log does not exist: {path}", file=sys.stderr)
         return 1
 
-    active: set[str] = set()
+    lines = path.read_text(encoding="utf-8").splitlines()
+    events: list[tuple[int, dict]] = []
     errors: list[str] = []
-    launches = finishes = edits = adjudications = 0
-
-    for line_number, raw in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+    for line_number, raw in enumerate(lines, 1):
         try:
-            event = json.loads(raw)
+            events.append((line_number, json.loads(raw)))
         except json.JSONDecodeError as exc:
             errors.append(f"line {line_number}: invalid JSON: {exc.msg}")
-            continue
 
+    # A note that names an agent documents a hole in that agent's spawn/finish pair,
+    # wherever in the log the note stands: the repair is appended after the fact.
+    noted: set[str] = {e.get("agent") for _, e in events
+                       if e.get("event") == "note" and e.get("agent")}
+
+    active: set[str] = set()
+    launches = finishes = edits = adjudications = notes = 0
+    # kind-tagged edits waiting for their reruns: (line, sample_id, roles still missing)
+    pending: list[tuple[int, str, set[str]]] = []
+
+    for line_number, event in events:
         event_type = event.get("event")
         agent = event.get("agent")
         if event_type == "spawn":
@@ -89,24 +138,47 @@ def validate_log(path: Path) -> int:
                 errors.append(f"line {line_number}: duplicate active launch: {agent}")
             else:
                 active.add(agent)
+            role, sample_id = base_role(event.get("role")), event.get("sample_id")
+            for _, edited, missing in pending:
+                if edited == sample_id:
+                    missing.discard(role)
         elif event_type == "finish":
             finishes += 1
             if not agent:
                 errors.append(f"line {line_number}: finish has no agent")
-            elif agent not in active:
-                errors.append(f"line {line_number}: finish without launch: {agent}")
-            else:
+            elif agent in active:
                 active.remove(agent)
+            elif agent not in noted:
+                errors.append(f"line {line_number}: finish without launch: {agent}")
         elif event_type == "sample_edit":
             edits += 1
+            kind = event.get("kind")
+            if kind is not None:
+                if kind not in RERUN_AFTER:
+                    errors.append(f"line {line_number}: unknown edit kind: {kind!r}")
+                elif RERUN_AFTER[kind]:
+                    pending.append((line_number, event.get("sample_id", ""),
+                                    set(RERUN_AFTER[kind])))
         elif event_type == "adjudicate":
             adjudications += 1
             errors += [f"line {line_number}: {e}" for e in check_adjudication(event)]
+        elif event_type == "note":
+            notes += 1
+            if not event.get("text"):
+                errors.append(f"line {line_number}: note has no text")
         else:
             errors.append(f"line {line_number}: unknown event: {event_type!r}")
 
-    for agent in sorted(active):
+    for agent in sorted(active - noted):
         errors.append(f"launch without finish: {agent}")
+
+    stale = [f"line {line}: edit of {sample_id} not followed by {', '.join(sorted(missing))}"
+             for line, sample_id, missing in pending if missing]
+    if final:
+        errors += stale
+    else:
+        for message in stale:
+            print(f"pending rerun: {message}", file=sys.stderr)
 
     if errors:
         for error in errors:
@@ -114,7 +186,8 @@ def validate_log(path: Path) -> int:
         return 1
 
     print(f"log valid: {launches} launches, {finishes} finishes, {edits} sample edits, "
-          f"{adjudications} adjudications")
+          f"{adjudications} adjudications, {notes} notes"
+          + (f", {len(stale)} pending reruns" if stale else ""))
     return 0
 
 
@@ -171,8 +244,20 @@ def parser() -> argparse.ArgumentParser:
 
     edit = commands.add_parser("sample-edit", help="record an applied sample change")
     edit.add_argument("--sample-id", required=True)
+    edit.add_argument("--kind", choices=EDIT_KINDS, default=None,
+                      help="what changed: boundary, rubric, level, timing, metadata with the "
+                           "question text untouched, or wording; decides which roles must rerun")
     edit.add_argument("--changes", required=True)
     edit.add_argument("--source", required=True)
+
+    note = commands.add_parser("note", help="append a remark: a reconstruction, an unknown "
+                                            "fate, anything the other events cannot say")
+    note.add_argument("--text", required=True)
+    note.add_argument("--agent", default=None,
+                      help="the agent whose spawn/finish pair the note documents; check then "
+                           "tolerates that agent's unmatched event")
+    note.add_argument("--refers-to", default=None,
+                      help="a line number or artifact the note is about")
 
     adj = commands.add_parser("adjudicate",
                               help="record the outcome of the left-boundary check (2.2, stages A-C)")
@@ -188,7 +273,9 @@ def parser() -> argparse.ArgumentParser:
     adj.add_argument("--source", required=True,
                      help="the semi-blind review the trajectory came from")
 
-    commands.add_parser("check", help="validate JSON and balance launches with finishes")
+    check = commands.add_parser("check", help="validate JSON and balance launches with finishes")
+    check.add_argument("--final", action="store_true",
+                       help="also fail on kind-tagged edits whose reruns have not happened")
     return result
 
 
@@ -201,7 +288,7 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     if args.command == "check":
-        return validate_log(path)
+        return validate_log(path, final=args.final)
 
     if args.command == "spawn":
         event = {
@@ -232,6 +319,14 @@ def main(argv: list[str] | None = None) -> int:
             "changes": args.changes,
             "source": args.source,
         }
+        if args.kind:
+            event["kind"] = args.kind
+    elif args.command == "note":
+        event = {"ts": timestamp(), "event": "note", "text": args.text}
+        if args.agent:
+            event["agent"] = args.agent
+        if args.refers_to:
+            event["refers_to"] = args.refers_to
     else:
         event = {
             "ts": timestamp(),

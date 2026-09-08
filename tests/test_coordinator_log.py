@@ -190,6 +190,110 @@ class CoordinatorLogCliTest(unittest.TestCase):
         self.assertEqual(result.returncode, 1)
         self.assertIn("duplicate active launch: agent-1", result.stderr)
 
+    def spawn(self, agent, sample_id, role, video="video-id"):
+        return self.run_for_video(
+            video, "spawn", "--agent", agent, "--sample-id", sample_id, "--role", role,
+            "--iteration", "1", "--model", "claude-sonnet-5", "--reasoning-effort", "medium",
+        )
+
+    def test_a_note_documents_an_unmatched_finish_or_launch(self):
+        self.assertEqual(self.run_cli(
+            "finish", "--agent", "sb_q02_b", "--status", "completed",
+            "--summary", "Second run after HTTP 429.",
+        ).returncode, 0)
+        self.assertEqual(self.spawn("sb_q07", "sample-q07", "semiblind").returncode, 0)
+        self.assertEqual(self.run_cli("check").returncode, 1)
+
+        noted = self.run_cli(
+            "note", "--agent", "sb_q02_b", "--refers-to", "line 1",
+            "--text", "spawn of the relaunch was never written; the artifact exists.",
+        )
+        self.assertEqual(noted.returncode, 0, noted.stderr)
+        self.assertEqual(self.run_cli(
+            "note", "--agent", "sb_q07", "--text", "fate unknown after the session was cut.",
+        ).returncode, 0)
+
+        result = self.run_cli("check")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("2 notes", result.stdout)
+        events = self.read_events()
+        self.assertEqual(events[2]["event"], "note")
+        self.assertEqual(events[2]["refers_to"], "line 1")
+
+    def test_a_note_without_text_or_an_unknown_kind_is_rejected(self):
+        self.assertNotEqual(self.run_cli("note", "--agent", "x").returncode, 0)
+        self.assertNotEqual(self.run_cli(
+            "sample-edit", "--sample-id", "sample-q01", "--kind", "colour",
+            "--changes", "x", "--source", "y",
+        ).returncode, 0)
+
+    def test_a_kind_tagged_edit_waits_for_its_reruns(self):
+        self.assertEqual(self.run_cli(
+            "sample-edit", "--sample-id", "sample-q03", "--kind", "rubric",
+            "--changes", "R2 now names the displayed value.", "--source", "full_sample.5.json",
+        ).returncode, 0)
+        # a spawn that happened before the edit does not count
+        self.assertEqual(self.read_events()[-1]["kind"], "rubric")
+
+        lenient = self.run_cli("check")
+        self.assertEqual(lenient.returncode, 0, lenient.stderr)
+        self.assertIn("pending rerun", lenient.stderr)
+        self.assertIn("full_sample, full_window", lenient.stderr)
+        self.assertIn("1 pending reruns", lenient.stdout)
+
+        final = self.run_cli("check", "--final")
+        self.assertEqual(final.returncode, 1)
+        self.assertIn("not followed by full_sample, full_window", final.stderr)
+
+        # the rerun of another sample does not satisfy it
+        self.assertEqual(self.spawn("fs_q04", "sample-q04", "full_sample").returncode, 0)
+        self.assertEqual(self.run_cli(
+            "finish", "--agent", "fs_q04", "--status", "completed", "--summary", "ok",
+        ).returncode, 0)
+        self.assertEqual(self.run_cli("check", "--final").returncode, 1)
+
+        # the window review is logged per window, as the real logs do
+        for agent, role in (("fs_q03", "full_sample"), ("fw0_q03", "full_window0")):
+            self.assertEqual(self.spawn(agent, "sample-q03", role).returncode, 0)
+            self.assertEqual(self.run_cli(
+                "finish", "--agent", agent, "--status", "completed", "--summary", "ok",
+            ).returncode, 0)
+        result = self.run_cli("check", "--final")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertNotIn("pending", result.stdout)
+
+    def test_a_wording_edit_requires_the_whole_cycle(self):
+        self.assertEqual(self.run_cli(
+            "sample-edit", "--sample-id", "sample-q02", "--kind", "wording",
+            "--changes", "Referent fixed: 'the blue target function now on the screen'.",
+            "--source", "coordinator.5.md",
+        ).returncode, 0)
+        for agent, role in (("sb", "semiblind"), ("pt", "probe_text"), ("pv", "probe_vision"),
+                            ("pf", "probe_frame"), ("fs", "full_sample")):
+            self.assertEqual(self.spawn(agent, "sample-q02", role).returncode, 0)
+        result = self.run_cli("check", "--final")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("not followed by full_window", result.stderr)
+        self.assertNotIn("probe_", result.stderr)
+        self.assertEqual(self.spawn("fw2", "sample-q02", "full_window2").returncode, 0)
+        for agent in ("sb", "pt", "pv", "pf", "fs", "fw2"):
+            self.run_cli("finish", "--agent", agent, "--status", "completed", "--summary", "ok")
+        result = self.run_cli("check", "--final")
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_edits_without_a_kind_and_kinds_without_reruns_are_not_checked(self):
+        self.assertEqual(self.run_cli(
+            "sample-edit", "--sample-id", "sample-q01",
+            "--changes", "legacy line", "--source", "coordinator.1.md",
+        ).returncode, 0)
+        self.assertEqual(self.run_cli(
+            "sample-edit", "--sample-id", "sample-q01", "--kind", "level",
+            "--changes", "L3 -> L2 by the residue rule.", "--source", "full_window0.3.json",
+        ).returncode, 0)
+        result = self.run_cli("check", "--final")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("2 sample edits", result.stdout)
+
     def test_rejects_a_video_id_that_escapes_the_review_directory(self):
         result = self.run_for_video(
             "../outside",

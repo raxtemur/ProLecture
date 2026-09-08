@@ -173,8 +173,10 @@ The enumeration values:
 - `act` — `alert`, `monitor`, `ground`, `narrate`, `predict`, `verify`, `counterfact`
 - `temporal_rel` — `pre`, `at`, `post`; the meaning and the derivation rule are in §4.1
 - `reasoning_level` — `L1` (read off the screen or off the speech), `L2` (≥2 moments far
-  apart have to be connected), `L3` (a computation or a derivation not present in the
-  video is needed)
+  apart have to be connected, or one step of arithmetic over displayed values), `L3` (a
+  derivation whose ingredients the screen does not hand over). The label is that of the
+  **cheapest** legal route to the full rubric, not of the route the question was written
+  around — checklist 7.3
 - `audio_dependency` — `required`, `unnecessary` (the intermediate `helpful` was removed:
   two boolean flags cannot tell it apart)
 - `audio_dependency_claim` — `required`, `helpful`, `unnecessary`; this is the annotator's
@@ -212,10 +214,14 @@ its length differs from the original (q07 — 43 s, q07b — 37 s). The differen
 between twins contains both the effect of timing and the effect of window length; that has
 to be taken into account, or normalised for length, when interpreting it.
 
-Only `pre` is genuinely proactive. `at` and `post` exist as **control twins**: the same
-triggers and the same rubric, with only `question_time` shifted. The pair is linked by the
-`twin_of` field — the link cannot be reconstructed from `id` names, and the `b` suffix is a
-convention rather than a contract. If a model solves `q02b` (`post`) but does not solve
+Only `pre` is genuinely proactive, and `pre` is what the benchmark wants more of. `at` and
+`post` arise in two ways. As **control twins**: the same triggers and the same rubric, with
+only `question_time` shifted. And as the honest outcome of review: when the semi-blind
+check (checklist 2.2/2.3) shows that the evidence was there before the question and the
+when-clause of the wording contributed nothing to the answer, the sample is re-labelled
+rather than kept `pre` by the letter of its wording — a `pre` a model may ignore with
+impunity measures nothing. The twin pair is linked by the `twin_of` field — the link cannot
+be reconstructed from `id` names, and the `b` suffix is a convention rather than a contract. If a model solves `q02b` (`post`) but does not solve
 `q02` (`pre`), the problem is in proactivity rather than in understanding — the difference
 in PAUC between the twins is exactly the price of timing.
 

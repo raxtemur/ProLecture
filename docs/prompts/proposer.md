@@ -65,10 +65,24 @@ Three axes along which a sample is described:
   of the last one; otherwise `at`. The validator recomputes the same thing and compares —
   a mismatch is an error, so it is simpler to compute it honestly;
 - **reasoning_level** — `L1` the answer is read off directly; `L2` moments far apart have
-  to be connected; `L3` something not in the video has to be derived.
+  to be connected, or one step of arithmetic is done over displayed values; `L3` something
+  the screen does not hand the ingredients of has to be derived. Label the **cheapest**
+  route to the full rubric, not the one you designed the question around: if the value can
+  be read off a frame shown three minutes earlier and doubled, that is `L2`, however
+  elegant the derivation you had in mind.
 
 The main quality criterion: **the question must be unanswerable before its window and
 answerable inside it**. Everything else is a consequence.
+
+A corollary for `pre` questions: **the when-clause must carry information.** Ask which
+rubric items become satisfiable only once the event in the clause has occurred. If none do
+— the data were on screen earlier and the clause only names a moment ("when all three
+controls are marked free to change", "when the general formula replaces the concrete one")
+— the clause is a timer anchor, not part of the task. A model that knows the answer is
+right to ignore it, the review will find the earlier moment (checklist 2.2/2.3), and the
+question will be re-labelled `at` or `post`. Build a `pre` on an event that brings a value,
+a relation or a transition the answer needs; if there is none, write the question as `at`
+from the start.
 
 ### What to avoid
 
@@ -94,7 +108,9 @@ answerable inside it**. Everything else is a consequence.
 - **Multiple-choice questions.** The answer is open-ended and its quality is determined by
   the rubric.
 - **Questions whose answer the author speaks right after the window.** The task then
-  degenerates into "repeat after the author"; see checklist item 2.5.
+  degenerates into "repeat after the author"; see checklist item 2.5. If the author hands
+  over only an ingredient of the answer, the question survives — at the level the rest of
+  the work deserves.
 
 ### Historical and textbook material — the main source of blind contamination
 
@@ -208,8 +224,11 @@ often shows a table or the values tens of seconds before speaking them, and then
 it to fit the words — so the frames around the line of speech look deceptively incomplete.
 `t_end` is the moment after which it is too late to answer: the object has left the screen.
 **For questions of level `L2`/`L3` the window must close no later than ten seconds before
-the author speaks the answer himself.** This does not apply to `L1` alarms: there the
-author's line is itself the event that is asked to be reacted to, and no slack is needed.
+the author speaks the answer himself.** The answer here means the whole of it: a window
+that closes right before the author names one ingredient is allowed, but the level then
+drops to what the remaining work requires (checklist 2.5, 7.3). This does not apply to `L1`
+alarms: there the author's line is itself the event that is asked to be reacted to, and no
+slack is needed.
 Setting `t_end` right up against that moment is not allowed: a model in streaming spends
 several seconds on its answer and will manage to get the author's answer out of the stream —
 formally answering inside the window while in fact copying. If there is no ten-second slack,

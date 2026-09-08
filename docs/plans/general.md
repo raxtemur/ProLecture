@@ -202,7 +202,7 @@ controlled pair.**
 | Code | Level | How the answer is obtained | Target share |
 |---|---|---|---|
 | `L1` | Perception | read off the screen or off the speech | ≤ 20% (30% in the pilot — see below) |
-| `L2` | Integration | one has to connect ≥2 moments separated in time | ~40% |
+| `L2` | Integration | one has to connect ≥2 moments separated in time, or do one step of arithmetic over displayed values | ~40% |
 | `L3` | Derivation | one has to carry out a computation/derivation that is **not** in the video | ~40% |
 
 In the pilot the shares came out as `L3` 4, `L1` 4, `L2` 2 out of ten, that is, `L1` is twice the
@@ -213,7 +213,9 @@ single utterance). Fitting to target shares on a sample of ten is meaningless; w
 when expanding.
 
 **The quality criterion for L3:** the answer must not follow from general knowledge of the topic —
-otherwise the blind baseline solves it. It is checked mechanically (§5.3), not by eye.
+otherwise the blind baseline solves it. It is checked mechanically (§5.3), not by eye. The label
+is that of the cheapest legal route to the rubric (checklist 7.3): one step of arithmetic over
+displayed values is `L2`, not `L3`, even though the result itself is never on the screen.
 
 ### 2.1. A catalogue of "hard" question templates
 

@@ -137,14 +137,25 @@ First look at the sample's `reasoning_level`: the verdict on item 2.5 depends on
 that is the only thing you need to know in advance.
 
 **Item 2.5 — the author speaks the answer inside the window or right after it.** Check
-`[t_start, t_end + 10]` against the transcript and the frames. If the answer is spoken or
-shown here in finished form, the task degenerates: a model in streaming spends several
-seconds on its answer, and in that time it will get the author's answer out of the stream.
-For a sample of level `L2`/`L3` this is a `CRITICAL_FAIL` — it is not cured by moving a
-boundary; it is cured by moving the question to where there are minutes of slack, or by
-making the question hard enough that what the author said is not sufficient, or by
-converting it into an `L1` alarm. For `L1`, which was designed as an alarm in the first
-place, coinciding with the author's speech is fine.
+`[t_start, t_end + 10]` against the transcript and the frames. A model in streaming spends
+several seconds on its answer, and in that time it will get whatever the author says next
+out of the stream — so what matters is what the stream hands over in that interval.
+
+Split the rubric in two and write the split into the `findings` of this check, item by
+item: the items whose content is **handed over** — spoken or shown in finished form, a number, a term, a formula that can be
+repeated — and the **residue**, what still has to be worked out from them.
+
+- **Residue empty** — the whole answer is in the stream. For `L2`/`L3` this is a
+  `CRITICAL_FAIL`: not cured by a boundary, cured by moving the question to where there are
+  minutes of slack, by asking what the author does not say, or by converting the sample into
+  an `L1` alarm. For `L1`, designed as an alarm in the first place, coinciding with the
+  author's speech is fine: `ok`.
+- **Residue not empty** — the stream hands over an ingredient (the four terms) but not the
+  answer built from it (their sum). Mark the item `fail` with the verdict `FIX_QUESTION` and
+  propose the level the residue deserves, as if the handed-over items only had to be heard:
+  one step of arithmetic over displayed values is `L2`; a residue of nothing but reading is
+  `L1`. The windows stay. A hedge in the wording ("show all four terms") does not change the
+  split: judge what the stream shows, not what the question demands.
 
 **Item 2.4 — the window can be tightened.** The answer must be possible throughout the
 whole window. On the left the window is sometimes open while the object is still being
@@ -236,8 +247,8 @@ The overall `verdict` equals the worst of the ones that fired:
 |---|---|
 | `PASS` | nothing fired and nothing was skipped |
 | `FIX_INTERVALS` | window boundaries, `depends_on`, `evidence_span` |
-| `FIX_QUESTION` | the window cannot be fixed by boundaries: the design of the question does not work at this moment |
-| `CRITICAL_FAIL` | `author-says-answer-in-window` on a sample of level `L2`/`L3` |
+| `FIX_QUESTION` | the window cannot be fixed by boundaries: the design of the question does not work at this moment; `author-says-answer-in-window` with a non-empty residue (a re-level) |
+| `CRITICAL_FAIL` | `author-says-answer-in-window` on a sample of level `L2`/`L3` with an empty residue: the whole answer is in the stream |
 
 The contract will not let you set `PASS` while items have fired or been skipped.
 

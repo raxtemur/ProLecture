@@ -47,16 +47,29 @@ record. The coordinator writes `spawn` after each successful subagent launch, `f
 after each terminal result, `sample_edit` after applying a sample change, and `adjudicate`
 after deciding the left boundary of a sample (checklist 2.2, stages A–C: the semi-blind
 `t_val_a`, the sighted `t_s`, whether the verification probe met the rubric, the resulting
-`t_val`; the table itself is in `coordinator.<ROUND>.md`). It is the chronology of
-scheduling, edits and boundary decisions, not a replacement for the per-question decision
-files. Write and validate it with:
+`t_val`; the table itself is in `coordinator.<ROUND>.md`), and `note` for anything the other
+events cannot say — a reconstruction of a missing line, an agent whose fate is unknown, a
+remark for the audit. It is the chronology of scheduling, edits and boundary decisions, not
+a replacement for the per-question decision files.
+
+**Lines are never edited or deleted.** A wrong or missing record is repaired by appending a
+`note` that names the agent; `check` then tolerates the unmatched `spawn` or `finish` of
+that agent instead of rejecting the log. The lines of `3d6DsjIBzJ4` and `l6DKRf-fAAM`
+reconstructed by hand on 2026-09-08, before the event existed, are the one exception on
+record; the coordinator owes each of those logs a `note` listing them.
+
+`sample_edit` carries a `kind` — `boundary`, `rubric`, `level`, `timing`, `metadata` or
+`wording` — which names the roles that have to be rerun after it (the table in
+`docs/prompts/coordinator.md`, §3). `check` reports a missing rerun as pending; `check
+--final`, run before acceptance, fails on it. Write and validate the log with:
 
 ```bash
 python3 tools/coordinator_log.py <VIDEO_ID> spawn --help
 python3 tools/coordinator_log.py <VIDEO_ID> finish --help
 python3 tools/coordinator_log.py <VIDEO_ID> sample-edit --help
 python3 tools/coordinator_log.py <VIDEO_ID> adjudicate --help
-python3 tools/coordinator_log.py <VIDEO_ID> check
+python3 tools/coordinator_log.py <VIDEO_ID> note --help
+python3 tools/coordinator_log.py <VIDEO_ID> check [--final]
 ```
 
 The viewing budget (`budget`) is kept here as well and deliberately not carried over into

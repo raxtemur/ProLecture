@@ -162,10 +162,14 @@ silent gap is worse than `skipped`.
 ### Step 0. Without frames
 
 **Item 7.3 — the reasoning level is not inflated.** `L1` — the answer is read off
-directly; `L2` — moments far apart have to be connected; `L3` — something not in the video
-has to be derived. If all the facts of the answer are spoken in a single line, it is `L1`,
-however complicated the sample may look. Check this **first**: the verdict on item 2.5
-depends on the level.
+directly; `L2` — moments far apart have to be connected, or one step of arithmetic is done
+over displayed values; `L3` — something the screen does not hand the ingredients of has to
+be derived. The label is that of the **cheapest** legal route to the full rubric, not of
+the route the question was written around: list the routes you can see (recall from the
+topic, read off an earlier frame and combine, derive) and label the cheapest one the window
+admits. If all the facts of the answer are spoken in a single line or stand on a single
+frame, it is `L1`, however complicated the sample may look. Check this **first**: the
+verdict on item 2.5 depends on the level.
 
 Then come three comparisons of the question against the rubric. All of them rest on one
 fact about how the sample will be used later.

@@ -156,6 +156,12 @@ to see. The coordinator will decide whether the review stands as a whole or has 
 re-run. A concealed violation is worse than an admitted one for exactly the reason a
 silent gap is worse than `skipped`.
 
+The same field takes a leak that is not your doing: if the coordinator's launch message
+names what the screen shows, a timecode of the evidence, a `t_val` of an earlier round or
+the answer itself, write that into `violations` too, one line, quoting the phrase. Do not
+use it quietly. Step 0 is only worth anything if it really is step 0, and the coordinator
+has to know that yours was not.
+
 ---
 
 ## The order of checks
@@ -239,6 +245,12 @@ condition ("when the graph appears"), the condition may honestly not have occurr
 the data for the answer may already be on screen as a table or a diagram. Whoever looks for
 the condition to be met notices nothing; whoever tries to answer answers. So at every point
 **try to answer**, and note the condition separately if you like.
+
+The same goes for the `sufficient` flag: judge it against the task **without its
+when-part** — could the question, stripped of "when …", be answered from here? Whether the
+event named in the clause has occurred is a separate fact; put it in `why`, not into
+`sufficient`. A `sufficient: false` whose only reason is "the condition has not occurred" is
+the one reading of the flag the coordinator cannot use.
 
 Do not ask yourself "could I answer". For a question with several windows that question is
 meaningless: the answer is "yes, many times, that is the whole point". Ask at every point

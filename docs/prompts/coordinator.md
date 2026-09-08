@@ -140,16 +140,50 @@ because `full_sample` supplies the stage-B proposal `t_s` (section 6).
 **`probe_full` is conditional.** Launch it exactly when `probe_text` and `probe_vision`
 both answered incorrectly; a positive answer from either already proves solvability.
 
+**Models per role.** Pass `model` and `reasoning_effort` at launch and record both in the
+`spawn` event; the mix is auditable from the log. Identifiers: `claude-opus-5`,
+`claude-sonnet-5`; the OpenAI equivalents are GPT-5.6 Sol (the large tier) and GPT-5.6
+Terra (the small tier).
+
+| Role | Default | Effort | Escalation | OpenAI equivalent |
+|---|---|---|---|---|
+| `semiblind` (step 0 and stage A) | `claude-opus-5` | medium | high on a repeat after a disputed adjudication | Sol |
+| `probe_verify` | `claude-opus-5` | medium | — | Sol |
+| `full_sample` | `claude-opus-5` | medium | — | Sol |
+| `full_window` | `claude-sonnet-5` | medium | rerun on `claude-opus-5` when the verdict is `CRITICAL_FAIL` or `FIX_QUESTION`, or when two windows of one sample disagree | Terra → Sol |
+| `probe_text`, `probe_vision`, `probe_frame`, `probe_full` | `claude-sonnet-5` | medium | a positive answer stands; a negative one is rerun on `claude-opus-5` before the flag is set | Terra → Sol |
+| adversarial audit within a round | `claude-sonnet-5` | medium | — | Terra |
+
+Why: the semi-blind reviewer is the upper bound on blind solvability (section 1), and
+`blind_solved` is only comparable across rounds if the same model measured it;
+`probe_verify` has to actually solve the task at `t_s`; `full_sample` judges wording. The
+window reviewer and the probes do perceptual work against a list, and a weaker model errs
+in one direction only — "did not solve", "did not see" — which the escalation catches.
+
 **A changed participant-visible question creates a new review version.** Set
 `validation.status` back to `draft`; retain old reviews as audit history, but do not use
 their verdicts or modality flags for the new wording. Return the question to the start of
 the cheap queue and pass the barrier again before launching fresh `full_sample` and every
-`full_window` with new iteration numbers and separate workspaces.
+`full_window` with new iteration numbers and separate workspaces. Any change to the text of
+`question` — a referent, a when-clause, an added or removed demand — is a new version; no
+kind of wording change skips `full_window`. Log it as `sample-edit --kind wording`, and
+`check --final` will hold the sample until every role has been spawned again.
 
 If the participant-visible `question` is unchanged, an interval, provenance, rubric or
-other metadata-only repair needs only the roles whose owned checks or expected answer may
-have changed. Consolidate all relevant findings before applying the repair, then rerun
-those affected roles; unaffected evidence may remain.
+other metadata-only repair needs only the roles whose input changed. Which ones is not a
+judgement but this table; record the kind in the `sample-edit` event (`--kind`), and
+`check --final` verifies that the roles were rerun:
+
+| Repair (`question` text untouched) | `--kind` | Rerun | Without a rerun |
+|---|---|---|---|
+| a window boundary or `evidence_span` | `boundary` | `full_window` of the touched window | re-adjudicate stage A against the new `t_start` |
+| the text of a rubric item | `rubric` | `full_sample` (5.x); `full_window` of the windows whose rubric changed (2.5, the residue) | re-score the saved probe answers against the new rubric; re-adjudicate stage A |
+| `reasoning_level` only | `level` | — | re-read 7.3 and the 2.5 residue |
+| `question_time` / `temporal_rel` only | `timing` | `full_sample` (7.5) | stage A's `t_val` does not depend on `question_time` |
+| provenance, notes, `trap_note` | `metadata` | — | — |
+
+Consolidate all relevant findings before applying the repair, then rerun the roles the
+table names; unaffected evidence remains.
 
 **A follow-up is part of the same reviewer run.** It may ask an existing subagent to
 clarify or complete its current finding before a proposed edit is accepted, but it retains
@@ -243,6 +277,16 @@ python3 tools/prepare_review_workspace.py <VIDEO_ID> \
 Keep an invalid or unconsolidated workspace for diagnosis. Never ask a validator to delete
 it, and never share one workspace between roles.
 
+**What the launch message may contain.** A semi-blind role (`semiblind`, `probe_verify`) and
+the modality probes receive exactly: the sample id, the path of their workspace, the `until`
+of the stretch, and any deviation in how to read the material (for example "read
+`screen_text.md` in full, `screen.jsonl` only for the last three minutes"). Nothing else:
+no timecode of the evidence, no description of what the screen shows, no `t_val` or `t_s`
+of earlier rounds, no answer, and nothing the coordinator learned from the human's brief.
+The reviewer's step 0 is only worth anything if it really is step 0. A reviewer who is told
+the content of the screen must report it in `violations`, and the adjudication is marked
+`contaminated` (§6).
+
 ---
 
 ## 6. The left boundary: stages A–C and the adjudication table
@@ -294,7 +338,12 @@ of such an answer means nothing — the models are weak.
 | 690.0 (t_s) | — | — | sighted proposal | verified: not met → stays t_val_A |
 
 Classifications: `t_val_A`, `confirmation`, `partial` (some items ✗ — name them), `no answer`,
-and one row for `t_s` with the stage-C outcome. Then record the decision in the log:
+and one row for `t_s` with the stage-C outcome. If the launch message broke the rule of §5
+on what a semi-blind role may be told, or the reviewer reported such a leak in `violations`,
+mark the table **`contaminated`**: that `t_val_A` still counts as evidence that a hit exists
+(the leak could only have made the answer earlier), but not as evidence that the boundary is
+clean, and a fresh clean run is needed before a `PASS` on 2.2/2.3. Then record the decision
+in the log:
 
 ```bash
 python3 tools/coordinator_log.py <VIDEO_ID> adjudicate --sample-id <SAMPLE_ID> \
@@ -302,7 +351,42 @@ python3 tools/coordinator_log.py <VIDEO_ID> adjudicate --sample-id <SAMPLE_ID> \
     --source semiblind.<ROUND>.json
 ```
 
-**What to do on a hit** is unchanged (checklist 2.2): move `t_start` to `t_val`, or keep the
-window and add an optional trigger for the early form when the condition in the question is
-substantive. Either is an interval edit; the windows it touches are re-reviewed by
-`full_window`.
+**What to do on a hit** is the ladder of checklist 2.2, and it is yours to apply: a hit
+reaches the human only when the ladder ends in rejection. Measure the gap first.
+
+- **Gap up to 10 s** (`t_start − t_val`, or `question_time − t_val` for 2.3 with every
+  referent of the wording existing by `t_val`): an interval edit. Move `t_start` (or
+  `question_time`) to `t_val` with `evidence_span`, log `sample-edit`, re-review the touched
+  window with `full_window`. A sub-second gap the frame step cannot resolve is recorded in
+  the table and is not a hit.
+- **Larger gap:** ask which rubric items the when-clause contributes. **Substantive** clause
+  → keep the window, add an optional trigger for the early form, `full_window` on it.
+  **Empty** clause → the ladder: (0) re-read the question without its when-part and check
+  that every referent resolves to one object on the material up to `question_time`; if not,
+  replace the clause by a discriminator — a mathematical property of the object first, the
+  state at the moment of the question second, a colour or the appearance of a symbol last —
+  rather than dropping it (checklist 5.3 is the sighted side of the same check); (1) add an
+  **optional** early window `[t_val, old t_start)` and keep the window of the explicit
+  showing **required** with an honest `evidence_span` — the early window becomes the
+  required one only when there is no separate showing; drop or weaken the clause just
+  enough; this is the whole fix when `t_val ≥ question_time`; (2) if `t_val <
+  question_time`, move `question_time` back to `t_val` when the referents allow, otherwise
+  open the early optional window at `question_time`, keep the required window's
+  `evidence_span` on the real evidence and let the validator derive `at`/`post`; (3) reject
+  only when step 2 leaves nothing to measure — that one is written up for the human. On
+  every step re-derive `reasoning_level` by 7.3, the cheapest route including waiting for
+  the required showing: a value read off the screen there makes the sample `L1`. Steps 0–2
+  change the participant-visible question or the axis, so the sample goes to `draft` and
+  through the question-version rule of §3.
+
+Write in `coordinator.<ROUND>.md` which step was taken and why the lower ones were not.
+
+**A `CRITICAL_FAIL` on 2.5 is read against the residue rule** of checklist 2.5: if the
+`findings` of the 2.5 check show that the stream handed over an ingredient but not the
+answer built from it, the verdict is `FIX_QUESTION` with a re-level by 7.3, not a
+rejection, and the sample's status is not lowered. `reasoning_level` is one per sample:
+when several windows propose different levels, take the lowest (the cheapest route of
+7.3). Only an empty residue — the whole answer in the stream —
+compromises an `L2`/`L3` sample. A `full_window` written before 2026-09-08 that set
+`CRITICAL_FAIL` without the split is re-read this way, from its own evidence, before
+anything is done to the sample.
