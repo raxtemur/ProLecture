@@ -293,7 +293,12 @@ which the judge scores an answer). The requirements:
   everything that tells a correct answer from an incorrect one must be in the question itself;
 - every rubric item corresponds to an explicit requirement of the question;
 - the rubric does not penalise a correct detail beyond what was expected; the penalty is for
-  what is incorrect.
+  what is incorrect;
+- the rubric checks the **string** of the answer, not the route to it. An item of the form
+  "read from the screen, not derived" is dead unless reading and deriving give different
+  strings; if you need to tell them apart, put into the question something visible only on
+  the screen — the form of the notation, how the neighbouring entries are drawn — and let the
+  rubric check that.
 
 ## What to return
 

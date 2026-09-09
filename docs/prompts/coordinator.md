@@ -176,8 +176,8 @@ judgement but this table; record the kind in the `sample-edit` event (`--kind`),
 
 | Repair (`question` text untouched) | `--kind` | Rerun | Without a rerun |
 |---|---|---|---|
-| a window boundary or `evidence_span` | `boundary` | `full_window` of the touched window | re-adjudicate stage A against the new `t_start` |
-| the text of a rubric item | `rubric` | `full_sample` (5.x); `full_window` of the windows whose rubric changed (2.5, the residue) | re-score the saved probe answers against the new rubric; re-adjudicate stage A |
+| a window boundary or `evidence_span` | `boundary --window <idx>` | `full_window<idx>` of that window — the index is required, or any window's review would settle the debt | re-adjudicate stage A against the new `t_start` |
+| the text of a rubric item | `rubric --window <idx>`, one event per touched window; omit `--window` when every window's rubric changed | `full_sample` (5.x); `full_window<idx>` of each touched window (2.5, the residue) | re-score the saved probe answers against the new rubric; re-adjudicate stage A |
 | `reasoning_level` only | `level` | — | re-read 7.3 and the 2.5 residue |
 | `question_time` / `temporal_rel` only | `timing` | `full_sample` (7.5) | stage A's `t_val` does not depend on `question_time` |
 | provenance, notes, `trap_note` | `metadata` | — | — |
@@ -356,8 +356,9 @@ reaches the human only when the ladder ends in rejection. Measure the gap first.
 
 - **Gap up to 10 s** (`t_start − t_val`, or `question_time − t_val` for 2.3 with every
   referent of the wording existing by `t_val`): an interval edit. Move `t_start` (or
-  `question_time`) to `t_val` with `evidence_span`, log `sample-edit`, re-review the touched
-  window with `full_window`. A sub-second gap the frame step cannot resolve is recorded in
+  `question_time`) to `t_val` with `evidence_span`, log `sample-edit --kind boundary
+  --window <idx>` (`--kind timing` for a `question_time` move), re-review the touched
+  window with `full_window<idx>`. A sub-second gap the frame step cannot resolve is recorded in
   the table and is not a hit.
 - **Larger gap:** ask which rubric items the when-clause contributes. **Substantive** clause
   → keep the window, add an optional trigger for the early form, `full_window` on it.
@@ -365,11 +366,17 @@ reaches the human only when the ladder ends in rejection. Measure the gap first.
   that every referent resolves to one object on the material up to `question_time`; if not,
   replace the clause by a discriminator — a mathematical property of the object first, the
   state at the moment of the question second, a colour or the appearance of a symbol last —
-  rather than dropping it (checklist 5.3 is the sighted side of the same check); (1) add an
-  **optional** early window `[t_val, old t_start)` and keep the window of the explicit
-  showing **required** with an honest `evidence_span` — the early window becomes the
-  required one only when there is no separate showing; drop or weaken the clause just
-  enough; this is the whole fix when `t_val ≥ question_time`; (2) if `t_val <
+  rather than dropping it (checklist 5.3 is the sighted side of the same check); and ask
+  whether the clause keeps the trigger unique — a question that names a state fires at
+  every recurrence of that state (3.1), so such a clause is narrowed to a time qualifier
+  that holds through the window, not dropped; (1) add an **optional** early window
+  `[t_val, old t_start)` and keep the window of the explicit showing **required** — the
+  early window becomes the required one only when there is no separate showing; give
+  **both** windows a fresh `evidence_span`, the early one from `t_val`, the required one on
+  the last real evidence and never on the cut (an `evidence_span` ending at its own
+  `t_start` is the tell); do not join them — the early window closes at the start of the
+  transcript line the old `t_start` falls in (2.1); drop or weaken the clause just enough;
+  this is the whole fix when `t_val ≥ question_time`; (2) if `t_val <
   question_time`, move `question_time` back to `t_val` when the referents allow, otherwise
   open the early optional window at `question_time`, keep the required window's
   `evidence_span` on the real evidence and let the validator derive `at`/`post`; (3) reject

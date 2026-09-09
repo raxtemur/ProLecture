@@ -60,7 +60,9 @@ record; the coordinator owes each of those logs a `note` listing them.
 
 `sample_edit` carries a `kind` — `boundary`, `rubric`, `level`, `timing`, `metadata` or
 `wording` — which names the roles that have to be rerun after it (the table in
-`docs/prompts/coordinator.md`, §3). `check` reports a missing rerun as pending; `check
+`docs/prompts/coordinator.md`, §3). A boundary edit must name the `window` it touched, a
+rubric edit may (one event per touched window), so that only that window's review settles
+the debt; `--window` is refused for the other kinds. `check` reports a missing rerun as pending; `check
 --final`, run before acceptance, fails on it. Write and validate the log with:
 
 ```bash

@@ -262,6 +262,56 @@ class CoordinatorLogCliTest(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertNotIn("pending", result.stdout)
 
+    def test_a_boundary_edit_with_a_window_is_settled_only_by_that_window(self):
+        self.assertEqual(self.run_cli(
+            "sample-edit", "--sample-id", "sample-q03", "--kind", "boundary", "--window", "2",
+            "--changes", "evidence_span of trigger 2 -> [228.7, 229.6].",
+            "--source", "full_window2.11.json",
+        ).returncode, 0)
+        self.assertEqual(self.read_events()[-1]["window"], 2)
+        # a review of another window of the same sample does not settle the debt
+        self.assertEqual(self.spawn("fw3", "sample-q03", "full_window3").returncode, 0)
+        self.run_cli("finish", "--agent", "fw3", "--status", "completed", "--summary", "ok")
+        result = self.run_cli("check", "--final")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("not followed by full_window2", result.stderr)
+        self.assertEqual(self.spawn("fw2", "sample-q03", "full_window2").returncode, 0)
+        self.run_cli("finish", "--agent", "fw2", "--status", "completed", "--summary", "ok")
+        result = self.run_cli("check", "--final")
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_window_is_required_for_boundary_and_refused_elsewhere(self):
+        missing = self.run_cli(
+            "sample-edit", "--sample-id", "sample-q03", "--kind", "boundary",
+            "--changes", "t_start 141.0 -> 205.0.", "--source", "full_window0.9.json",
+        )
+        self.assertEqual(missing.returncode, 2)
+        self.assertIn("needs --window", missing.stderr)
+        stray = self.run_cli(
+            "sample-edit", "--sample-id", "sample-q03", "--kind", "wording", "--window", "1",
+            "--changes", "referent fixed.", "--source", "coordinator.5.md",
+        )
+        self.assertEqual(stray.returncode, 2)
+        self.assertIn("applies to --kind boundary or rubric", stray.stderr)
+        self.assertFalse((self.log_root / "data" / "reviews" / "video-id" /
+                          "coordinator.log").exists())
+
+    def test_a_rubric_edit_with_a_window_is_settled_by_that_window_and_full_sample(self):
+        self.assertEqual(self.run_cli(
+            "sample-edit", "--sample-id", "sample-q16", "--kind", "rubric", "--window", "0",
+            "--changes", "R0 now demands the 1⁴/4! form.", "--source", "full_sample.3.json",
+        ).returncode, 0)
+        self.assertEqual(self.spawn("fs", "sample-q16", "full_sample").returncode, 0)
+        self.assertEqual(self.spawn("fw1", "sample-q16", "full_window1").returncode, 0)
+        for agent in ("fs", "fw1"):
+            self.run_cli("finish", "--agent", agent, "--status", "completed", "--summary", "ok")
+        result = self.run_cli("check", "--final")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("not followed by full_window0", result.stderr)
+        self.assertEqual(self.spawn("fw0", "sample-q16", "full_window0").returncode, 0)
+        self.run_cli("finish", "--agent", "fw0", "--status", "completed", "--summary", "ok")
+        self.assertEqual(self.run_cli("check", "--final").returncode, 0)
+
     def test_a_wording_edit_requires_the_whole_cycle(self):
         self.assertEqual(self.run_cli(
             "sample-edit", "--sample-id", "sample-q02", "--kind", "wording",

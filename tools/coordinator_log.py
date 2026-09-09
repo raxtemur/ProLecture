@@ -15,7 +15,7 @@ Examples::
         --artifact data/reviews/VIDEO/sample-q05/semiblind.4.json \
         --summary "Prior could not answer; t_val=951.0."
     python3 tools/coordinator_log.py VIDEO sample-edit \
-        --sample-id sample-q05 --kind boundary \
+        --sample-id sample-q05 --kind boundary --window 0 \
         --changes "Moved t_start of trigger 0 to 704.0." --source full_sample.4.json
     python3 tools/coordinator_log.py VIDEO note --agent /root/q05_semiblind_r4 \
         --text "Relaunched after HTTP 429 under the same name; the first run left no artifact."
@@ -32,8 +32,13 @@ unmatched ``spawn`` or ``finish`` of that agent instead of rejecting the log.
 ``sample-edit`` carries a ``kind`` naming what changed while the participant-visible
 question stayed the same (``boundary``, ``rubric``, ``level``, ``timing``, ``metadata``) or
 ``wording`` when it did not. Each kind names the roles that must be rerun afterwards
-(``RERUN_AFTER``, the table in ``docs/prompts/coordinator.md`` §3); a window review logged
-per window (``full_window0``) counts as ``full_window``. ``check`` lists a missing
+(``RERUN_AFTER``, the table in ``docs/prompts/coordinator.md`` §3). A ``boundary`` edit
+must name the window it touched with ``--window N``, and a ``rubric`` edit may (one event
+per touched window; omit it when every window's rubric changed); the debt is then
+``full_windowN`` exactly, so that a review of another window of the same sample cannot
+settle it. Without ``--window`` any window review counts (``full_window0`` as
+``full_window``), which is right for a wording change — every window runs again anyway —
+so ``--window`` is refused for the kinds that do not touch one window. ``check`` lists a missing
 rerun as pending and passes; ``check --final`` fails on it. Edits without a kind — the lines
 written before the field existed — are not checked.
 
@@ -138,10 +143,11 @@ def validate_log(path: Path, final: bool = False) -> int:
                 errors.append(f"line {line_number}: duplicate active launch: {agent}")
             else:
                 active.add(agent)
-            role, sample_id = base_role(event.get("role")), event.get("sample_id")
+            role, sample_id = event.get("role") or "", event.get("sample_id")
             for _, edited, missing in pending:
                 if edited == sample_id:
-                    missing.discard(role)
+                    missing.discard(role)             # full_window3 settles full_window3
+                    missing.discard(base_role(role))  # full_window3 settles full_window
         elif event_type == "finish":
             finishes += 1
             if not agent:
@@ -157,8 +163,12 @@ def validate_log(path: Path, final: bool = False) -> int:
                 if kind not in RERUN_AFTER:
                     errors.append(f"line {line_number}: unknown edit kind: {kind!r}")
                 elif RERUN_AFTER[kind]:
-                    pending.append((line_number, event.get("sample_id", ""),
-                                    set(RERUN_AFTER[kind])))
+                    required = set(RERUN_AFTER[kind])
+                    window = event.get("window")
+                    if window is not None and "full_window" in required:
+                        required.remove("full_window")
+                        required.add(f"full_window{window}")
+                    pending.append((line_number, event.get("sample_id", ""), required))
         elif event_type == "adjudicate":
             adjudications += 1
             errors += [f"line {line_number}: {e}" for e in check_adjudication(event)]
@@ -247,6 +257,9 @@ def parser() -> argparse.ArgumentParser:
     edit.add_argument("--kind", choices=EDIT_KINDS, default=None,
                       help="what changed: boundary, rubric, level, timing, metadata with the "
                            "question text untouched, or wording; decides which roles must rerun")
+    edit.add_argument("--window", type=int, default=None,
+                      help="index of the trigger a boundary or rubric edit touched; the rerun "
+                           "debt is then that window's review, not any window's")
     edit.add_argument("--changes", required=True)
     edit.add_argument("--source", required=True)
 
@@ -290,6 +303,16 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "check":
         return validate_log(path, final=args.final)
 
+    if args.command == "sample-edit":
+        if args.kind == "boundary" and args.window is None:
+            print("--kind boundary needs --window: the rerun debt is that window's review, "
+                  "not any window's", file=sys.stderr)
+            return 2
+        if args.window is not None and args.kind not in ("boundary", "rubric"):
+            print(f"--window applies to --kind boundary or rubric, not {args.kind!r}",
+                  file=sys.stderr)
+            return 2
+
     if args.command == "spawn":
         event = {
             "ts": timestamp(),
@@ -321,6 +344,8 @@ def main(argv: list[str] | None = None) -> int:
         }
         if args.kind:
             event["kind"] = args.kind
+        if args.window is not None:
+            event["window"] = args.window
     elif args.command == "note":
         event = {"ts": timestamp(), "event": "note", "text": args.text}
         if args.agent:

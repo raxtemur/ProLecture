@@ -549,14 +549,30 @@ animation is running, and the picture looks incomplete.
      tangent slope at x=0"), which depends on no frame; the state at the moment of the
      question ("now on the screen") when no such property exists; a colour or the appearance
      of a symbol last of all, since that is a when-clause under another name.
+
+     The same step asks a second question: does the clause keep the **trigger unique**? A
+     question without a when-clause names a *state*, and if that state recurs later in the
+     video — the derivative column beside the cosine again at 400 and 544 — every recurrence
+     is an uncovered firing (3.1). Then the clause is not dropped either: it is narrowed to a
+     time qualifier that holds throughout the window and fails afterwards ("while the
+     quadratic coefficient is still displayed as free to change"). "Contributes no rubric
+     item" is necessary for dropping a clause, not sufficient.
   1. **Open an early window on the evidence; the showing stays the required one.** Add an
-     **optional** trigger `[t_val, old t_start)` with its `evidence_span` from `t_val`; the
-     window of the explicit showing stays **required**, its `evidence_span` set honestly on
-     the real evidence. Silence until the showing and an early answer are then both correct.
+     **optional** trigger `[t_val, old t_start)`; the window of the explicit showing stays
+     **required**. Silence until the showing and an early answer are then both correct.
      The clause is dropped or weakened (step 0) just enough that the wording no longer
      forbids the early answer. Make the early window the required one only when the showing
      is not a separate event worth a window of its own. If `t_val ≥ question_time` this is
      the whole fix and the sample stays `pre`.
+
+     Two mechanics of the cut, both missed five times in one round. **Both windows get a
+     fresh `evidence_span`**: the early window's from `t_val`, the required window's on the
+     last piece of real evidence — never on the cut itself. The cut is a moment of the answer
+     window, not of the evidence, and an `evidence_span` ending at its own `t_start` is the
+     signature of the mistake (7.5). And **the two windows do not share a boundary**: 2.1
+     forbids a join inside a transcript line, so the early window closes at the start of the
+     line the old `t_start` falls in, and the gap between them is that line — 0.1 s or 1.3 s,
+     whatever it measures, not a fixed half-second.
   2. **If `t_val < question_time` (a hit of 2.3 as well):** move `question_time` back to
      `t_val` when every referent of the wording has been introduced by then — the sample
      stays `pre`. Otherwise the early optional window opens at `question_time`, the required
@@ -1267,6 +1283,16 @@ asks, there is no point arguing about window boundaries.
   and the distinction rests only on its origin or on an accompanying condition. Such
   distinctions are legitimate, but only provided the origin is named in the question.
 
+  **A rubric checks the string of the answer, not the route to it.** "Read from the screen,
+  not reconstructed" is a checkable item only when reading and reconstructing produce
+  different strings; when `1⁴/4!` read off the frame and `1⁴/4!` obtained by substituting
+  x = 1 are the same characters, the item is dead and the leak it was meant to close stays
+  open. The cure is paired and lives in the question, not in the rubric alone: put into the
+  wording something that is visible only on the screen — the form of the notation, how the
+  neighbouring entries are drawn — and let the rubric check that; then measure the new
+  wording with a fresh blind probe rather than accept it. A rubric edit on its own either
+  changes nothing or fires 5.2.
+
   *Status.* Step 0 of the sample reviewer, no frames needed. Verdict `FIX_QUESTION`.
 
   *Frequency.* Caught.
@@ -1749,7 +1775,10 @@ reason: without it the same forks get discussed anew in a month.
   non-empty one re-levels it. No checklist version bump: no item was introduced or retired
   and the reviews of the 2026-09-07 round stay current; the reading of 2.5 changed, so a
   `full_window` written before this date that set `CRITICAL_FAIL` on 2.5 is re-read by the
-  coordinator under the residue rule.
+  coordinator under the residue rule. Amended 2026-09-09 from the round that applied it:
+  step 0 also asks whether the clause keeps the trigger unique (3.1); after a cut both
+  windows get a fresh `evidence_span` and are separated by the transcript line, not joined
+  (2.1, 7.5); 5.3 records that a rubric checks the answer string, not the route to it.
 - **Distractor windows** — the field `distractor_windows`, its four items (group 6) and the
   automatic rules 1.2 and 1.5 were removed on 2026-09-07. The reason is in the note that
   replaced group 6: for scoring the field duplicated the false-alarm rate, for anti-spam the
