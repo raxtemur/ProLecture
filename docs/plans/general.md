@@ -390,6 +390,17 @@ so the difference will be noticeable, and silently mixing the two quantities is 
   them.
 - **Responses-per-sample** — the average number of the model's answers next to `n_triggers`.
   Always published, otherwise the spam strategy stays invisible.
+- **Rubric accuracy, three readings** — a diagnostic next to PAUC, not a replacement for it. The
+  share of the required windows' rubric items that the model stated correctly anywhere in its
+  output, counted three ways: (1) only items said inside a window, required or optional; (2) items
+  said anywhere, with no time constraint; (3) as (2), except that on `act = predict` samples only
+  items said before the window's `t_end` count. Text is attributed to the second in which the
+  model emitted it (a chunk, for chunked models), not to the moment the utterance began. The gap
+  between (1) and (2) is what the model knows or guesses without the stream; the gap between (2)
+  and (3) is what it read off the screen after the reveal — on a `predict` question that is the
+  one route the question forbids, while on the other acts using the screen is the task. Neither
+  gap is a score: (2) counts a correct guess as correct, and nobody can tell a guess from
+  knowledge by the answer string.
 - **Chain accuracy** (all windows with a non-empty `depends_on`, regardless of `act`) — the share
   of windows with a non-empty `depends_on` where the answer correctly refers to the previous state.
   Counted against a separate item of the rubric.
