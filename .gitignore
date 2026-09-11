@@ -38,3 +38,6 @@ docs/presentation/page-*.png
 
 # working notes: reports are the user's own material, not project documentation
 docs/reports/
+
+
+data/clips/*
