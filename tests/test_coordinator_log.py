@@ -292,7 +292,7 @@ class CoordinatorLogCliTest(unittest.TestCase):
             "--changes", "referent fixed.", "--source", "coordinator.5.md",
         )
         self.assertEqual(stray.returncode, 2)
-        self.assertIn("applies to --kind boundary or rubric", stray.stderr)
+        self.assertIn("applies to --kind boundary, nudge or rubric", stray.stderr)
         self.assertFalse((self.log_root / "data" / "reviews" / "video-id" /
                           "coordinator.log").exists())
 
@@ -330,6 +330,22 @@ class CoordinatorLogCliTest(unittest.TestCase):
             self.run_cli("finish", "--agent", agent, "--status", "completed", "--summary", "ok")
         result = self.run_cli("check", "--final")
         self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_a_nudge_names_its_window_and_owes_no_rerun(self):
+        missing = self.run_cli(
+            "sample-edit", "--sample-id", "sample-q17", "--kind", "nudge",
+            "--changes", "t_start 1218.0 -> 1217.0.", "--source", "full_window0.2.json",
+        )
+        self.assertEqual(missing.returncode, 2)
+        self.assertIn("--window", missing.stderr)
+        self.assertEqual(self.run_cli(
+            "sample-edit", "--sample-id", "sample-q17", "--kind", "nudge", "--window", "0",
+            "--changes", "t_start 1218.0 -> 1217.0.", "--source", "full_window0.2.json",
+        ).returncode, 0)
+        self.assertEqual(self.read_events()[-1]["window"], 0)
+        result = self.run_cli("check", "--final")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertNotIn("pending", result.stderr)
 
     def test_edits_without_a_kind_and_kinds_without_reruns_are_not_checked(self):
         self.assertEqual(self.run_cli(

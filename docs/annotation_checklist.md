@@ -395,6 +395,41 @@ which direction:
         | this is not a pre    | opened late          |            | spoken|
 ```
 
+**Tolerance: two seconds, on `t_start` and `t_end`.** Window edges are measured on frames,
+and two careful measurements of the same edge routinely differ by a second: manim morphs
+over 1–2 s, the description track dates events to whole seconds, and the frame step rounds.
+A gap of **at most 2 s** between an annotated `t_start` or `t_end` and a reviewer's own
+measurement is therefore reported but not re-reviewed: the verdict is still `FIX_INTERVALS`
+(or the 2.2 gap is recorded in the adjudication) with the measured value, the `findings`
+say the gap is within tolerance, and the coordinator moves the edge to the measured value
+as `sample-edit --kind nudge --window <idx>`, which owes no second review — the reviewer's
+frames are the verification.
+
+`evidence_span` is outside the tolerance in both directions. A disagreement of 2 s or less
+about where a span ends is not applied at all — the annotated value stands and the
+measurement goes into a `note`, because a second on that field changes nothing the
+participant is scored on (it enters only the `temporal_rel` derivation, and a
+`question_time` within a second of a span edge is a defect of `question_time`, not of the
+span). A larger disagreement is what it always was, a `boundary` edit under 7.5 with its
+rerun. The reason for keeping 7.5 out of the tolerance is that its disputes are about
+**which fact** the edge anchors on, not about the second: on `3d6DsjIBzJ4` q03 window 1 a
+1.3 s move onto the narration was followed by a second opinion that moved the same edge by
+23 s to the first moment the value was derivable, and the same sample carries three
+readings of the field under one identical rubric across its five windows. That is an open
+question of the rules (see "Open questions"), and a tolerance rule must not be the place it
+gets settled by accident.
+
+"First measured" means measured by a reviewer role on frames. A coordinator's reading of the
+description track or of the transcript is not a measurement and is overruled by one: on q06
+a coordinator's "1/24 appears at 476.0" from `description.md` lost to the reviewer's frames
+at 477.5–478.0, and that was right. If two reviewer measurements of the same edge disagree
+within 2 s, the first stands and the second is a `note`. No verdict may hinge on such a gap:
+a 2.2 hit, a 2.5 residue or a 3.3 onset that flips only when the edge is moved by 2 s or less
+is read as first measured, and the closeness is written down. Beyond 2 s the ordinary rules
+apply — that is where the errors that change what a sample measures live (a window opened
+19 s before the row exists, a state that outlives its window by two minutes), and the
+tolerance must not be stretched to cover them.
+
 Most of the errors here have one common cause: **the window is set by the speech while the
 information appears on screen earlier.** The author regularly shows a table or the values
 tens of seconds before speaking them aloud, and then re-animates them to fit the words.
@@ -1760,8 +1795,19 @@ zero.
 
 ## Open questions
 
-There are no open format questions at the moment. Below are the decisions reached, with the
-reason: without it the same forks get discussed anew in a month.
+- **What `evidence_span` means on a recap window** (opened 2026-09-10). 7.5 says the span
+  ends where the answer first becomes derivable. On `3d6DsjIBzJ4` q03 five windows carry one
+  identical rubric, and the field is read three ways across them: the first two end at the
+  first derivable moment (205.0), the three recap windows end at their own showing (229.6,
+  363.0, 684.0). Both readings passed `full_window` in the same round. Either the field is
+  per window ("the last fact *this* window's answer rests on", so a recap's span is the recap)
+  or per sample (first derivability, identical for every window with the same rubric); the
+  rule has to pick one, and the two-second tolerance in group 2 deliberately leaves
+  `evidence_span` alone until it does. The scoring does not depend on the answer — only the
+  `temporal_rel` derivation from the required trigger does.
+
+Below are the decisions reached, with the reason: without it the same forks get discussed
+anew in a month.
 
 ### Closed
 
@@ -1804,6 +1850,14 @@ reason: without it the same forks get discussed anew in a month.
 - **What to do with a sample solvable blind** — finish its review, mark `blind_solved`, and
   exclude it from primary tasks; if otherwise correct it remains a validated blind baseline
   (4.2). There will be no tests of "timing alone" in the primary set.
+- **A tolerance for boundary measurements** (2026-09-10) — two seconds on `t_start` and
+  `t_end`, group 2 preamble; `evidence_span` excluded. On the two finished videos five or six
+  of sixty fix verdicts moved a window edge by one or two seconds (`3d6DsjIBzJ4` q17, q18,
+  q04, q10; `GlYgs6v2YfU` q04), each costing the confirming rerun the old rules owed, and one
+  full round (`3d6DsjIBzJ4` q06, round 12) went to overturn a coordinator's misread second;
+  every boundary error that changed what a sample measured was off by five seconds or more.
+  The saving is modest — a few `full_window` runs per video round — and that is the honest
+  size of it. Sub-tolerance re-measurements are logged as `--kind nudge` and owe no rerun.
 - **The scale of the rubric** — not needed at the annotation stage: the probe answers, the
   coordinator compares qualitatively, disputed cases are asked again pointwise and, if the
   disagreement persists, go to a human or are thrown out (4.1). Weights and thresholds are a

@@ -209,6 +209,17 @@ Reviews are not overwritten: from the accumulated files one can see that over th
 of fixes the question is going round in circles, and from a single last file that cannot
 be seen.
 
+**The contract is the example — do not go looking for one in that folder.** The files
+already sitting next to yours are other reviewers' *answers*. Several of them judge the
+very window or sample you are judging, on the very items you are about to judge, and one
+may be an earlier review of your own role. Opening one "just to see the shape of the JSON"
+is the commonest way this role gets contaminated, and it has cost whole reviews that were
+otherwise sound: once you have read somebody's verdict, neither you nor the coordinator can
+tell how much of your own agreement is independent. `schema/review.py` is the
+specification — the pydantic classes give every field and its type, and
+`ROLE_ITEMS[Role.<YOUR_MODE>]` gives the exact item names. If you want a worked example,
+generate one from the contract; do not read an answer.
+
 The `window_idx` field equals `<WINDOW_IDX>`, and so does `target.trigger_idx` in every
 check: the contract will not let you save a review in which you judge somebody else's
 window. Otherwise the coordinator, handed nine files, could not tell nine reviews of nine
@@ -246,7 +257,7 @@ The overall `verdict` equals the worst of the ones that fired:
 | Verdict | When |
 |---|---|
 | `PASS` | nothing fired and nothing was skipped |
-| `FIX_INTERVALS` | window boundaries, `depends_on`, `evidence_span` |
+| `FIX_INTERVALS` | window boundaries, `depends_on`, `evidence_span` — including a `t_start` or `t_end` you measured within 2 s of the annotated one: report it with your value and say in `findings` that the gap is within the tolerance, so the coordinator applies it as a nudge without another review; an `evidence_span` end within 2 s of the annotated one is reported the same way and stays as annotated (checklist, group 2) |
 | `FIX_QUESTION` | the window cannot be fixed by boundaries: the design of the question does not work at this moment; `author-says-answer-in-window` with a non-empty residue (a re-level) |
 | `CRITICAL_FAIL` | `author-says-answer-in-window` on a sample of level `L2`/`L3` with an empty residue: the whole answer is in the stream |
 

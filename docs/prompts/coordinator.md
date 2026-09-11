@@ -177,6 +177,7 @@ judgement but this table; record the kind in the `sample-edit` event (`--kind`),
 | Repair (`question` text untouched) | `--kind` | Rerun | Without a rerun |
 |---|---|---|---|
 | a window boundary or `evidence_span` | `boundary --window <idx>` | `full_window<idx>` of that window — the index is required, or any window's review would settle the debt | re-adjudicate stage A against the new `t_start` |
+| `t_start` or `t_end` moved by **at most 2 s** to a `full_window` or semi-blind review's own frame measurement | `nudge --window <idx>` | — (the reviewer's frames are the verification; the tolerance rule is in the checklist, group 2). An `evidence_span` disagreement of 2 s or less is not applied: the annotated value stands and the measurement goes into a `note`; a larger one is `boundary` | nothing; if a later review measures a different second within the same 2 s, the first measurement stands and the disagreement goes into a `note` |
 | the text of a rubric item | `rubric --window <idx>`, one event per touched window; omit `--window` when every window's rubric changed | `full_sample` (5.x); `full_window<idx>` of each touched window (2.5, the residue) | re-score the saved probe answers against the new rubric; re-adjudicate stage A |
 | `reasoning_level` only | `level` | — | re-read 7.3 and the 2.5 residue |
 | `question_time` / `temporal_rel` only | `timing` | `full_sample` (7.5) | stage A's `t_val` does not depend on `question_time` |
@@ -354,12 +355,14 @@ python3 tools/coordinator_log.py <VIDEO_ID> adjudicate --sample-id <SAMPLE_ID> \
 **What to do on a hit** is the ladder of checklist 2.2, and it is yours to apply: a hit
 reaches the human only when the ladder ends in rejection. Measure the gap first.
 
-- **Gap up to 10 s** (`t_start − t_val`, or `question_time − t_val` for 2.3 with every
+- **Gap up to 2 s** (`t_start − t_val`): not a hit. Move `t_start` to `t_val` with
+  `evidence_span`, log `sample-edit --kind nudge --window <idx>`, no re-review; a sub-second
+  gap the frame step cannot resolve is recorded in the table and the boundary stays.
+- **Gap of 2 to 10 s** (`t_start − t_val`, or `question_time − t_val` for 2.3 with every
   referent of the wording existing by `t_val`): an interval edit. Move `t_start` (or
   `question_time`) to `t_val` with `evidence_span`, log `sample-edit --kind boundary
   --window <idx>` (`--kind timing` for a `question_time` move), re-review the touched
-  window with `full_window<idx>`. A sub-second gap the frame step cannot resolve is recorded in
-  the table and is not a hit.
+  window with `full_window<idx>`.
 - **Larger gap:** ask which rubric items the when-clause contributes. **Substantive** clause
   → keep the window, add an optional trigger for the early form, `full_window` on it.
   **Empty** clause → the ladder: (0) re-read the question without its when-part and check

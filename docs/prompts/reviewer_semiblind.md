@@ -310,6 +310,17 @@ Reviews are not overwritten: from the accumulated files one can see that over th
 the window drifted left while the verdict never moved — and from a single last file that
 cannot be seen.
 
+**The contract is the example — do not go looking for one in that folder.** The files
+already sitting next to yours are other reviewers' *answers*. Several of them judge the
+very window or sample you are judging, on the very items you are about to judge, and one
+may be an earlier review of your own role. Opening one "just to see the shape of the JSON"
+is the commonest way this role gets contaminated, and it has cost whole reviews that were
+otherwise sound: once you have read somebody's verdict, neither you nor the coordinator can
+tell how much of your own agreement is independent. `schema/review.py` is the
+specification — the pydantic classes give every field and its type, and
+`ROLE_ITEMS[Role.<YOUR_MODE>]` gives the exact item names. If you want a worked example,
+generate one from the contract; do not read an answer.
+
 What matters in it:
 
 - `prior_answer`, `recognized_video` — step 0, filled in first;

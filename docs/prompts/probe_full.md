@@ -108,6 +108,14 @@ Two things, and they are different things.
 Assemble an object per the contract [../../schema/review.py](../../schema/review.py),
 class `ProbeAnswer` with `role: "probe_full"`, and save it to
 
+**The contract is the example — do not go looking for one in that folder.** The files
+already sitting next to yours are other roles' *answers* to this same sample, including
+probes on the other modalities and the full reviews that know the reference answer. Opening
+one "just to see the shape of the JSON" is the commonest way a probe gets contaminated, and
+a probe that has seen the answer measures nothing. `schema/review.py` is the specification:
+read the pydantic class for your role. If you want a worked example, generate one from the
+contract; do not read an answer.
+
 ```
 data/reviews/<VIDEO_ID>/<SAMPLE_ID>/probe_full.<ROUND>.json
 ```

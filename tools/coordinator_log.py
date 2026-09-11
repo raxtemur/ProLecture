@@ -30,8 +30,10 @@ repaired by appending a ``note`` that names the agent; ``check`` then tolerates 
 unmatched ``spawn`` or ``finish`` of that agent instead of rejecting the log.
 
 ``sample-edit`` carries a ``kind`` naming what changed while the participant-visible
-question stayed the same (``boundary``, ``rubric``, ``level``, ``timing``, ``metadata``) or
-``wording`` when it did not. Each kind names the roles that must be rerun afterwards
+question stayed the same (``boundary``, ``nudge``, ``rubric``, ``level``, ``timing``,
+``metadata``) or ``wording`` when it did not. ``nudge`` is a ``t_start`` or ``t_end``
+moved by at most two seconds to a reviewer's own frame measurement; it names its window
+like ``boundary`` but owes no rerun. ``evidence_span`` edits are never nudges. Each kind names the roles that must be rerun afterwards
 (``RERUN_AFTER``, the table in ``docs/prompts/coordinator.md`` §3). A ``boundary`` edit
 must name the window it touched with ``--window N``, and a ``rubric`` edit may (one event
 per touched window; omit it when every window's rubric changed); the debt is then
@@ -83,13 +85,16 @@ def append_event(path: Path, event: dict) -> None:
         stream.write(json.dumps(event, ensure_ascii=False, separators=(",", ":")) + "\n")
 
 
-EDIT_KINDS = ("boundary", "rubric", "level", "timing", "metadata", "wording")
+EDIT_KINDS = ("boundary", "nudge", "rubric", "level", "timing", "metadata", "wording")
 
 # Which roles a sample edit of each kind must be followed by (the table in
 # docs/prompts/coordinator.md, section 3). The probes are listed once for "wording": a
 # changed question is a new review version and every role runs again.
 RERUN_AFTER: dict[str, frozenset[str]] = {
     "boundary": frozenset({"full_window"}),
+    # t_start or t_end moved by two seconds or less to a reviewer's own frame measurement:
+    # the reviewer's frames are the verification, no second review is owed (checklist, group 2)
+    "nudge": frozenset(),
     "rubric": frozenset({"full_sample", "full_window"}),
     "level": frozenset(),
     "timing": frozenset({"full_sample"}),
@@ -304,12 +309,12 @@ def main(argv: list[str] | None = None) -> int:
         return validate_log(path, final=args.final)
 
     if args.command == "sample-edit":
-        if args.kind == "boundary" and args.window is None:
-            print("--kind boundary needs --window: the rerun debt is that window's review, "
-                  "not any window's", file=sys.stderr)
+        if args.kind in ("boundary", "nudge") and args.window is None:
+            print(f"--kind {args.kind} needs --window: the edit is to one window's boundary",
+                  file=sys.stderr)
             return 2
-        if args.window is not None and args.kind not in ("boundary", "rubric"):
-            print(f"--window applies to --kind boundary or rubric, not {args.kind!r}",
+        if args.window is not None and args.kind not in ("boundary", "nudge", "rubric"):
+            print(f"--window applies to --kind boundary, nudge or rubric, not {args.kind!r}",
                   file=sys.stderr)
             return 2
 
