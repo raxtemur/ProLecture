@@ -40,6 +40,18 @@ ffmpeg -v error -ss <t> -i data/videos/<VIDEO_ID>/<VIDEO_ID>.mp4 \
 expensive. A sensible order: first read the whole transcript of your interval and sketch
 out the candidates, then look at frames only around them.
 
+**One frame per window, at `t_start`, is the whole visual check.** `description.md` and
+`screen_text.md` are written by a model over windows of a few seconds with events dated to
+whole seconds; they are good for finding the place and may be off by a second or two about
+*when*, and a second or two does not matter — the review tolerates that, and so should you.
+What they also do, less often but more expensively, is describe a state that is **not on
+the frame at all**: a derivative row dated nineteen seconds before it is drawn, a curve and a
+centre attributed to a frame that shows the pendulum scene. That is the error a single frame
+at `t_start` catches: the state the when-clause names must be complete and readable on it.
+Cite that frame in `provenance.evidence`. Do not pull frames densely and do not chase the
+exact second — those are the reviewer's frames, and the cost of getting a boundary wrong by
+one second is a note, not a round.
+
 ## What makes a good question
 
 The format of a sample and the meaning of every field are in
@@ -253,6 +265,24 @@ merits rather than as a copy of the window — the `temporal_rel` axis is derive
 a span equal to the window reduces the derivation of the axis to comparing `question_time`
 with `t_start`, that is, to exactly what it must not be computed from.
 
+This field is the single commonest reason a window comes back from review (checklist 7.5).
+Every one of these was found in a submitted sample, and each costs a review round:
+
+- a span equal to `[t_start, t_end]` — see above; and a span **ending at the window's own
+  `t_start`** is the same mistake in disguise;
+- a span **copied from another trigger** of the same sample: each window has its own last
+  fact, and a recap window's fact is on a different frame from the first showing's;
+- a span anchored on the frame you used to **check** the answer (a summary line, a brace, the
+  author's own evaluation) rather than on the frame where the last rubric fact appears;
+- a span running **past a scene cut**, or past the last fact into the next window's
+  evidence, because it was written as "until the window ends" rather than "until the fact
+  is complete".
+
+The test: open the frame at `evidence_span[1]` — the last rubric fact must be legible on it
+— and the frame one second before `evidence_span[0]`, where the first fact must not yet be.
+For a visual state that stays on screen the span then runs from its appearance to the end of
+its availability inside the window, as described below.
+
 For speech this is the interval of the line in which the evidence is finished. For a picture
 it runs from the appearance to the end of its availability inside the window: the graph stays
 on screen, and as long as it is there the evidence is available. If a visual piece of
@@ -299,6 +329,73 @@ which the judge scores an answer). The requirements:
   strings; if you need to tell them apart, put into the question something visible only on
   the screen — the form of the notation, how the neighbouring entries are drawn — and let the
   rubric check that.
+
+## Self-check before handing in: what the review actually sends back
+
+On the two finished videos roughly one review verdict in two was a fix request, and the
+requests cluster. Each of the checks below is a two-minute test that would have caught a
+class of them before the sample left your hands. **Work one question at a time**: draft it,
+run the eight checks on it, fix it, and only then start the next one. A batch of eight
+drafts checked at the end is checked worse — the frames blur together, and a defect found
+in the last one is usually present in the first — and a question dropped by check 4 or 8
+should not have cost you the annotation of its windows.
+
+1. **The frame at `t_start` shows the state** (checklist 2.4, 3.2). One frame, as described
+   above: the state the when-clause names is complete on it. If it shows a morph, take the
+   next second and forget about it. What this catches is not the second but the tens of
+   seconds — a window opened before the row exists, or a state that is on screen for only
+   part of the window ("for 90 % of the window the value is unknowable"): then the window
+   is wrong, not the wording.
+
+2. **Recurrences of the criterion** (3.1). Search the whole video, not your interval, for
+   every other moment at which the state named in the when-clause holds: recap scenes, the
+   same formula redrawn later, a state that simply stays on screen for two minutes after your
+   window closes. Each recurrence either gets an **optional** window with the same rubric or
+   the question is pinned to one occurrence by a word that discriminates ("the first time",
+   "the newly added term" — and check that the word really does: a term that has existed for
+   three minutes is not newly added). A state that outlives its window turns a correct answer
+   ten seconds late into a false alarm.
+
+3. **The when-clause names exactly one thing on the frame** (5.3). For each noun phrase in
+   the question, list the candidates visible on the frame at `t_start`. "The earlier
+   fourth-derivative evaluation" with two of them side by side, "the nonconstant entry" in a
+   column of constants, "replace only the first term while keeping the ratio" (which changes
+   every term) — each of these came back. A phrase with two referents, or with none, is a
+   question with two right answers or with none.
+
+4. **The author's speech over `[t_start, t_end + 10]`** (2.5). Read the transcript lines of
+   that stretch and split the rubric in two: items the author says or shows in finished form
+   there, and items that still have to be worked out from them. Write the split into a
+   `provenance.evidence` record of `type: other`. If nothing remains, the sample is an `L1`
+   alarm or it does not exist; if something remains, that residue sets the level, not your
+   design. For `predict` this is the whole question: it can only be built where the author's
+   reveal comes at least ten seconds after the window closes, and on lecture video such
+   places are rare — look for them instead of hoping.
+
+5. **Every rubric item traces to a sentence of the question** (5.2, 5.4). Strike each item
+   that demands a notation, a unit or a form the question never asks for. Check that each
+   "do NOT count" line rejects only a *wrong* answer and not a correct one with an extra
+   detail ("not 1/24" fails a model that names 1/24 alongside the requested 1⁴/4!). Then
+   check the item does not live only in the when-clause: a demand the model is charged for
+   must be stated as a demand.
+
+6. **The level by the screen's route** (7.3). If the stream draws the intermediate steps
+   inside the window — the power rule applied factor by factor, the derivatives listed in a
+   column — the model reads them; count that route, not the one in your head. A rule of
+   thumb that held on every re-levelled sample: if the transcript alone yields the answer,
+   the sample is not `L3`.
+
+7. **Provenance frames say what is on them** (8.2). Each `type: frame` record must be a frame
+   you opened; if a state takes four frames to establish, cite four. A transition frame is
+   not evidence of either state.
+
+8. **The blind test, once more, on the final wording** (checklist 4). Strike every reference
+   to the video and answer from the question text alone. Colours named in the question, a
+   "three-term equation", an order of terms — if the canonical answer follows from them, the
+   sample belongs to the blind baseline whatever its window says.
+
+None of this replaces the review; it removes the round that would have been spent telling
+you what a frame shows.
 
 ## What to return
 
