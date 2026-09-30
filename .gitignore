@@ -41,3 +41,6 @@ docs/reports/
 
 
 data/clips/*
+# live dashboard over the local vLLM server, a personal tool
+vllm_dash/
+agents_meta_analisys/

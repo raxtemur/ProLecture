@@ -84,9 +84,10 @@ Three of the flags here are not cosmetic:
   `AssertionError: Expected a cached item for mm_hash=…` precisely on images repeated between
   requests, and the overlap of the windows guarantees those. After the crash the engine stops
   answering: the cards are busy, utilisation is zero, the client waits forever.
-- **`--limit-mm-per-prompt '{"image": 16}'`** — by default vLLM allows one image per request. With
-  a 5 s window and `--settled 0.5` there are 10–11 of them; the headroom up to 16 is needed if the
-  window is enlarged.
+- **`--limit-mm-per-prompt '{"image": 16}'`** — on 0.27.1 the default limit is 999 images per
+  request (`vllm/config/multimodal.py`); an earlier version may have defaulted to 1. So on 0.27.1
+  this flag lowers the ceiling rather than raising it. With a 5 s window and `--settled 0.5` a
+  request carries 10–11 images, so 16 still leaves headroom if the window is enlarged.
 - **`--max-model-len 32768`** — with `--upscale 2` a 1280×720 frame costs ~900 visual tokens, and
   eleven frames ≈ 10 thousand. Enough with room to spare.
 
