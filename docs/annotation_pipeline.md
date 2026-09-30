@@ -374,6 +374,10 @@ suspicious interval, the role may add a dense 1 fps pass itself:
 $P tools/prepare_review_workspace.py <VIDEO_ID> --dense <A> <B> --step 1 --out <WS>/<ROLE>
 ```
 
+With `--sheet` (at most 16 frames) the same call also tiles the frames into one image with
+the second stamped on each cell. That is the default for a quick look: it costs one image,
+and a gradual change is visible only side by side.
+
 This permission is unchanged: it applies to the visual/full probes and reviewers, not to
 `probe_text` or `probe_frame`. The description makes the initial search dense and
 cheap; the on-demand real frames verify only the intervals that matter.

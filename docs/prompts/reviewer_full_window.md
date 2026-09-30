@@ -119,6 +119,13 @@ Only through `tools/prepare_review_workspace.py`:
     --dense <A> <B> --step 1 --out <WORKSPACE>
 ```
 
+**For a quick look of up to 16 frames, add `--sheet`.** The script then also tiles the
+frames of the stretch into one image, `frames/sheet_<first>-<last>.jpg`, with the second
+stamped on each cell. Open that one image instead of the frames: it counts as one image of
+your budget, and a slow change (a fade, layers subdividing, a morph) is visible only side
+by side — frames opened one at a time all read the same. Open a single frame afterwards
+only to read small text; cite the second of the cell in `looked_at`.
+
 The script keeps to the boundaries the folder was created with. Do not run your own
 `ffmpeg` over `data/videos/`: it knows nothing about your boundaries.
 

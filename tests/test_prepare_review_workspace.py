@@ -53,5 +53,23 @@ class CleanupWorkspaceTest(unittest.TestCase):
         self.assertTrue(out.exists())
 
 
+class SheetTest(unittest.TestCase):
+    def test_tiles_the_frames_into_one_image_and_skips_missing_seconds(self):
+        from PIL import Image
+
+        with tempfile.TemporaryDirectory() as tmp:
+            frames = Path(tmp)
+            times = workspace.dense_times(499, 505, 1)
+            for t in times:
+                if t != 502:
+                    Image.new("RGB", (640, 360), "teal").save(frames / workspace.frame_name(t))
+
+            sheet = workspace.build_sheet(frames, times, cols=4, cell_w=320)
+
+            self.assertEqual(sheet.name, "sheet_t000499-t000504.jpg")
+            with Image.open(sheet) as img:
+                self.assertEqual(img.size, (4 * 320, 2 * 180))
+
+
 if __name__ == "__main__":
     unittest.main()

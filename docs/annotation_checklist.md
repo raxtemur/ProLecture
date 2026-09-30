@@ -128,10 +128,11 @@ question checked**. The common order is progressive:
 | **reading the transcript `[a, b]`** | every available line with its timecode | cheap, taken in full in any quantity |
 | **reading the screen description `[a, b]`** | the boundary-clipped records from `description.jsonl`, read in full over the stretch rather than searched; a model-made text, not evidence | cheap, taken before opening frames |
 | **scene-frame viewing `[a, b]`** | existing content-selected frames from `bundle.json["frames"]`, produced by `detect_scenes.py` | moderate |
+| **sheet viewing `[a, b]`** | up to 16 frames of an on-demand grid tiled into one image with the second stamped on each cell (`--dense A B --step 1 --sheet`) | one image; the way to take a quick look at a stretch or to date a gradual change, which frames opened one at a time do not show |
 | **dense viewing `[a, b]`** | an on-demand grid requested with `--dense`; start at 1 fps (`--step 1`) | expensive: 50 frames cover at most 50 s at 1 fps |
 
-Hence the working rule: **description first, existing scene frames second, targeted dense
-viewing last.** The coordinator prepares only the clipped description and existing scene
+Hence the working rule: **description first, existing scene frames second, a sheet for a
+quick look or to date a gradual change, targeted dense viewing last.** The coordinator prepares only the clipped description and existing scene
 frames. It does not pre-fill a uniform grid or dense target/evidence intervals. A reviewer
 uses `--dense` only after the cheaper material identifies a suspicious stretch.
 

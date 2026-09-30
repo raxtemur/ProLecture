@@ -335,9 +335,9 @@ which the judge scores an answer). The requirements:
 On the two finished videos roughly one review verdict in two was a fix request, and the
 requests cluster. Each of the checks below is a two-minute test that would have caught a
 class of them before the sample left your hands. **Work one question at a time**: draft it,
-run the eight checks on it, fix it, and only then start the next one. A batch of eight
+run the nine checks on it, fix it, and only then start the next one. A batch of eight
 drafts checked at the end is checked worse — the frames blur together, and a defect found
-in the last one is usually present in the first — and a question dropped by check 4 or 8
+in the last one is usually present in the first — and a question dropped by check 4, 8 or 9
 should not have cost you the annotation of its windows.
 
 1. **The frame at `t_start` shows the state** (checklist 2.4, 3.2). One frame, as described
@@ -392,7 +392,21 @@ should not have cost you the annotation of its windows.
 8. **The blind test, once more, on the final wording** (checklist 4). Strike every reference
    to the video and answer from the question text alone. Colours named in the question, a
    "three-term equation", an order of terms — if the canonical answer follows from them, the
-   sample belongs to the blind baseline whatever its window says.
+   sample belongs to the blind baseline whatever its window says. Then go through the
+   rubric item by item and write into `validation.notes`, for each substantive item, what
+   it needs **from this video**: "item 2 needs: the displayed labels v = √y (unit
+   constant)". An item whose accepted forms include one a textbook gives ("accepted up to a
+   multiplicative constant") needs nothing from the video, whatever else is on screen; if
+   every substantive item is like that, the question is an exam problem with a timer.
+
+9. **What the when-event gives** (the corollary under "the main quality criterion" above).
+   Write one line into `validation.notes`: "the when-event gives: <rubric item> — <the
+   value, relation or transition it brings>". If the honest line is "nothing" — the event
+   only marks a moment, and a model that knows the answer is right to speak as soon as it
+   can — the question is not a `pre`: rewrite it as `at`, or rebuild it on an event that
+   brings something the answer needs. "When the layers melt into a smooth gradient, explain
+   why the condition holds at every point" is the pattern: the melt brings no value, and
+   the explanation is available the moment the question is asked.
 
 None of this replaces the review; it removes the round that would have been spent telling
 you what a frame shows.

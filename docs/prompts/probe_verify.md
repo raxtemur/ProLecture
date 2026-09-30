@@ -60,7 +60,9 @@ Rules:
   it goes into the answer: the description was made by a model and finishes off things that
   are not there. If the scene frames are too sparse for that, sample more:
   `tools/prepare_review_workspace.py --dense A B --step 1 --out <WORKSPACE>` — the script
-  keeps to your boundary;
+  keeps to your boundary. For a quick look of up to 16 frames add `--sheet` and open the
+  one tiled image `frames/sheet_<first>-<last>.jpg` (the second is stamped on each cell)
+  instead of the frames;
 - if the material is not enough — say so, but **try to answer first**. "Not enough
   information" turns out far too often to be an unwillingness to take a risk;
 - do not propose fixes and do not reason about whether this is a good question. That is not

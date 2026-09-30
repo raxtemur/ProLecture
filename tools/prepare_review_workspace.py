@@ -11,6 +11,9 @@ separate directory is prepared for them, holding only what they are allowed to s
     # re-sample a stretch with a dense grid into the same folder
     prepare_review_workspace.py <video_id> --dense 930 960 --step 1 --out /tmp/rev_q07_blind
 
+    # a quick look at up to 16 moments: the same frames, also tiled into ONE labelled image
+    prepare_review_workspace.py <video_id> --dense 499 510 --step 1 --sheet --out /tmp/rev_q07_blind
+
     # stage C of the left-boundary check: the same material as the semi-blind reviewer's,
     # cut at the sighted proposal t_s, in a folder marked as the verification probe's
     prepare_review_workspace.py <video_id> --until 690 --screen --verify --out /tmp/verify_q10
@@ -291,6 +294,53 @@ def clamp_to_workspace(out: Path, t0: float, t1: float) -> tuple[float, float]:
     return a, b
 
 
+SHEET_MAX = 16  # a 4x4 grid: beyond that a cell is too small to tell a band from a gradient
+
+
+def dense_times(t0: float, t1: float, step: float) -> list[float]:
+    times, t = [], t0
+    while t < t1:
+        times.append(round(t, 2))
+        t += step
+    return times
+
+
+def build_sheet(frames_dir: Path, times: list[float], cols: int = 4, cell_w: int = 480) -> Path:
+    """Tile the frames of `times` into one image, each cell stamped with its second.
+
+    Frames opened one by one are each described on their own, and a slow change (layers
+    subdividing into a gradient, a fade) reads the same on every one of them. Side by side
+    the change is what the eye compares. One image also costs one look instead of sixteen.
+    """
+    from PIL import Image, ImageDraw, ImageFont
+
+    font = ImageFont.load_default(size=28)
+    cells = []
+    for t in times:
+        path = frames_dir / frame_name(t)
+        if not path.exists():
+            continue
+        img = Image.open(path).convert("RGB")
+        img = img.resize((cell_w, round(img.height * cell_w / img.width)))
+        draw = ImageDraw.Draw(img)
+        label = f"{t:g} s"
+        box = draw.textbbox((8, 6), label, font=font)
+        draw.rectangle((box[0] - 4, box[1] - 4, box[2] + 4, box[3] + 4), fill="black")
+        draw.text((8, 6), label, fill="yellow", font=font)
+        cells.append(img)
+    if not cells:
+        sys.exit("no frames to tile: the stretch produced none")
+    cols = min(cols, len(cells))
+    rows = -(-len(cells) // cols)
+    cell_h = max(c.height for c in cells)
+    sheet = Image.new("RGB", (cols * cell_w, rows * cell_h), "black")
+    for i, c in enumerate(cells):
+        sheet.paste(c, ((i % cols) * cell_w, (i // cols) * cell_h))
+    target = frames_dir / f"sheet_{frame_name(times[0])[:-4]}-{frame_name(times[-1])[:-4]}.jpg"
+    sheet.save(target, quality=90)
+    return target
+
+
 def extract_dense(vid: str, out: Path, t0: float, t1: float, step: float, cap: int) -> int:
     mp4 = ROOT / "data" / "videos" / vid / f"{vid}.mp4"
     if not mp4.exists():
@@ -298,10 +348,7 @@ def extract_dense(vid: str, out: Path, t0: float, t1: float, step: float, cap: i
     dst = out / "frames"
     dst.mkdir(parents=True, exist_ok=True)
 
-    times, t = [], t0
-    while t < t1:
-        times.append(round(t, 2))
-        t += step
+    times = dense_times(t0, t1, step)
     if len(times) > cap:
         sys.exit(
             f"{len(times)} frames requested against a ceiling of {cap}: narrow the stretch "
@@ -373,6 +420,11 @@ def main() -> None:
     ap.add_argument("--step", type=float, default=2.0,
                     help="the --dense step, s (2 by default; less than 1 does not happen — the names "
                          "of the frames are rounded to the second, and half the grid would silently merge)")
+    ap.add_argument("--sheet", action="store_true",
+                    help=f"with --dense: also tile the frames of the stretch into one image "
+                         f"frames/sheet_<first>-<last>.jpg, each cell stamped with its second. "
+                         f"At most {SHEET_MAX} frames; the way to take a quick look at a "
+                         f"stretch or to compare neighbouring seconds")
     ap.add_argument("--force", action="store_true",
                     help="rebuild a non-empty directory under a different mode")
     ap.add_argument("--max-frames", type=int, default=60,
@@ -415,6 +467,8 @@ def main() -> None:
         sys.exit("name exactly one of --until, --dense, --frame or --cleanup")
     if args.only != "both" and args.until is None:
         sys.exit("--only only makes sense together with --until")
+    if args.sheet and args.dense is None:
+        sys.exit("--sheet only makes sense together with --dense")
     # The verification probe answers the task with the material up to t_s, and its answer
     # decides whether the material up to t_s was ENOUGH. Both channels, copies of the
     # frames (the boundary), the description (the dense reading of the visual channel):
@@ -545,8 +599,12 @@ def main() -> None:
     else:
         check_dense_allowed(out, args.force)
         a, b = clamp_to_workspace(out, *args.dense)
-        n = extract_dense(args.video_id, out, a, b, args.step, args.max_frames)
+        cap = min(args.max_frames, SHEET_MAX) if args.sheet else args.max_frames
+        n = extract_dense(args.video_id, out, a, b, args.step, cap)
         print(f"frames added: {n} ({a:.0f}–{b:.0f} s, step {args.step} s) -> {out}/frames")
+        if args.sheet:
+            sheet = build_sheet(out / "frames", dense_times(a, b, args.step))
+            print(f"sheet        : {sheet}  (open this one image instead of the frames)")
 
 
 if __name__ == "__main__":

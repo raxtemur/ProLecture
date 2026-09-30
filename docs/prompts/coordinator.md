@@ -68,17 +68,35 @@ is a sentence *about* the reviewer's knowledge is sent back for the content befo
 scored — that is a follow-up to the same subagent, not a new round. A strong reviewer is an
 upper bound on blind solvability, and that strictness is deliberate.
 
-**A blind-solved sample is carried to the end of the cycle.** Keep the contamination flag
-on the version that was measured, run `full_sample` and every `full_window`, and try to
-repair it by making the answer depend on a screen-specific value, relation, transition or
-counterfactual. Changing only *when* to repeat the same known fact is not a repair.
+**A blind-solved sample is not dropped: the version that survives gets the whole cycle.**
+`blind_solved` is never a reason to reject a sample or to skip `full_sample` and
+`full_window`. It is also not a reason to run them early: the full reviews belong to the
+version that survives, and the barrier in section 3 applies to a blind-repair exactly as to
+any other cheap fix. The flag itself stays recorded on the version that was measured (its
+review files and `coordinator.N.md`); an edit never clears it.
 
-After a substantive rewrite, set the sample back to `draft` and follow the question-version
-rule in section 3: rerun the complete review cycle on the rewritten wording. Only the new
-reviews can clear `blind_solved`. If the completed cycle finds the sample otherwise correct,
-it may finish as `status: validated` with `blind_solved: true`; keep it out of the primary
-benchmark and retain it as a blind baseline. Use `rejected` only for an independent defect or
-when repair/review is deliberately abandoned, and record that reason.
+Decide once, from the consolidated cheap results, whether a repair is attempted:
+
+- **Repair.** Make the answer depend on a screen-specific value, relation, transition or
+  counterfactual. Changing only *when* to repeat the same known fact is not a repair.
+  Before writing it, list the other samples of the same video whose windows lie within
+  30 s of this one and say in `coordinator.N.md` what the repaired rubric asks that theirs
+  do not: a repair that rests on the same displayed value as a neighbour is a duplicate,
+  not a repair.
+  Apply the rewrite in the same package as the other cheap fixes. It is a wording change,
+  so the sample goes back to `draft` and to the head of the cheap queue under the
+  question-version rule in section 3; `full_sample` and every `full_window` run only on
+  the rewritten version, once it has passed the barrier. Do not spend full reviews on the
+  measured wording first: it is about to be replaced, and the new cycle re-checks
+  everything they would have checked. Only the new reviews can clear `blind_solved`.
+- **No repair** (none found, or the sample is deliberately kept as a blind baseline).
+  Apply the non-wording cheap fixes, pass the barrier, and run `full_sample` and every
+  `full_window` on that version.
+
+If the completed cycle finds the sample otherwise correct, it may finish as
+`status: validated` with `blind_solved: true`; keep it out of the primary benchmark and
+retain it as a blind baseline. Use `rejected` only for an independent defect or when
+repair/review is deliberately abandoned, and record that reason.
 
 **A consequence for the wording.** A question whose condition is named in full in the
 question itself and which requires the model to retrieve a known fact from memory is
@@ -400,3 +418,36 @@ when several windows propose different levels, take the lowest (the cheapest rou
 compromises an `L2`/`L3` sample. A `full_window` written before 2026-09-08 that set
 `CRITICAL_FAIL` without the split is re-read this way, from its own evidence, before
 anything is done to the sample.
+
+---
+
+## 7. When reviews disagree about the screen, look
+
+Two roles may report different things about the same stretch of the screen: one says a
+state appears at 502 s, another that it never appears; one saw labels at 517 s, another
+says they were gone by 503 s. **Do not settle such a disagreement by reasoning about who
+is more likely right, and do not settle it from `description.jsonl`.** Look:
+
+```bash
+python3 tools/prepare_review_workspace.py <VIDEO_ID> \
+    --dense <A> <B> --step 1 --sheet --out "$PROJECT/.review_ws/<VIDEO_ID>/<QUESTION>/coordinator_sheet"
+```
+
+One call gives one image of up to 16 frames with the second stamped on each cell; take
+the stretch that covers both reviewers' claims, two sheets if it is longer (a second call
+into the same folder needs `--force`: the folder carries no `mode.json`). Open the image
+yourself, write into `coordinator.<ROUND>.md` what is on each second that matters, and
+adjudicate from that. Remove the folder with `--cleanup` afterwards.
+
+This applies when the disagreement is about **what** is on the screen, or about **when**
+by more than the 2 s tolerance of checklist group 2. A gap within the tolerance is not
+looked at: the first measurement stands.
+
+**Why.** The description is written by a model from the same frames and shares the
+reviewers' blind spots: on the pilot it called ten clearly separate bands "a clean
+gradient", the semi-blind reviewer repeated the phrase for the same second, and the
+coordinator took that second as `t_val` because the other role's "never appears" was
+easy to explain away. The explanation was right and the second was wrong by 3 s. A state
+that changes gradually reads the same on every frame opened alone; side by side it does
+not. The same holds for your own claims: **no verdict, boundary or repair may rest on a
+second that no role and no sheet has looked at.**

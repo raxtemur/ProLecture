@@ -74,6 +74,10 @@ Two rules, and both matter for what is being measured here:
    frames over the stretch you need — sample more for yourself:
    `tools/prepare_review_workspace.py --dense A B --step S --out <WORKSPACE>`.
    Start with 1 fps (`--step 1`) and narrow the interval before asking for more frames.
+   For a quick look of up to 16 frames add `--sheet`: the script also tiles them into one
+   image, `frames/sheet_<first>-<last>.jpg`, with the second stamped on each cell. Open
+   that one image instead of the frames — a slow change (a fade, layers subdividing) is
+   visible only side by side — and open a single frame only to read small text.
 2. **Set `screen_index_used: true` in `budget`.** A measurement with the index and one
    without it are not comparable, and they must be told apart by a mark rather than from
    memory.
