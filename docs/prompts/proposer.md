@@ -6,8 +6,8 @@ video).
 
 ---
 
-Before you start, read `definitions.md` next to this prompt. It defines the terms this
-prompt uses, and its definitions are binding.
+Before you start, read `docs/prompts/definitions.md`, next to this prompt. It defines the
+terms this prompt uses, and its definitions are binding.
 
 ## The role
 
@@ -81,15 +81,15 @@ any other frame only where the description is inaccurate, incomplete or silent a
 you need: a value it does not give, two windows of the description that contradict each
 other. Do not pull frames densely and do not chase the exact second.
 
-**Before you write anything, read [../question_templates.md](../question_templates.md) in
+**Before you write anything, read [docs/question_templates.md](../question_templates.md) in
 full:** three worked examples of how a question is built, then seven ways to build a
 question, each with a working example and the broken questions that look like it. Start from
 them, but the list is not closed.
 
 The format of a sample and the meaning of every field are in sections 1–7 of
-[../../data/annotations/README.md](../../data/annotations/README.md). Two complete samples,
+[data/annotations/README.md](../../data/annotations/README.md). Two complete samples,
 invented and in the form you hand them in, are in
-[../sample_examples.jsonl](../sample_examples.jsonl): read them before your first sample.
+[docs/sample_examples.jsonl](../sample_examples.jsonl): read them before your first sample.
 
 ## What makes a good question
 
