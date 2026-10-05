@@ -326,7 +326,7 @@
           ]
         },
         "blind_solved": {
-          "description": "Whether the answer was obtained without viewing the video. A true value excludes the sample from the primary benchmark but does not by itself prevent status=validated.",
+          "description": "Whether the semi-blind reviewer's answer, given before viewing, was both correct and honest (not resting on guesses about unseen screen content); set by the coordinator, see docs/prompts/definitions.md. A true value excludes the sample from the primary benchmark but does not by itself prevent status=validated.",
           "type": [
             "boolean",
             "null"

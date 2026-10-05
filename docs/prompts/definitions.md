@@ -1,8 +1,9 @@
 # Definitions
 
-> **2026-10-05.** The proposer's prompt refers to this file. The coordinator's prompt and the
-> checklist are not yet brought in line with it; until they are, where they differ, this
-> file wins.
+> **2026-10-05.** The proposer's prompt refers to this file. The coordinator's and the
+> reviewers' prompts and the checklist are not yet brought in line with it; until they are,
+> where they differ, this file wins. The `Copied into:` lines name the prompts that are to
+> carry a copy; the copies are not there yet.
 
 The terms the proposer and the coordinator use, defined in one place. The proposer and the
 coordinator read this file once at the start of their work, and its definitions are binding

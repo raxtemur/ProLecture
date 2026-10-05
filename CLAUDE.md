@@ -13,6 +13,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 > `docs/sample_examples.jsonl`). They hold the rules of other roles, and reading them changes
 > what you measure.
 > The interpreter is `/home/user/conda/bin/python3`.
+>
+> **If you are the proposer:** read what `docs/prompts/proposer.md` names, and of the rest of
+> this file only the interpreter paths. Do not open `docs/plans/general.md` (its catalogue
+> labels each template with an axis and a level, which a question does not inherit),
+> `docs/annotation_checklist.md`, `docs/annotation_pipeline.md` or other roles' prompts.
 
 ## What this repository is
 

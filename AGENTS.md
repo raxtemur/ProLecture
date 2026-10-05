@@ -14,6 +14,15 @@ rules of other roles, and reading them changes what you measure. The interpreter
 `/home/user/conda/bin/python3`. Skip the rest of this file except the last
 paragraph, on compaction.
 
+## If you are the proposer
+
+Read what `docs/prompts/proposer.md` names. Do not open `docs/plans/general.md`
+(its catalogue labels each template with an axis and a level, which a question
+does not inherit), `docs/annotation_checklist.md`,
+`docs/annotation_pipeline.md` or other roles' prompts. The interpreter is
+`/home/user/conda/bin/python3`. Skip the rest of this file except the last
+paragraph, on compaction.
+
 ## Repo context
 `CLAUDE.md` is written for agents that work on the project itself: its code,
 schemas, documentation and the pipeline. It holds the repository layout, the two
@@ -29,6 +38,9 @@ Roles of the pipeline, one prompt each in `docs/prompts/`:
 - `probe_frame`, `probe_full`, `probe_text`, `probe_vision`, `probe_verify` —
   step 3: probes measuring answer availability and left boundaries;
 - `coordinator` — steps 4-6: applies fixes, derives flags, decides sample fate.
+
+`docs/prompts/definitions.md` is not a role: it is the shared file of
+definitions that the proposer and the coordinator read first.
 
 When acting as a pipeline agent, the prompt in `docs/prompts/<role>.md` is
 binding for that role. After any session compaction, re-read the full current

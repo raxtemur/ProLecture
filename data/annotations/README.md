@@ -201,10 +201,10 @@ The reason for the choice goes into `question_time_note`.
 |---|---|:---:|---|
 | `status` | enum | ✔ | review lifecycle: `draft` is active; `validated` is complete and correct; `rejected` is incorrect or deliberately abandoned. Primary eligibility is separate |
 | `solvable` | bool \| null | — | is it solvable at all, from the transcript and the frames together |
-| `blind_solved` | bool \| null | — | is it solvable from the question alone, with no video; `true` excludes it from the primary benchmark without forcing rejection |
+| `blind_solved` | bool \| null | — | the semi-blind reviewer's answer before viewing was both correct and honest — not resting on guesses about unseen screen content (`docs/prompts/definitions.md`); set by the coordinator. `true` excludes the sample from the primary benchmark without forcing rejection |
 | `textonly_solved` | bool \| null | — | is it solvable from the question + the transcript |
 | `visiononly_solved` | bool \| null | — | is it solvable without the audio |
-| `frozenframe_solved` | bool \| null | — | is it solvable from a single frame at `t_ideal`, with no history |
+| `frozenframe_solved` | bool \| null | — | is it solvable from a single frame from the middle of each window, `(t_start + t_end) / 2`, with no history |
 | `notes` | string | — | the annotator's notes |
 
 ## 5. A multi-trigger sample

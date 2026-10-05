@@ -830,14 +830,18 @@ def format_screen_rows(rows: list[tuple[float, str, str]]) -> str:
 
 
 def write_screen_text(path: Path, video_id: str, records: list[dict]) -> int:
-    """The bundle's `screen_text.md`: the whole video, for the proposer.
+    """The bundle's `screen_text.md`: everything the description covers, for the proposer.
 
     The proposer reads it in full to see when a formula, a number or a label came up, and
     reads `description.md` — about 55 thousand words on a 17-minute video — only around
     its candidates. The header is written for that reader.
     """
     rows = screen_text_rows(records)
-    head = (f"# On-screen text, {video_id}: the whole video\n"
+    # the stretch the description covers: the whole video after a full run, less after a
+    # run limited by --range
+    t0 = min((r["t_start"] for r in records), default=0.0)
+    t1 = max((r["t_end"] for r in records), default=0.0)
+    head = (f"# On-screen text, {video_id}: {t0:.0f}-{t1:.0f} s\n"
             f"# Recognised by a model from frames, not by a human: it confuses similar\n"
             f"# digits, misses what is shown in passing and may be a second or two off\n"
             f"# about when. Each row: the second the text first appears, where it is on\n"

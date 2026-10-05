@@ -75,7 +75,8 @@ three of the five omni models — that is, the label was never checked empirical
 
 The measure: `audio_dependency` is **not a declaration by the annotator but the result of a
 measurement.** The label is derived from the answers of the modality probes rather than from the
-annotator's opinion: while `status == "draft"` the field stays `null`, and the opinion lives
+annotator's opinion: the field stays `null` until both probes it is derived from
+(`visiononly_solved` and `solvable`) have answered, whatever the status, and the opinion lives
 separately in `audio_dependency_claim`.
 
 **A caveat without which this would be the same substitution as OmniPro's.** The probes are textual
@@ -157,16 +158,20 @@ reasoning) — that gives a cube whose cells we balance across.
 An adaptation of OmniPro's; Cumulative/Deduplicated Counting have been dropped and three
 verification-counterfactual types added.
 
-| Code | Act | Essence | Example |
-|---|---|---|---|
-| `alert` | Alert | report that a condition has occurred | "say when an incorrect argument is presented" |
-| `monitor` | State monitoring | track an evolving quantity, report on a change | "report every time the dimension of the space under consideration changes" |
-| `ground` | Grounding | point at the moment/region of an event | "when the definition of entropy appears, say so" |
-| `narrate` | Narration | explain what is happening at the moment it happens | "explain every transition in the derivation at the moment of the transition" |
-| `predict` | Prediction | name the next step **before** it is shown | "when the author poses the problem, say what method he will solve it with" |
-| `verify` | Verification | confirm/refute the correctness of what is shown | "say whether the transition presented is valid" |
-| `counterfact` | Counterfactual | "what changes if…" at the moment an object appears | "when the graph appears, say how it changes under a → 2a" |
-| `extend` | Extension | go further with the premises unchanged: the next terms, the shown method on a new case, the exercise the author leaves open | "when the second borrower's payment is shown, give that loan's balance after each of the first six months" |
+The definitions of the acts are in `docs/prompts/definitions.md`, section `act`. Every act
+answers with content: "now" or "it happened" alone is a waiting-only task, and such tasks are
+not built.
+
+| Code | Act | Example |
+|---|---|---|
+| `alert` | Alert | "if a step of the derivation does not follow from the one before it, say which step and what is wrong with it" |
+| `monitor` | State monitoring | "every time the dimension of the space under consideration changes, give the new dimension" |
+| `ground` | Grounding | "when the author points at the term that makes the sum diverge, say which term it is" |
+| `narrate` | Narration | "explain every transition in the derivation at the moment of the transition: why it is taken" |
+| `predict` | Prediction | "when the author has posed the problem, say what value he will obtain for it" |
+| `verify` | Verification | "say whether the transition now on the screen is valid for these values, and why" |
+| `counterfact` | Counterfactual | "when the graph appears, say how it changes under a → 2a" |
+| `extend` | Extension | "when the second borrower's payment is shown, give that loan's balance after each of the first six months" |
 
 ### Axis B — the temporal relation of question and trigger
 
@@ -300,7 +305,7 @@ and why they are needed.
 | `t_ideal` | a service field, `t_start + 1`; it means nothing, the latency is measured from `t_start` |
 | `rubric` | the judge scores against explicit criteria rather than "by eye" |
 | `act` / `temporal_rel` / `reasoning_level` / `template` | the taxonomy axes; the breakdowns are computed over them too |
-| `audio_dependency: null` until validation | filled in by a **measurement**, not by the annotator (§1.2) |
+| `audio_dependency: null` until the probes answer | filled in by a **measurement**, not by the annotator (§1.2) |
 | `evidence_span` | where the information for the answer lies; axis B is derived from it (with `post` it diverges from the answer window) |
 | `question_time_note` | why the question was issued at exactly this moment |
 | `provenance.evidence` | a mandatory reference to the transcript/frame — protection against an invented GT. This is **confirmation**, not evidence: unlike `evidence_span` it may lie later than the window (`predict`) or outside the video (`counterfact`) |

@@ -490,9 +490,11 @@ def semantic_checks(s: dict) -> list[str]:
     notes = s["validation"].get("notes") or ""
     # Rubric items are numbered from 1, in list order, separately in each window; a number
     # in the notes is valid if some required window has an item with it.
+    # S-40 and S-41 cite checklist 4.2 and 2.2 until their own items, 1.12 and 1.13, are
+    # written: schema/review.py rejects a rule that cites an item which does not exist.
     n_items = max(len(t["rubric"]) for t in trigs if t["required"])
 
-    # S-40 · checklist 1.12 — a draft records what each rubric item needs from this video.
+    # S-40 · checklist 4.2 — a draft records what each rubric item needs from this video.
     #   Breaks: the proposer's check of what the question gives away leaves no trace, and a
     #   question all of whose items follow from the subject alone reaches review as if the
     #   check had been made. The line records the check, it does not prove it: whether the
@@ -511,7 +513,7 @@ def semantic_checks(s: dict) -> list[str]:
                         f'longest rubric of a required window has {n_items} item(s), numbered '
                         f'from 1 in list order — number the line by the rubric')
 
-    # S-41 · checklist 1.13 — a pre draft names the rubric item its when-event makes available.
+    # S-41 · checklist 2.2 — a pre draft names the rubric item its when-event makes available.
     #   Breaks: a question whose event only marks a moment passes as pre: a participant
     #   who knows the answer is right to speak at once, and the answer counts as outside
     #   the windows. A retelling of the event in place of an item number does not show

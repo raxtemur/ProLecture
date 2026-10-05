@@ -93,9 +93,12 @@ The video shows an early value that is plausible but wrong for the question, and
 correct one later. An answer given on the early value falls outside the window, and the
 metric penalises an answer outside the windows.
 
-**✓ "Give the time constant of the circuit once both resistors are connected in series."**
-The time constant shown earlier, for one resistor, is the trap; "both resistors" is the
-word that tells the two apart, and the second resistance is what the event brings. Note
+**✓ "Once a second resistor is connected in series with the first, give the time constant
+of the circuit."**
+The time constant shown earlier, for one resistor, is the trap; "a second resistor" is what
+tells the two apart, and the second resistance is what the event brings. The question
+describes the second resistor in words, so it can be understood when it is issued, before
+the first time constant appears. Note
 the intent in `provenance.trap_note`.
 
 **✗ "Name the time constant of the circuit" — with the window on the second showing of the

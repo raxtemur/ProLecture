@@ -64,6 +64,20 @@ class ValidatedBlindSolvedTest(unittest.TestCase):
 
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
+    def test_the_invented_sample_examples_validate(self):
+        # docs/sample_examples.jsonl is what the proposer imitates; README promises it passes
+        result = subprocess.run(
+            [sys.executable, str(ROOT / "tools" / "validate_samples.py"),
+             str(ROOT / "docs" / "sample_examples.jsonl")],
+            cwd=ROOT,
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("checked 2, with errors 0", result.stdout)
+
 
 if __name__ == "__main__":
     unittest.main()
