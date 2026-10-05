@@ -50,8 +50,10 @@ Examples (the client is base conda; it needs only openai and Pillow)
 
 How to raise the server and what to do when it falls over — docs/video_description.md.
 
-Output: data/bundles/<id>/description.jsonl (machine-readable, the main one) and
-        data/bundles/<id>/description.md (for a human/agent to read).
+Output: data/bundles/<id>/description.jsonl (machine-readable, the main one),
+        data/bundles/<id>/description.md (for a human/agent to read) and
+        data/bundles/<id>/screen_text.md (the timeline of on-screen text, for the
+        proposer; written only under the default --out-prefix).
 """
 
 from __future__ import annotations
@@ -780,6 +782,78 @@ def write_markdown(path: Path, meta: dict, records: list[dict]) -> None:
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
+# Not a global key: a line that disappeared and came back a minute later is usually the
+# interesting appearance, and with a global key it silently collapsed into the very first
+# one. We damp only what hangs on the screen continuously.
+REAPPEAR_GAP = 10.0
+
+
+def screen_text_rows(records: list[dict]) -> list[tuple[float, str, str]]:
+    """A timeline of the recognised on-screen text: (second, location, text).
+
+    A line gets in once, at the second it first appears; if it disappeared for more than
+    REAPPEAR_GAP and came back, that is a separate row. Two files are built from it: the
+    bundle's `screen_text.md` for the proposer (`write_screen_text`) and the reviewer's
+    copy cut to the stretch of the workspace (`tools/prepare_review_workspace.py`).
+    """
+    last_at: dict[tuple[str, str], float] = {}
+    rows: list[tuple[float, str, str]] = []
+    for c in records:
+        # The keys of screen_text and events[].t are ABSOLUTE seconds of the video, not
+        # offsets inside the chunk and not frame indices. This is confirmed by the fact
+        # that the maximum key in the file (1935) coincides with the duration of the
+        # video, and that the chunk [6.8, 11.2] has keys running 6..11.
+        # the key "?" is set when the model assigned an element a second outside its own
+        # fragment: it has no time, and it does not take its place in the timeline
+        keys = [k for k in (c.get("screen_text") or {}) if str(k).isdigit()]
+        for k in sorted(keys, key=int):
+            t = float(int(k))
+            for item in (c["screen_text"][k] or []):
+                # the ribbon of random bits sits verbatim in the .jsonl (that is where
+                # verbatimness is needed), but in the index it is rubbish: we clean it
+                # on the way in
+                txt = strip_bits((item.get("text") or "").strip())
+                if not txt or txt.strip("… ") == "":
+                    continue
+                key = (txt, item.get("location") or "")
+                prev = last_at.get(key)
+                last_at[key] = t
+                if prev is not None and t - prev <= REAPPEAR_GAP:
+                    continue
+                rows.append((t, item.get("location") or "-", txt))
+    rows.sort()
+    return rows
+
+
+def format_screen_rows(rows: list[tuple[float, str, str]]) -> str:
+    return "\n".join(f"{t:8.1f}  {loc:8} {txt}" for t, loc, txt in rows) + "\n"
+
+
+def write_screen_text(path: Path, video_id: str, records: list[dict]) -> int:
+    """The bundle's `screen_text.md`: the whole video, for the proposer.
+
+    The proposer reads it in full to see when a formula, a number or a label came up, and
+    reads `description.md` — about 55 thousand words on a 17-minute video — only around
+    its candidates. The header is written for that reader.
+    """
+    rows = screen_text_rows(records)
+    head = (f"# On-screen text, {video_id}: the whole video\n"
+            f"# Recognised by a model from frames, not by a human: it confuses similar\n"
+            f"# digits, misses what is shown in passing and may be a second or two off\n"
+            f"# about when. Each row: the second the text first appears, where it is on\n"
+            f"# the screen, the text. A text that disappeared for more than\n"
+            f"# {REAPPEAR_GAP:.0f} s and came back is listed again.\n"
+            f"# The screen window by window is in description.md.\n\n")
+    path.write_text(head + format_screen_rows(rows), encoding="utf-8")
+    return len(rows)
+
+
+def load_description_records(path: Path) -> list[dict]:
+    """The chunks of a description file, without its first line of run metadata."""
+    rows = [json.loads(l) for l in path.read_text(encoding="utf-8").splitlines() if l.strip()]
+    return [r for r in rows if "chunk_index" in r]
+
+
 # --------------------------------------------------------------------- main
 
 def parse_ranges(values: list[str]) -> list[tuple[float, float]]:
@@ -1067,11 +1141,18 @@ def main() -> None:
             fh.write(json.dumps(rec, ensure_ascii=False) + "\n")
     md = bdir / f"{args.out_prefix}.md"
     write_markdown(md, meta, records)
+    # only the main description feeds the proposer; a trial under another prefix must not
+    # overwrite its timeline
+    screen = bdir / "screen_text.md" if args.out_prefix == "description" else None
+    if screen:
+        write_screen_text(screen, vid, records)
 
     print(f"\nfinished in {elapsed:.0f} s ({elapsed / 60:.1f} min), errors {meta['n_errors']}, "
           f"degenerate answers {meta['n_degenerate']}")
     print(f"  {jsonl}")
     print(f"  {md}")
+    if screen:
+        print(f"  {screen}")
 
 
 if __name__ == "__main__":

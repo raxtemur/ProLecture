@@ -41,7 +41,8 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from describe_video import strip_bits  # noqa: E402  (the ribbon of bits is cleaned on the way in)
+from describe_video import (  # noqa: E402  (the timeline is shared with the bundle's copy)
+    REAPPEAR_GAP, format_screen_rows, load_description_records, screen_text_rows)
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -86,8 +87,7 @@ def load_description(vid: str) -> list[dict] | None:
     path = ROOT / "data" / "bundles" / vid / "description.jsonl"
     if not path.exists():
         return None
-    rows = [json.loads(l) for l in path.read_text(encoding="utf-8").splitlines() if l.strip()]
-    return [r for r in rows if "chunk_index" in r]
+    return load_description_records(path)
 
 
 def write_screen(desc: list[dict], out: Path, t0: float, t1: float) -> tuple[int, int]:
@@ -114,11 +114,6 @@ def write_screen(desc: list[dict], out: Path, t0: float, t1: float) -> tuple[int
     """
     chunks = [c for c in desc if c["t_start"] >= t0 and c["t_end"] <= t1]
 
-    # Not a global key: a line that disappeared and came back a minute later is
-    # usually the interesting appearance, and with a global key it silently collapsed
-    # into the very first one. We damp only what hangs on the screen continuously.
-    REAPPEAR_GAP = 10.0
-
     head = (f"# On-screen text {out.name}: {t0:.0f}-{t1:.0f} s\n"
             f"# Recognised BY A MODEL from frames, not by a human: fit for FINDING a moment,\n"
             f"# not for ASSERTING it. Found a line — go and look at the frame.\n"
@@ -126,35 +121,8 @@ def write_screen(desc: list[dict], out: Path, t0: float, t1: float) -> tuple[int
             f"# {REAPPEAR_GAP:.0f} s and came back, that is a separate line of the timeline.\n"
             f"# The full description, chunk by chunk, is in screen.jsonl: read THAT in full\n"
             f"# over your stretch; this file only says when a text first came up.\n\n")
-    last_at: dict[tuple[str, str], float] = {}
-    rows: list[tuple[float, str, str]] = []
-    for c in chunks:
-        # The keys of screen_text and events[].t are ABSOLUTE seconds of the video, not
-        # offsets inside the chunk and not frame indices. This is confirmed by the fact
-        # that the maximum key in the file (1935) coincides with the duration of the
-        # video, and that the chunk [6.8, 11.2] has keys running 6..11.
-        # the key "?" is set when the model assigned an element a second outside its own
-        # fragment: it has no time, and it does not take its place in the timeline
-        keys = [k for k in (c.get("screen_text") or {}) if str(k).isdigit()]
-        for k in sorted(keys, key=int):
-            t = float(int(k))
-            for item in (c["screen_text"][k] or []):
-                # the ribbon of random bits sits verbatim in the .jsonl (that is where
-                # verbatimness is needed), but in the index it is rubbish: we clean it
-                # on the way in
-                txt = strip_bits((item.get("text") or "").strip())
-                if not txt or txt.strip("… ") == "":
-                    continue
-                key = (txt, item.get("location") or "")
-                prev = last_at.get(key)
-                last_at[key] = t
-                if prev is not None and t - prev <= REAPPEAR_GAP:
-                    continue
-                rows.append((t, item.get("location") or "-", txt))
-    rows.sort()
-    (out / "screen_text.md").write_text(
-        head + "\n".join(f"{t:8.1f}  {loc:8} {txt}" for t, loc, txt in rows) + "\n",
-        encoding="utf-8")
+    rows = screen_text_rows(chunks)
+    (out / "screen_text.md").write_text(head + format_screen_rows(rows), encoding="utf-8")
 
     with (out / "screen.jsonl").open("w", encoding="utf-8") as f:
         f.write(json.dumps({"_note": "a description of the video track made by a model, "

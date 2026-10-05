@@ -70,7 +70,8 @@
         "narrate",
         "predict",
         "verify",
-        "counterfact"
+        "counterfact",
+        "extend"
       ]
     },
     "temporal_rel": {
@@ -88,7 +89,8 @@
       ]
     },
     "template": {
-      "type": "string"
+      "type": "string",
+      "description": "the template the question was built from: a name from docs/question_templates.md in snake_case, or a short name of the annotator's own. A free string, not an enum"
     },
     "triggers": {
       "type": "array",

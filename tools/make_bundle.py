@@ -6,6 +6,8 @@ The output is data/bundles/<id>/:
     transcript.md   — the transcript with timecodes, broken up by chapter
     formulas.md     — the LaTeX strings from the manim source (scene, file, line)
     frames/         — frames by scene change detection (tools/detect_scenes.py)
+    screen_text.md  — the timeline of on-screen text, if description.jsonl exists
+                      (tools/describe_video.py writes both)
 
 There is no uniform grid here any more. On manim videos it errs in two directions at
 once: on a static stretch it produces several identical frames, while a scene that
@@ -28,6 +30,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import detect_scenes  # noqa: E402  (it sits next door, in tools/)
+from describe_video import load_description_records, write_screen_text  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 VIDEOS_DIR = ROOT / "data" / "videos"
@@ -283,6 +286,13 @@ def main() -> None:
         flines.append(f"- `{f['line']:5d}` **{f['scene'] or '-'}** · {f['call']} · `{f['text']}`")
     (bdir / "formulas.md").write_text("\n".join(flines), encoding="utf-8")
 
+    # screen_text.md — the timeline of on-screen text for the proposer. It is built from
+    # the description of the video track, which tools/describe_video.py makes later and
+    # which rewrites this file after each run; here it is only refreshed if it exists.
+    desc = bdir / "description.jsonl"
+    n_screen = (write_screen_text(bdir / "screen_text.md", vid, load_description_records(desc))
+                if desc.exists() else None)
+
     if not args.no_frames:
         print(f"  ffmpeg    : {shutil.which('ffmpeg') or 'NOT FOUND'}")
     print(f"bundle → {bdir}")
@@ -292,6 +302,9 @@ def main() -> None:
           f"({unparsed} non-literals), files {len(iter_source_files(source))}")
     print(f"  frames    : {len(frames)}"
           + (f" ({len(frames) / duration * 60:.1f} per minute)" if duration else ""))
+    print(f"  screen    : {n_screen} rows of on-screen text" if n_screen is not None else
+          f"  screen    : no description.jsonl yet — screen_text.md appears after "
+          f"tools/describe_video.py {vid} --settled 0.5")
 
 
 if __name__ == "__main__":

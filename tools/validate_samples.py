@@ -483,6 +483,79 @@ def semantic_checks(s: dict) -> list[str]:
                                 f"will fall into the neighbouring window and the neighbouring rubric")
                     break
 
+    # The proposer's self-checks are referred to by their titles: the numbers of the checks
+    # shift whenever the prompt gains one.
+    section = 'docs/prompts/proposer.md, section "Self-check before handing in"'
+    selfcheck = f"{section}, the check"
+    notes = s["validation"].get("notes") or ""
+    # Rubric items are numbered from 1, in list order, separately in each window; a number
+    # in the notes is valid if some required window has an item with it.
+    n_items = max(len(t["rubric"]) for t in trigs if t["required"])
+
+    # S-40 · checklist 1.12 — a draft records what each rubric item needs from this video.
+    #   Breaks: the proposer's check of what the question gives away leaves no trace, and a
+    #   question all of whose items follow from the subject alone reaches review as if the
+    #   check had been made. The line records the check, it does not prove it: whether the
+    #   item really needs this video is judged by the review.
+    #   To check: on a draft, validation.notes := "" -> "is not recorded";
+    #   validation.notes := "item 9 needs: x" on a one-item rubric -> "names item 9".
+    if st == "draft":
+        needs = [int(n) for n in re.findall(r"\bitem (\d+) needs:", notes, re.IGNORECASE)]
+        if not needs:
+            errs.append(f'the self-check "What the question gives away, on the final wording" '
+                        f'is not recorded: validation.notes of a draft needs one line "item N '
+                        f'needs: <what this item needs from this video>" per substantive rubric '
+                        f'item, items numbered from 1 in list order — see {section}')
+        for n in sorted({n for n in needs if not 1 <= n <= n_items}):
+            errs.append(f'validation.notes names item {n} in a line "item N needs: …", but the '
+                        f'longest rubric of a required window has {n_items} item(s), numbered '
+                        f'from 1 in list order — number the line by the rubric')
+
+    # S-41 · checklist 1.13 — a pre draft names the rubric item its when-event makes available.
+    #   Breaks: a question whose event only marks a moment passes as pre: a participant
+    #   who knows the answer is right to speak at once, and the answer counts as outside
+    #   the windows. A retelling of the event in place of an item number does not show
+    #   that the event brings anything the rubric scores. Whether it really does is
+    #   checked by the review, not here.
+    #   To check: on a pre draft, validation.notes := "item 1 needs: x" -> "names no rubric
+    #   item"; "the when-event gives: item 9 — x" on a one-item rubric -> the same.
+    if st == "draft" and want == "pre":
+        named = [int(n) for n in re.findall(r"the when-event gives: item (\d+)\s*[—–-]",
+                                            notes, re.IGNORECASE)]
+        if not any(1 <= n <= n_items for n in named):
+            errs.append(f'the when-event self-check names no rubric item: validation.notes needs '
+                        f'a line "the when-event gives: item N — …" with the number of a rubric '
+                        f'item the event makes available. If the event makes none available, it '
+                        f'gives the question no right to pre: see {selfcheck} "What the '
+                        f'when-event gives"')
+
+    # S-42 · checklist 7.3 — predict, counterfact and extend are never L1.
+    #   Breaks: the answer of these acts is not in the stream inside the window — the
+    #   author gives it later or never — so an L1 label means either the level or the act
+    #   is wrong, and the level breakdown counts a task that reads nothing as a reading.
+    #   To check: on a predict sample, reasoning_level := "L1" -> "is never L1".
+    if s["act"] in ("predict", "counterfact", "extend") and s["reasoning_level"] == "L1":
+        errs.append(f"{s['act']} is never L1: its answer is not in the stream (see "
+                    f"docs/prompts/definitions.md, section act). Either the level is wrong — "
+                    f"re-derive it by the definition of reasoning_level — or the act is: an "
+                    f"answer read off inside the window is ground, monitor or alert")
+
+    # S-43 · checklist 2.5 — a predict has no optional window after its last required one.
+    #   Breaks: the author gives the answer to a prediction after its required window, so a
+    #   later window either opens after his answer — an answer there repeats him — or scores
+    #   a prediction made when it is no longer one.
+    #   To check: on a predict sample, append an optional trigger opening after the last
+    #   required t_end -> "not before the last required window closes".
+    if s["act"] == "predict":
+        last_req_end = max(t["t_end"] for t in trigs if t["required"])
+        for t in trigs:
+            if not t["required"] and t["t_start"] >= last_req_end:
+                errs.append(f"trigger[{t['idx']}]: an optional window of a predict opens at "
+                            f"{t['t_start']}, not before the last required window closes "
+                            f"({last_req_end}): by then the author gives the answer or is about "
+                            f"to. Remove the window or pin the question to its occurrence by a "
+                            f'word — see {selfcheck} "Recurrences of the condition"')
+
     errs += check_evidence(s, dur)
 
     # Required triggers only: a single optional visual trigger used to add "visual" to the
