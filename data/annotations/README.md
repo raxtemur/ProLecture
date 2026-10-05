@@ -13,8 +13,11 @@ data/
 │   ├── bundle.json                # everything machine-readable in one file
 │   ├── transcript.md              # transcript with timecodes, split by chapters
 │   ├── formulas.md                # LaTeX strings from the manim source
+│   ├── description.jsonl, .md     # a model's description of the screen (tools/describe_video.py)
+│   ├── screen_text.md             # on-screen text, each line once, at its first appearance
 │   └── frames/tNNNNNN.N.jpg       # frames from scene-change detection
 └── annotations/<youtube_id>.jsonl # ← the annotation itself, one sample per line
+    └── partial/<id>.<interval>.jsonl  # a proposer's own file, merged by the coordinator
 ```
 
 `schema/sample.schema.json` — JSON Schema draft 2020-12, `additionalProperties: false` at
@@ -30,120 +33,36 @@ every level: an unknown field is an error rather than something silently ignored
 | Language | questions, answers and rubrics in English; the terms follow the video's own wording |
 | Order | samples in a file are ordered by `id`, triggers inside a sample by time |
 
-## 3. A complete example
+## 3. Complete examples
 
-The sample `q02` in full, as it lies in the file (indented here for readability — in the
-file it is a single line):
+Two complete samples lie in [docs/sample_examples.jsonl](../../docs/sample_examples.jsonl),
+as a proposer hands them in (`status: draft`). They are **invented**: the lecture, on
+charging a capacitor, is not in the benchmark, and its id `INVENTED_RC` has no bundle, so
+the validator skips the rules that read one. They pass `tools/validate_samples.py`, which
+keeps them in line with the schema.
 
-```json
-{
-  "id": "3b1b__l6DKRf-fAAM__q02",
-  "video": {
-    "youtube_id": "l6DKRf-fAAM",
-    "title": "Reinventing Entropy | Compression is Intelligence Part 1",
-    "release_date": "2026-06-07",
-    "duration": 1939.19,
-    "source_code": "_2026/cross_entropy"
-  },
-  "question_time": 2.0,
-  "question": "Wait for the moment when the author names Shannon's estimate for the compression limit of the English language, and say two things at once: the number itself and with how much preceding context that estimate was obtained. Until Shannon's estimate specifically is spoken — stay silent.",
-  "act": "alert",
-  "temporal_rel": "pre",
-  "reasoning_level": "L1",
-  "template": "premature_answer_trap",
-  "triggers": [
-    {
-      "idx": 0,
-      "required": true,
-      "t_start": 1822.0,
-      "t_end": 1860.0,
-      "t_ideal": 1823.0,
-      "response": "About one bit per character; the estimate was obtained when his interviewees had at least 100 preceding letters of context.",
-      "rubric": [
-        "the value ≈1 bit per character is named",
-        "the condition is named: at least 100 preceding letters of context",
-        "an answer with the number alone, without the condition about 100 letters, is partial (1 of 2)",
-        "do NOT count 1.1 bits per character — that is the result of neural methods, from second 30",
-        "do NOT count 4.2 bits per character — that is Huffman, from second 21"
-      ],
-      "trigger_modality": [
-        "speech",
-        "visual"
-      ],
-      "evidence_span": [
-        1822.0,
-        1829.4
-      ]
-    }
-  ],
-  "audio_dependency": "required",
-  "audio_dependency_claim": "required",
-  "provenance": {
-    "annotator": "claude+rahmatullaev",
-    "created": "2026-08-20",
-    "evidence": [
-      {
-        "type": "speech",
-        "t_start": 1822.0,
-        "t_end": 1829.4,
-        "explanation": "«at least 100 preceding letters of context ... about one bit per character»"
-      },
-      {
-        "type": "frame",
-        "t": 1832.0,
-        "explanation": "the counter “Bits Per Character ≈ 1.0”"
-      },
-      {
-        "type": "frame",
-        "t": 15.0,
-        "explanation": "ASCII 8.0 bits/ch"
-      },
-      {
-        "type": "frame",
-        "t": 21.0,
-        "explanation": "Huffman ~4.2"
-      },
-      {
-        "type": "frame",
-        "t": 30.0,
-        "explanation": "Neural ~1.1"
-      },
-      {
-        "type": "frame",
-        "t": 40.0,
-        "explanation": "the speedometer 1.0 bits/ch with the caption Limit?"
-      }
-    ],
-    "trap_note": "designed around an early plausible-but-wrong answer: the screen runs through the series ASCII 8.0 -> Huffman ~4.2 -> Neural methods ~1.1 bits per character; these are achievements of compression methods, not Shannon's estimate | the screen shows a speedometer reading 1.0 bits/ch with the caption “Limit?” — the number coincides with the correct answer, but this is the statement of the question rather than the answer, and it comes without the conditions it was obtained under"
-  },
-  "validation": {
-    "status": "validated",
-    "notes": "Salvage round 2: removed the unasked third rubric component and accepted the existing interval evidence. The complete answer was honestly available before viewing, while the transcript independently supplies both requested facts and visuals do not supply the 100-letter condition. Retained as a validated blind baseline.",
-    "blind_solved": true,
-    "textonly_solved": true,
-    "visiononly_solved": false,
-    "frozenframe_solved": false,
-    "solvable": true
-  },
-  "question_time_note": "the question about the compression limit of text is raised by the video itself at 4.6-11.5, but the instruction has to be issued BEFORE the run of tempting numbers on screen (8.0 -> 4.2 -> 1.1 bits/ch from 12 s, the speedometer at “1.0 bits/ch  Limit?” at 40 s), otherwise an early answer there stops being a false alarm."
-}
-```
+- `q01` — `extend`, `pre`, `L2`, one window. The two values the answer needs are on the
+  screen and stay there, so the `evidence_span` runs from the appearance of the last of them
+  to the end of the window. The window closes ten seconds before the author starts working
+  on the second circuit himself.
+- `q02` — `monitor`, `pre`, `L2`, four required windows, one per new row of a table. Each
+  window closes where the next one opens, and each `evidence_span` runs from the row's
+  appearance to the end of its window. The last window is six seconds long: it closes at
+  least ten seconds before the author says the answer it asks for.
 
-The same thing on the time axis:
+Both show the lines a draft carries in `validation.notes` and the `provenance.evidence`
+record of what the author gives away.
+
+`q01` on the time axis:
 
 ```
- 0s  2                  12   21   30   40                       1822   1829       1860      1939s
- │   ▲                  ·    ·    ·    ·                        ├────────●─────────┤          │
- │   │                  8.0  4.2  1.1  "1.0 Limit?"            │   t_ideal        │          ▲
- │   question_time      values on screen that tempt an         └──── trigger[0] ──┘          │
-start   question issued early answer: any answer here is a       the one window where      end of
-                        false alarm (FAR), no window needed      an answer counts           video
+0s    58–65        606         611     616    617                    659     669      900s
+│     τ₁ = 0.1 s   ▲           R₂      ▲      ├──── trigger[0] ──────┤       │         │
+│     said and     second      on the  │      C₂ appears; both values        the      │
+start shown        circuit     screen  question   stay on the screen         author   end
+                   announced           issued                                starts on
+                                                                             the circuit
 ```
-
-Until 2026-09-07 the tempting stretches (12–34 and 34–60 s here) were annotated as
-`distractor_windows`. The field was removed: an answer outside the windows is a false alarm
-whether or not it is annotated, and the annotated decoys leaked `t_start` to the semi-blind
-reviewer. The proposer's intent survives as the optional `provenance.trap_note`.
 
 ## 4. Field reference
 
@@ -160,7 +79,7 @@ reviewer. The proposer's intent survives as the optional `provenance.trap_note`.
 | `act` | enum | ✔ | the type of proactive act (taxonomy axis A) |
 | `temporal_rel` | enum | ✔ | axis B, **derived automatically**, see §4.1 |
 | `reasoning_level` | enum | ✔ | depth of reasoning (axis C) |
-| `template` | string | ✔ | a template from the catalogue in §2.1 of the plan; a free string, not an enum |
+| `template` | string | ✔ | the name of the template in `docs/question_templates.md` the question started from, in snake_case, or a short name of the annotator's own; a free string, not an enum |
 | `triggers` | array ≥1 | ✔ | the windows in which an answer is expected |
 | `audio_dependency` | enum \| null | ✔ | **derived from the probes** `visiononly_solved` and `solvable`, never set by hand; `null` until the probes have answered |
 | `audio_dependency_claim` | enum | — | what the annotator assumed; not a measurement |
@@ -170,13 +89,14 @@ reviewer. The proposer's intent survives as the optional `provenance.trap_note`.
 
 The enumeration values:
 
-- `act` — `alert`, `monitor`, `ground`, `narrate`, `predict`, `verify`, `counterfact`
+- `act` — `alert`, `monitor`, `ground`, `narrate`, `predict`, `verify`, `counterfact`,
+  `extend`; the definitions are in [docs/prompts/definitions.md](../../docs/prompts/definitions.md)
 - `temporal_rel` — `pre`, `at`, `post`; the meaning and the derivation rule are in §4.1
-- `reasoning_level` — `L1` (read off the screen or off the speech), `L2` (≥2 moments far
-  apart have to be connected, or one step of arithmetic over displayed values), `L3` (a
-  derivation whose ingredients the screen does not hand over). The label is that of the
+- `reasoning_level` — `L1` reading, `L2` integration or a short calculation, `L3` derivation
+  or substantial computation; the definitions are in
+  [docs/prompts/definitions.md](../../docs/prompts/definitions.md). The label is that of the
   **cheapest** legal route to the full rubric, not of the route the question was written
-  around — checklist 7.3
+  around
 - `audio_dependency` — `required`, `unnecessary` (the intermediate `helpful` was removed:
   two boolean flags cannot tell it apart)
 - `audio_dependency_claim` — `required`, `helpful`, `unnecessary`; this is the annotator's
@@ -194,13 +114,13 @@ latter is axis C, `reasoning_level`).
 | `at` | the evidence is present **at** `question_time` | perception and computation here and now; there is no "when" to decide |
 | `post` | the evidence went by **before** `question_time` | an answer from memory, immediately |
 
-Formally: let `[e1, e2)` be the `evidence_span` of the first and of the last required
-trigger (by default equal to the answer window). Then
+Formally: let `e1` be the earliest start and `e2` the latest end of the `evidence_span`s of
+all required triggers. Then
 
 ```
-question_time <  e1(of the first)  ->  pre
-question_time >= e2(of the last)   ->  post
-otherwise                          ->  at
+question_time <  e1  ->  pre
+question_time >= e2  ->  post
+otherwise            ->  at
 ```
 
 The `temporal_rel` field is **derived by the validator** and compared against the recorded
@@ -210,36 +130,37 @@ question is issued, which makes it indistinguishable from `at`.
 
 **The geometry of the twins is not identical, and that is a confound.** For an `at`/`post`
 twin the answer window begins, by construction, at the moment the question is issued, so
-its length differs from the original (q07 — 43 s, q07b — 37 s). The difference in metrics
+its length differs from the original. The difference in metrics
 between twins contains both the effect of timing and the effect of window length; that has
 to be taken into account, or normalised for length, when interpreting it.
 
 Only `pre` is genuinely proactive, and `pre` is what the benchmark wants more of. `at` and
-`post` arise in two ways. As **control twins**: the same triggers and the same rubric, with
+`post` arise in three ways. Directly: a question that is good scientifically but has
+nothing ahead that brings what it needs is written as `at` or `post`. As **control twins**: the same triggers and the same rubric, with
 only `question_time` shifted. And as the honest outcome of review: when the semi-blind
 check (checklist 2.2/2.3) shows that the evidence was there before the question and the
 when-clause of the wording contributed nothing to the answer, the sample is re-labelled
 rather than kept `pre` by the letter of its wording — a `pre` a model may ignore with
 impunity measures nothing. The twin pair is linked by the `twin_of` field — the link cannot
-be reconstructed from `id` names, and the `b` suffix is a convention rather than a contract. If a model solves `q02b` (`post`) but does not solve
-`q02` (`pre`), the problem is in proactivity rather than in understanding — the difference
-in PAUC between the twins is exactly the price of timing.
+be reconstructed from `id` names, and the `b` suffix is a convention rather than a contract. If a model solves the `post` twin but not the `pre`
+original, the problem is in proactivity rather than in understanding — the difference in
+PAUC between the twins is exactly the price of timing.
 
 **The rule for `question_time`:** the latest moment at which the question already makes
-sense but the window has not yet arrived. Three constraints, from below and from above:
+sense, and no later than the window opens; an `at` or `post` question opens its window at
+`question_time`. Three constraints, from below and from above:
 
-1. *The referents must exist.* q03 asks "which of the two examples gone through in this
-   video" — at second zero that phrase has no referent, hence `question_time = 1480`,
-   right after both examples have been gone through.
-2. *The tempting stretch must be ahead.* In q02 the screen runs through 8.0 → 4.2 → 1.1 bits
-   per character at 12–34 s and shows a speedometer at "1.0 bits/ch — Limit?" at 40 s; the
-   question is issued at `question_time = 2.0` so that the whole run-up counts as waiting,
-   and an answer there is a false alarm. (These stretches used to be annotated as
+1. *The referents must exist.* `q01` of the examples asks about "the second circuit", which
+   has no referent until the author announces it at 600–606; the question is issued at
+   616, the last moment before its window opens.
+2. *The tempting stretch must be ahead.* If the question is designed around an early
+   plausible-but-wrong value, it is issued before that value, so that an answer on it
+   counts as an answer outside the windows. (Such stretches used to be annotated as
    `distractor_windows`; the field was removed on 2026-09-07.)
-3. *Zero is sometimes right too.* q04 and q06 make sense from the first frame and require
-   no context at all — their `question_time = 0.0` honestly.
+3. *Zero is sometimes right too.* A question that makes sense from the first frame and
+   needs no context has `question_time = 0.0` honestly.
 
-The reason for the choice is recorded in `question_time_note` for every sample.
+The reason for the choice goes into `question_time_note`.
 
 ### `video`
 
@@ -256,7 +177,7 @@ The reason for the choice is recorded in `question_time_note` for every sample.
 | Field | Type | Req. | Meaning |
 |---|---|:---:|---|
 | `idx` | int ≥0 | ✔ | ordinal number, consecutive from zero |
-| `required` | bool | ✔ | `true` — a miss is penalised and the window goes into the recall denominator; `false` — not beyond dispute, so neither answering nor staying silent is penalised |
+| `required` | bool | ✔ | `true` — a miss is penalised and the window goes into the recall denominator; `false` — an optional window: neither answering nor staying silent there is penalised. When one is set is in `docs/prompts/definitions.md`, "Optional window" |
 | `t_start`, `t_end` | number | ✔ | the boundaries of the ground-truth window. A window, not a point: PAUC builds a piecewise-linear curve over the interval |
 | `t_ideal` | number | ✔ | a service field, `t_start + 1`; latency is measured from `t_start` |
 | `response` | string | ✔ | the reference answer in prose, not the key of an option |
@@ -288,86 +209,19 @@ The reason for the choice is recorded in `question_time_note` for every sample.
 
 ## 5. A multi-trigger sample
 
-A fragment of `q04` (`state_monitor`): six windows, the later ones with `depends_on`
-pointing at the earlier ones. The answer in each window must list everything accumulated so
-far, so the windows are linked in meaning but scored independently.
-
-```json
-"triggers": [
-  {
-   "idx": 0,
-   "required": true,
-   "t_start": 907.6,
-   "t_end": 940.0,
-   "t_ideal": 908.6,
-   "response": "Defined: (1) the number of bits per message under perfect compressio …"
-  },
-  {
-   "idx": 1,
-   "required": true,
-   "t_start": 991.3,
-   "t_end": 1022.0,
-   "t_ideal": 992.3,
-   "response": "Defined: (1) the number of bits = -log2(p); (2) the information of an …",
-   "depends_on": [
-    0
-   ]
-  },
-  {
-   "idx": 2,
-   "required": true,
-   "t_start": 1585.0,
-   "t_end": 1620.0,
-   "t_ideal": 1586.0,
-   "response": "Defined: (1) the number of bits = -log2(p); (2) the information of an …",
-   "depends_on": [
-    0,
-    1
-   ]
-  },
-  {
-   "idx": 3,
-   "required": false,
-   "t_start": 1638.0,
-   "t_end": 1700.0,
-   "t_ideal": 1639.0,
-   "response": "There is no new formula, but the quantity from the previous item is g …",
-   "depends_on": [
-    2
-   ]
-  },
-  {
-   "idx": 4,
-   "required": false,
-   "t_start": 1770.5,
-   "t_end": 1800.0,
-   "t_ideal": 1771.5,
-   "response": "The entropy rate of a stochastic process is mentioned — the generalis …",
-   "depends_on": [
-    2
-   ]
-  },
-  {
-   "idx": 5,
-   "required": false,
-   "t_start": 1851.1,
-   "t_end": 1862.0,
-   "t_ideal": 1852.1,
-   "response": "Cross-entropy is mentioned as a variation of entropy — the name is gi …",
-   "depends_on": [
-    2
-   ]
-  }
- ]
-```
-
-The last three windows are `required: false` on purpose: naming a quantity that has already
-been introduced, and a mention with no formula, are exactly the borderline cases where a
-reasonable annotator might have said nothing.
+`q02` in [docs/sample_examples.jsonl](../../docs/sample_examples.jsonl) has four required
+windows, one per firing of "each time a new row is added"; windows do not overlap, so each
+closes, at the latest, where the next opens — earlier if its own end comes first. The windows are scored independently; `depends_on` links a window to earlier ones only when its answer is
+incomplete without theirs, and never points from a required window to an optional one. An
+optional window (`required: false`) is scored without penalty either way: neither answering
+nor staying silent there is penalised. When one is set — a firing a reasonable annotator
+might skip, an earlier stretch where the answer is possible only by a harder route, an
+element of a sequence answered before the whole — is in `docs/prompts/definitions.md`,
+"Optional window".
 
 ## 6. The invariants the validator checks
 
-Besides the schema, `tools/validate_samples.py` checks the semantics:
+Besides the schema, `tools/validate_samples.py` checks the semantics; among its rules:
 
 - `idx` values run consecutively from zero; there is at least one `required` trigger;
 - `t_start < t_end`, the window is inside `duration`, `t_start ≤ t_ideal < t_end`, the
@@ -378,19 +232,25 @@ Besides the schema, `tools/validate_samples.py` checks the semantics:
 - trigger windows do not intersect each other;
 - `depends_on` refers only to strictly smaller `idx` values;
 - `temporal_rel` matches the value derived from `question_time` and `evidence_span` (§4.1);
-- `question_time` is not greater than the duration; no answer window lies entirely before
-  it;
+- `question_time` is not greater than the duration; no answer window begins before it;
 - `id` is unique across all the files being checked;
-- `audio_dependency` stays `null` while `status == "draft"` — the label is derived from the
-  answers of the modality probes (checklist 4.5), while the annotator's intent lives
-  separately in `audio_dependency_claim`;
+- `audio_dependency` stays `null` until both probes it is derived from
+  (`visiononly_solved`, `solvable`) have answered, whatever the status — the label is set by
+  measurement, while the annotator's intent lives separately in `audio_dependency_claim`;
 - the `claim` does not contradict the modalities: `unnecessary` when every trigger is
-  speech-only is an error, and so is `required` without a single `speech`/`sound`.
+  speech-only is an error, and so is `required` without a single `speech`/`sound`;
+- a `draft` carries in `validation.notes` a line `item <N> needs: …` for its rubric items,
+  and a `pre` draft a line `the when-event gives: item <N> — …`; N is the number of an item
+  of a required window's rubric, counted from 1 in list order;
+- `predict`, `counterfact` and `extend` are never `L1`;
+- a `predict` has no optional window opening after its last required window closes.
+
+`python tools/validate_samples.py --rules` lists every rule with what breaks without it.
 
 To run it:
 
 ```bash
-python tools/validate_samples.py data/annotations/*.jsonl
+/home/user/conda/bin/python3 tools/validate_samples.py data/annotations/*.jsonl
 ```
 
 With zero errors it prints the coverage breakdown along all three axes, the templates and

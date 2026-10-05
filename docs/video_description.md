@@ -1,7 +1,11 @@
 # How to run the description of the video track
 
 The tool is [`tools/describe_video.py`](../tools/describe_video.py). The output is
-`data/bundles/<id>/description.jsonl` (machine-readable) and `description.md` (for reading).
+`data/bundles/<id>/description.jsonl` (machine-readable), `description.md` (for reading) and
+`screen_text.md` — the on-screen text of the whole video, each line once, at the second it first
+appears: the proposer reads it in full, and `description.md` only around its candidates. It is
+written only under the default `--out-prefix`, and `tools/make_bundle.py` refreshes it from an
+existing `description.jsonl`.
 What it is for and what in it can be trusted is in
 [reports/2026-08-25-video-tools.md](reports/2026-08-25-video-tools.md).
 

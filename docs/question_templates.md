@@ -1,159 +1,224 @@
-# Question templates: anti-examples
+# Question templates: what works and what breaks
 
-The catalogue of templates is in [plans/general.md](plans/general.md), section 2.1. Here
-each template gets two **anti-examples**: a question that looks like that template but is
-broken. The plan (Phase 1) considers them more important than examples, and here is why:
-the review cycle costs more than generation. A proposer who has written a broken question
-spends three rounds of edits and the time of two reviewers; a proposer who learns the shape
-of the breakage in advance does not write it at all.
+Three worked examples of how a question is built, then seven ways to build a question from
+a lecture, each with one working example and the broken ones that look like it. A broken question costs a round of review; knowing the
+shape of the breakage in advance costs nothing. The list is a search aid, not a quota
+and not a closed set.
 
-Every anti-example is tagged with the slug of the checklist item that catches it — so that it
-is visible that this is a known class of error rather than a matter of taste.
+**All examples are invented.** The three worked examples use three different subjects. The
+examples of the seven templates use one lecture that is not in this benchmark, on charging a
+capacitor through a resistor. In it the author draws a circuit with a 9 V
+supply, one resistor and a capacitor and gives its time constant; estimates that the
+capacitor is full after one time constant and corrects himself two minutes later; builds a
+table of the capacitor voltage after one to five time constants, using that time constant;
+adds a second resistor in series and gives the new time constant; then introduces a second
+circuit with other values and works out when it reaches half the supply voltage. Along the
+way the letter V passes from the supply voltage to the capacitor voltage, and once the
+author says a value that differs from the one on the screen. Do not reuse these lectures,
+their numbers or their wording in your questions.
 
-The material for the examples is the video `l6DKRf-fAAM` (entropy and compression), the same
-one the pilot was made on.
+**The axis and the level are not part of a template.** Most of these questions are
+naturally `pre`: they wait for an event that brings something the answer needs, and such
+questions are what this benchmark is for. But `temporal_rel` is derived from where the
+evidence lies, and the level from the work that is left (`definitions.md`). If nothing
+the answer needs lies ahead, the question is `at` or `post`; attaching an event to it
+does not make it `pre`.
+
+---
+
+## How a question is built: three examples
+
+Each example settles the three things to settle for every candidate: the moment of the
+question, what the awaited event brings, and the cheapest route to the answer.
+
+*A — `pre`, `L2`, `extend`: an earlier value, a new value, a short calculation.* A lecture
+on bacterial growth has given the doubling time of the first culture, 20 minutes. Question,
+issued after that: "When the doubling time of the second culture is shown, say how many
+times more cells the first culture has after one hour, if both start from one cell."
+Answer: the second doubles every 30 minutes; after an hour the first has 8 cells and the
+second 4 — twice as many; the lecture itself does not make this comparison. The answer
+becomes possible when "30 minutes" appears. Cheapest route: recall 20, read 30, two powers
+of two.
+
+*B — `at`, `L2`, `counterfact`: a changed premise over what is on the screen.* The screen
+shows an urn with 3 red and 2 blue balls and a tree for two draws without replacement.
+Question: "For the urn now on the screen, suppose the first ball were put back before the
+second draw. What is the probability of two reds?" Answer: (3/5)² = 9/25. Everything
+needed is on the screen when the question is asked: an honest `at`; do not invent a future
+event to make it a `pre`. Cheapest route: read the composition, one multiplication.
+
+*C — `pre`, `L3`, `extend`: the shown method on a new case.* A lecture on loans has built,
+row by row, the table of monthly balances for a loan of 1000 at 1 % a month with a payment
+of 100, and announces a second borrower who pays more. Question, issued then: "When the
+second borrower's monthly payment is shown, give that loan's balance, to the nearest whole
+unit, after each of the first six months; the amount and the rate are the same." Answer,
+for a payment of 150: 860, 719, 576, 432, 286, 139. The payment comes from the video; the video
+itself gives only the month in which the loan is paid off. Cheapest route: six steps of the
+recurrence shown for the first loan — a substantial computation the video does not do.
 
 ---
 
 ## 1. Natural-error alert
 
-Report a mistaken or incomplete piece of reasoning **at the moment it is presented**, earlier
-than the author takes it apart himself.
+The author presents a mistaken or incomplete line of reasoning and corrects it later. The
+participant reports the mistake when it is presented, before the correction.
 
-**✗ "Tell me when the author points out the mistake in the naive code."**
-The trigger is placed where the author names the mistake, not where it is presented. The model
-notices nothing — it waits for a line and repeats after it.
-Caught by `author-says-answer-in-window` (2.5).
+**✓ "If a step of the author's estimate of the charging time does not follow from the
+values on the screen, say which step it is and what voltage, in volts, the capacitor has
+really reached by that time."**
+The condition is stated as a condition: whether there is a mistake is for the participant
+to decide. Which step it is and the voltage in volts both need this video: its estimate
+and its supply voltage. The window opens where the estimate is presented and closes at least ten seconds
+before the author corrects it.
 
-**✗ "As soon as you see the naive code 00/01/10/11, say that it is not optimal."**
-The answer does not require the video: "a fixed-length code is not optimal when the
-probabilities are unequal" is a textbook fact. A model that understood nothing in the video
-will score a point.
-Caught by `solvable-without-video` (4.2) and `question-anchored-to-screen` (4.8).
+**✗ "Tell me when the author points out the mistake in the first estimate of the charging
+time."**
+It asks only for a moment: the whole answer is "now". That is a waiting-only task. It also
+says, as a fact, that the estimate contains a mistake. Worded as a condition and with
+content — "If the author takes back a step of his estimate, say which step and what he puts
+in its place" — it becomes a legitimate question, but a different one: the participant
+repeats the author's correction, an `L1` reading, and notices nothing itself.
+
+**✗ "The first estimate on the screen treats the capacitor as full after one time
+constant. As soon as you see it, say that it is wrong."**
+The question itself says that there is a mistake and what it is, so nothing is left to
+decide. And the correction — about 63 %, not full — is a textbook fact: the answer does
+not need this video.
 
 ---
 
 ## 2. Premature-answer trap
 
-An early plausible but wrong answer, with the correct one later; the early one is penalised by
-the false-alarm rate — it lies outside the window. (The former `distractor_windows` field was
-removed on 2026-09-07; the trap is a property of the wording, and the intent may be noted in
-`provenance.trap_note`.)
+The video shows an early value that is plausible but wrong for the question, and the
+correct one later. An answer given on the early value falls outside the window, and the
+metric penalises an answer outside the windows.
 
-**✗ "Name Shannon's estimate for English" with the window on the second mention of the number
-while the first mention, forty seconds earlier, says the same number.**
-If the same number is spoken both times, the early answer is correct and is penalised as a
-false alarm for something the model was not warned about; and if the annotation opens the
-window only at the second mention, that is a 2.2 hit. The trap has to be a *different* value,
-and the question has to say what tells the two apart.
-Caught by `discriminator-in-question` (5.3) and `answer-possible-before-start` (2.2).
+**✓ "Give the time constant of the circuit once both resistors are connected in series."**
+The time constant shown earlier, for one resistor, is the trap; "both resistors" is the
+word that tells the two apart, and the second resistance is what the event brings. Note
+the intent in `provenance.trap_note`.
 
-**✗ A window closing a second before the author names the answer, with the caveat "be quicker
-than the author" in the question.**
-A streaming model spends seconds on generation: having started to answer on time, it will
-finish after `t_end`, and the author's line will be in its context. A caveat in the question
-does **not** cure this — the warning does not change what is measured, and what is measured is
-generation speed. The only cure is headroom: between `t_end` and the moment where the author
-gives the answer there must lie noticeably more time than generation takes.
-Caught by `author-says-answer-in-window` (2.5).
+**✗ "Name the time constant of the circuit" — with the window on the second showing of the
+value, while the first showing, forty seconds earlier, gives the same value.**
+The early answer is correct and is penalised as an answer outside the windows. A trap has to be a
+*different* value, and the question has to say what tells the two apart.
+
+**✗ "…and answer before the author does" — added to a question whose window closes a
+second before the author names the answer.**
+A caveat does not move a window. A streaming model spends seconds on its answer, so the
+window itself has to close well before the author's line.
 
 ---
 
 ## 3. Prediction-ahead
 
-The problem has been posed — name the method of solution before the author applies it.
+A problem has been posed; the participant says what the author will obtain next, before he
+does. The author gives the answer later, at least ten seconds after the window. If he
+never gives it, the question is not a prediction.
+
+**✓ "When the resistance and the capacitance of the second circuit are both on the screen,
+say what time the author will find for it to reach half the supply voltage."**
+The event brings the two values the answer needs; the author works the time out himself
+later, which is what the reference answer is checked against.
 
 **✗ "Predict what the next chapter will be about."**
-There is no checkable answer: a dozen formulations will do, and the rubric turns into the
-judge's taste. A question is obliged to have an answer of which one can say "right" or "wrong".
-Caught by `reference-answer-verified` (8.4) and `rubric-within-question` (5.2).
+There is no checkable answer: a dozen formulations fit, and the rubric becomes the judge's
+taste.
 
-**✗ "When the author poses the problem of the average number of bits, say that he will apply
-Shannon's formula."**
-The answer follows from the title of the video and general knowledge of the subject, not from
-what was seen.
-Caught by `solvable-without-video` (4.2).
+**✗ "When the author asks how the capacitor voltage grows with time, name the function he
+will write."**
+An exponential approach to the supply voltage is in every textbook: the answer does not
+need this video.
+
+**✗ "Predict the capacitor voltage after seven time constants" — in a lecture whose table
+stops at five.**
+Nobody in the video gives this answer, so it is not a `predict`. The question may stand,
+but as an `extend` — going further with the premises unchanged: label it so and do not word
+it as a prediction.
 
 ---
 
 ## 4. Counterfactual on-appearance
 
-An object has appeared — compute for yourself what would happen under changed conditions.
+An object has appeared; the participant changes a premise — an input, a parameter, a law —
+and works out the result. The video does not give the answer.
 
-**✗ "When the table of codes appears, compute the average length if the code words are
-swapped" — with a rubric requiring the result to be compared against the naive 2 bits.**
-The question asks for a number, the rubric demands a comparison on top, which was not asked
-for. A model that answered the question asked loses a point.
-Caught by `rubric-within-question` (5.2). *This is a live defect of the pilot, not an invention.*
+**✓ "For the table now on the screen: if the resistance were doubled, at what time, in
+seconds, would the capacitor reach the voltage of the third row?"**
+Nothing is waited for: the table is on the screen when the question is asked, and the axis
+comes out as `at`. The answer needs the time constant of this circuit and what the third
+row stands for.
 
-**✗ "Compute what the average number of bits would be under uniform probabilities."**
-It is computed from a single formula off the top of one's head, the video is not needed at all —
-counterfactuality does not save the question if the input data are common knowledge.
-Caught by `solvable-without-video` (4.2).
+**✗ "When the table of voltages appears, give the voltage after two time constants if the
+supply were 12 V" — with a rubric that also requires a comparison with the value in the
+table.**
+The question asks for a number and the rubric demands a comparison nobody asked for: a
+participant that answers the question loses a point. This one fails a second time: with
+the supply given in the question, the answer needs nothing from the video.
+
+**✗ "Say what happens to the time constant if the resistance is doubled."**
+It doubles — from the formula alone. A changed premise does not save a question whose
+inputs are common knowledge.
 
 ---
 
 ## 5. Step-dependency
 
-Report when a previously obtained result is **applied**.
+A result obtained earlier is applied later. The participant reports the application and
+says which result is used and for what.
 
-**✗ A required trigger with `depends_on` on an optional one whose rubric says "silence is also
-correct".**
-A model that lawfully kept silent in the first window automatically loses the second: the chain
-in the denominator of the metric breaks over behaviour the annotation declared correct.
-Caught by `depends-on-is-dependency` (7.4). *Also a live defect of the pilot.*
+**✓ "Every time the author uses the time constant of the one-resistor circuit in a later
+calculation, say which quantity he computes with it."**
+Each firing has content of its own, and each needs the earlier result to be recognised.
+Walk the transcript line by line for the firings: a missed one turns a correct answer into
+an answer outside the windows.
 
-**✗ "Report when the author mentions the robot's code again."**
-A mention is not an application. There turn out to be twice as many firings as windows, and half
-the correct answers are counted as false alarms.
-Caught by `trigger-matches-criterion` (3.2) and `no-missed-trigger` (3.1).
+**✗ "Report when the author mentions the time constant again."**
+A mention is not an application: with the windows set on the applications, every other
+mention is a correct answer outside the windows. And "report when" alone asks only for the
+moment.
 
 ---
 
-## 6. Symbol-binding / notation tracking
+## 6. Symbol-binding
 
-Report when a symbol has been redefined or has changed meaning.
+A symbol is redefined or changes meaning. The participant reports the change and says what
+the symbol means now.
 
-**✗ "Report every time the letter p appears on the screen."**
-This is not tracking meaning but recognising a glyph: it is solved with a single frame and
-requires neither memory nor understanding.
-Caught by `single-frame-enough` (4.6) and `reasoning-level-not-inflated` (7.3).
+**✓ "Every time the letter V on the screen starts to denote a different voltage than
+before, say which voltage it denotes now."**
+The answer is the new meaning, taken from this video, and it needs the previous meaning to
+be remembered.
 
-**✗ "How many different values did the variable H take by the end of the video?"**
-A tally: the answer is given once, in full, and a single omission breaks all of it. There is no
-proactivity here — there is bookkeeping.
-Caught by the ban on tallies in [prompts/proposer.md](prompts/proposer.md).
+**✗ "Report every time the letter τ appears on the screen."**
+The whole answer is "it appeared": a waiting-only task. And it follows a glyph, not a
+meaning: nothing about what the symbol stands for is asked.
+
+**✗ "How many different values did V take by the end of the video?"**
+A tally: the answer is given once, in full, and a single omission breaks all of it.
 
 ---
 
 ## 7. Cross-modal conflict
 
-A moment where speech and picture diverge.
+Speech and picture diverge: the author says one thing and the screen shows another.
+
+**✓ "Every time a value the author says differs from the value on the screen for the same
+quantity, give both values and say which quantity it is."**
+The condition is stated as a condition, and both values come from this video. Use the
+template only where the video really has such places: do not invent a divergence.
 
 **✗ "Say when the author misspeaks."**
-The criterion is not operational: anything can be counted as a slip, and the set of triggers
-cannot be checked for completeness — the reviewer will not be able to say whether a firing was
-missed or was never there.
-Caught by `no-missed-trigger` (3.1) and `trigger-matches-criterion` (3.2).
+The criterion is not operational: anything can be called a slip, and nobody can check
+whether a firing was missed. It also asks only for the moment.
 
-**✗ A trigger with `trigger_modality: ["sound"]` on "the characteristic error sound".**
-There is nothing to check it with: there is no sound probe, and `probe_text` reads the text of
-the speech.
-Caught by `sound-only-trigger` (1.10).
+**✗ A window whose only evidence is a sound — "the click of the switch".**
+There is nothing to check it with: no role of the review hears the sound, and the
+transcript holds only the speech.
 
 ---
 
 ## 8. Injected-error alert
 
-The error is injected by re-rendering a manim scene. Phase 6.
-
-**✗ An injected error that is not mentioned in `provenance`.**
-The sample becomes uncheckable: the reviewer compares the annotation against the video, sees a
-mismatch with the original material and declares an annotation error what is in fact its intent.
-Caught by `reference-matches-description` (8.2).
-
-**✗ An injected error on a video that lies entirely in pre-training, with no control.**
-The model may know the correct version of the scene and "fix" it from memory — and we will count
-that as detecting the error. What is needed is a measurement, not an assumption: a control twin
-on the unmodified scene.
-Caught by `video-recognized` (4.3).
+Questions about an error injected by re-rendering a scene are made by a separate pipeline.
+Do not write them.
