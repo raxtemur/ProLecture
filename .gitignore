@@ -44,3 +44,8 @@ data/clips/*
 # live dashboard over the local vLLM server, a personal tool
 vllm_dash/
 agents_meta_analisys/
+
+serve-vllm-log.txt
+serve-vllm-log-temp.txt
+vllm.pid
+serve-vllm.sh

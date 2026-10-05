@@ -2,6 +2,18 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+> **If you are a reviewer or a probe of the annotation pipeline** (`reviewer_semiblind`,
+> `reviewer_full_sample`, `reviewer_full_window`, any `probe_*`): this file is not written for
+> you. It is for agents that work on the project itself — its code, schemas, documentation and
+> the pipeline. Your prompt in `docs/prompts/<role>.md` is binding and names everything you may
+> read: the prompt itself, your workspace and `schema/review.py`. Do not act on the rest of this
+> file and do not open the documents it links to — `docs/annotation_checklist.md`,
+> `docs/annotation_pipeline.md`, `docs/plans/general.md`, `docs/prompts/definitions.md`, other
+> roles' prompts and the proposer's material (`docs/question_templates.md`,
+> `docs/sample_examples.jsonl`). They hold the rules of other roles, and reading them changes
+> what you measure.
+> The interpreter is `/home/user/conda/bin/python3`.
+
 ## What this repository is
 
 Two independent lines of work under one roof:
@@ -18,8 +30,9 @@ the run of the video-track description in [docs/video_description.md](docs/video
 the classes of annotation error and who catches them in
 [docs/annotation_checklist.md](docs/annotation_checklist.md), the working order of the annotator
 and reviewer agents in [docs/annotation_pipeline.md](docs/annotation_pipeline.md) together with the
-draft prompts in [docs/prompts/](docs/prompts/) and the anti-examples by question template in
-[docs/question_templates.md](docs/question_templates.md).
+draft prompts in [docs/prompts/](docs/prompts/), the question templates with working and broken
+examples in [docs/question_templates.md](docs/question_templates.md) and two invented complete
+samples in [docs/sample_examples.jsonl](docs/sample_examples.jsonl) (they pass the validator).
 The contract the reviewer subagents report against is [schema/review.py](schema/review.py)
 (pydantic, not a JSON schema: a model reads it too).
 Read them before any edit to the annotation or the metrics: they record decisions that have a
@@ -127,12 +140,12 @@ The schema is `schema/sample.schema.json`, with `additionalProperties: false` at
 semantics on top of the schema are checked by `tools/validate_samples.py`. Two rules that are easy
 to break out of ignorance:
 
-- **`temporal_rel` is not set by hand but derived** from `question_time` and the `evidence_span` of
-  the first/last required trigger. The axis is determined by the position of the *evidence*, not of
+- **`temporal_rel` is not set by hand but derived** from `question_time` and the earliest start
+  and latest end of the `evidence_span`s of the required triggers. The axis is determined by the position of the *evidence*, not of
   the answer window: with a `post` question the answer window also begins at the moment the
   question is issued, and by the window it is indistinguishable from `at`.
-- **`audio_dependency` stays `null` while `status == "draft"`** — the label is derived from the
-  answers of the modality probes (`visiononly_solved` and `solvable`, checklist 4.5) rather than
+- **`audio_dependency` stays `null` until both probes it comes from have answered**, whatever
+  the status — the label is derived from the answers of the modality probes (`visiononly_solved` and `solvable`, checklist 4.5) rather than
   set by the annotator's opinion. The opinion lives separately in `audio_dependency_claim`.
 
 What else is checked: non-overlapping windows, `t_ideal` inside its own window, `depends_on` only
