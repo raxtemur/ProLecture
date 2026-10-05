@@ -230,8 +230,8 @@
       {\small
       \texttt{L1} perception — read off\\[0.3em]
       \texttt{L2} integration — connect two moments\\[0.3em]
-      \texttt{L3} derivation — carry out reasoning that is not in the video\\[0.5em]
-      \color{muted} The criterion for L3: the blind baseline does not solve it.}
+      \texttt{L3} derivation or substantial computation — work the video leaves undone\\[0.5em]
+      \color{muted} Separately, at every level: the blind baseline must not solve it.}
     \end{column}
   \end{columns}
 
@@ -383,7 +383,7 @@
   is a \texttt{CRITICAL\_FAIL} — the question is not solvable even from the full material.\\[0.3em]
   \texttt{visiononly\_solved} together with \texttt{solvable} give \lead{\texttt{audio\_dependency}}
   — this label is never set by hand.\\[0.3em]
-  \texttt{frozenframe\_solved = true} at level \texttt{L2}/\texttt{L3} means the level is inflated.}
+  \texttt{frozenframe\_solved = true} at \texttt{L2}/\texttt{L3}: inflated if the frame shows the values, not just inputs.}
 
   \vspace{0.5em}
   {\color{muted}\small A probe's isolation rests on three things: the prompt \emph{asks} it not to reach into

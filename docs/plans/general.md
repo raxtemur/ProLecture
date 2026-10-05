@@ -166,6 +166,7 @@ verification-counterfactual types added.
 | `predict` | Prediction | name the next step **before** it is shown | "when the author poses the problem, say what method he will solve it with" |
 | `verify` | Verification | confirm/refute the correctness of what is shown | "say whether the transition presented is valid" |
 | `counterfact` | Counterfactual | "what changes if…" at the moment an object appears | "when the graph appears, say how it changes under a → 2a" |
+| `extend` | Extension | go further with the premises unchanged: the next terms, the shown method on a new case, the exercise the author leaves open | "when the second borrower's payment is shown, give that loan's balance after each of the first six months" |
 
 ### Axis B — the temporal relation of question and trigger
 
@@ -199,11 +200,15 @@ controlled pair.**
 
 ### Axis C — the level of reasoning (what OmniPro does not have)
 
-| Code | Level | How the answer is obtained | Target share |
-|---|---|---|---|
-| `L1` | Perception | read off the screen or off the speech | ≤ 20% (30% in the pilot — see below) |
-| `L2` | Integration | one has to connect ≥2 moments separated in time, or do one step of arithmetic over displayed values | ~40% |
-| `L3` | Derivation | one has to carry out a computation/derivation that is **not** in the video | ~40% |
+| Code | Level | Target share |
+|---|---|---|
+| `L1` | Perception (reading) | ≤ 20% (30% in the pilot — see below) |
+| `L2` | Integration / short calculation | ~40% |
+| `L3` | Derivation / substantial computation | ~40% |
+
+The definitions of the levels are in [docs/prompts/definitions.md](../prompts/definitions.md),
+section `reasoning_level`: the level is the work the cheapest legal route to the full rubric
+leaves to the participant inside the answer window.
 
 In the pilot the shares came out as `L3` 4, `L1` 4, `L2` 2 out of ten, that is, `L1` is twice the
 target. (The numbers are recomputed by the validator in the "coverage" block; if they diverge from
@@ -212,10 +217,11 @@ were re-annotated from `L2` to `L1` after checking (both facts of the answer wer
 single utterance). Fitting to target shares on a sample of ten is meaningless; we return to this
 when expanding.
 
-**The quality criterion for L3:** the answer must not follow from general knowledge of the topic —
-otherwise the blind baseline solves it. It is checked mechanically (§5.3), not by eye. The label
-is that of the cheapest legal route to the rubric (checklist 7.3): one step of arithmetic over
-displayed values is `L2`, not `L3`, even though the result itself is never on the screen.
+**Two separate requirements.** The level is the work the cheapest route leaves to the
+participant (`docs/prompts/definitions.md`). Whether the answer follows from general knowledge
+of the topic is a different question, asked of every sample at every level and measured by the
+blind probe (§5.3): a hard derivation can be solvable blind, and an `L1` reading of a value
+shown only in this video is not.
 
 ### 2.1. A catalogue of "hard" question templates
 
