@@ -56,7 +56,8 @@ data/videos/<VIDEO_ID>/
         ├── tools/describe_video.py
         │       └── data/bundles/<VIDEO_ID>/
         │           ├── description.jsonl
-        │           └── description.md
+        │           ├── description.md
+        │           └── screen_text.md
         │
         └── Proposer → Coordinator → Review → Retry
                 └── data/annotations/<VIDEO_ID>.jsonl
@@ -301,7 +302,9 @@ The main outputs are:
 - `data/bundles/<VIDEO_ID>/description.jsonl` — machine-readable run metadata and
   fragment records;
 - `data/bundles/<VIDEO_ID>/description.md` — a readable visual timeline for annotators
-  and agents.
+  and agents;
+- `data/bundles/<VIDEO_ID>/screen_text.md` — the text recognised on the screen, each line
+  once, at the second it first appears; the proposer reads it in full.
 
 The model sees only frames by default. Do not enable `--with-transcript` for benchmark
 material: the description is later used as a visual-channel index, so allowing it to
@@ -312,66 +315,66 @@ For server setup, resource estimates, all CLI options, and recovery procedures, 
 
 ## 4. Run the annotation and review pipeline with a coding agent
 
-The remaining workflow is designed to be coordinated by an agent that can launch
-independent subagents, such as Codex or Claude Code. Start the agent from the repository
-root and give it the prompt below.
+Two roles are started by hand, each in its own fresh session of a coding agent (Codex or
+Claude Code) launched from the repository root: first the **proposer**, which writes
+candidate questions, then the **coordinator**, which merges them and carries them through
+review, launching the reviewers and probes as subagents. Start the coordinator once the
+proposer's file exists and passes the validator. One session per role and per video.
 
-The prompt deliberately tells the agent to read the role documents in full instead of
-duplicating their rules here. Those documents are the source of truth for the annotation
-format, reviewer isolation, role order, retry policy, and validation requirements.
+Both messages below only point the agent at its role document and name the video: the
+rules live in `docs/prompts/` and `docs/annotation_pipeline.md`, and a copy of them here
+would drift. Replace every `<VIDEO_ID>` with the id of the video and send the text as it is. The bundle (sections 2 and 3)
+must be complete, including `screen_text.md`.
+
+Before rerunning a video that already has annotations, move its old
+`data/annotations/<VIDEO_ID>.jsonl`, `data/annotations/partial/<VIDEO_ID>.*.jsonl` and
+`data/reviews/<VIDEO_ID>/` out of the way: the new run writes to the same paths, and the
+sample ids repeat.
+
+**The proposer:**
 
 ```text
-Study this repository. You will act as both the Proposer and the Coordinator.
+You are the proposer agent of the ProLecture annotation pipeline.
 
-Work with the video in `data/videos/3d6DsjIBzJ4` (video ID: `3d6DsjIBzJ4`).
+Read docs/prompts/proposer.md in full and follow it: it is binding. Its first paragraph
+is addressed to whoever launches you; skip it. Where the prompt says VIDEO_ID in angle
+brackets, use <VIDEO_ID>; where it says INTERVAL in angle brackets, use full (the whole
+video).
 
-Your task:
+If a bundle file the prompt lists is missing, stop and say which; do not build it
+yourself. Write only data/annotations/partial/<VIDEO_ID>.full.jsonl. If this session is
+compacted, re-read docs/prompts/proposer.md before you continue.
+```
 
-1. Verify that all artifacts required by the Proposer are present and usable. In
-   particular, check the outputs of `tools/make_bundle.py` under
-   `data/bundles/3d6DsjIBzJ4/` and the generated visual description described in
-   `docs/video_description.md`. Report and resolve any missing or inconsistent
-   prerequisites before proposing questions.
+**The coordinator:**
 
-2. Before creating any questions, read `docs/prompts/proposer.md` in full and follow
-   it, including every referenced requirement, output convention, and validation step.
-   As the Proposer, prepare approximately 15–20 high-quality questions distributed
-   reasonably evenly across the video's timeline. Aim for roughly 20% L1, 40% L2,
-   and 40% L3, but treat these as coverage targets rather than quotas: question quality,
-   temporal validity, and diversity across the other taxonomy axes are more important
-   than hitting exact counts.
+```text
+You are the coordinator of the ProLecture annotation pipeline for the video <VIDEO_ID>.
 
-3. Then switch to the Coordinator role. Read `docs/prompts/coordinator.md` and
-   `docs/annotation_pipeline.md` in full. Run independent subagents in the exact order
-   defined there, and give each subagent the complete corresponding prompt from
-   `docs/prompts/`.
+Read in full before you start: docs/prompts/coordinator.md,
+docs/annotation_pipeline.md and docs/prompts/definitions.md. They are binding; where this
+message and they differ, they win.
 
-   Follow the current role order precisely:
-   - first run the semi-blind reviewer, `probe_text`, `probe_vision`, and `probe_frame`
-     independently, with the roles that may run in parallel launched in parallel;
-   - consolidate their results and run `probe_full` only when the documented condition
-     requires it;
-   - apply cheap fixes and run schema/sample validation;
-   - then run `full_sample` and one `full_window` reviewer per trigger for every sample;
-   - apply repairs and repeat the required fresh or targeted reviews until every sample
-     passes or reaches a documented human-handoff condition.
+Your input is the proposer's output, data/annotations/partial/<VIDEO_ID>.*.jsonl. Merge
+it into data/annotations/<VIDEO_ID>.jsonl and carry every sample through the pipeline,
+from the validator to the handoff to a human: the reviewers and probes in the order and
+with the isolation the pipeline defines, your decisions and edits, the repeat reviews and
+the checks across samples.
 
-4. Use GPT-5.6-Sol with medium reasoning effort for reviewer subagents. Preserve the
-   isolation rules for semi-blind reviewers and modality probes: use separate workspaces,
-   expose only the material allowed for each role, never share review history with a
-   fresh reviewer, and never let reviewer subagents edit the annotation files directly.
-
-5. After every edit, run the required validators. Save all review artifacts and
-   coordinator decisions at the paths and with the round numbering required by the
-   project documentation. Do not treat skipped checks as passes, do not silently exceed
-   the retry limit, and do not stop after merely generating the initial questions: carry
-   the set through the complete Proposer → Coordinator → Review → Retry workflow.
+- Give each subagent its complete prompt from docs/prompts/ and only the workspace that
+  tools/prepare_review_workspace.py builds for it. Subagents never edit annotation files.
+- Choose models by the table "Models per role" in docs/prompts/coordinator.md: the
+  Claude identifiers under Claude Code, the OpenAI column under Codex.
+- Record every launch, result and edit with tools/coordinator_log.py <VIDEO_ID>, and
+  run tools/validate_samples.py after every edit of an annotation file.
+- Do not stop after the first round, and do not count a skipped check as passed.
+- If this session is compacted, re-read docs/prompts/coordinator.md before you continue.
 ```
 
 The principal outputs of this stage are:
 
-- `data/annotations/partial/<VIDEO_ID>.<INTERVAL>.jsonl` — proposer output when work is
-  split by interval;
+- `data/annotations/partial/<VIDEO_ID>.<INTERVAL>.jsonl` — the proposer's output
+  (`full` for the whole video);
 - `data/annotations/<VIDEO_ID>.jsonl` — the merged annotation set;
 - `data/reviews/<VIDEO_ID>/<SAMPLE_ID>/` — versioned structured reviews and coordinator
   decisions.
@@ -387,7 +390,9 @@ acceptance remains mandatory while the benchmark is being calibrated.
 |---|---|
 | [`docs/plans/general.md`](docs/plans/general.md) | Benchmark goals, taxonomy, and question templates |
 | [`data/annotations/README.md`](data/annotations/README.md) | Annotation file layout and field semantics |
-| [`docs/question_templates.md`](docs/question_templates.md) | Template-specific failure modes and anti-examples |
+| [`docs/question_templates.md`](docs/question_templates.md) | Question templates with working and broken examples |
+| [`docs/sample_examples.jsonl`](docs/sample_examples.jsonl) | Two invented complete samples that pass the validator |
+| [`docs/prompts/definitions.md`](docs/prompts/definitions.md) | The terms the proposer and the coordinator use (`act`, levels, windows) |
 | [`docs/annotation_checklist.md`](docs/annotation_checklist.md) | Checks applied to every sample |
 | [`docs/annotation_pipeline.md`](docs/annotation_pipeline.md) | Role order, workspaces, retry loop, and human acceptance |
 | [`docs/prompts/proposer.md`](docs/prompts/proposer.md) | Proposer role and output requirements |
