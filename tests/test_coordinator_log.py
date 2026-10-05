@@ -1,3 +1,4 @@
+import hashlib
 import json
 import os
 import subprocess
@@ -372,6 +373,31 @@ class CoordinatorLogCliTest(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("video id", result.stderr.lower())
         self.assertFalse((self.log_root / "data" / "outside" / "coordinator.log").exists())
+
+
+    def test_spawn_records_the_prompt_its_subagent_reads(self):
+        self.assertEqual(self.spawn("fw1", "sample-q01", "full_window1").returncode, 0)
+
+        event = self.read_events()[0]
+
+        prompt = ROOT / "docs" / "prompts" / "reviewer_full_window.md"
+        checklist = ROOT / "docs" / "annotation_checklist.md"
+        self.assertEqual(event["prompt"], "docs/prompts/reviewer_full_window.md")
+        self.assertEqual(event["prompt_sha"], hashlib.sha256(prompt.read_bytes()).hexdigest())
+        self.assertEqual(event["checklist_sha"],
+                         hashlib.sha256(checklist.read_bytes()).hexdigest())
+        self.assertRegex(event["git_head"], r"^[0-9a-f]{40}$")
+        self.assertIsInstance(event["prompts_dirty"], bool)
+
+    def test_spawn_refuses_a_bare_window_role_and_unknown_roles(self):
+        bare = self.spawn("fw", "sample-q01", "full_window")
+        self.assertEqual(bare.returncode, 2)
+        self.assertIn("needs the window index", bare.stderr)
+        for role in ("full", "semiblind2", "reviewer"):
+            result = self.spawn("x", "sample-q01", role)
+            self.assertEqual(result.returncode, 2, role)
+            self.assertIn("unknown --role", result.stderr)
+        self.assertFalse((self.log_root / "data" / "reviews" / "video-id" / "coordinator.log").exists())
 
 
 if __name__ == "__main__":

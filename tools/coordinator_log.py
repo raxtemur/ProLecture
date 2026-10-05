@@ -44,6 +44,12 @@ so ``--window`` is refused for the kinds that do not touch one window. ``check``
 rerun as pending and passes; ``check --final`` fails on it. Edits without a kind — the lines
 written before the field existed — are not checked.
 
+``spawn`` accepts only the roles that have a prompt (``ROLE_PROMPTS``), a window review
+with its index (``full_window0``). It records which text the subagent was given: the
+sha256 of the role's prompt and of ``docs/annotation_checklist.md``, ``git rev-parse
+HEAD``, and whether either file differs from that commit. The coordinator types none of
+it.
+
 The ``adjudicate`` event records the outcome of the left-boundary check (checklist 2.2,
 stages A–C): ``t_val_a`` is the first answer of the semi-blind trajectory that met the
 rubric, ``t_s`` the sighted proposal if any, ``verified`` whether the verification probe
@@ -55,17 +61,18 @@ resulting boundary compared against ``t_start``. The table itself lives in
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import re
+import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
 
 
-ROOT = Path(
-    os.environ.get("COORDINATOR_LOG_ROOT", Path(__file__).resolve().parent.parent)
-).resolve()
+REPO = Path(__file__).resolve().parent.parent
+ROOT = Path(os.environ.get("COORDINATOR_LOG_ROOT", REPO)).resolve()
 VIDEO_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
 
 
@@ -102,6 +109,61 @@ RERUN_AFTER: dict[str, frozenset[str]] = {
     "wording": frozenset({"semiblind", "probe_text", "probe_vision", "probe_frame",
                           "full_sample", "full_window"}),
 }
+
+
+# The prompt each role is launched with. A review can be traced to its text only if the
+# launch records it: the runs of 2026-09-21 went on uncommitted prompts, and which version
+# a given review saw could no longer be told (fix list 5, item 5.4).
+ROLE_PROMPTS: dict[str, str] = {
+    "semiblind": "reviewer_semiblind.md",
+    "full_sample": "reviewer_full_sample.md",
+    "full_window": "reviewer_full_window.md",
+    "probe_text": "probe_text.md",
+    "probe_vision": "probe_vision.md",
+    "probe_frame": "probe_frame.md",
+    "probe_full": "probe_full.md",
+    "probe_verify": "probe_verify.md",
+}
+CHECKLIST = "docs/annotation_checklist.md"
+
+
+def role_error(role: str) -> str | None:
+    """Why a spawn role is refused, or None.
+
+    A bare ``full_window`` used to be accepted, and it settles only a debt on "any window":
+    a boundary edit of window 0 then stayed pending although its review existed (5.2).
+    """
+    if role == "full_window":
+        return "--role full_window needs the window index: full_window0, full_window1, ..."
+    if base_role(role) not in ROLE_PROMPTS or (role != base_role(role)
+                                               and base_role(role) != "full_window"):
+        return (f"unknown --role {role!r}: use one of "
+                f"{', '.join(r for r in ROLE_PROMPTS if r != 'full_window')} or full_window<N>")
+    return None
+
+
+def file_sha(relative: str) -> str:
+    return hashlib.sha256((REPO / relative).read_bytes()).hexdigest()
+
+
+def prompt_version(role: str) -> dict:
+    """The fields that tie a launch to the text its subagent read."""
+    prompt = f"docs/prompts/{ROLE_PROMPTS[base_role(role)]}"
+    version = {"prompt": prompt, "prompt_sha": file_sha(prompt),
+               "checklist_sha": file_sha(CHECKLIST), "git_head": None, "prompts_dirty": None}
+
+    def git(*args: str) -> subprocess.CompletedProcess:
+        return subprocess.run(["git", "-C", str(REPO), *args],
+                              capture_output=True, text=True, check=False)
+
+    head = git("rev-parse", "HEAD")
+    if head.returncode == 0:
+        version["git_head"] = head.stdout.strip()
+        # Only these two files: an unrelated edit elsewhere in the tree would mark every
+        # launch dirty, and the flag would stop saying anything about the prompt.
+        version["prompts_dirty"] = git("diff", "--quiet", "HEAD", "--",
+                                       prompt, CHECKLIST).returncode != 0
+    return version
 
 
 def base_role(role: str | None) -> str:
@@ -319,6 +381,10 @@ def main(argv: list[str] | None = None) -> int:
             return 2
 
     if args.command == "spawn":
+        error = role_error(args.role)
+        if error:
+            print(error, file=sys.stderr)
+            return 2
         event = {
             "ts": timestamp(),
             "event": "spawn",
@@ -328,6 +394,7 @@ def main(argv: list[str] | None = None) -> int:
             "iteration": args.iteration,
             "model": args.model,
             "reasoning_effort": args.reasoning_effort,
+            **prompt_version(args.role),
         }
     elif args.command == "finish":
         event = {
