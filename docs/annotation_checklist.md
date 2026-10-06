@@ -68,10 +68,12 @@ the speed of one particular model into the annotation. Worse, a peak placed earl
 whoever blurted out a guess, and one placed late penalises whoever answered straight away,
 even though sooner is always better.
 
-Hence: **latency is measured from `t_start`**, and `t_start` is defined as the moment at
-which a model reasoning instantaneously could already have answered. From that follows the
-rule `t_start ≥ evidence_span[0]` (1.1) — the left boundary must coincide with the
-appearance of the evidence, otherwise the origin of the measurement is shifted.
+Hence: **latency is measured from `t_start`**, and `t_start` of a required window is defined
+as the moment at which a model reasoning instantaneously could already have answered **by
+the route the sample's level describes**; an earlier, harder route gets an optional window
+([definitions.md](prompts/definitions.md), "Optional window"). From that follows the rule
+`t_start ≥ evidence_span[0]` (1.1) — the left boundary must coincide with the appearance of
+the evidence, otherwise the origin of the measurement is shifted.
 
 `t_ideal` remains in the schema as `t_start + 1` and is filled in mechanically. If it is
 ever genuinely needed — after generation latency has been measured on real models — the
@@ -108,6 +110,13 @@ never fired were added by reasoning and may turn out to be unnecessary — they 
 ones to spend time on first.
 
 ## Notation
+
+**The terms are defined in [prompts/definitions.md](prompts/definitions.md)**: `act`,
+`reasoning_level`, the when-clause, check result and report verdict, `CRITICAL_FAIL`, boundary
+tolerance, the optional window, `blind_solved`, `temporal_rel`, `audio_dependency`,
+`evidence_span`. The items below refer to that file rather than repeat it, and where an item
+words a term differently, that file wins. The items themselves — what is checked, by whom,
+and what is done on a hit — are written out here in full: the checklist is read by people.
 
 | Field | Meaning |
 |---|---|
@@ -194,9 +203,11 @@ versa (see 9.4).
   one-sided: `t_start` is not earlier than the evidence. Keeping it to the second is
   unnecessary and harmful: annotating boundaries from frames is itself accurate to about a
   second, an animation "arrives" smoothly, and too early a left boundary catches the moment
-  when the object is still being drawn. Slack of one to three seconds is normal; it is
-  checked by eye (2.2 and 2.4), not by arithmetic. Symmetrically for `t_end`: better to let
-  the model finish the phrase than to cut the window off exactly on the last word.
+  when the object is still being drawn. Slack of up to two seconds is within the precision
+  of the measurement (the tolerance in the preamble of group 2); it is checked by eye (2.2
+  and 2.4), not by arithmetic, and a larger gap is a boundary error. Symmetrically for
+  `t_end`: better to let the model finish the phrase than to cut the window off exactly on
+  the last word.
 
   *Checking algorithm.* Arithmetic over the fields of the sample.
 
@@ -219,10 +230,13 @@ versa (see 9.4).
   non-decreasing; `question_time` is not greater than the duration; `id` values are unique
   across the whole set.
 
-  The requirement of chronological order is not cosmetic. The `temporal_rel` axis is
-  derived from the evidence of the **first and last** required triggers, and they are taken
-  by their place in the list. Reordered triggers give an axis derived from the wrong
-  windows.
+  The requirement of chronological order is not cosmetic. The checks read the windows in
+  list order: the overlap check compares each window with the previous one in the list
+  (1.1), and `depends_on` points backwards by `idx` (1.4), which means "earlier in time"
+  only while the list is chronological. Reordered triggers make both compare the wrong
+  pairs. The `temporal_rel` axis does not depend on the order: it is derived from the
+  earliest start and the latest end of `evidence_span` over **all** required windows (7.1),
+  since the evidence of a later window may come earlier.
 
   *Checking algorithm.* Arithmetic and sets over the fields.
 
@@ -318,13 +332,14 @@ versa (see 9.4).
   answer **follows by the moment `t_end`**; what we use to establish that the reference
   answer is correct at all lives separately, in `provenance.evidence`, where a reference may
   point at a part of the video after the window or at an external computation entirely
-  (`type: other`). The distinction shows on two kinds of task. For `predict` the
-  corroboration arrives after the window by construction: in `q08` the window is
-  `[1259, 1283)`, while Betty and "the brain as a model of language" are at 1336.6 and
-  1444.1, and they are in `provenance`. For `counterfact` there is no corroboration in the
-  video at all: the author never speaks the answer to "what would happen if", otherwise it
-  would not be a counterfactual. Putting the corroboration into `evidence_span` is not
-  allowed — `S-35` guards it there, and the corroboration would break it.
+  (`type: other`). The distinction shows on three kinds of task. For `predict` the
+  corroboration arrives after the window by construction: the author reveals the answer at
+  least ten seconds after the last window, and that moment goes into `provenance`. For
+  `counterfact` and `extend` there is no corroboration in the video at all: the author never
+  speaks the answer to "what would happen if" or works the case he left open, otherwise it
+  would not be a counterfactual or an extension. Putting the corroboration into
+  `evidence_span` is not allowed — `S-35` guards it there, and the corroboration would
+  break it.
 
   *Status.* Implemented. The pilot has been **filled in for real**: for 24 triggers out of
   25 the span points at a specific line or at the interval a picture is visible for. The
@@ -380,6 +395,68 @@ versa (see 9.4).
   *Frequency.* Not caught on the pilot: the narrowest window is 9.0 s (`q06`, idx 3). Nine
   of the 25 windows are shorter than 13 s, so there is not much room.
 
+- `[A]` **1.12. The proposer's blind self-check left a trace.** · `blind-self-check-recorded`
+
+  *Statement.* Before handing a sample in, the proposer checks what the question gives away
+  on its final wording: for each substantive rubric item, what it needs from this video
+  rather than from knowledge of the subject (the self-check "What the question gives away,
+  on the final wording" in `docs/prompts/proposer.md`). A draft records the check in
+  `validation.notes`, a line per item: `item <N> needs: <text>`. Rubric items are numbered
+  from 1, in list order; the same numbering serves 1.13 and the coordinator's table.
+
+  The line records that the check was made, not that it is right: the validator reads the
+  number, not the text. Whether the item really needs this video stays with the proposer
+  and the reviews (4.2, 4.8).
+
+  Only a `draft` is checked: the rule guards the proposer's hand-in.
+
+  *Checking algorithm.* On a sample with `status == "draft"`: `validation.notes` has at
+  least one line `item <N> needs:`, and every `<N>` lies between 1 and the length of the
+  longest rubric of a required window.
+
+  *Status.* Implemented, `S-40`.
+
+  *Frequency.* Never — introduced 2026-10-05 together with the proposer's prompt, before its
+  first run.
+
+- `[A]` **1.13. The proposer's when-clause self-check left a trace.** · `when-event-self-check-recorded`
+
+  *Statement.* A `pre` question waits for an event, and the wait is legitimate only when the
+  event brings something the answer needs — the when-clause is substantive
+  ([definitions.md](prompts/definitions.md), "When-clause"). The proposer checks this before
+  handing in (the self-check "What the when-event gives") and records it in
+  `validation.notes` of a `pre` draft as a line `the when-event gives: item <N> — <text>`,
+  where `<N>` is the number of a rubric item of a required window that the event makes
+  available.
+
+  A number, not a retelling: a retelling of the event does not show that the event brings
+  anything the rubric scores, and an event that makes no item available gives the question
+  no right to `pre`. The text after the dash is not read. Whether the event really makes the
+  named item available is not checked here: the sample reviewer reads the line as a claim
+  when proposing `t_s` (2.2, stage B), and the coordinator decides by the ladder of 2.2.
+
+  *Checking algorithm.* On a sample with `status == "draft"` whose derived `temporal_rel` is
+  `pre`: `validation.notes` has a line `the when-event gives: item <N> —` (any dash) with
+  `<N>` between 1 and the length of the longest rubric of a required window.
+
+  *Status.* Implemented, `S-41`.
+
+  *Frequency.* Never — introduced 2026-10-05, before the proposer's first run.
+
+- `[A]` **1.14. A `predict` has no optional window after its last required one.** · `predict-no-trailing-optional-window`
+
+  *Statement.* The author gives the answer to a prediction after its last required window —
+  that is what makes it a `predict` (7.8). A window opening later either opens after the
+  author's answer, and an answer there repeats him, or scores a prediction made when it is
+  no longer one. An answer after the last required window is an answer outside the windows.
+
+  *Checking algorithm.* On a sample with `act == "predict"`: every optional trigger opens
+  before the largest `t_end` of the required triggers.
+
+  *Status.* Implemented, `S-43`.
+
+  *Frequency.* Never — the rule was introduced 2026-10-05.
+
 ---
 ## 2. Answer window boundaries
 
@@ -396,29 +473,45 @@ which direction:
         | this is not a pre    | opened late          |            | spoken|
 ```
 
-**Tolerance: two seconds, on `t_start` and `t_end`.** Window edges are measured on frames,
-and two careful measurements of the same edge routinely differ by a second: manim morphs
-over 1–2 s, the description track dates events to whole seconds, and the frame step rounds.
-A gap of **at most 2 s** between an annotated `t_start` or `t_end` and a reviewer's own
-measurement is therefore reported but not re-reviewed: the verdict is still `FIX_INTERVALS`
-(or the 2.2 gap is recorded in the adjudication) with the measured value, the `findings`
-say the gap is within tolerance, and the coordinator moves the edge to the measured value
-as `sample-edit --kind nudge --window <idx>`, which owes no second review — the reviewer's
-frames are the verification.
+**Tolerance: steps of two and ten seconds.** Window edges are measured on frames, and two
+careful measurements of the same edge routinely differ by a second: manim morphs over
+1–2 s, the description track dates events to whole seconds, and the frame step rounds. The
+gap between an annotated boundary and a reviewer's own measurement of it (for the earliest
+possible answer, `t_start − t_val`) is handled in steps
+([definitions.md](prompts/definitions.md), "Boundary tolerance", which names `question_time`
+among the boundaries as well):
+
+- **up to 2 s** — within the precision of the measurement. The gap is reported but not
+  re-reviewed: the verdict is still `FIX_INTERVALS` (or the 2.2 gap is recorded in the
+  adjudication) with the measured value, the `findings` say the gap is within tolerance,
+  and the coordinator moves the edge to the measured value as `sample-edit --kind nudge
+  --window <idx>`, which owes no second review — the reviewer's frames are the
+  verification;
+- **from 2 to 10 s** — a boundary error: the edge moves and the touched window is reviewed
+  again (`FIX_INTERVALS`);
+- **over 10 s** — not a boundary error but a question about the when-clause of the
+  question, settled by 2.2: a substantive clause gets an early optional window
+  (`FIX_INTERVALS`), an empty one goes down the ladder of 2.2 (`FIX_QUESTION`).
+
+**When a boundary is uncertain within 2 s, the window is set wider rather than narrower**:
+`t_start` at the early edge, `t_end` at the late one, as long as the ten-second rule of 2.5
+still holds (on `L2`/`L3` and `predict` every window closes at least 10 s before the author
+says or shows the answer).
 
 `evidence_span` is outside the tolerance in both directions. A disagreement of 2 s or less
 about where a span ends is not applied at all — the annotated value stands and the
 measurement goes into a `note`, because a second on that field changes nothing the
 participant is scored on (it enters only the `temporal_rel` derivation, and a
 `question_time` within a second of a span edge is a defect of `question_time`, not of the
-span). A larger disagreement is what it always was, a `boundary` edit under 7.5 with its
-rerun. The reason for keeping 7.5 out of the tolerance is that its disputes are about
-**which fact** the edge anchors on, not about the second: on `3d6DsjIBzJ4` q03 window 1 a
-1.3 s move onto the narration was followed by a second opinion that moved the same edge by
-23 s to the first moment the value was derivable, and the same sample carries three
-readings of the field under one identical rubric across its five windows. That is an open
-question of the rules (see "Open questions"), and a tolerance rule must not be the place it
-gets settled by accident.
+span). A larger disagreement is a `metadata` edit with no second review when it leaves the
+derived `temporal_rel` unchanged and the validator passes; when it changes the axis, it is a
+`boundary` edit under 7.5 with its rerun. The reason for keeping the span out of the
+tolerance is that its disputes are about **which fact** the edge anchors on, not about the
+second: on `3d6DsjIBzJ4` q03 window 1 a 1.3 s move onto the narration was followed by a
+second opinion that moved the same edge by 23 s to the first moment the value was
+derivable, and the same sample carries three readings of the field under one identical
+rubric across its five windows. That is an open question of the rules (see "Open
+questions"), and a tolerance rule must not be the place it gets settled by accident.
 
 "First measured" means measured by a reviewer role on frames. A coordinator's reading of the
 description track or of the transcript is not a measurement and is overruled by one: on q06
@@ -471,9 +564,12 @@ animation is running, and the picture looks incomplete.
 - `[M]` **2.2. The answer becomes possible earlier than `t_start`.** · `answer-possible-before-start`
 
   *Statement.* The key check of the whole checklist. By the moment `t_start` the information
-  for the answer must suffice **for the first time**. If it was available earlier, then a
-  model that answered as soon as it could gets a false-positive penalty — that is, the
-  annotation punishes exactly the behaviour the benchmark is supposed to reward.
+  for the answer must suffice **for the first time**, by the route the sample's level
+  describes; an earlier, harder route gets an optional window
+  ([definitions.md](prompts/definitions.md), "Optional window"). If the answer was available
+  earlier and no window covers it, then a model that answered as soon as it could is
+  penalised for an answer outside the windows — that is, the annotation punishes exactly the
+  behaviour the benchmark is supposed to reward.
 
   Sufficiency is judged from everything the model has seen and heard since the start of the
   video, not from the current frame alone: if the numbers needed were shown ten minutes ago
@@ -515,7 +611,10 @@ animation is running, and the picture looks incomplete.
   `t_s`: the first moment from which, in their view, the rubric is satisfiable, with the
   frame that shows it. They used to be forbidden the left boundary outright because of a
   known bias — knowing the answer, they "recognise" it in a half-drawn frame and pull the
-  boundary left. The ban is lifted because a check now follows.
+  boundary left. The ban is lifted because a check now follows. If the question has a
+  when-clause, the reviewer reads the proposer's line `the when-event gives: item <N> — …`
+  (1.13) as a claim: when the transcript or the screen index shows that item's content
+  before the event, that earlier moment is their `t_s`.
 
   **Stage C — the semi-blind verification.** If `t_s < t_val_A`, a fresh semi-blind probe
   (`probe_verify`) receives the task **without its when-clause** and the material exactly
@@ -560,20 +659,22 @@ animation is running, and the picture looks incomplete.
   *What to do on a hit.* First measure the gap `t_start − t_val` and ask what the
   when-clause of the question contributes to the answer.
 
-  **A gap of up to 10 s** is a boundary error, not a design error: move `t_start` to
-  `t_val` together with `evidence_span`, re-review the touched window with `full_window`,
-  and that is all. The constant is the same as the slack in 2.5 — the scale of a streaming
-  model's generation latency; two constants for one scale would be a second thing to
-  calibrate. A sub-second gap the tooling cannot resolve (frames are cut at whole seconds)
-  is recorded in the adjudication table and is not a hit.
+  **A gap of up to 2 s** is within the precision of the measurement (the tolerance in the
+  preamble of the group): `t_start` moves to `t_val` with no second review. **A gap of 2 to
+  10 s** is a boundary error, not a design error: move `t_start` to `t_val` together with
+  `evidence_span`, re-review the touched window with `full_window`, and that is all
+  (`FIX_INTERVALS`). The constant is the same as in the ten-second rule of 2.5 — the scale of
+  a streaming model's generation latency; two constants for one scale would be a second
+  thing to calibrate.
 
-  **A larger gap is a question about the when-clause.** Test: which rubric items become
+  **A gap over 10 s is a question about the when-clause.** Test: which rubric items become
   satisfiable only once the event named in the clause has occurred? If some do, the clause
   is **substantive**: keep the window and add an **optional** trigger for the early form —
   then both an early answer and silence until the main window are correct. If none do, the
   clause is **empty** — an anchor for the timer, not part of the task — and it gives no
-  right to `pre`: a model that answers before the anchor is right, not early. The remedy is
-  then a ladder, taken strictly in this order, after one preliminary step:
+  right to `pre`: a model that answers before the anchor is right, not early
+  ([definitions.md](prompts/definitions.md), "When-clause"). The remedy is then a ladder,
+  taken strictly in this order, after one preliminary step:
 
   0. **Referents.** Re-read the question without its when-part and check that every
      referent ("the blue target function", "the controlling coefficient") resolves to
@@ -593,37 +694,46 @@ animation is running, and the picture looks incomplete.
      time qualifier that holds throughout the window and fails afterwards ("while the
      quadratic coefficient is still displayed as free to change"). "Contributes no rubric
      item" is necessary for dropping a clause, not sufficient.
-  1. **Open an early window on the evidence; the showing stays the required one.** Add an
-     **optional** trigger `[t_val, old t_start)`; the window of the explicit showing stays
-     **required**. Silence until the showing and an early answer are then both correct.
+  1. **The early window becomes the required one.** The required window opens at `t_val`,
+     and its `evidence_span` sits on the real evidence. The window of the explicit showing
+     stays as an **optional** one on an `L1` sample; on `L2`/`L3` and `predict` it is
+     removed, and the new required window closes at least 10 s before the showing (2.5).
      The clause is dropped or weakened (step 0) just enough that the wording no longer
-     forbids the early answer. Make the early window the required one only when the showing
-     is not a separate event worth a window of its own. If `t_val ≥ question_time` this is
-     the whole fix and the sample stays `pre`.
+     forbids the early answer. The validator derives the axis afresh: `pre` if the evidence
+     comes after `question_time`, otherwise `at` or `post`. If `t_val ≥ question_time` this
+     is the whole fix and the sample stays `pre`.
 
      Two mechanics of the cut, both missed five times in one round. **Both windows get a
-     fresh `evidence_span`**: the early window's from `t_val`, the required window's on the
-     last piece of real evidence — never on the cut itself. The cut is a moment of the answer
-     window, not of the evidence, and an `evidence_span` ending at its own `t_start` is the
-     signature of the mistake (7.5). And **the two windows do not share a boundary**: 2.1
-     forbids a join inside a transcript line, so the early window closes at the start of the
-     line the old `t_start` falls in, and the gap between them is that line — 0.1 s or 1.3 s,
-     whatever it measures, not a fixed half-second.
+     fresh `evidence_span`**, each on its own evidence: the required window's from `t_val`,
+     the optional showing window's on the showing — never on the cut itself. The cut is a
+     moment of the answer window, not of the evidence, and an `evidence_span` ending at its
+     own `t_start` is the signature of the mistake (7.5). And **the two windows do not share
+     a boundary**: 2.1 forbids a join inside a transcript line, so the early window closes at
+     the start of the line the old `t_start` falls in, and the gap between them is that line
+     — 0.1 s or 1.3 s, whatever it measures, not a fixed half-second.
   2. **If `t_val < question_time` (a hit of 2.3 as well):** move `question_time` back to
-     `t_val` when every referent of the wording has been introduced by then — the sample
-     stays `pre`. Otherwise the early optional window opens at `question_time`, the required
-     window's `evidence_span` stays on the real evidence, and `temporal_rel` is derived by
-     the validator as `at` or `post`. That is an honest label, not a demotion: a `pre` a
-     model may ignore with impunity measures nothing.
+     `t_val` when the wording allows: at the new moment a participant must understand every
+     term, name and formula the question uses as known — each is common vocabulary, has been
+     introduced by the video by then, or is explained by the question itself in words
+     understood at that moment (2.6). If one has not, reword the question for the new
+     moment; that is a new version of the question. A formula or value the question itself
+     writes out is not evidence for the answer: if the video derives it later, the question
+     gives the derivation away, and the wording changes with the move. The sample then
+     stays `pre`. Otherwise the early window opens at `question_time`, its `evidence_span`
+     stays on the real evidence, and `temporal_rel` is derived by the validator as `at` or
+     `post`. That is an honest label, not a demotion: a `pre` a model may ignore with
+     impunity measures nothing.
   3. **Reject** only when after step 2 the sample measures nothing.
 
   On every step `reasoning_level` is re-derived by the rule of 7.3 — the cheapest legal
-  route to the full rubric, **including the right to wait for the required showing**: if
-  the value is read off the screen there, the sample is `L1`, however it could have been
-  derived earlier. Steps 0–2 change what the participant sees or the axis of the sample,
-  so they go through `draft` and the question-version rule of the coordinator's prompt, §3
-  (a fresh review cycle on the new wording). Only the two repairs that leave the wording
-  alone — the 10-second move, and the optional trigger added for a **substantive** clause —
+  route to the full rubric **inside the required window**: if the value is read off the
+  screen there, the sample is `L1`, however it could have been derived earlier, and an
+  earlier, harder route gets an optional window ("sine of angle B" in
+  [definitions.md](prompts/definitions.md), "Optional window"). Steps 0–2 change what the
+  participant sees or the axis of the sample, so they go through `draft` and the
+  question-version rule of the coordinator's prompt, §3 (a fresh review cycle on the new
+  wording). Only the repairs that leave the wording alone — a move of up to 10 s (with no
+  second review up to 2 s), and the optional trigger added for a **substantive** clause —
   are interval edits and need only the `full_window` re-review of the touched windows. The
   ladder is the coordinator's to apply; a hit reaches the human only when it ends in
   rejection.
@@ -649,13 +759,13 @@ animation is running, and the picture looks incomplete.
   is present at, or went by before, the moment the question is issued), and the fix here is
   not a move of the window but a correction of the design. The remedy is the ladder of 2.2:
   a gap `question_time − t_val` of up to 10 s is closed by moving `question_time` back to
-  `t_val`, provided every referent of the wording exists by then; a larger gap means the
-  when-clause is empty, and step 2 of the ladder applies — `question_time` back to `t_val`
-  where the referents allow it, otherwise the window opening at `question_time`,
-  `evidence_span` on the real evidence, and the label derived as `at`/`post`, with the
-  level re-derived by 7.3. The result is a legitimate `at`/`post` sample, not a rejected
-  one. `pre` is preferred and worth fighting for by the first two steps, but not at the
-  price of a when-clause that carries no information.
+  `t_val`, provided the wording allows it at that moment (step 2 of the ladder, 2.6); a
+  larger gap means the when-clause is empty, and step 2 of the ladder applies —
+  `question_time` back to `t_val` where the wording allows it, otherwise the window opening
+  at `question_time`, `evidence_span` on the real evidence, and the label derived as
+  `at`/`post`, with the level re-derived by 7.3. The result is a legitimate `at`/`post`
+  sample, not a rejected one. `pre` is preferred and worth fighting for by the first two
+  steps, but not at the price of a when-clause that carries no information.
 
   *Checking algorithm.* It requires no separate work: it is the same number `t_val` as in
   2.2, only compared against a different quantity. The semi-blind reviewer's zeroth stretch
@@ -683,9 +793,13 @@ animation is running, and the picture looks incomplete.
   last 1–3 s, and an intermediate frame looks plausible but is incomplete); on the right,
   after the object has left the screen and there is nothing left to confirm the answer with.
 
-  Slack of one or two seconds does not break the picture and is not worth a fix. It is an
-  error when the empty part of the window is large: the sample then quietly changes what it
-  tests, for example from perception to memory.
+  A window is not narrowed when the part to cut is 2 s or less: that is within the
+  precision of the measurement (the tolerance in the preamble of the group). It is an error
+  when the empty part of the window is larger: the sample then quietly changes what it
+  tests, for example from perception to memory. When the answer is the event itself — the
+  author says it, it appears on the screen — the window runs at least 5 s past the event,
+  the time a streaming model needs to produce the answer (1.11), and 2.4 does not narrow it
+  below that on the right.
 
   For a question explicitly anchored to a state at its first appearance, later animation does
   not make the answer unavailable: a streaming model has already observed that state and may
@@ -699,7 +813,7 @@ animation is running, and the picture looks incomplete.
   it.
 
   *Status.* The work of the per-window reviewer. Verdict `FIX_INTERVALS`, and only if the
-  empty part is large.
+  empty part is more than 2 s.
 
   *Frequency.* Caught on both sides. Lower priority than 2.2, 2.3 and 2.5.
 
@@ -707,13 +821,13 @@ animation is running, and the picture looks incomplete.
 
   *Statement.* If the answer is spoken by the video soon after the window opens, the task
   degenerates: the model has no need to reason, repeating what it heard is enough. A level of
-  `L2`/`L3` then effectively drops to an `L1` alarm, and the sample stops measuring what it
-  was created for.
+  `L2`/`L3` then effectively drops to reading, and the sample stops measuring what it was
+  created for.
 
-  Simply moving `t_end` back does not cure this. A model in streaming spends several seconds
-  on its answer, and in that time the next chunk of the stream will bring it the author's
-  answer: formally it answered inside the window, in fact it copied. So what is checked is
-  not the window but the window plus slack, and the result is binary.
+  Closing the window just before the author's line does not cure this. A model in streaming
+  spends several seconds on its answer, and in that time the next chunk of the stream will
+  bring it the author's answer: formally it answered inside the window, in fact it copied.
+  So what is checked is not the window alone but the window plus ten seconds after it.
 
   **A hedge in the text of the question does not cure it either.** The temptation is great:
   add "be in time before the author tells it himself" and declare the model warned. But a
@@ -723,54 +837,132 @@ animation is running, and the picture looks incomplete.
   seconds and answered correctly loses to a model that blurted out a guess at once — that is,
   exactly the inversion the checklist exists to prevent.
 
-  What actually cures it, in decreasing order of preference:
-
-  1. move the question to a place in the video where there are minutes rather than seconds
-     between the appearance of the evidence and the author's explanation;
-  2. ask about something the author does not say at all — a consequence, the direction of an
-     error, an application to another case;
-  3. honestly accept the sample as an `L1` alarm: "report when the author names X". Then the
-     window coinciding with the author's speech is a design decision rather than a defect,
-     and 2.5 does not apply. That is a weakening rather than a repair: the sample starts
-     measuring timeliness instead of reasoning.
+  **The ten-second rule.** On a sample of level `L2` or `L3`, every window, required or
+  optional, leaves at least one rubric item to the participant and closes at least ten
+  seconds before the author says or shows a rubric item the window has not already given, or
+  something such an item follows from without any work. No window of such a sample opens
+  after the author has said or shown the answer it asks for: an answer there repeats him and
+  is an answer outside the windows (3.1). On a `predict`, no window, required or optional,
+  contains the author's reveal of the answer or of any rubric item of it, or ends less than
+  10 s before it; a `predict` has no window after its last required one at all (1.14). On an
+  `L1` sample the author's words inside the window are what the participant reads, and the
+  rule does not apply to them.
 
   *Checking algorithm.* The transcript and dense viewing (step 1 s) of the interval
-  `[t_start, t_end + 10]`. The reviewer splits the rubric in two: the items whose content
-  the stream **hands over** in that interval — spoken or shown in finished form, a number,
-  a term, a formula that can be repeated — and the **residue**, the items that still have
-  to be worked out from them. Which items went into which half is written in the `findings`
-  of the 2.5 check itself — a structured field the contract requires, not the five-line
-  `notes` of the whole review; the coordinator checks the split, not the verdict alone.
+  `[t_start, t_end + 10]`. The reviewer splits the rubric items — numbered from 1, in list
+  order — three ways:
 
-  **The residue is empty** — the whole answer is in the stream. For a sample of level
-  `L2`/`L3` the sample is compromised in its entirety: a verdict of the "reword the question
-  or delete it" kind, by the three routes above, rather than "adjust the intervals". For
-  an `L1` sample, which was designed as an alarm in the first place, this is normal and
-  does not count as something to fix.
+  - **handed over inside the window** — items whose content the stream gives in finished
+    form in `[t_start, t_end]`: spoken or shown, a number, a term, a formula that can be
+    repeated. The question's own statements count together with the stream: an item that
+    follows from them without any work by the participant is handed over;
+  - **handed over after the window** — items the stream gives in finished form only in
+    `(t_end, t_end + 10]`;
+  - **the residue** — the items that still have to be worked out.
 
-  **The residue is not empty** — the stream hands over a discriminating item (the four
-  terms, say) but not the answer built from it (their sum). That is not a failure: the
-  sample still measures something, only less than it was designed to. The level is
-  **re-derived from the residue** by the rule of 7.3, as if the handed-over items merely
-  had to be heard or read: a residue of one step of arithmetic over displayed values is
-  `L2`, an empty residue would be `L1`. The verdict is `FIX_QUESTION` with the proposed
-  level, and the sample keeps its windows. `reasoning_level` is one field per sample while
-  2.5 is checked per window: when several windows propose different levels, the coordinator
-  takes the **lowest** — by the cheapest-route rule of 7.3 the participant scores on the
-  cheapest window anyway. A hedge in the wording ("show all four terms so
-  that the answer cannot be guessed") does not move an item from the residue into the
-  handed-over half: what counts is what the stream shows, not what the question demands.
+  The split is the substance of the check, and the coordinator checks the split, not the
+  verdict alone. It is agreed to go into structured fields of the 2.5 check —
+  `handed_over`, `handed_over_after`, `residue` (item numbers), `window_required` (a copy of
+  the window's `required` flag) and the level of the sample as annotated — against which
+  `schema/review.py` checks the verdict; until those fields are in the contract, it is
+  written in the `findings` of the 2.5 check, not in the five-line `notes` of the review.
 
-  The ten-second rule for `t_end` in the proposer's prompt is about the **whole** answer: a
-  window may close right before the author names a single ingredient, at the price of the
-  level.
+  **Handed over inside the window is reading.** The window itself is the boundary of what
+  the stream may give: the level is **re-derived from the residue** by the definition of
+  `reasoning_level` ([definitions.md](prompts/definitions.md)) — a residue of one step of
+  arithmetic over displayed values is `L2`, an empty residue would be `L1`. If the
+  re-derived level equals the annotated one, the item is `ok` and the split stays in its
+  findings; the verdict is `FIX_QUESTION` only when the level changes, and the sample keeps
+  its windows. A non-empty residue is not a failure: the sample still measures something,
+  only less than it was designed to — the stream hands over the two values, say, but not
+  their ratio. `reasoning_level` is one field per sample while 2.5 is checked per window:
+  when several required windows give different levels, the coordinator takes the
+  **lowest** over the required windows — by the cheapest-route rule of 7.3 the participant
+  scores on the cheapest window anyway. A hedge in the wording ("show both values so that
+  the answer cannot be guessed") does not move an item from the residue into the
+  handed-over part: what counts is what the stream shows, not what the question demands.
 
-  *Status.* Not implemented, checked by hand.
+  **Handed over after the window is a defect of the window**, whatever the level: `fail`
+  with `FIX_INTERVALS` — the window moves so that the author's words fall inside it on an
+  `L1` sample, or more than ten seconds after it on `L2`/`L3` — or with `FIX_QUESTION`. The
+  level does not change because of it: the ten seconds after the window never make a sample
+  `L1`.
+
+  **The residue is empty.** In a **required** window of an `L2`/`L3` sample the whole answer
+  is in the stream, and the sample is compromised: `fail` with `CRITICAL_FAIL` — or with
+  `FIX_INTERVALS` when the reviewer's `proposal` names a new `t_end` at which the window
+  still contains what the answer is worked out from, lasts at least 5 s (1.11) and closes
+  10 s before the author's answer; the window moves and the level stays. In an **optional**
+  window of an `L2`/`L3` sample (a closing recap with the author's finished answer, say) it
+  is `fail` with `FIX_INTERVALS`: the window closes 10 s before the author's answer or is
+  removed, and the level stays — the ten-second rule holds on every window of such a
+  sample, so this window is a boundary error. The exception is a later required window that
+  scores the same items: then it is `CRITICAL_FAIL`, because removing the optional window
+  would hide that the required one comes after the author's answer — its own 2.5 check does
+  not look earlier than its `t_start`. For an `L1` sample an empty residue is the norm,
+  provided the question itself does not give the answer (a legitimate `L1` task,
+  [definitions.md](prompts/definitions.md), "`reasoning_level`").
+
+  **Under `CRITICAL_FAIL` the reviewer writes what could be rebuilt into `proposal`**:
+  move the question to a place in the video where minutes rather than seconds separate the
+  appearance of the evidence from the author's explanation; ask about something the author
+  does not say at all — a consequence, the direction of an error, an application to another
+  case; or lower the level to `L1` when the question does not itself give the answer — the
+  participant then reads the answer from the author's words, a legitimate `L1` task. The
+  coordinator rejects the sample or rebuilds the idea as a new sample
+  ([definitions.md](prompts/definitions.md), "`CRITICAL_FAIL`"); lowering to `L1` without
+  changing the windows or the wording needs no second review.
+
+  A reviewer who disagrees with the rule in a particular case writes `fail` and explains the
+  disagreement in `findings`; the coordinator decides.
+
+  *Status.* The per-window reviewer, with the split described above; the check of the
+  verdict against the structured fields is not written yet. The part about a `predict`
+  window after the last required one is automatic: 1.14, `S-43`.
 
   *Frequency.* Caught — in the "the answer is inside the window" variety. On the pilot `q03`
   was taken apart under this item: between the appearance of the formula (1585) and the
   author's explanation (1621.8) there were 36 seconds, while the window closed 0.8 s before
-  his line. Converted to `L1` by the third route; the former window became a distractor.
+  his line. Lowered to `L1`; the former window became a distractor, a field since removed.
+
+- `[M]` **2.6. The question holds and can be understood at `question_time`.** · `question-holds-at-question-time`
+
+  *Statement.* The participant gets the question at `question_time` and has only the video
+  up to that moment to read it against. A question that says the video has already shown
+  something the video shows only later, or that uses as known a term the video introduces
+  only later, cannot be understood when it is asked: the participant is either told what
+  has not happened or given a word it cannot resolve.
+
+  *Checking algorithm.* Two checks on the material up to `question_time`.
+
+  (a) Find the statements in which the question says, in the past tense, that the video has
+  already shown or said something ("the video has just drawn…", "as the author showed…").
+  For each, find where it happens. A statement that is not yet true at `question_time` is a
+  `fail`: name it and, if it is visible later in the material, the moment it becomes true.
+  Only the past tense is checked: the present tense ("the formula on the screen…") in a
+  question about what is to come can be legitimate, and that freedom is left to the
+  understanding of the reviewer and the proposer.
+
+  (b) List the terms, names, notation and formulas the question uses as known. Each must be
+  common vocabulary of the subject, have been introduced by the video before
+  `question_time`, or be explained by the question itself in words understood at that
+  moment ("the variable the author will introduce for the distance travelled, which he will
+  call x"). One that the video introduces only later and the question uses without such an
+  explanation is a `fail`: name it and the moment it is introduced. This includes the words
+  that describe the event the question waits for: the event itself lies ahead, but a
+  participant must understand its description when the question is asked. If the question
+  writes out a formula or a value that the video derives or shows later, report it in
+  `findings` with that moment: the question then gives the derivation away (step 2 of the
+  ladder in 2.2).
+
+  *Status.* The semi-blind reviewer: their first stretch begins at zero (2.3), so the
+  material up to `question_time` is theirs, and they do not know the answer. Verdict
+  `FIX_QUESTION`: the reviewer writes `fail` with a `proposal`, and the coordinator rewords
+  the question. In the contract since 2026-10-05; a review is obliged to carry the line from
+  the next checklist version on, which comes together with the semi-blind reviewer's prompt.
+
+  *Frequency.* Found in the meta-review of the rounds of September 2026, which introduced
+  the item.
 
 ---
 ## 3. The trigger set against the criterion of the question
@@ -788,8 +980,8 @@ exhaustive one:
 - 3.2 and 3.3 work on each trigger separately, and a lone trigger is checked by them exactly
   as a ninth one is;
 - 3.1 is always needed: a moment that a model will in good faith take for a firing but that
-  is not marked as a trigger turns a correct answer into a false alarm — regardless of how
-  many windows the sample has.
+  is not marked as a trigger turns a correct answer into an answer outside the windows —
+  regardless of how many windows the sample has.
 
 **Exhaustiveness** — questions of the form "every time when …", "keep track of which
 quantities the author defines formally" — changes not the applicability of 3.1 but the
@@ -799,6 +991,11 @@ quantities the author defines formally" — changes not the applicability of 3.1
 |---|---|
 | exhaustive | add a trigger: it promised to react to every such moment |
 | not exhaustive ("when for the first time …") | refine the wording so the candidate falls out of it; if the candidate is a genuine earlier form of the answer, it is a 2.2 hit and the window moves (or an optional trigger is added) |
+
+In either row, on an `L2`/`L3` or `predict` sample, a moment whose answer the author has
+already said or shown is not a firing: an answer there repeats him and belongs among the
+answers outside the windows. Such a moment gets no trigger — the ten-second rule of 2.5
+would have it removed.
 
 ⚠ There is no formal marker of exhaustiveness in the annotation: two samples on the pilot
 are exhaustive, and they have different `act` (`monitor` and `ground`), while being
@@ -813,6 +1010,10 @@ affects how the group works.
   condition of the question. A keyword search is not enough for that: the condition is
   stated in terms of meaning, and the author expresses one and the same meaning in different
   words.
+
+  On an `L2`/`L3` or `predict` sample, a moment whose answer the author has already said or
+  shown is not a firing: an answer there repeats him and belongs among the answers outside
+  the windows (2.5).
 
   *Checking algorithm.* Reading the transcript `[0, duration]` **line by line, in sequence**
   asking "does this line fall under the condition of the question?". Not by the occurrences
@@ -883,13 +1084,13 @@ affects how the group works.
 - `[M]` **3.4. A task over elements that appear one by one has optional triggers on the elements.** · `elementwise-optional-triggers`
 
   *Statement.* When the task is a mapping over N elements that the author draws in sequence
-  (three coloured pieces and the three terms they stand for), and the rubric splits into one
-  item per element, the best proactive behaviour is to report each element as it appears.
-  An annotation that opens the only window at "all N simultaneously complete" punishes
-  exactly that behaviour: on the pilot the evaluated model narrated blue at its appearance,
-  yellow at its appearance and pink at its appearance — and would have been charged two false
-  alarms out of three answers. `general.md` already defines an optional window as "do not
-  penalise an answer here".
+  (the parts of a figure and the terms they stand for), and the rubric splits into one item
+  per element, the best proactive behaviour is to report each element as it appears. An
+  annotation that opens the only window at "all N simultaneously complete" punishes exactly
+  that behaviour: on the pilot the evaluated model named each of three elements as it
+  appeared, and two of its three answers would have counted as answers outside the windows.
+  An optional window is exactly the place where an answer is legitimate but not required
+  ([definitions.md](prompts/definitions.md), "Optional window").
 
   The wording "simultaneously complete" is legitimate only when the joint state is needed
   for the answer — a comparison between the elements — and not for the annotator's
@@ -901,6 +1102,9 @@ affects how the group works.
   trigger from its appearance to the appearance of the next element, with the rubric item(s)
   it makes answerable; the required trigger stays on the completion with the full rubric.
   Windows must not overlap and are subject to 1.11 (no shorter than five seconds) and 2.1.
+  On an `L2`/`L3` sample each such window also closes as the ten-second rule of 2.5 says —
+  at least 10 s before the author says or shows a rubric item it has not given; an element
+  left with under five seconds gets no window.
   If the question insists on "simultaneously" without a reason — `FIX_QUESTION`, otherwise
   `FIX_INTERVALS`. `na` when the rubric does not split by elements.
 
@@ -952,11 +1156,13 @@ merged into 4.2; the former 4.7 (recognising the video) became 4.3; the former 4
   if the probe answered correctly on **at least one required** window: a sample one of whose
   windows can be taken by a short cut is no longer measuring what it was created for.
 
-  *Repeats.* A single answer is not a sentence, but there is no "k of n" protocol here
-  either: every probe is presented once. If the probe answers diverge between iterations of
-  the cycle, the disputed flag is asked again once or twice **pointwise**, and if the
-  disagreement persists the sample goes to a human or is thrown out. A disagreement between
-  probes is itself a signal that the question is worded vaguely.
+  *Repeats.* There is no "k of n" protocol here: every probe is presented once, and the
+  flags are set from the probe outcomes only. A positive outcome stands. A negative one is
+  not argued away: it may be measured again at most once per probe and version of the
+  sample — on the stronger model of the run profile, if the probe ran on a weaker one;
+  otherwise on the same model, and only when the defect of the attempt can be named with
+  evidence. The flag is the outcome of the last run. A disagreement between probes is itself
+  a signal that the question is worded vaguely.
 
   *Status.* Not implemented. The prompts are `docs/prompts/probe_text.md`, `probe_vision.md`,
   `probe_frame.md`, `probe_full.md`: each probe has its own, so that it does not learn from
@@ -992,51 +1198,47 @@ merged into 4.2; the former 4.7 (recognising the video) became 4.3; the former 4
   The item stands in both `ROLE_ITEMS[SEMIBLIND]` and `COORDINATOR_ITEMS` of the contract —
   the overlap is deliberate and means exactly this division.
 
-  An answer counts as blind solving when it satisfies **two** conditions at once:
+  When an answer counts as blind solving is defined in
+  [definitions.md](prompts/definitions.md), "`blind_solved`": it must be at once **correct**
+  — it meets every substantive rubric item — and **honest** — it follows from the question
+  and prior knowledge, without assumptions about screen content that was not seen. An
+  answer of the form "most likely it is the usual textbook circuit with 1 kΩ and 1 µF, in
+  which case the time constant is 1 ms" is not a solution: the statement of the problem was
+  guessed, the answer was not found. Whether an assumption is a guess is decided by the
+  definition in `definitions.md`, not by whether the reviewer listed it in
+  `prior_answer_assumptions`.
 
-  - **correct** — it agrees with the rubric;
-  - **honest** — it does not stand on assumptions about material that was not seen. An answer
-    of the form "probably the screen shows the canonical example 1/2, 1/4, 1/8, 1/8, in which
-    case you get 2.5" is not a solution: the statement of the problem was guessed, the answer
-    was not found. That is what the `prior_answer_assumptions` field in the contract exists
-    for; a non-empty list is almost always a sign that the agreement was bought with guessing.
-
-  **A hedged answer ("X, and if not, then Y") counts only when the wrong branch would have
-  cost the participant a point.** A model that named two numbers is penalised in the
-  measurement for the wrong one; a reviewer who named two numbers must not be credited with
-  the better of them — otherwise it is enough to list the plausible options to declare any
-  sample solved blind.
+  **A hedged answer is not credited with the better of its branches.** "3 ms, or 12 ms if
+  the resistors turn out to be in series" does not count as solved, whichever branch matches
+  the reference: in the measurement a model that names two values is penalised for the wrong
+  one, and listing the plausible options is not solving. The same holds for every saved
+  answer, a probe's included: an answer that offers alternatives for one rubric item does
+  not meet that item. If the alternatives come from two readings of the question, that is a
+  defect of the question, to be fixed.
 
   **A caveat about notation, colour or verbatim wording is not an assumption about
-  content** (rule of 2026-09-07; the boundary between a guessed datum, a recalled datum and an
-  unguessable colour is still under discussion). Two answers that look alike are scored differently:
+  content.** Score the blind answer against the rubric item by item; the definition of
+  `blind_solved` says which items decide and what a guess is. Two answers that look alike
+  are scored differently:
 
-  - "2.5, if the screen shows the standard example 1/2, 1/4, 1/8, 1/8" — the correctness of
-    the answer depends on an assumption about the screen. A guess; `prior_answer_assumptions`
-    is non-empty; `blind_solved = false`. This is the rule above, unchanged.
-  - "pᵢ f′(qᵢ) = λ → q f′(q) = λ → f = λ log q; which notation and colours the screen uses
-    I cannot say" — the correctness of the chain does not depend on the screen. The caveat
-    concerns what the rubric may demand *beyond* the content. Here the coordinator scores
-    `prior_answer` against the rubric **item by item, ignoring the caveat**: substantive
-    items (a quantity, a relation, a derivation) the reviewer named count as met; items
-    about the screen itself (a colour, a notation, a displayed number) that the reviewer
-    did not name count as not met. Only the substantive items decide `blind_solved`: if all
-    of them are met, the sample is solved blind, and a rubric item about a colour does not
-    rescue it — such a sample tests colour recognition, not the science, and is not the
-    `L1` alarm the benchmark wants. The verdict names in `coordinator.N.md` which items
-    were met blind, so that it is visible what the sample rests on.
+  - "The time constant is 12 ms, if the diagram shows 4 kΩ and 3 µF" — the correctness
+    depends on an assumption about the screen: a guess, `blind_solved = false`, even when
+    the screen shows exactly these values.
+  - "The capacitor voltage follows V₀(1 − e^(−t/RC)), so it reaches 63 % of the supply
+    voltage after one time constant; which letters and colours the screen uses I cannot
+    say" — its correctness does not depend on the screen. Ignore the caveat and score the
+    content. Items about the screen itself that the answer does not name are unmet, and they
+    do not decide. If every substantive item of the rubric is met, `blind_solved = true`,
+    and a rubric item about a colour does not rescue the sample: such a sample tests colour
+    recognition, not the science. It is repaired or kept as a blind baseline like any other.
 
-  The reviewer, in turn, is asked for **content, not a meta-statement about it**: "known
-  only the general Lagrangian derivation" is not an answer, the derivation itself followed
-  by the caveat is. A strong reviewer is an upper bound on blind solvability, and that is
-  the deliberate strictness of the criterion.
+  The coordinator names in `coordinator.<ROUND>.md` which items were met blind, so that it
+  is visible what the sample rests on.
 
-  *The pilot example the rule was written for.* The semi-blind reviewer on `q01` (the
-  counterfactual "swap the code words") honestly wrote: "I cannot name an exact number, I was
-  given neither the code words nor the probabilities" — and then offered a conditional guess
-  of 2.5 with 2.0 as an alternative. They gave themselves a `fail`. Under both rules above
-  this is **not** blind solving: the statement of the problem was guessed, there are two
-  branches, and all that was taken blind was the arithmetic. The sample stayed.
+  The reviewer, in turn, is asked for **content, not a meta-statement about it**: "I know
+  only the general textbook derivation" scores nothing; the derivation itself followed by
+  the caveat does. A strong reviewer is an upper bound on blind solvability, and that is the
+  deliberate strictness of the criterion.
 
   *What to do on a hit.* Set `blind_solved: true`, finish the review cycle and try to anchor
   the answer to video-specific evidence under 4.8. Blind solving excludes the sample from the
@@ -1071,7 +1273,9 @@ merged into 4.2; the former 4.7 (recognising the video) became 4.3; the former 4
   *Checking algorithm.* The second question to the semi-blind reviewer at step 0, together
   with the title of the video: "do you recognise this video and this moment; could you name
   the answer from memory of the video?" The answer is a flag in the review, not a field of the
-  sample.
+  sample. It does not decide `blind_solved`: content only this video has, recalled from
+  memory of the video, is not solving blind but recognition, counted for the video
+  ([definitions.md](prompts/definitions.md), "`blind_solved`").
 
   *What to do on a hit.* Count it over the whole set. One recognised video is noise; a share
   of recognised ones comparable to a half is a decision about the video being unusable in its
@@ -1165,14 +1369,24 @@ merged into 4.2; the former 4.7 (recognising the video) became 4.3; the former 4
   and `act`:
 
   - `L1`, `act` = `alert` or `monitor` — a positive answer is expected, all is well;
-  - `L2`/`L3` — a contradiction: connecting moments far apart, or a derivation, was declared,
-    and yet a single frame sufficed. The level is inflated, and that is `FIX_QUESTION` under
-    7.3.
+  - `L2`/`L3` — here a positive answer needs a closer look, because a single frame can hold
+    everything a computation starts from and still none of its results. Take the probe's
+    saved answer and go through the rubric items it got right. For each one, ask: does the
+    frame show the value this item asks for, or only the values it is computed from?
+
+    - If the frame shows the value of every item, the probe simply copied the answer off the
+      screen. Nothing beyond reading was needed, so the declared level is inflated: the
+      verdict is `FIX_QUESTION`, and the sample is relabelled `L1`.
+    - If at least one item had to be worked out from what the frame shows, the frame is not
+      a contradiction. The level then depends on how much work was left: a short calculation
+      is `L2`, a substantial one is `L3`. Re-derive it, and write down which items were
+      copied and which were worked out.
 
   *Checking algorithm.* A probe with one frame per required trigger, the frame taken at
   `(t_start + t_end) / 2`. The result is `validation.frozenframe_solved`.
 
-  *Status.* Not implemented.
+  *Status.* The flag comes from the `probe_frame` probe. The coordinator makes this check
+  when it derives the flags from the probes' answers.
 
   *Frequency.* —
 
@@ -1211,28 +1425,65 @@ merged into 4.2; the former 4.7 (recognising the video) became 4.3; the former 4
 
   *Frequency.* Never — the check did not exist until now.
 
-- `[M]` **4.8. The wording of the question is anchored to the screen, not to general knowledge.** · `question-anchored-to-screen`
+- `[M]` **4.8. The question asks for scientific content of this video.** · `question-anchored-to-screen`
 
-  *Statement.* Prevention instead of cure. A question worded through the properties of a
-  specific image ("for which values of the parameter are the bars drawn") cannot be solved from
-  memory of the subject, even if the subject is familiar. A question worded through the topic
-  ("how does such-and-such a function behave") is solved blind as a textbook exercise, and no
-  hedge in the rubric fixes that.
+  *Statement.* Prevention instead of cure. A question worded through the content a specific
+  video chose ("for which values of the parameter are the bars drawn") cannot be solved
+  from memory of the subject, even if the subject is familiar. A question worded through the
+  topic ("how does such-and-such a function behave") is solved blind as a textbook exercise,
+  and no hedge in the rubric fixes that. And a question with no mathematical or scientific
+  target at all measures nothing the benchmark is about, however firmly it is tied to the
+  screen.
 
-  *Checking algorithm.* Structural rather than substantive: name the words in the text of the
-  question that point at a specific screen — objects, their position, captions, values on the
-  axes. If not one is found and the question rests on the topic alone, that is a hit.
+  *Checking algorithm.* A check of the wording; the reviewer does not solve the question.
+
+  (a) Say in one sentence what the participant does with mathematical or scientific
+  content: reads a quantity or a relation, compares, computes, derives, checks a claim.
+  Reading a value is enough — an `L1` question may ask for nothing more — when the value is
+  such content: a parameter, a measured quantity, a result. A question whose whole answer is
+  a joke, a biographical quotation or the look of a caption has no target: `fail` with
+  `CRITICAL_FAIL`.
+
+  (b) Name the words of the question that tie the answer to content this video chose: a
+  value, a configuration, a condition, a relation. Words about a colour, a position or the
+  wording of a caption identify an object but are not such a tie. If there is none and the
+  question rests on the topic alone, a textbook answers it: `fail` with `FIX_QUESTION`.
 
   The check does not require solving the question and is therefore not spoiled by knowing the
   reference answer: it is about the wording, not about the answer. That is what distinguishes
   it from 4.2, which catches the same defect empirically and is therefore given to the
   semi-blind reviewer.
 
-  *Status.* Step 0 of the sample reviewer, no frames needed. Verdict `FIX_QUESTION`. It is
-  cheapest to do this while the question is being written — after 4.2 fires, rewording creates
-  a new question version and forces the complete review cycle to run again.
+  *Status.* Step 0 of the sample reviewer, no frames needed. Verdict `CRITICAL_FAIL` for
+  (a), `FIX_QUESTION` for (b). It is cheapest to do this while the question is being written
+  — after 4.2 fires, rewording creates a new question version and forces the complete review
+  cycle to run again.
 
   *Frequency.* Caught.
+
+- `[M]` **4.9. The outcome of a check depends on the video.** · `check-outcome-depends-on-video`
+
+  *Statement.* A question that asks to check whether a claim holds measures something only
+  if the check could fail: with other content on the screen — other numbers, another
+  object — the claim would not hold. A claim that holds for any content (an identity, a
+  definition, a property every such object has) leaves the participant nothing to do beyond
+  reading the inputs, and the answer is known before the video shows anything. This differs
+  from 4.8: such a question can be tied to the screen firmly, and only the outcome of its
+  check does not depend on the video.
+
+  *Checking algorithm.* When the question asks to check whether a claim holds, work out
+  whether it would still hold if the video had shown other content — other numbers, another
+  object. If it holds for any content, the sample measures nothing beyond reading the inputs:
+  mark the item `fail` with `CRITICAL_FAIL`. If you see how to rebuild the question so that
+  its check could fail — a claim whose outcome depends on what the video shows — write that
+  in `proposal`. A question that checks no claim is `na`.
+
+  *Status.* Step 0 of the sample reviewer, no frames needed. Verdict `CRITICAL_FAIL`. In the
+  contract since 2026-10-05; a review is obliged to carry the line from the next checklist
+  version on, which comes together with the sample reviewer's prompt.
+
+  *Frequency.* Found in the meta-review of the rounds of September 2026, which introduced
+  the item.
 
 ---
 ## 5. Consistency of question, answer and rubric
@@ -1321,13 +1572,13 @@ asks, there is no point arguing about window boundaries.
 
   **A rubric checks the string of the answer, not the route to it.** "Read from the screen,
   not reconstructed" is a checkable item only when reading and reconstructing produce
-  different strings; when `1⁴/4!` read off the frame and `1⁴/4!` obtained by substituting
-  x = 1 are the same characters, the item is dead and the leak it was meant to close stays
-  open. The cure is paired and lives in the question, not in the rubric alone: put into the
-  wording something that is visible only on the screen — the form of the notation, how the
-  neighbouring entries are drawn — and let the rubric check that; then measure the new
-  wording with a fresh blind probe rather than accept it. A rubric edit on its own either
-  changes nothing or fires 5.2.
+  different strings; when a coefficient read off the frame and the same coefficient obtained
+  by substitution are the same characters, the item is dead. That is not cured by adding to
+  the wording a demand for a notation, a colour or the form of an entry: when reading and
+  deriving give the same answer, the level is that of the cheaper of the two (7.3), and the
+  rubric stays as it is. Items about the look of the screen do not decide `blind_solved`
+  either ([definitions.md](prompts/definitions.md)), so such a demand closes no leak. A
+  rubric edit on its own either changes nothing or fires 5.2.
 
   *Status.* Step 0 of the sample reviewer, no frames needed. Verdict `FIX_QUESTION`.
 
@@ -1408,8 +1659,11 @@ reviewer.
   a consequence of the meaning: there is nothing to wait for, the information is already there
   or is arriving right now. An exception occurs with `at`, when the object is still being drawn.
 
-  *Checking algorithm.* The value is computed from `question_time` and the `evidence_span` of
-  the first and last required trigger and compared against the recorded one.
+  *Checking algorithm.* Over **all** required triggers take the earliest start `a` and the
+  latest end `b` of `evidence_span` — not the first and the last trigger of the list, since
+  the evidence of a later window may come earlier. Then `pre` if `question_time < a`, `post`
+  if `question_time ≥ b`, `at` otherwise; the value is compared against the recorded one
+  ([definitions.md](prompts/definitions.md), "`temporal_rel`").
 
   *Status.* Implemented. It used to degenerate when `evidence_span` was empty (the answer window
   was substituted); the field is now mandatory — see 1.9.
@@ -1444,31 +1698,47 @@ reviewer.
 
 - `[M]` **7.3. `reasoning_level` is not inflated.** · `reasoning-level-not-inflated`
 
-  *Statement.* `L1` — the answer is read off the screen or off the speech directly; `L2` — one
-  has to connect moments separated in time; `L3` — one has to derive something that is not in
-  the video at all.
+  *Statement.* The level is defined in [definitions.md](prompts/definitions.md),
+  "`reasoning_level`": the work that the cheapest legal route to the full rubric leaves to
+  the participant inside the answer window, after everything the stream supplies there is
+  accounted for.
+
+  - `L1` — reading: every scored item stands as it is on the screen or in the speech between
+    `t_start` and `t_end`, and the participant recognises it and repeats it;
+  - `L2` — integration or a short calculation: connecting what the window shows with
+    something shown or said before `t_start` and no longer on the screen, comparing two
+    states, or a short calculation over given values (adding up shown values, scaling a
+    shown quantity by a given factor);
+  - `L3` — derivation or substantial computation whose result the video does not give:
+    extending a sequence, filling a new table column, recomputing for a changed input or
+    law. The inputs and the method may be on the screen; the work must still remain to be
+    done.
+
+  An item is **read off** when the speech or a frame contains its value, and **computed**
+  when they contain only what it is computed from. Copying ten given numbers is reading;
+  computing ten new ones can be `L3`.
 
   **The level is that of the cheapest legal route.** A sample usually admits several ways to
   the full rubric: recall the fact from the topic, read it off a frame shown three minutes
   earlier and multiply by two, derive it from scratch. The participant will take the
   cheapest one, so the label describes that one, not the route the question was written
-  around. Two conventions close the gaps between the three definitions:
+  around; the topic's difficulty, the `act` and the number of items do not set the level.
 
-  - if all the facts the answer is made of are spoken in a single utterance, or stand on a
-    single frame, it is `L1`, however complex the sample may look from the outside;
-  - one step of arithmetic over values that are displayed — the sum of four shown terms,
-    the doubling of a shown curvature — is `L2`, not `L3`: the result is "not in the video"
-    only in the letter of the definition, and nothing is derived. `L3` is for a derivation
-    whose ingredients the screen does not hand over.
+  The level counts what the stream supplies inside the window together with what the
+  question itself states. What the author says or shows in the ten seconds after `t_end`
+  does not lower it: that is a defect of the window (2.5). `predict`, `counterfact` and
+  `extend` are never `L1` (7.9).
 
   The same rule is applied when a sample is re-labelled after a hit of 2.2/2.3 (the ladder
-  there) or after 2.5 with a non-empty residue: the level is recomputed from what the new
-  window leaves to be done.
+  there) or after 2.5 with a non-empty residue: the level is recomputed from what the
+  window leaves to be done inside it. Lowering the level to `L1` without changing the
+  windows or the wording needs no second review.
 
   *Checking algorithm.* Compare the level against the placement of the answer's facts in the
   transcript and against the cheapest route the window admits. It is checked first of all in
-  step 0: the verdict of item 2.5 depends on the level — for `L1` the author's answer sounding
-  nearby is normal, for `L2`/`L3` it compromises the sample.
+  step 0: the verdict of item 2.5 depends on the level — inside the window the author's
+  answer is reading, which an `L1` sample is built on and an `L2`/`L3` sample is compromised
+  by; in the ten seconds after the window it is a defect of the window at any level.
 
   *Status.* Step 0 of the sample reviewer, no frames needed. Verdict `FIX_QUESTION`.
 
@@ -1489,10 +1759,13 @@ reviewer.
   the window drops out of the denominator of the chain metric. It must be checked in both
   directions.
 
-  **A required trigger cannot depend on an optional one.** An optional window is one where the
-  rubric explicitly permits silence. A model that lawfully kept silent there automatically
-  breaks the chain and loses the required window, that is, it is penalised for behaviour the
-  annotation declared correct. That is arithmetic, not judgement, and `S-30` guards it.
+  **A required trigger cannot depend on an optional one.** An optional window is one where
+  giving part of the answer or all of it is legitimate but not required, and silence there
+  is not penalised ([definitions.md](prompts/definitions.md), "Optional window"); a rubric
+  that permits silence is a consequence of that, not its ground. A model that lawfully kept
+  silent there automatically breaks the chain and loses the required window, that is, it is
+  penalised for behaviour the annotation declared correct. That is arithmetic, not
+  judgement, and `S-30` guards it.
 
   A caveat that nonetheless remains: a model may be obliged to **remember** what happened in an
   optional window without being obliged to speak there. That is dependence on an event, not on
@@ -1561,6 +1834,53 @@ reviewer.
   *Status.* Implemented, `S-27`.
 
   *Frequency.* —
+
+- `[M]` **7.8. The `act` matches the video.** · `act-matches-video`
+
+  *Statement.* The act says what the participant does when it answers
+  ([definitions.md](prompts/definitions.md), "`act`"), and two acts make a promise about the
+  video that only the video can keep. A `predict` promises that the author later says or
+  shows the answer: otherwise the participant is asked to guess what never comes, and the
+  sample is a different task under the wrong name. An `alert` promises that deciding whether
+  to speak is the participant's: a question that says the defect exists, or where it is,
+  has made that decision for it.
+
+  *Checking algorithm.* For a `predict`, find where, after the last window, the author says
+  or shows the answer; the whole transcript and the screen index are at hand. If the author
+  never gives it, the sample is not a `predict`: `fail` with `FIX_QUESTION`, and name in
+  `proposal` the act the question is — a changed premise is a `counterfact`, going further
+  with the premises unchanged is an `extend`. For an `alert`, the question must not say that
+  the defect exists or where it is; a question that says it is `fail` with `FIX_QUESTION`.
+  For the other acts the item is `na`.
+
+  There is deliberately no field for the moment of the reveal and no validator rule on it:
+  such a field was tried and dropped. The reveal is found in the transcript, by this item.
+
+  *Status.* Step 1 of the sample reviewer, after 3.1: it needs the whole transcript and the
+  screen index, because the author may reveal a prediction a minute after the window.
+  Verdict `FIX_QUESTION`. In the contract since 2026-10-05; a review is obliged to carry the
+  line from the next checklist version on, which comes together with the sample reviewer's
+  prompt.
+
+  *Frequency.* Found in the meta-review of the rounds of September 2026, which introduced
+  the item together with the act `extend`.
+
+- `[A]` **7.9. `predict`, `counterfact` and `extend` are never `L1`.** · `act-without-answer-not-l1`
+
+  *Statement.* The answer of these three acts is not in the stream inside the window: the
+  author gives a prediction's answer later, and a counterfactual's or an extension's never.
+  An `L1` label, which says the participant reads the answer inside the window, therefore
+  means that either the level or the act is wrong — and the breakdown by level counts as
+  reading a task that reads nothing.
+
+  *Checking algorithm.* `act` in {`predict`, `counterfact`, `extend`} together with
+  `reasoning_level == "L1"` is an error. The cure: re-derive the level by the definition of
+  `reasoning_level` (7.3), or change the act — an answer read off inside the window is
+  `ground`, `monitor` or `alert`.
+
+  *Status.* Implemented, `S-42`.
+
+  *Frequency.* Never — the rule was introduced 2026-10-05.
 
 ---
 ## 8. Provenance
@@ -1641,18 +1961,29 @@ so that the annotation can be re-checked, and are therefore obliged to be correc
   arrangement, the hypothesis "the reference is wrong" never surfaces.
 
   *Checking algorithm.* Recompute the answer **independently**, without looking at `response`,
-  and only then compare. For computational answers (`act: counterfact`, level `L3`, any numbers
-  in the rubric) — symbolically or numerically, not in one's head: the result of the
-  recomputation goes into `provenance.evidence` as an `other` record with the formula and the
-  number obtained. For qualitative answers — name the place in the video the answer follows
-  from, and check that it follows from there rather than from general knowledge of the subject.
+  and only then compare. For computational answers (`act: counterfact` or `extend`, level
+  `L3`, any numbers in the rubric) — symbolically or numerically, not in one's head: the
+  result of the recomputation goes into `provenance.evidence` as an `other` record with the
+  formula and the number obtained. For qualitative answers — name the place in the video the
+  answer follows from, and check that it follows from there rather than from general
+  knowledge of the subject.
+
+  Inspect the reference answer as a derivation, not only as a final string: check the
+  intermediate equalities, the parameter conventions, the domains and the units. A correct
+  final expression does not validate an inconsistent step before it; when a step fails,
+  state the smallest calculation or counterexample that shows it.
+
+  Check every rubric item as a statement: it must be true, and it must accept every correct
+  formulation of its content, not one wording.
 
   The coordinator is obliged to hold two hypotheses rather than one: a discrepancy between probe
   and reference means either "the probe failed" or "the reference is wrong", and telling them
   apart is the work of this item, not of 4.7.
 
-  *What to do on a hit.* `CRITICAL_FAIL` if the answer is wrong on the merits; `FIX_QUESTION` if
-  it is right but written down in a way that makes it impossible to accept as right.
+  *What to do on a hit.* An error in the reference answer or in a rubric item is `fail` with
+  `FIX_QUESTION`: the reference and the rubric are rewritten, and the sample keeps measuring
+  what it measured. Only when the question has no correct answer the video supports is the
+  sample beyond repair, and that is `CRITICAL_FAIL` (as in 4.7).
 
   *Status.* Not implemented. The sample reviewer, item `reference-answer-verified`.
 
@@ -1763,10 +2094,10 @@ with it. It is caught badly, because the eye slides over familiar text.
    Cheap, run after every edit. The interpreter is named explicitly: the project has two
    environments, and `python3` resolves differently in each.
 
-2. `[M]` — the verifier. The order within the level is set by cost: first 4.6 and 4.7 (questions
-   to oneself, zero frames), then reading the transcript, then the sparse viewing, and only at
-   the end a dense viewing of the stretches the previous steps flagged as suspicious. Runs
-   4.2–4.5 go as a separate pipeline and reject samples wholesale.
+2. `[M]` — the verifier. The order within the level is set by cost: first 4.2 and 4.3
+   (questions to oneself, zero frames), then reading the transcript, then the sparse viewing,
+   and only at the end a dense viewing of the stretches the previous steps flagged as
+   suspicious. The probes 4.4–4.7 go as a separate pipeline.
 
    The full working order of the verifier is described in
    [docs/annotation_pipeline.md](annotation_pipeline.md).
@@ -1863,3 +2194,61 @@ anew in a month.
   coordinator compares qualitatively, disputed cases are asked again pointwise and, if the
   disagreement persists, go to a human or are thrown out (4.1). Weights and thresholds are a
   question for the measurement phase, together with the metric.
+- **One file of definitions** (2026-09-29, content agreed 2026-09-30) — the terms live in
+  `docs/prompts/definitions.md`, which the proposer and the coordinator read; the checklist
+  refers to it (2026-10-05). The "`L1` alarm" is gone: raising an alert is the act `alert`,
+  an axis independent of the level, and a legitimate `L1` task is one whose answer is read
+  from the video inside the window and is not given by the question. `CRITICAL_FAIL` means
+  rejected or rebuilt as a new sample; the reviewer writes the cures into `proposal`.
+- **`reasoning_level` counts the window only** (2026-09-29) — one definition, with read-off
+  and computed items (7.3, 4.6). The ten seconds after `t_end` stay in 2.5 as a guard
+  against copying and never make a sample `L1`: what the author says there is a defect of
+  the window. `predict` is never `L1`, and from 2026-09-30 neither are `counterfact` and the
+  new act `extend` (7.9). Lowering the level to `L1` without changing the windows or the
+  wording needs no second review.
+- **2.5 by required and optional windows** (2026-09-29, 2026-10-02, 2026-10-05; amends the
+  entry of 2026-09-08) — what the stream hands over inside the window is reading, after it
+  a defect of the window; the question's own statements count as handed over (2026-10-02).
+  A residue that gives the annotated level is `ok`; the reviews saved before are not re-read,
+  since their outcome was a no-op. The ten-second rule holds on every window of an
+  `L2`/`L3` sample and of a `predict` (2026-10-05): an empty residue in an optional window
+  is `FIX_INTERVALS` unless a later required window scores the same items, and in a required
+  window it is `FIX_INTERVALS` when a new `t_end` keeps the window workable. 3.1 and 3.4
+  follow: a repeat after the author's answer is not a firing. The split goes into
+  structured fields of the 2.5 check.
+- **Boundary tolerance in steps** (2026-09-29; amends the entry of 2026-09-10) — up to 2 s,
+  2 to 10 s, over 10 s (group 2 preamble); an uncertain boundary is set wider rather than
+  narrower; 2.4 does not narrow by 2 s or less, nor closer than 5 s after an event that is
+  itself the answer. An `evidence_span` edit that keeps the derived `temporal_rel` and passes
+  the validator is a `metadata` edit with no second review (2026-10-01).
+- **The empty when-clause** (2026-09-29, refined 2026-10-05; amends the entry of
+  2026-09-08) — the early window becomes the required one; the showing stays as an optional
+  window on `L1` and is removed on `L2`/`L3` and `predict`. A required window opens where
+  the answer is possible by the route the level describes, and an earlier, harder route gets
+  an optional window ("sine of angle B", 2026-09-30). `question_time` moves back only when a
+  participant understands the wording at the new moment (2026-10-02).
+- **`temporal_rel` from all required windows** (2026-09-29) — the earliest start and the
+  latest end of `evidence_span` over the required windows, as the code already did.
+- **`predict` windows** (2026-09-29) — no optional window after the last required one
+  (1.14). No field for the moment of the reveal: 7.8 finds it in the transcript.
+- **The act `extend`** (2026-09-30) — `counterfact` is now only a changed premise; going
+  further with the premises unchanged is `extend`. 7.8 checks the reveal of a `predict` and
+  the wording of an `alert`.
+- **Traces of the proposer's self-checks** (2026-09-30; the item number in the line of 1.13
+  2026-10-02; rubric items numbered from 1, in list order, 2026-10-05) — 1.12 and 1.13. The
+  validator checks that a line is there, not that it is right.
+- **New review items** (2026-09-30 to 2026-10-05) — 2.6 for the semi-blind reviewer, 4.9 and
+  7.8 for the sample reviewer; the new wording of 4.8 and the derivation paragraph of 8.4,
+  with `FIX_QUESTION` for a wrong reference (2026-10-02). They are in the contract with the
+  date 2026-10-05, and `CHECKLIST_VERSION` stays `2026-09-07` until the reviewer prompts
+  carry them: the reviews written meanwhile are saved under the current version and must
+  still pass.
+- **`blind_solved` by the answer, not by the list of assumptions** (2026-09-30 to
+  2026-10-02) — a reading the wording forces is not an assumption; recognising the video does
+  not decide the flag; a sign, an index or a unit is substantive, and "a displayed number"
+  is no longer an item about the screen; a hedged answer is credited with neither branch.
+- **Negative probe outcomes are re-measured, not argued** (2026-09-30) — at most once per
+  probe and version of the sample (4.1); this replaces the pointwise repeats of the entry on
+  the scale of the rubric.
+- **No demands on notation to tell reading from deriving** (2026-10-02) — when both give the
+  same answer, the level is that of the cheaper route, and the rubric stays as it is (5.3).

@@ -52,6 +52,10 @@ SCHEMA_VERSION = "1.3"   # 1.1: the full role was split into full_sample and ful
 #      read); the semi-blind scan became a trajectory of full answers (`Candidate`);
 #      the full reviewer may propose `t_s`; a new role `probe_verify` checks it
 CHECKLIST_VERSION = "2026-09-07"
+# The checklist of 2026-10-05 added three role items (2.6, 4.9, 7.8; see INTRODUCED_ITEMS).
+# The version is not moved yet: the reviewer prompts still state 2026-09-07, and a moved
+# version would turn every review they produce into a legacy one. It moves, to a date not
+# earlier than 2026-10-05, together with the prompts that carry the new items.
 # The previous checklist version. Reviews saved under it may still carry the retired
 # items and the old shape of `candidates`; anything newer may not.
 PREVIOUS_CHECKLIST_VERSION = "2026-08-24"
@@ -106,6 +110,9 @@ class Item(StrEnum):
     EVIDENCE_SPAN_PRESENT = "evidence-span-present"
     SOUND_ONLY_TRIGGER = "sound-only-trigger"
     WINDOW_NOT_TOO_NARROW = "window-not-too-narrow"
+    BLIND_SELF_CHECK_RECORDED = "blind-self-check-recorded"            # 1.12
+    WHEN_EVENT_SELF_CHECK_RECORDED = "when-event-self-check-recorded"  # 1.13
+    PREDICT_NO_TRAILING_OPTIONAL_WINDOW = "predict-no-trailing-optional-window"  # 1.14
 
     # --- 2. windows --------------------------------------------------------
     SHARED_BOUNDARY_NOT_MID_CUE = "shared-boundary-not-mid-cue"
@@ -113,6 +120,7 @@ class Item(StrEnum):
     ANSWER_AVAILABLE_BEFORE_QUESTION = "answer-available-before-question"  # 2.3
     WINDOW_CAN_BE_TIGHTENED = "window-can-be-tightened"                # 2.4
     AUTHOR_SAYS_ANSWER_IN_WINDOW = "author-says-answer-in-window"      # 2.5
+    QUESTION_HOLDS_AT_QUESTION_TIME = "question-holds-at-question-time"  # 2.6
 
     # --- 3. triggers -------------------------------------------------------
     NO_MISSED_TRIGGER = "no-missed-trigger"
@@ -129,6 +137,7 @@ class Item(StrEnum):
     SINGLE_FRAME_ENOUGH = "single-frame-enough"              # 4.6
     SOLVABLE_AT_ALL = "solvable-at-all"                      # 4.7
     QUESTION_ANCHORED_TO_SCREEN = "question-anchored-to-screen"  # 4.8
+    CHECK_OUTCOME_DEPENDS_ON_VIDEO = "check-outcome-depends-on-video"  # 4.9
 
     # --- 5. rubric ---------------------------------------------------------
     TWINS_SHARE_RUBRIC = "twins-share-rubric"
@@ -154,6 +163,8 @@ class Item(StrEnum):
     EVIDENCE_SPAN_IS_LAST = "evidence-span-is-last"
     AUDIO_DEPENDENCY_MATCHES_PROBES = "audio-dependency-matches-probes"
     PROBE_FLAGS_CONSISTENT = "probe-flags-consistent"
+    ACT_MATCHES_VIDEO = "act-matches-video"                  # 7.8
+    ACT_WITHOUT_ANSWER_NOT_L1 = "act-without-answer-not-l1"  # 7.9
 
     # --- 8. provenance -----------------------------------------------------
     TIMECODES_EXIST = "timecodes-exist"
@@ -186,6 +197,10 @@ RETIRED_ITEMS: dict[Item, str] = {
 # checklist is not required to have a line for them.
 INTRODUCED_ITEMS: dict[Item, str] = {
     Item.ELEMENTWISE_OPTIONAL_TRIGGERS: "2026-09-07",
+    # Required from the first CHECKLIST_VERSION not earlier than this date (see there).
+    Item.QUESTION_HOLDS_AT_QUESTION_TIME: "2026-10-05",
+    Item.CHECK_OUTCOME_DEPENDS_ON_VIDEO: "2026-10-05",
+    Item.ACT_MATCHES_VIDEO: "2026-10-05",
 }
 
 
@@ -213,7 +228,7 @@ Seconds = Annotated[float, Field(ge=0, description="a moment in the video, secon
 class Role(StrEnum):
     """Who filled it in. Every role has its own prompt and its own set of available material."""
 
-    SEMIBLIND = "semiblind"       # knows the t_end of the windows, not the answer: 2.2, 2.3
+    SEMIBLIND = "semiblind"       # knows the t_end of the windows, not the answer: 2.2, 2.3, 2.6
     FULL_SAMPLE = "full_sample"   # sees the whole sample, one run per sample
     FULL_WINDOW = "full_window"   # sees one window, one run per window
     PROBE_TEXT = "probe_text"
@@ -237,9 +252,12 @@ class Role(StrEnum):
 ROLE_ITEMS: dict[Role, frozenset[Item]] = {
     # The semi-blind reviewer does not "check" 2.2 and 2.3: they return scans, and the
     # verdict is derived by the coordinator, comparing t_val against a t_start they never saw.
+    # 2.6 they do check: it needs exactly their material — the video up to question_time —
+    # and no knowledge of the answer.
     Role.SEMIBLIND: frozenset({
         Item.SOLVABLE_WITHOUT_VIDEO,
         Item.VIDEO_RECOGNIZED,
+        Item.QUESTION_HOLDS_AT_QUESTION_TIME,
     }),
     # The full review was split into two roles because the former single set was
     # unsatisfiable: the contract demanded a line for all eighteen items, while the
@@ -259,11 +277,13 @@ ROLE_ITEMS: dict[Role, frozenset[Item]] = {
         Item.NO_MISSED_TRIGGER,
         Item.TRIGGER_MATCHES_CRITERION,
         Item.QUESTION_ANCHORED_TO_SCREEN,
+        Item.CHECK_OUTCOME_DEPENDS_ON_VIDEO,
         Item.RUBRIC_WITHIN_QUESTION,
         Item.DISCRIMINATOR_IN_QUESTION,
         Item.RUBRIC_NOT_PUNISHING_EXTRA,
         Item.ELEMENTWISE_OPTIONAL_TRIGGERS,
         Item.REASONING_LEVEL_NOT_INFLATED,
+        Item.ACT_MATCHES_VIDEO,
         Item.REFERENCE_MATCHES_DESCRIPTION,
         Item.REFERENCES_CONSISTENT_WITH_WINDOWS,
         Item.REFERENCE_ANSWER_VERIFIED,
@@ -345,6 +365,7 @@ ITEMS_NEEDING_DISTRACTOR_IDX: frozenset[Item] = frozenset({
 # frames nor lines of speech. Only for these may `looked_at` be empty.
 ITEMS_WITHOUT_VIEWING: frozenset[Item] = frozenset({
     Item.QUESTION_ANCHORED_TO_SCREEN,
+    Item.CHECK_OUTCOME_DEPENDS_ON_VIDEO,
     Item.RUBRIC_WITHIN_QUESTION,
     Item.DISCRIMINATOR_IN_QUESTION,
     Item.RUBRIC_NOT_PUNISHING_EXTRA,
@@ -356,7 +377,8 @@ ITEMS_WITHOUT_VIEWING: frozenset[Item] = frozenset({
 
 # The items applicable to any sample: there is no `na` for them.
 # Inapplicability is possible only where the geometry of the sample creates it — no
-# `depends_on`, no twin, a rubric that does not split by elements (3.4). Without this list `na` turns out cheaper than an
+# `depends_on`, no twin, a rubric that does not split by elements (3.4), a question that
+# checks no claim (4.9), an act other than `predict` and `alert` (7.8). Without this list `na` turns out cheaper than an
 # honest `skipped`: it demands nothing and does not stand in the way of a PASS verdict,
 # which makes it the most profitable way of not checking.
 ITEMS_ALWAYS_APPLICABLE: frozenset[Item] = frozenset({
@@ -365,6 +387,7 @@ ITEMS_ALWAYS_APPLICABLE: frozenset[Item] = frozenset({
     Item.NO_MISSED_TRIGGER,
     Item.TRIGGER_MATCHES_CRITERION,
     Item.EVENT_NOT_EARLIER_THAN_WINDOW,
+    Item.QUESTION_HOLDS_AT_QUESTION_TIME,
     Item.QUESTION_ANCHORED_TO_SCREEN,
     Item.RUBRIC_WITHIN_QUESTION,
     Item.DISCRIMINATOR_IN_QUESTION,
@@ -390,7 +413,7 @@ class Verdict(StrEnum):
     PASS = "PASS"
     FIX_INTERVALS = "FIX_INTERVALS"    # cured by moving boundaries
     FIX_QUESTION = "FIX_QUESTION"      # cured by rewording
-    CRITICAL_FAIL = "CRITICAL_FAIL"    # the sample is thrown out
+    CRITICAL_FAIL = "CRITICAL_FAIL"    # not curable within this sample: rejected, or rebuilt as a new sample
 
 
 class Result(StrEnum):
@@ -701,12 +724,8 @@ class Candidate(Strict):
     and a confidently wrong answer looks exactly like a right one. So they answer at
     every moment where the screen or the speech relevant to the task changed, and the
     coordinator — who has the rubric — decides which of the answers is the first to pass
-    it. The self-assessment `sufficient` is recorded but carries no status.
-
-    On the pilot the information was there and nobody read it: the reviewers wrote
-    "supplies all four concrete values and signs" about a moment inside a declared
-    decoy, and the phrase had to be recognised as "the rubric is met" — it was not.
-    A full answer per point is what the adjudication table is built from.
+    it. The self-assessment `sufficient` is recorded but carries no status. A full
+    answer per point is what the adjudication table is built from.
     """
 
     t: Seconds = Field(description="the moment; everything up to it and nothing after it was available")
@@ -810,10 +829,8 @@ class SemiBlindReview(ReviewBase):
     **Since checklist 2026-09-07 the scan is a trajectory, and `t_val` is adjudicated.**
     Every `Candidate` carries a full answer; the coordinator checks each against the
     rubric item by item and takes the first passing one as `t_val` (the reviewer's own
-    `t_val` is a self-report). The reviewer is told nothing about decoys — there are
-    none any more — and therefore nothing that could betray `t_start`: on the pilot the
-    `t_end` of a declared decoy was the window's `t_start` in 23 samples of 44, and
-    `t_val` landed within a second after it in 19.
+    `t_val` is a self-report). The reviewer is told nothing that could betray
+    `t_start`.
 
     For the same reason **their verdict on 4.2 is preliminary too**
     (`solvable-without-video`): they have no reference answer, and they judge "it matched"
@@ -835,8 +852,8 @@ class SemiBlindReview(ReviewBase):
     prior_answer_assumptions: list[str] = Field(
         default_factory=list,
         description="the assumptions without which prior_answer does not stand: each "
-                    "on its own line (\u00abthe screen shows the canonical example 1/2, 1/4, "
-                    "1/8, 1/8\u00bb). An empty list means the answer was derived only "
+                    "on its own line (\u00abthe circuit on the screen has R = 1 k\u03a9 and "
+                    "C = 1 \u00b5F\u00bb). An empty list means the answer was derived only "
                     "from the text of the question and general knowledge of the subject. The field "
                     "exists because an answer resting on guessed screen content is "
                     "not blind solving, while from outside it is indistinguishable from it")
@@ -848,9 +865,11 @@ class SemiBlindReview(ReviewBase):
     scans: list[IntervalScan] = Field(min_length=1)
     checks: list[Check] = Field(
         default_factory=list,
-        description="two lines: video-recognized (the verdict is final) "
-                    "and solvable-without-video (the verdict is PRELIMINARY — "
-                    "the coordinator re-checks it, see COORDINATOR_ITEMS)")
+        description="one line per item of the role under the stated checklist_version "
+                    "(items_for): video-recognized (the verdict is final) and "
+                    "solvable-without-video (the verdict is PRELIMINARY — the coordinator "
+                    "re-checks it, see COORDINATOR_ITEMS); question-holds-at-question-time "
+                    "only under a checklist that has introduced it (INTRODUCED_ITEMS)")
 
     @model_validator(mode="after")
     def _trajectory_shape(self) -> SemiBlindReview:
@@ -1078,11 +1097,15 @@ ITEM_NUMBER: dict[Item, str] = {
     Item.EVIDENCE_SPAN_PRESENT: "1.9",
     Item.SOUND_ONLY_TRIGGER: "1.10",
     Item.WINDOW_NOT_TOO_NARROW: "1.11",
+    Item.BLIND_SELF_CHECK_RECORDED: "1.12",
+    Item.WHEN_EVENT_SELF_CHECK_RECORDED: "1.13",
+    Item.PREDICT_NO_TRAILING_OPTIONAL_WINDOW: "1.14",
     Item.SHARED_BOUNDARY_NOT_MID_CUE: "2.1",
     Item.ANSWER_POSSIBLE_BEFORE_START: "2.2",
     Item.ANSWER_AVAILABLE_BEFORE_QUESTION: "2.3",
     Item.WINDOW_CAN_BE_TIGHTENED: "2.4",
     Item.AUTHOR_SAYS_ANSWER_IN_WINDOW: "2.5",
+    Item.QUESTION_HOLDS_AT_QUESTION_TIME: "2.6",
     Item.NO_MISSED_TRIGGER: "3.1",
     Item.TRIGGER_MATCHES_CRITERION: "3.2",
     Item.EVENT_NOT_EARLIER_THAN_WINDOW: "3.3",
@@ -1095,6 +1118,7 @@ ITEM_NUMBER: dict[Item, str] = {
     Item.SINGLE_FRAME_ENOUGH: "4.6",
     Item.SOLVABLE_AT_ALL: "4.7",
     Item.QUESTION_ANCHORED_TO_SCREEN: "4.8",
+    Item.CHECK_OUTCOME_DEPENDS_ON_VIDEO: "4.9",
     Item.TWINS_SHARE_RUBRIC: "5.1",
     Item.RUBRIC_WITHIN_QUESTION: "5.2",
     Item.DISCRIMINATOR_IN_QUESTION: "5.3",
@@ -1110,6 +1134,8 @@ ITEM_NUMBER: dict[Item, str] = {
     Item.EVIDENCE_SPAN_IS_LAST: "7.5",
     Item.AUDIO_DEPENDENCY_MATCHES_PROBES: "7.6",
     Item.PROBE_FLAGS_CONSISTENT: "7.7",
+    Item.ACT_MATCHES_VIDEO: "7.8",
+    Item.ACT_WITHOUT_ANSWER_NOT_L1: "7.9",
     Item.TIMECODES_EXIST: "8.1",
     Item.REFERENCE_MATCHES_DESCRIPTION: "8.2",
     Item.REFERENCES_CONSISTENT_WITH_WINDOWS: "8.3",

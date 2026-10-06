@@ -290,10 +290,11 @@ def semantic_checks(s: dict) -> list[str]:
         errs.append("trigger idx values must run consecutively from 0")
 
     # S-09 · checklist 1.3 — the order of idx matches the chronological order.
-    #   Breaks: derive_temporal_rel takes the evidence of the first and last required
-    #   triggers by their place in the list, and after a reordering the axis is derived
-    #   from the wrong windows. The violation used to surface under somebody else's name —
-    #   as "the window overlaps the previous one".
+    #   Breaks: the overlap check (S-11) compares each window with the previous one in
+    #   the list, and depends_on (S-13) points backwards by idx; after a reordering both
+    #   compare the wrong pairs, and "backwards" stops meaning "earlier". The violation
+    #   used to surface under somebody else's name — as "the window overlaps the previous
+    #   one".
     #   To check: swap the contents of triggers 1 and 2 (leaving idx alone)
     #   -> "do not run in increasing order of t_start".
     starts = [t["t_start"] for t in trigs]
@@ -490,11 +491,9 @@ def semantic_checks(s: dict) -> list[str]:
     notes = s["validation"].get("notes") or ""
     # Rubric items are numbered from 1, in list order, separately in each window; a number
     # in the notes is valid if some required window has an item with it.
-    # S-40 and S-41 cite checklist 4.2 and 2.2 until their own items, 1.12 and 1.13, are
-    # written: schema/review.py rejects a rule that cites an item which does not exist.
     n_items = max(len(t["rubric"]) for t in trigs if t["required"])
 
-    # S-40 · checklist 4.2 — a draft records what each rubric item needs from this video.
+    # S-40 · checklist 1.12 — a draft records what each rubric item needs from this video.
     #   Breaks: the proposer's check of what the question gives away leaves no trace, and a
     #   question all of whose items follow from the subject alone reaches review as if the
     #   check had been made. The line records the check, it does not prove it: whether the
@@ -513,7 +512,7 @@ def semantic_checks(s: dict) -> list[str]:
                         f'longest rubric of a required window has {n_items} item(s), numbered '
                         f'from 1 in list order — number the line by the rubric')
 
-    # S-41 · checklist 2.2 — a pre draft names the rubric item its when-event makes available.
+    # S-41 · checklist 1.13 — a pre draft names the rubric item its when-event makes available.
     #   Breaks: a question whose event only marks a moment passes as pre: a participant
     #   who knows the answer is right to speak at once, and the answer counts as outside
     #   the windows. A retelling of the event in place of an item number does not show
@@ -531,7 +530,7 @@ def semantic_checks(s: dict) -> list[str]:
                         f'gives the question no right to pre: see {selfcheck} "What the '
                         f'when-event gives"')
 
-    # S-42 · checklist 7.3 — predict, counterfact and extend are never L1.
+    # S-42 · checklist 7.9 — predict, counterfact and extend are never L1.
     #   Breaks: the answer of these acts is not in the stream inside the window — the
     #   author gives it later or never — so an L1 label means either the level or the act
     #   is wrong, and the level breakdown counts a task that reads nothing as a reading.
@@ -542,7 +541,7 @@ def semantic_checks(s: dict) -> list[str]:
                     f"re-derive it by the definition of reasoning_level — or the act is: an "
                     f"answer read off inside the window is ground, monitor or alert")
 
-    # S-43 · checklist 2.5 — a predict has no optional window after its last required one.
+    # S-43 · checklist 1.14 — a predict has no optional window after its last required one.
     #   Breaks: the author gives the answer to a prediction after its required window, so a
     #   later window either opens after his answer — an answer there repeats him — or scores
     #   a prediction made when it is no longer one.
