@@ -161,8 +161,15 @@ t_val`) is handled in steps:
   value without a second review;
 - **from 2 to 10 s** — a boundary error: the boundary moves and the touched window is reviewed
   again (`FIX_INTERVALS`);
-- **over 10 s** — not a boundary error: the coordinator decides it by the when-clause of the
-  question.
+- **over 10 s** — for `t_start` against the earliest possible answer it is not a boundary
+  error: the answer was available long before what the question waits for, and the
+  coordinator decides it by the when-clause of the question — an early optional window when
+  the event brings something the answer needs, a reworded question when it brings nothing.
+  For any other boundary a gap over 10 s is a boundary error, as in the step above.
+
+For `question_time` only the first step applies: a move of more than 2 s changes the moment at
+which the question must make sense, and it goes as a new version of the question, reviewed in
+full.
 
 When a boundary is uncertain within 2 s, set the window wider rather than narrower: `t_start`
 at the early edge, `t_end` at the late one, as long as the rule of the author's reveal still
@@ -219,14 +226,14 @@ the recall denominator.
   an assumption: the model under evaluation will make it too. A guess is a choice among
   concrete alternatives for the screen's content that the question leaves open.
 
-Recalling a known textbook or historical fact counts as solving blind. What decides is
-whether someone who knows the subject but has never seen this video could give the answer.
-Content only this video has — its examples, its numbers, its construction — recalled from
-memory of the video is not solving blind: it is recognition of the video, counted over the
-whole video and decided for the video, not for the sample. Predicting which
-values, example or layout the screen will show does not, even when the prediction is exactly
-right. The flag is set by the coordinator. `true` excludes the sample from the primary
-benchmark but does not prevent `status: validated`.
+Recalling a known textbook or historical fact counts as solving blind. What decides is whether
+someone who knows the subject but has never seen this video could give the answer. Content only
+this video has — its examples, its numbers, its construction — is not solving blind, however
+the answer came by it: the test is someone who has never seen this video. Whether a model
+remembers a video is not decided in the annotation; it is measured separately. Predicting which
+values, example or layout the screen will show is not solving blind either, even when the
+prediction is exactly right. The flag is set by the coordinator. `true` excludes the sample
+from the primary benchmark but does not prevent `status: validated`.
 
 ---
 

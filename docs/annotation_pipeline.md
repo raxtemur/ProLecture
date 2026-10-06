@@ -5,6 +5,10 @@ question "in what order and by whose hands", whereas
 [annotation_checklist.md](annotation_checklist.md) answers the question "what exactly is
 checked". The role prompts are in [prompts/](prompts/).
 
+> **2026-10-06.** This document follows the checklist of 2026-10-05. The reviewers' and the
+> coordinator's prompts are not yet brought in line with it; until they are, where they
+> differ, the checklist and [prompts/definitions.md](prompts/definitions.md) win.
+
 The pipeline is designed around three constraints:
 
 - **the coordinator's context is expensive** — whoever holds the whole video in their head must
@@ -39,7 +43,7 @@ The pipeline is designed around three constraints:
    ┌─────────▼──────────────────────────────────┐
    │  Step 3. Reviewers and probes               │  prompts/reviewer_semiblind.md
    │  semi-blind ─> the moment the answer became │  prompts/reviewer_full_sample.md
-   │             possible, contamination flags   │  prompts/reviewer_full_window.md
+   │             possible, the blind answer      │  prompts/reviewer_full_window.md
    │  per sample ─> question, rubric, t_s        │  prompts/probe_*.md
    │  per window ─> boundaries, one per window   │  checklist groups 2–8
    │  probes  ──> validation.* and audio_dependency │
@@ -47,8 +51,8 @@ The pipeline is designed around three constraints:
              │
    ┌─────────▼──────────┐   not PASS
    │  Step 4. Edits     │───────────┐
-   │  the coordinator   │           │  the same question goes
-   └─────────┬──────────┘           │  for a repeat review
+   │  the coordinator   │           │  what the edit touched
+   └─────────┬──────────┘           │  goes for a repeat review
              │  all PASS            │  by fresh subagents
              ▼                      └──────────► back to step 2
    ┌─────────▼──────────┐
@@ -62,7 +66,7 @@ The pipeline is designed around three constraints:
    │  Step 6. A human   │  mandatory acceptance, not only on failure
    └─────────┬──────────┘
              ▼
-        status: draft → ready for the measurement phase (checklist group 4)
+        status: draft → ready for the measurement phase
 ```
 
 ---
@@ -112,7 +116,9 @@ that falls apart on arithmetic.
 
 ## Step 3. Reviewers and probes
 
-Three reviewer roles per question plus the modality probes — all in parallel. The sample under
+Three reviewer roles per question plus the modality probes — in parallel, except what waits on
+another's result: `probe_full` runs after `probe_text` and `probe_vision`, stage C after stage B
+(below). The sample under
 check is passed to each **in the body of the prompt**, so that the task is set unambiguously; but
 `full_sample` and `full_window` are not forbidden the annotation file — they know the reference
 answer anyway, and the neighbouring questions of the same video help to see whether one moment has
@@ -140,9 +146,11 @@ there is nothing to divide them between launches by.
 
 **The semi-blind reviewer** gets the text of the question, `question_time` and a working folder.
 They see neither `response`, nor `rubric`, nor `provenance`, nor the annotation file, nor the
-window boundaries. Their work is items 4.2, 4.3 and the material for both checks of the left
-boundary: 2.3 (the answer was available even before the question was issued) and 2.2 (the answer
-became possible between the issue of the question and the opening of the window).
+window boundaries. Their work is items 4.2 and 4.3, item 2.6 (the question holds and can be
+understood at `question_time`: their first stretch begins at zero, so the material up to that
+moment is theirs) and the material for both checks of the left boundary: 2.3 (the answer was
+available even before the question was issued) and 2.2 (the answer became possible between the
+issue of the question and the opening of the window).
 
 **The stretch is traversed consecutively and to the end.** The end of the stretch is chosen so
 that the interval needed lies within it — which means the reviewer is not looking for "is there an
@@ -205,9 +213,13 @@ trajectory above is **stage A**; from it the coordinator derives `t_val_A` by ch
 answer against the rubric (the adjudication table in `prompts/coordinator.md`). **Stage B**: the
 full reviewer, who knows the answer, may propose `t_s` — the first moment from which, in their
 view, the rubric is satisfiable, with the frame that shows it. They were forbidden the left
-boundary because of a known leftward bias; the ban is lifted because a check follows. **Stage C**:
+boundary because of a known leftward bias; the ban is lifted because a check follows. If the
+question has a when-clause, they read the proposer's line `the when-event gives: item <N> — …`
+in `validation.notes` (checklist 1.13) as a claim: when the transcript or the screen index
+shows that item's content before the event, that earlier moment is their `t_s`. **Stage C**:
 if `t_s < t_val_A`, a fresh semi-blind probe (`probe_verify`, prompt `prompts/probe_verify.md`)
-receives the task without its when-clause and the material up to `t_s`, and answers. Rubric met →
+receives the task without its when-clause as a signal to answer (what the rest of the question
+refers back to in it stays) and the material up to `t_s`, and answers. Rubric met →
 `t_val = t_s`; not met → `t_val = t_val_A`. An early correct answer of an evaluated model at
 `t_m < t_start` is a ready-made `t_s`: stage C runs at `t_m` directly. The probe's folder is
 prepared exactly like the semi-blind one, with `--verify`:
@@ -274,13 +286,15 @@ instead of N prefixes.
 
 What the coordinator derives from `t_val` — the reviewer passes no verdicts on boundaries
 themselves, and `t_val` here is the **adjudicated** one (the first answer of the trajectory that
-meets the rubric, corrected by stage C), not the reviewer's self-report:
+meets the rubric by the route of the sample's level, corrected by stage C; an earlier answer that
+only a harder route reaches gets an optional window, checklist 2.2), not the reviewer's
+self-report:
 
 | Condition | Conclusion |
 |---|---|
 | `t_val[0] < question_time` | 2.3: the answer was available before the question was issued |
 | `t_val[k] < t_start[k]` | 2.2: the window opens later than the answer became possible |
-| `t_val[k] = null` | no answer of the trajectory meets the rubric: a signal for 2.5 or 4.7 |
+| `t_val[k] = null` | no answer of the trajectory meets the rubric: a signal for 2.5, 4.7 or 8.4 (a wrong reference) |
 
 Inside an optional window is not a hit. The main thing the reviewer does not have and the
 coordinator does is the rubric: no `PASS` on 2.2 is issued without the adjudication table, and a
@@ -293,9 +307,12 @@ proposals, over three iterations the window drifts monotonically, and oscillatio
 — will not fire, because the drift is one-directional. For the same reason self-reporting on
 contamination (4.2, 4.3) only makes sense before the reference answer has entered the context.
 
-**The full reviewer** gets the whole sample and does everything else: 2.4, 2.5, group 3
-(including 3.4, the optional triggers on elements that appear one by one), 4.8, 5.2–5.4,
-7.3–7.5, 8.2–8.3 — and the proposal `t_s` of stage B.
+**The full reviewer** gets the whole sample and does everything else, split between two roles:
+`full_sample` — 3.1, 3.2, 3.4 (the optional triggers on elements that appear one by one), 4.8,
+4.9, 5.2–5.4, 7.3, 7.8, 8.2–8.5 and the proposal `t_s` of stage B; `full_window` — 2.4, 2.5,
+3.3, 7.4, 7.5. The lists are `ROLE_ITEMS` in the contract. Items 2.6 (the semi-blind reviewer's),
+4.9 and 7.8 entered it on 2026-10-05; a review is obliged to carry their lines from the next
+checklist version on, which comes together with the reviewers' prompts.
 
 On each stretch the semi-blind reviewer returns the whole **trajectory**, not a single `t_val`: a
 full answer at every moment where the relevant state changed. From a bare number one cannot tell a
@@ -341,7 +358,7 @@ Order and cost:
 | Probe | Prompt | Material | Frames | Fills in |
 |---|---|---|---|---|
 | `text` | [prompts/probe_text.md](prompts/probe_text.md) | transcript up to `t_end` | 0 | `textonly_solved` (4.4) |
-| `frame` | [prompts/probe_frame.md](prompts/probe_frame.md) | one frame in the middle of the window | 1 per trigger | `frozenframe_solved` (4.6) |
+| `frame` | [prompts/probe_frame.md](prompts/probe_frame.md) | one frame in the middle of the window | one probe per required window, one frame each | `frozenframe_solved` (4.6) |
 | `vision` | [prompts/probe_vision.md](prompts/probe_vision.md) | frames up to `t_end` | up to 40 | `visiononly_solved` (4.5) |
 | `full` | [prompts/probe_full.md](prompts/probe_full.md) | transcript and frames | up to 40 | `solvable` (4.7) |
 
@@ -398,13 +415,16 @@ practice this means the fourth probe is launched rarely.
 What the coordinator does with all this:
 
 - `blind_solved` is set by the **coordinator**, not by the semi-blind reviewer: the line in their
-  `checks` is preliminary, because they have nothing to compare against. An answer counts as blind
-  solving when it is at once **correct** (agrees with the rubric) and **honest** (does not rest on
-  assumptions about material not seen — see `prior_answer_assumptions`). A guess of the form
-  "probably the screen shows the canonical textbook example, in which case you get such-and-such"
-  does not count: the statement of the problem was guessed, the answer was not found. A hedged
-  answer with two branches counts only if the wrong branch would have cost the participant a
-  point. With `blind_solved = true` the candidate is excluded from the primary task set, but it
+  `checks` is preliminary, because they have nothing to compare against. When an answer counts as
+  blind solving is defined in [prompts/definitions.md](prompts/definitions.md), "`blind_solved`":
+  it is at once **correct** (it meets every substantive rubric item) and **honest** (it does not
+  rest on assumptions about screen content not seen). A guess of the form "probably the screen
+  shows the canonical textbook example, in which case you get such-and-such" does not count: the
+  statement of the problem was guessed, the answer was not found. A hedged answer is not credited
+  with the better of its branches: an answer that offers alternatives for one rubric item does
+  not meet that item, in a blind answer and in a probe's answer alike (checklist 4.2); if the
+  alternatives come from two readings of the question, that is a defect of the question. With
+  `blind_solved = true` the candidate is excluded from the primary task set, but it
   continues through the review DAG. If it is otherwise correct and complete, use
   `status: validated` and retain it as a blind baseline. Use `status: rejected` only for an
   independent defect or deliberately abandoned work; a terminal rejected record is not sent
@@ -420,11 +440,24 @@ What the coordinator does with all this:
   any single-modality probe already proves solvability, and in that case the `full` probe is not
   launched at all — but the field must still be filled in, otherwise the sample will not pass into
   `validated` (`S-18`, `S-27`);
-- `solvable = false` is a `CRITICAL_FAIL`: the question is not solvable even from the full material;
+- `solvable = false` is a `CRITICAL_FAIL`: the question is not solvable even from the full
+  material. Before setting it, rule out a wrong reference (checklist 8.4): a discrepancy between
+  the probe and the reference means either that the probe failed or that the reference is wrong;
 - `visiononly_solved` together with `solvable` give the `audio_dependency` label by the rule from
   4.5 — it is never set by hand;
-- `frozenframe_solved = true` with `reasoning_level` `L2`/`L3` means the level is inflated, a
-  `FIX_QUESTION` under 7.3. With `L1` this is normal and means nothing.
+- a modality counts as sufficient if its probe answered correctly on at least one **required**
+  window (checklist 4.1);
+- the coordinator names in `coordinator.<ROUND>.md` which rubric items the blind answer met, so
+  that it is visible what the sample rests on (4.2);
+- when the 2.5 checks of several required windows give different levels, the sample takes the
+  **lowest** of them (2.5), and the coordinator reads every 2.5 verdict against the level settled
+  by 7.3: the two items belong to different roles and run in parallel;
+- `frozenframe_solved = true` with `reasoning_level` `L2`/`L3` is checked item by item
+  (checklist 4.6): for each rubric item the probe got right, does the frame show the value the
+  item asks for, or only the values it is computed from? If it shows the value of every such
+  item, the level is inflated — `FIX_QUESTION`, relabelled `L1`. If at least one item had to be
+  worked out, there is no contradiction, and the level is re-derived by the work left. With `L1`
+  a positive answer is expected and means nothing.
 
 Dataset consumers apply the two fields independently:
 
@@ -434,14 +467,23 @@ blind_baselines = status == "validated" and blind_solved
 invalid_samples = status == "rejected"
 ```
 
-The probes are asked again pointwise if their answers diverge between iterations of the cycle. A
-disagreement that persists is a signal that the wording of the question is vague: the sample goes
-to a human or becomes `rejected` if the repair is abandoned.
+Every probe is presented once, and the flags are set from the probe outcomes only (checklist 4.1).
+An outcome is positive when the answer, scored against the rubric item by item, is correct and does
+not rest on a guess about material the probe was not given. A positive outcome stands. A negative
+one may be measured again at most once per probe and version of the sample: on the stronger model
+of the run profile if the probe ran on a weaker one, otherwise on the same model and only when the
+defect of the attempt can be named with evidence. The flag is the outcome of the last run. A probe
+that fails because the question omits a convention exposes a defect of the question: the question
+is fixed. A disagreement between probes is a signal that the wording of the question is vague.
 
 ## Step 4. Edits and a repeat review
 
-The coordinator applies the proposed changes, re-runs the validator and sends the corrected
-question for a **new** review. Each cycle ends in `PASS` or an explicit terminal rejection.
+The coordinator applies the proposed changes, re-runs the validator and sends for a **new**
+review what the edit touched: a move of a boundary by 2 s or less and a `metadata` edit need no
+second review; an edit of the windows that leaves the wording alone needs the `full_window` review
+of the touched windows; a new wording of the question is a new version and goes through the full
+cycle (checklist, group 2 and 2.2). Each cycle ends in `PASS`, an explicit terminal rejection or a
+rebuild as a new sample.
 
 The reviews are saved: `data/reviews/<VIDEO_ID>/<SAMPLE_ID>/<role>.<ROUND>.json`, where the
 per-window ones have the window number appended to the role: `full_window3.1.json`. Without this
@@ -451,8 +493,8 @@ coordinator, and the human at step 6 would have nothing to be shown.
 The review is checked for completeness before it is applied: it must contain a line for every item
 assigned to the mode — with the value `ok`, `fail`, `skipped` or `na`. A missing line is
 indistinguishable from a passed check and deprives the rule about `skipped` below of its meaning.
-The review format is worth fixing with a schema (`schema/review.schema.json`) and checking with the
-same, rather than by eye.
+The format is the contract `schema/review.py`, and a review is checked with its `--check`, not by
+eye.
 
 Limiters without which the cycle may not converge:
 
@@ -460,8 +502,15 @@ Limiters without which the cycle may not converge:
   with the accumulated reviews;
 - **oscillation** (the reviewers demand opposite things in turn) is also a stop and a handover to
   a human: usually it means the wording of the question is vague, not the boundaries;
-- a `CRITICAL_FAIL` **is not cured by iteration** — the sample is either rewritten from scratch or
-  deleted;
+- **the first measurement stands.** If two reviewer measurements of the same edge disagree within
+  2 s, the first stands and the second is a note, and no verdict may hinge on such a gap
+  (checklist, preamble of group 2);
+- a `CRITICAL_FAIL` **is not cured by iteration** — the sample is rejected, or its idea is
+  rebuilt as a new sample (another moment for the question, another question or another level)
+  that goes through the full cycle ([prompts/definitions.md](prompts/definitions.md),
+  "`CRITICAL_FAIL`"). Lowering the level to `L1` without changing the windows or the wording
+  needs no second review; it is legitimate only if the question does not itself give the answer,
+  and never for a `predict`, `counterfact` or `extend`, which are never `L1` (7.9);
 - **`skipped` does not count as a passed check.** If a reviewer honestly reported that they did
   not check a mandatory item (usually because of the frame budget), the verdict cannot be `PASS`:
   the question goes for a repeat review **pointwise** — the subagent is given the list of unchecked
@@ -469,9 +518,6 @@ Limiters without which the cycle may not converge:
   launch runs into the same budget and returns the same `skipped`.
   Otherwise exhausting the budget is indistinguishable from success — and in the pilot that is not
   a rarity but the ordinary state for questions with a long waiting interval;
-- **the contamination flags accumulate.** One recognised video is noise, six out of ten is a
-  decision that the video is unusable. The coordinator keeps the count over the whole set and
-  carries it into the step 6 report.
 
 ## Step 5. Checks across samples
 
@@ -510,8 +556,8 @@ than its direct one: it yields new checklist items.
 questions with a `CRITICAL_FAIL`, those that went over the iteration limit, oscillating ones, and
 those with `skipped` items left at the last iteration.
 
-The human is given: the sample itself, the accumulated reviews from `data/reviews/`, the count of
-contamination flags and the list of items marked `skipped` at the last iteration.
+The human is given: the sample itself, the accumulated reviews from `data/reviews/` and the list
+of items marked `skipped` at the last iteration.
 
 Recorded separately is **which model played the proposer and the reviewers**: the plan requires it
 to be excluded from the final table of results, and that can only be done after the fact if the
@@ -532,7 +578,8 @@ coordinator, not json:
 data/reviews/<VIDEO_ID>/<SAMPLE_ID>/<role>.<ROUND>.json
 ```
 
-where `<role>` is `semiblind`, `full`, `probe_text`, `probe_vision`, `probe_frame`, `probe_full`.
+where `<role>` is a value of `Role` in the contract: `semiblind`, `full_sample`, `full_window`,
+`probe_text`, `probe_vision`, `probe_frame`, `probe_full`, `probe_verify`.
 Reviews are not overwritten: the accumulated rounds make oscillation visible, which a single last
 file hides. The folder goes under git — otherwise the plan's requirement "generator ≠ judge ≠
 participant" cannot be checked after the fact: the sample remembers the flags but does not remember
@@ -636,45 +683,46 @@ does **not** yield a `PASS`: see the limiters of step 4.
 |---|---|---|
 | `PASS` | keep as is | — |
 | `FIX_INTERVALS` | window boundaries, the trigger set | the coordinator; a shift of boundaries is applied as is, adding a trigger requires writing `response`, `rubric`, `evidence_span`, `trigger_modality` |
-| `FIX_QUESTION` | the wording, the labels, the intent of the sample | the coordinator, with a revision of the rubric |
-| `CRITICAL_FAIL` | cannot be fixed, or repair is abandoned: `status: rejected` | the coordinator; retain the record for audit |
+| `FIX_QUESTION` | the wording, the rubric, the labels; the sample keeps measuring what it measures | the coordinator, with a revision of the rubric |
+| `CRITICAL_FAIL` | cannot be cured by moving boundaries or by rewording while the sample keeps measuring what it measures: `status: rejected`, or the idea is rebuilt as a new sample that goes through the full cycle | the coordinator; a rejected record is retained for audit |
 
 **The mapping of checklist items to verdicts** (the default value; a reviewer may justify another):
 
 | Item | Verdict on a hit |
 |---|---|
-| 2.2 the answer is possible earlier than `t_start` | `FIX_INTERVALS` for a gap of up to 10 s or a substantive when-clause (optional trigger); `FIX_QUESTION` for an empty when-clause — the ladder of checklist 2.2 |
-| 2.3 the answer was available before `question_time` | `FIX_QUESTION` — the axis changes, not the window; derived from the adjudicated `t_val`; cured by the ladder of checklist 2.2 (move `question_time` back, or re-label `at`/`post`), a gap of up to 10 s by moving `question_time` alone |
-| 2.4 the window can be narrowed | `FIX_INTERVALS`, and only if the empty part is large |
-| 2.5 the answer is spoken inside the window or within 10 s after | `CRITICAL_FAIL` for `L2`/`L3` when the whole answer is in the stream (empty residue); `FIX_QUESTION` with a re-level when only an ingredient is; `PASS` for `L1` |
+| 2.2 the answer is possible earlier than `t_start` | `t_val` is the first passing answer by the route of the sample's level; an earlier answer that only a harder route reaches gets an optional window (`FIX_INTERVALS`). Then by the gap `t_start − t_val`: up to 2 s `FIX_INTERVALS` applied as a nudge — the edge moves to the measured value with no second review; 2–10 s `FIX_INTERVALS`, `t_start` moves together with `evidence_span` and the touched window is reviewed again; over 10 s `FIX_INTERVALS` (an early optional window) for a substantive when-clause, `FIX_QUESTION` for an empty one — the ladder of checklist 2.2 |
+| 2.3 the answer was available before `question_time` | derived from the adjudicated `t_val` (by the route of the level). A gap of up to 2 s: `question_time` moves to `t_val` with no second review. A larger gap: `FIX_QUESTION` — the axis changes, not the window; step 2 of the ladder of checklist 2.2: `question_time` moves back to `t_val` as a new version of the question where the wording allows it at that moment (2.6), otherwise the window opens at `question_time` and the axis is derived as `at`/`post` |
+| 2.4 the window can be tightened | `FIX_INTERVALS`, and only if the empty part is more than 2 s; a window whose answer is the event itself is not narrowed below 5 s past the event |
+| 2.5 the author gives the answer inside the window or within 10 s after it | by the split of the rubric items (checklist 2.5). Given inside the window: the level is re-derived from the residue — `ok` if it stays, `FIX_QUESTION` if it changes; the windows stay. Given after the window: `FIX_INTERVALS` or `FIX_QUESTION`, the level stays. An empty residue in a required window of an `L2`/`L3` sample: `CRITICAL_FAIL`, or `FIX_INTERVALS` when the `proposal` names a new `t_end` at which the window still contains what the answer is worked out from, lasts at least 5 s and closes 10 s before the author's answer. An empty residue in an optional window of an `L2`/`L3` sample: `FIX_INTERVALS` (the window closes 10 s before the author's answer or is removed), but `CRITICAL_FAIL` if a later required window scores the same items. On `L1` an empty residue is the norm, provided the question itself does not give the answer. On a `predict` an item the author reveals inside the window takes the verdicts of an empty residue, or `FIX_QUESTION` when the revealed items can leave the rubric; an item the question itself gives away: `FIX_QUESTION` |
+| 2.6 the question does not hold or cannot be understood at `question_time` | `FIX_QUESTION`: the coordinator rewords the question |
 | 3.1 an uncovered candidate for a firing | `FIX_INTERVALS` (add a trigger) or `FIX_QUESTION` if the wording is fixed |
-| 3.2 an inconsistent criterion | `FIX_QUESTION` |
+| 3.2 an inconsistent criterion | `FIX_QUESTION`; `FIX_INTERVALS` when the cure is removing the trigger |
 | 3.4 elements appear one by one, no optional triggers on them | `FIX_INTERVALS`; `FIX_QUESTION` if the wording insists on "simultaneously" without a reason |
-| 4.8 the question rests on the topic rather than on the screen | `FIX_QUESTION` |
-| 4.2 the answer was given without the video at all | set `blind_solved: true`; complete review and exclude it from primary tasks, but reject only for an independent defect or abandoned work |
-| 4.3 the video was recognised | `FIX_QUESTION` plus a flag: another video may be needed |
-| 4.7 the question is not solvable even from the full material | `CRITICAL_FAIL` |
+| 4.2 the answer was given without the video at all | set `blind_solved: true`; complete the review, try to anchor the answer to video-specific content under 4.8, and exclude the sample from primary tasks; reject only for an independent defect or abandoned work |
+| 4.3 the video was recognised | no verdict: the flag stays in the review as data for the separate measurement of how well models remember the videos |
+| 4.6 a single frame is enough on `L2`/`L3` | `FIX_QUESTION` with the level lowered to `L1` only if the frame shows the value of every item the probe got right; otherwise the level is re-derived by the work left |
+| 4.7 the question is not solvable even from the full material | `CRITICAL_FAIL`, once 8.4 has ruled out a wrong reference |
+| 4.8 the question asks for no scientific content of this video | (a) no scientific target: `CRITICAL_FAIL`; (b) the question rests on the topic rather than on this video: `FIX_QUESTION` |
+| 4.9 the outcome of a check does not depend on the video | `CRITICAL_FAIL`; if the reviewer sees how to rebuild the question so that its check could fail, the `proposal` says how |
 | 5.x | `FIX_QUESTION` |
-| 7.3 `reasoning_level` is inflated | `FIX_QUESTION`; the level is that of the cheapest route to the rubric; check **before** 2.5, whose verdict depends on the level |
+| 7.3 `reasoning_level` is inflated | `FIX_QUESTION`; the level is that of the cheapest route to the rubric; the verdict of 2.5 depends on it, and the coordinator reads 2.5 against it |
 | 7.4 `depends_on` is not confirmed by the rubric | `FIX_QUESTION` |
-| 7.5 `evidence_span` is not on the last piece of evidence | `FIX_QUESTION` — the axis changes |
+| 7.5 `evidence_span` is not on the last piece of evidence | `FIX_INTERVALS`: when the derived axis changes, a `boundary` edit with the rerun of the window; otherwise a `metadata` edit with no second review, provided the validator passes; a disagreement of 2 s or less about where a span ends is not applied (checklist, preamble of group 2) |
+| 7.8 the `act` does not match the video | `FIX_QUESTION`; for a `predict` the author never answers, the `proposal` names the act the question is (`extend`, `counterfact`) |
 | 8.2 the reference describes something other than what is in the frame | `FIX_INTERVALS` |
-| 8.3 the reference contradicts the windows | `CRITICAL_FAIL` if it confirms 2.5; otherwise `FIX_INTERVALS` |
+| 8.3 the reference contradicts the windows | a reference that places before the window what the answer is worked out or read from: its moment is `t_s`, and the verdict is that of 2.2 (of 2.3 before `question_time`); one that places the author's own answer before the window of an `L2`/`L3`/`predict` sample: `CRITICAL_FAIL`, or `FIX_INTERVALS` when the window can close 10 s before that answer, last at least 5 s and keep what the answer is worked out from; lowering to `L1` does not cure it |
+| 8.4 the reference answer or a rubric item is wrong | `FIX_QUESTION`: the reference and the rubric are rewritten; `CRITICAL_FAIL` only when the question has no correct answer the video supports |
+| 8.5 the twins' reference answers diverge in substance | `FIX_QUESTION` |
 
 ---
 
-## What has to be built for this
+## What is automated
 
-None of steps 3–4 is automated at present. In order of usefulness:
-
-1. `tools/sample_frames.py` — cutting frames by interval and step with names by timecode, so that
-   the reviewer does not have to assemble `ffmpeg` by hand and so that the frames are cached
-   between subagents.
-2. Sparse sampling by scenes plus a grid in `make_bundle.py` (see step 0).
-3. Launch templates: the proposer by chapters, the reviewer by question, the merging of verdicts.
-4. `tools/run_shortcut_baselines.py` — checklist group 4, a separate pipeline: it is not about the
-   quality of the annotation but about whether the sample measures anything at all.
-5. `schema/review.schema.json` plus a completeness check of the review on the coordinator's side.
+Steps 0–2 are tools. Steps 3–4 are run by the coordinator agent from its prompt, with
+`tools/prepare_review_workspace.py` (the workspaces of the roles, dense frames and sheets on
+request), `tools/coordinator_log.py` (the operational log) and the contract `schema/review.py`
+(the completeness of a review, `--check`). Launching the roles and merging their verdicts are not
+automated: the coordinator does both by hand.
 
 ## What to measure the pipeline itself with
 

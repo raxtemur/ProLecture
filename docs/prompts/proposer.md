@@ -23,8 +23,9 @@ it is asked (`at`) or about what has already gone by (`post`); its axis follows 
 the evidence lies (`temporal_rel` in `definitions.md`).
 
 Every question has a scientific target: the participant reads a quantity or a relation,
-compares states, computes, derives or checks a claim. A joke, a biographical quotation or
-the look of a caption is not a target, however exactly it can be timed.
+compares states, computes, derives or checks a claim. A joke, a biographical quotation, the
+look of a caption, or the wording of a caption, of a title or of a challenge to the viewer is
+not a target, however exactly it can be timed.
 
 You are working on the video `<VIDEO_ID>`, interval `<INTERVAL>`. About ten questions are
 expected from a whole video, proportionally fewer from an interval. That is an average over
@@ -40,8 +41,11 @@ Across the set, aim at roughly one `L1` question in five, two in five `L2` and t
 `L1`. The aim directs where you search, not how you label: the level is the work left to
 the participant (`definitions.md`), and a label raised to reach the proportion makes the
 sample wrong. A set without a single `L3` candidate calls for the second pass, not for
-relabelling; if the material still yields mostly `L1`, hand in mostly `L1`. There are no
-shares to meet per act or template.
+relabelling; if the material still yields mostly `L1`, hand in mostly `L1`. Nor is the aim
+reached by adding work to a reading question: an item that exists only to leave something to
+compute — recovering in another form what the screen already shows, say — is not part of the
+question's target. Do not add such an item; the question stays `L1`. There are no shares to meet per act or
+template.
 
 ## Materials and the order of work
 
@@ -511,6 +515,16 @@ back.
     the pattern: the colour brings nothing, and the explanation is available the moment the
     question is asked. A `pre` question does not describe as already shown or said what it
     waits for.
+
+11. **The act matches the video.** For a `predict`, find in the transcript or in
+    `screen_text.md` the moment after the last window where the author says or shows the
+    answer, at least ten seconds after the window, and cite it in `provenance.evidence` as
+    the confirmation of the reference answer. If the author never says or shows it, the
+    question is not a `predict`: going further with the premises unchanged is an `extend`,
+    changing a premise is a `counterfact`; then check the level again (check 7). If he says
+    or shows it inside a window, check 5 applies; if before the first window, the answer is
+    already in the stream and the question is not a `predict`. For an `alert`, check that
+    the question says neither that the condition holds in this video nor where.
 
 Do not write interpretations of metrics or review rules into `validation.notes` or
 `provenance`; they are read by reviewers.
