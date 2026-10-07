@@ -1,9 +1,9 @@
 # Definitions
 
-> **2026-10-05.** The proposer's prompt and the checklist refer to this file. The
-> coordinator's and the reviewers' prompts are not yet brought in line with it; until they
-> are, where they differ, this file wins. The `Copied into:` lines name the prompts that are
-> to carry a copy; the copies are not there yet.
+> **2026-10-06.** The proposer's and the coordinator's prompts and the checklist refer to this
+> file. The reviewers' prompts are not yet brought in line with it; until they are, where they
+> differ, this file wins. The `Copied into:` lines name the prompts that are to carry a
+> copy; the copies are not there yet.
 
 The terms the proposer and the coordinator use, defined in one place. The proposer and the
 coordinator read this file once at the start of their work, and its definitions are binding
@@ -138,13 +138,15 @@ keeps measuring what it measures. The coordinator either rejects it or rebuilds 
 new sample — another moment for the question, another question or another level — and the new
 sample goes through the full cycle. The exception is lowering the level to `L1` without
 changing the windows or the wording: it needs no second review, and it is legitimate only if
-the question does not itself give the answer.
+the question does not itself give the answer, and never on a `predict`, `counterfact` or
+`extend`, which are never `L1` ("`act`").
 
 The reviewer writes what could be rebuilt into the `proposal` of the check that fired. When
 the author hands over the whole answer inside the window of an `L2`/`L3` sample, the options
 are: move the question to where minutes, not seconds, separate the evidence from the author's
 explanation; ask about something the author does not say (a consequence, the direction of an
-error, an application to another case); lower the level to `L1`.
+error, an application to another case); lower the level to `L1`, except on a `predict`,
+`counterfact` or `extend`.
 
 Copied into: `reviewer_full_sample.md`, `reviewer_full_window.md`.
 
@@ -159,8 +161,8 @@ t_val`) is handled in steps:
 - **up to 2 s** — within the precision of the measurement: manim animations run for 1–2 s,
   and the description track dates events to whole seconds. The boundary moves to the measured
   value without a second review;
-- **from 2 to 10 s** — a boundary error: the boundary moves and the touched window is reviewed
-  again (`FIX_INTERVALS`);
+- **from 2 to 10 s** — a boundary error: the boundary moves, the touched window is reviewed
+  again and the probes whose material moved are rerun (`FIX_INTERVALS`);
 - **over 10 s** — for `t_start` against the earliest possible answer it is not a boundary
   error: the answer was available long before what the question waits for, and the
   coordinator decides it by the when-clause of the question — an early optional window when

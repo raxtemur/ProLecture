@@ -363,13 +363,22 @@ the checks across samples.
 
 - Give each subagent its complete prompt from docs/prompts/ and only the workspace that
   tools/prepare_review_workspace.py builds for it. Subagents never edit annotation files.
-- Choose models by the table "Models per role" in docs/prompts/coordinator.md: the
-  Claude identifiers under Claude Code, the OpenAI column under Codex.
+- Run every subagent on the one local model you run on, and record its name and
+  reasoning effort in the spawn event (docs/prompts/coordinator.md, "One model for
+  every role").
 - Record every launch, result and edit with tools/coordinator_log.py <VIDEO_ID>, and
   run tools/validate_samples.py after every edit of an annotation file.
 - Do not stop after the first round, and do not count a skipped check as passed.
 - If this session is compacted, re-read docs/prompts/coordinator.md before you continue.
 ```
+
+For local agents better add something like:
+```
+The session is being executed on the local model (Qwen/Qwen3.8-27B)
+CODEX_HOME=...
+Only use subagents, don't try to connect with local model directly
+```
+
 
 The principal outputs of this stage are:
 

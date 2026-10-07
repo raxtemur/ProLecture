@@ -172,7 +172,9 @@ that sank the work in question:
 - no quotas of the form "exactly N samples per task" — however many passed validation is however
   many there are;
 - contamination: the pilot is built on a 2026 video, and the 2017 control video is there so that
-  the gap of the blind baseline can be **measured** rather than denied.
+  memory of a video can be **measured** rather than denied — by a separate ablation, not by the
+  blind baseline: an answer from memory of the video is not solving blind
+  (`docs/plans/general.md`, §1.1).
 
 ## The manim scene checks
 

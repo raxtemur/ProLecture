@@ -516,15 +516,17 @@ back.
     question is asked. A `pre` question does not describe as already shown or said what it
     waits for.
 
-11. **The act matches the video.** For a `predict`, find in the transcript or in
-    `screen_text.md` the moment after the last window where the author says or shows the
-    answer, at least ten seconds after the window, and cite it in `provenance.evidence` as
-    the confirmation of the reference answer. If the author never says or shows it, the
+11. **The act matches the video.** For a `predict`, find in the transcript, in
+    `screen_text.md` or in `description.md` the moment after the last window where the
+    author says or shows the answer, and cite it in `provenance.evidence` as the
+    confirmation of the reference answer. If the author never says or shows it, the
     question is not a `predict`: going further with the premises unchanged is an `extend`,
     changing a premise is a `counterfact`; then check the level again (check 7). If he says
-    or shows it inside a window, check 5 applies; if before the first window, the answer is
-    already in the stream and the question is not a `predict`. For an `alert`, check that
-    the question says neither that the condition holds in this video nor where.
+    or shows it inside a window, check 5 applies. If he does it less than ten seconds after
+    a window, or between two windows, that window is wrong: fix it as "The author's answer
+    and the window" says. If he does it before the first window, the answer is already in
+    the stream and the question is not a `predict`. For an `alert`, check that the question
+    says neither that the condition holds in this video nor where.
 
 Do not write interpretations of metrics or review rules into `validation.notes` or
 `provenance`; they are read by reviewers.

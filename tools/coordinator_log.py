@@ -16,12 +16,12 @@ Examples::
         --summary "Prior could not answer; t_val=951.0."
     python3 tools/coordinator_log.py VIDEO sample-edit \
         --sample-id sample-q05 --kind boundary --window 0 \
-        --changes "Moved t_start of trigger 0 to 704.0." --source full_sample.4.json
+        --changes "Moved t_start of trigger 0 to 212.0." --source full_sample.4.json
     python3 tools/coordinator_log.py VIDEO note --agent /root/q05_semiblind_r4 \
         --text "Relaunched after HTTP 429 under the same name; the first run left no artifact."
     python3 tools/coordinator_log.py VIDEO adjudicate \
-        --sample-id sample-q10 --iteration 3 --t-val-a 704.0 --t-s 690.0 \
-        --verified no --t-val 704.0 --source semiblind.3.json
+        --sample-id sample-q10 --iteration 3 --t-val-a 212.0 --t-s 198.0 \
+        --verified no --t-val 212.0 --source semiblind.3.json
     python3 tools/coordinator_log.py VIDEO check
     python3 tools/coordinator_log.py VIDEO check --final
 
@@ -104,7 +104,9 @@ RERUN_AFTER: dict[str, frozenset[str]] = {
     "nudge": frozenset(),
     "rubric": frozenset({"full_sample", "full_window"}),
     "level": frozenset(),
-    "timing": frozenset({"full_sample"}),
+    # question_time moved by two seconds or less: no second review (definitions.md, "Boundary
+    # tolerance"); a larger move is a new version of the question and is logged as "wording"
+    "timing": frozenset(),
     "metadata": frozenset(),
     "wording": frozenset({"semiblind", "probe_text", "probe_vision", "probe_frame",
                           "full_sample", "full_window"}),

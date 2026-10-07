@@ -1,8 +1,9 @@
 # Prompt: the coordinator. Acceptance methodology
 
-The coordinator's prompt to itself. The role is steps 4–6 of the pipeline
-[../annotation_pipeline.md](../annotation_pipeline.md): apply the fixes on top of the
-subagents' reviews, derive the flags, decide the fate of the sample.
+The coordinator's prompt to itself. The role is steps 3–5 of the pipeline
+[../annotation_pipeline.md](../annotation_pipeline.md), and it prepares what the human
+accepts at step 6: launch the reviewers and probes, apply the fixes on top of their reviews,
+derive the flags, decide the fate of the sample.
 
 **Only the non-obvious is written here.** Anything that already follows from the
 checklist, the contract or common sense is not repeated. Every item is a decision arrived
@@ -16,82 +17,77 @@ is checked) and not a replacement for
 It is a third thing: **how to judge** where somebody else's structured answer has to be
 turned into a decision.
 
+Before you start, read [definitions.md](definitions.md), next to this prompt. It defines the
+terms this prompt uses, and its definitions are binding.
+
 ---
 
 ## 1. Blind solving: a guessed statement of the problem does not count
 
-**The rule.** The semi-blind reviewer's answer, obtained before viewing, counts as
-compromising the sample (`validation.blind_solved = true`) only if it satisfies **both**
-conditions:
-
-- **correct** — it agrees with the rubric;
-- **honest** — it follows from the available context and prior knowledge, without
-  assumptions about unseen screen content.
-
-Recalling a known historical or textbook fact counts as blind solving. Predicting which
-values, example, layout or other content will appear on screen does not, even when the
-prediction is exactly right. A non-empty `prior_answer_assumptions` is strong evidence of
-such guessing: if different screen content would make the answer wrong, the task was not
-solved blind.
+**The rule.** The semi-blind reviewer's answer, obtained before viewing, sets
+`validation.blind_solved = true` only if it is at once **correct** and **honest** in the sense
+of [definitions.md](definitions.md), "`blind_solved`". Recalling a known textbook or
+historical fact counts as blind solving; content only this video has does not, however the
+answer came by it, and neither does predicting which values, example or layout the screen
+will show, even when the prediction is exactly right. Whether an assumption is a guess is
+decided by the definition, not by whether the reviewer listed it in
+`prior_answer_assumptions`.
 
 **Why.** Blind solving measures whether the answer is available without the video, not
 whether a reviewer can luckily reconstruct unseen screen content from a familiar genre.
 
-**A hedged answer** ("2.5, and if otherwise then 2.0") counts only when the wrong branch
-would have cost the participant a point. Otherwise it is enough to list the plausible
-options to declare anything at all solved blind.
+**A hedged answer is not credited with the better of its branches.** "3 ms, or 12 ms if the
+resistors turn out to be in series" does not count as solved, whichever branch matches the
+reference: in the measurement a model that names two values is penalised for the wrong one,
+and listing the plausible options is not solving.
 
-**A caveat about notation, colour or verbatim wording is not an assumption about content**
-(rule of 2026-09-07; the boundary between "guessed the concrete data", "recalled the data
-as a known fact" and "could not guess a colour or another when-condition unrelated to the
-science" is still under discussion). Two answers that
-look alike are scored differently:
+**A caveat about notation, colour or verbatim wording is not an assumption about
+content.** Score the blind answer against the rubric item by item; the definition of
+`blind_solved` says which items decide and what a guess is. Two answers that look alike are
+scored differently:
 
-- "2.5, if the screen shows the standard example 1/2, 1/4, 1/8, 1/8" — the correctness
-  depends on an assumption about the screen: a guess, `prior_answer_assumptions` non-empty,
-  `blind_solved = false`. The rule above, unchanged.
-- "pᵢ f′(qᵢ) = λ → q f′(q) = λ → f = λ log q; which notation and colours the screen uses
-  I cannot say" — the correctness of the chain does not depend on the screen. Score
-  `prior_answer` against the rubric **item by item, ignoring the caveat**: substantive
-  items (a quantity, a relation, a derivation) the reviewer named are met; items about the
-  screen itself (a colour, a notation, a displayed number) that the reviewer did not name
-  are not. **Only the substantive items decide `blind_solved`.** If all of them are met,
-  the sample is solved blind, and a rubric item about a colour does not rescue it: such a
-  sample tests colour recognition, not the science, and is not the `L1` alarm the benchmark
-  wants — it is repaired or kept as a blind baseline like any other. Name in
-  `coordinator.N.md` which items were met blind, so that it is visible what the sample
-  rests on.
+- "The time constant is 12 ms, if the diagram shows 4 kΩ and 3 µF" — the correctness
+  depends on an assumption about the screen: a guess, `blind_solved = false`, even when the
+  screen shows exactly these values.
+- "The capacitor voltage follows V₀(1 − e^(−t/RC)), so it reaches 63 % of the supply
+  voltage after one time constant; which letters and colours the screen uses I cannot say"
+  — its correctness does not depend on the screen. Ignore the caveat and score the content.
+  Items about the screen itself that the answer does not name are unmet, and they do not
+  decide. If every substantive item of the rubric is met, `blind_solved = true`, and a
+  rubric item about a colour does not rescue the sample: such a sample tests colour
+  recognition, not the science. It is repaired or kept as a blind baseline like any other.
 
-The reviewer is asked for content, not a meta-statement about it ("known only the general
-Lagrangian derivation" scores nothing; the derivation itself does). A `prior_answer` that
-is a sentence *about* the reviewer's knowledge is sent back for the content before it is
-scored — that is a follow-up to the same subagent, not a new round. A strong reviewer is an
-upper bound on blind solvability, and that strictness is deliberate.
+Name in `coordinator.<ROUND>.md` which items were met blind, so that it is visible what the
+sample rests on.
+
+The reviewer is asked for content, not a meta-statement about it ("I know only the general
+textbook derivation" scores nothing; the derivation itself does). A `prior_answer` that is a
+sentence *about* the reviewer's knowledge is sent back for the content before it is scored —
+that is a follow-up to the same subagent, not a new round.
 
 **A blind-solved sample is not dropped: the version that survives gets the whole cycle.**
 `blind_solved` is never a reason to reject a sample or to skip `full_sample` and
 `full_window`. It is also not a reason to run them early: the full reviews belong to the
 version that survives, and the barrier in section 3 applies to a blind-repair exactly as to
 any other cheap fix. The flag itself stays recorded on the version that was measured (its
-review files and `coordinator.N.md`); an edit never clears it.
+review files and `coordinator.<ROUND>.md`); an edit never clears it.
 
 Decide once, from the consolidated cheap results, whether a repair is attempted:
 
 - **Repair.** Make the answer depend on a screen-specific value, relation, transition or
-  counterfactual. Changing only *when* to repeat the same known fact is not a repair.
-  Before writing it, list the other samples of the same video whose windows lie within
-  30 s of this one and say in `coordinator.N.md` what the repaired rubric asks that theirs
-  do not: a repair that rests on the same displayed value as a neighbour is a duplicate,
-  not a repair.
-  Apply the rewrite in the same package as the other cheap fixes. It is a wording change,
-  so the sample goes back to `draft` and to the head of the cheap queue under the
-  question-version rule in section 3; `full_sample` and every `full_window` run only on
-  the rewritten version, once it has passed the barrier. Do not spend full reviews on the
-  measured wording first: it is about to be replaced, and the new cycle re-checks
-  everything they would have checked. Only the new reviews can clear `blind_solved`.
+  counterfactual. Changing only *when* to repeat the same known fact is not a repair. Before
+  writing it, list the other samples of the same video whose windows lie within 30 s of this
+  one and say in `coordinator.<ROUND>.md` what the repaired rubric asks that theirs do not: a
+  repair that rests on the same displayed value as a neighbour is a duplicate, not a repair.
+  Apply the rewrite in the same package as the other cheap fixes. It is a wording change, so
+  the sample goes back to `draft` and to the head of the cheap queue under the question-version
+  rule in section 3; `full_sample` and every `full_window` run only on the rewritten version,
+  once it has passed the barrier. Do not spend full reviews on the measured wording first: it
+  is about to be replaced, and the new cycle re-checks everything they would have checked. Only
+  the new reviews can clear `blind_solved`.
 - **No repair** (none found, or the sample is deliberately kept as a blind baseline).
   Apply the non-wording cheap fixes, pass the barrier, and run `full_sample` and every
-  `full_window` on that version.
+  `full_window` on that version. A waiting-only task (below) is not kept this way.
 
 If the completed cycle finds the sample otherwise correct, it may finish as
 `status: validated` with `blind_solved: true`; keep it out of the primary benchmark and
@@ -99,9 +95,14 @@ retain it as a blind baseline. Use `rejected` only for an independent defect or 
 repair/review is deliberately abandoned, and record that reason.
 
 **A consequence for the wording.** A question whose condition is named in full in the
-question itself and which requires the model to retrieve a known fact from memory is
-neither `L3` nor `predict`: it is an `L1` alarm, "recall something known and say it at the
-right moment", however hard the topic may sound.
+question itself and whose answer is a known fact recalled from memory measures only the
+moment of speaking, however hard the topic may sound. "Recall something known and say it at
+the right moment" is a waiting-only task, at any level and act, and such tasks are not
+built — not as primary tasks and not as blind baselines. This is a defect of its own,
+independent of `blind_solved`: repair the question so that its answer has to be read or
+worked out from the video inside the window, or reject it. A legitimate `L1` task reads its
+answer from the video inside the window, and the question itself does not give it
+([definitions.md](definitions.md), "`reasoning_level`").
 
 ---
 
@@ -116,30 +117,51 @@ as a self-report, and `validation.blind_solved` is derived by the coordinator un
 The same holds in reverse: an `ok` from the semi-blind reviewer does not mean the sample
 is clean. They may have failed to recall a fact another model will recall.
 
+**Score every saved answer the way the judge will.** For the semi-blind reviewer's
+`prior_answer` and for each probe's answer, go through the rubric item by item, including
+what an item excludes, and use only the material that attempt had. An answer that offers
+alternatives for one rubric item does not meet that item, whichever alternative is right: a
+hedged answer is not credited with the better of its branches. If the alternatives come from
+two readings of the question, that is a defect of the question: fix it. Write the
+item-by-item score into `coordinator.<ROUND>.md`.
+
+**Two runs of one model are one measurement.** When roles agree, name the model behind each
+result; agreement between runs of the same model is not independent confirmation.
+
+**Settle a disputed value with the smallest check that settles it.** A disagreement about a
+number, a coefficient, a sign or which object the question refers to is settled by a
+calculation, a transcript line or a frame (for the screen, §7), not by another full review.
+Write the check into the decision.
+
 ---
 
-## 3. The order of the roles: five cheap ones first, then full review for every candidate
+## 3. The order of the roles: the cheap ones first, then full review for every candidate
 
 Use a **work-conserving, cheap-first scheduler** across questions. Whenever a slot is free,
 give priority to a runnable `semiblind`, `probe_text`, `probe_vision` or `probe_frame` job.
-These four roles are independent and should run in parallel. There is no global stage
+These roles are independent and should run in parallel; `probe_frame` runs once per
+required window, with one frame each (the window's middle). `probe_text`, `probe_vision` and
+`probe_full` run once per sample, on material up to the `t_end` of the last required window,
+and their answer is scored against the rubric of every required window: a modality is
+sufficient when the answer meets the rubric of at least one of them. There is no global stage
 barrier: one question may advance as soon as its own prerequisites are satisfied while
 cheap work for other questions continues to fill the remaining slots.
 
 Normally, do not repair a question from the first cheap result while its other cheap
-reviewers are still running. Collect all four results for the same question version,
+reviewers are still running. Collect all the cheap results for the same question version,
 consolidate their findings together, resolve disagreements once, and apply one coherent
 set of cheap fixes. This avoids serial boundary changes and repeated semiblind cycles.
 
 Before launching `full_sample` or any `full_window`, the question must pass this barrier:
 
-- all four initial cheap reviews refer to the exact current `question` version;
-- the coordinator has consolidated all four results;
+- all initial cheap reviews (one `probe_frame` per required window) refer to the exact
+  current `question` version;
+- the coordinator has consolidated all of them;
 - `blind_solved`, `textonly_solved`, `visiononly_solved`, `frozenframe_solved`,
   `solvable` and `audio_dependency` have been derived;
 - conditional `probe_full`, if required, has finished;
-- cheap fixes have been applied, and every cheap role affected by a metadata-only fix has
-  been rerun;
+- cheap fixes have been applied, and every cheap role affected by a repair that leaves the
+  question text unchanged has been rerun;
 - the current JSONL passes `tools/validate_samples.py`.
 
 Only then is that question eligible for the expensive queue. Runnable cheap jobs retain
@@ -158,25 +180,47 @@ because `full_sample` supplies the stage-B proposal `t_s` (section 6).
 **`probe_full` is conditional.** Launch it exactly when `probe_text` and `probe_vision`
 both answered incorrectly; a positive answer from either already proves solvability.
 
-**Models per role.** Pass `model` and `reasoning_effort` at launch and record both in the
-`spawn` event; the mix is auditable from the log. Identifiers: `claude-opus-5`,
-`claude-sonnet-5`; the OpenAI equivalents are GPT-5.6 Sol (the large tier) and GPT-5.6
-Terra (the small tier).
+**Flags are set from probe outcomes only.** An outcome is positive when the probe's answer,
+scored against the rubric item by item, is correct and does not rest on a guess about material
+the probe was not given — unseen screen content or unheard speech — nor on general knowledge in
+place of the material, nor on recognising the video; the probe says either in its `basis`.
+Otherwise it is negative. A positive outcome stands. A negative one is not argued away; it is
+measured again at most once per probe and version of the sample, and only when you can name the
+defect of the attempt with evidence — the probe misread a frame (quote the
+frame and what the probe wrote), its workspace lacked material, or its `basis` says the answer
+came from general knowledge in place of the material or from recognising the video. That last
+attempt measured a memory, not the modality; the outcome of its repeat is final, and if it rests
+on memory again it is negative — say so in `coordinator.<ROUND>.md`. Record the reason with
+`coordinator_log.py note --agent <new agent> --text "…"`. Launch `probe_full` when the outcomes
+of `probe_text` and `probe_vision` are negative after these reruns. The flag is the outcome of
+the last run. A probe that fails because the question omits a convention exposes a defect of the
+question, not of the attempt: fix the question. An edit that changes a probe's inputs gives a
+new measurement, not a repeat (the table below).
 
-| Role | Default | Effort | Escalation | OpenAI equivalent |
-|---|---|---|---|---|
-| `semiblind` (step 0 and stage A) | `claude-opus-5` | medium | high on a repeat after a disputed adjudication | Sol |
-| `probe_verify` | `claude-opus-5` | medium | — | Sol |
-| `full_sample` | `claude-opus-5` | medium | — | Sol |
-| `full_window` | `claude-sonnet-5` | medium | rerun on `claude-opus-5` when the verdict is `CRITICAL_FAIL` or `FIX_QUESTION`, or when two windows of one sample disagree | Terra → Sol |
-| `probe_text`, `probe_vision`, `probe_frame`, `probe_full` | `claude-sonnet-5` | medium | a positive answer stands; a negative one is rerun on `claude-opus-5` before the flag is set | Terra → Sol |
-| adversarial audit within a round | `claude-sonnet-5` | medium | — | Terra |
+Why: the coordinator must not override flags by reasoning — admission to the primary
+benchmark and the `audio_dependency` label rest on the negative outcomes. Rerunning the same
+model without an evidenced defect is a lottery until the first positive answer, and it
+inflates the flags.
 
-Why: the semi-blind reviewer is the upper bound on blind solvability (section 1), and
-`blind_solved` is only comparable across rounds if the same model measured it;
-`probe_verify` has to actually solve the task at `t_s`; `full_sample` judges wording. The
-window reviewer and the probes do perceptual work against a list, and a weaker model errs
-in one direction only — "did not solve", "did not see" — which the escalation catches.
+**A single frame on `L2`/`L3`: read off or computed.** With `frozenframe_solved = true` on an
+`L2`/`L3` sample, read the frame probe's saved answer and classify every scored item it meets
+as read off or computed ([definitions.md](definitions.md), "`reasoning_level`"). All of them
+read off: the level is inflated — relabel to `L1`, `FIX_QUESTION`; never on a `predict`,
+`counterfact` or `extend`, which are never `L1` ([definitions.md](definitions.md), "`act`"):
+on a `predict` the frame is
+the author's reveal inside the window, and the 2.5 verdicts for a `predict` apply (section
+6); on a `counterfact` or an `extend` the answer is on the screen, so the act is wrong — fix
+the act or the level. At least one computed: re-derive the level from the computation that
+remains. Record the classification in
+`coordinator.<ROUND>.md`. A frame can hold every input of a computation and none of its
+results; that is no contradiction of the level.
+
+**One model for every role.** For now one local model is available: you and every reviewer
+and probe run on it. No role is escalated to a stronger model; a negative probe outcome is
+measured again only when the defect of the attempt is evidenced, as above. Pass `model` and
+`reasoning_effort` at launch and record both in the `spawn` event, and note in
+`coordinator.<ROUND>.md` that all roles ran on one model: their agreement is not independent
+confirmation (above).
 
 **A changed participant-visible question creates a new review version.** Set
 `validation.status` back to `draft`; retain old reviews as audit history, but do not use
@@ -185,24 +229,45 @@ the cheap queue and pass the barrier again before launching fresh `full_sample` 
 `full_window` with new iteration numbers and separate workspaces. Any change to the text of
 `question` — a referent, a when-clause, an added or removed demand — is a new version; no
 kind of wording change skips `full_window`. Log it as `sample-edit --kind wording`, and
-`check --final` will hold the sample until every role has been spawned again.
+`check --final` will hold the sample until the roles have been spawned again; it counts one
+`full_window` as enough, so make sure yourself that every window was reviewed again.
 
-If the participant-visible `question` is unchanged, an interval, provenance, rubric or
-other metadata-only repair needs only the roles whose input changed. Which ones is not a
-judgement but this table; record the kind in the `sample-edit` event (`--kind`), and
-`check --final` verifies that the roles were rerun:
+If the participant-visible `question` is unchanged, an interval, provenance, rubric or other
+repair that leaves the question text unchanged needs only the roles whose input changed. Which
+ones is not a judgement but this table; record the kind in the `sample-edit` event (`--kind`),
+and `check --final` verifies that the reviews were rerun:
 
 | Repair (`question` text untouched) | `--kind` | Rerun | Without a rerun |
 |---|---|---|---|
-| a window boundary or `evidence_span` | `boundary --window <idx>` | `full_window<idx>` of that window — the index is required, or any window's review would settle the debt | re-adjudicate stage A against the new `t_start` |
-| `t_start` or `t_end` moved by **at most 2 s** to a `full_window` or semi-blind review's own frame measurement | `nudge --window <idx>` | — (the reviewer's frames are the verification; the tolerance rule is in the checklist, group 2). An `evidence_span` disagreement of 2 s or less is not applied: the annotated value stands and the measurement goes into a `note`; a larger one is `boundary` | nothing; if a later review measures a different second within the same 2 s, the first measurement stands and the disagreement goes into a `note` |
-| the text of a rubric item | `rubric --window <idx>`, one event per touched window; omit `--window` when every window's rubric changed | `full_sample` (5.x); `full_window<idx>` of each touched window (2.5, the residue) | re-score the saved probe answers against the new rubric; re-adjudicate stage A |
-| `reasoning_level` only | `level` | — | re-read 7.3 and the 2.5 residue |
-| `question_time` / `temporal_rel` only | `timing` | `full_sample` (7.5) | stage A's `t_val` does not depend on `question_time` |
+| a window boundary, or an `evidence_span` that changes the derived `temporal_rel` — a span only after §6 has checked it against `t_val` | `boundary --window <idx>` | `full_window<idx>` of that window — the index is required, or any window's review would settle the debt; and every probe whose input moved: `probe_frame` of that window (its frame is the window's middle), and `probe_text`, `probe_vision`, `probe_full` when the `t_end` their material ran to has moved. The flag of the old run does not carry over | re-adjudicate stage A against the new `t_start` |
+| an `evidence_span` that leaves the derived `temporal_rel` unchanged and passes the validator — a span only after §6 has checked it against `t_val` | `metadata` | — | — |
+| `t_start` or `t_end` moved by **at most 2 s** to a `full_window` or semi-blind review's own frame measurement, or to a `t_s` verified in stage C, widening or shifting the window | `nudge --window <idx>` | — (the reviewer's frames are the verification). A cut of 2 s or less that only narrows a window is not made. An `evidence_span` disagreement of 2 s or less is not applied: the annotated value stands and the measurement goes into a `note` | nothing; if a later review measures a different second within the same 2 s, the first measurement stands and the disagreement goes into a `note` |
+| the text of a rubric item | `rubric --window <idx>`, one event per touched window; omit `--window` when every window's rubric changed | `full_sample` (5.x); `full_window<idx>` of each touched window (2.5, the residue) | re-score the saved blind answer and probe answers against the new rubric; re-adjudicate stage A |
+| `reasoning_level` only | `level` | — | re-read every 2.5 split against the new level — its copies show the level the review ran with, which is not a defect of the review — and re-adjudicate stage A by the route of the new level |
+| `question_time` moved by **at most 2 s** | `timing` | — | stage A's `t_val` does not depend on `question_time`. A larger move changes the moment at which the question must make sense: it is a new version of the question, as a wording change ([definitions.md](definitions.md), "Boundary tolerance") |
 | provenance, notes, `trap_note` | `metadata` | — | — |
 
-Consolidate all relevant findings before applying the repair, then rerun the roles the
-table names; unaffected evidence remains.
+Consolidate all relevant findings before applying the repair, then rerun the roles the table
+names; unaffected evidence remains. `check --final` tracks only the reviews of the windows and
+of the sample: the probes a `boundary` edit sends back are yours to track — name them in
+`coordinator.<ROUND>.md`, and do not accept the sample until each has a new run. When a
+boundary is uncertain within 2 s, set the window wider rather than narrower — `t_start` at the
+early edge, `t_end` at the late one — as long as the rule of the author's reveal still holds
+(on `L2`/`L3` and `predict` a window closes at least 10 s before the author says or shows the
+answer).
+
+An edit that moves a boundary, sets a flag or changes the wording is followed by
+re-examining every sentence in `validation.notes`, `question_time_note` and `provenance`
+that states the old value. Reviewers of the next round read these fields.
+
+**A `CRITICAL_FAIL` is rejected or rebuilt.** The verdict means the sample cannot be cured by
+moving boundaries or by rewording while it keeps measuring what it measures. Either set
+`rejected`, or build a new sample from the same idea — another moment for the question,
+another question or another level — from the reviewer's `proposal`; the new sample goes
+through the full cycle. The exception is lowering the level to `L1` without changing the
+windows or the wording: it needs no second review, and it is legitimate only if the
+question does not itself give the answer, and never on a `predict`, `counterfact` or
+`extend`.
 
 **A follow-up is part of the same reviewer run.** It may ask an existing subagent to
 clarify or complete its current finding before a proposed edit is accepted, but it retains
@@ -216,11 +281,21 @@ iteration consolidated by that decision. The record may cite earlier reviews as 
 but its filename and heading must match the current review version. Never call the second
 coordinator pass `coordinator.2.md` when it consolidates reviewer iteration 3 or 5.
 
+**What the decision records.** For every check that fired and that you did not apply as
+proposed, `coordinator.<ROUND>.md` gives the objection in one sentence, what you checked it
+with (a calculation, a transcript line, a frame) and the decision: the exact edit, or why no
+edit is needed. "No edit" is a decision and is written down with its reason; a bare label —
+"no-op", "in tolerance" — is not a reason: name the measured value or the rule it rests on.
+An objection you cannot settle, or one that needs a rule this prompt does not give, stays
+open: `PASS` verdicts of other roles do not close it, the sample stays `draft`, and the
+objection goes under **Open objections** in `coordinator.<ROUND>.md` and into your final
+report to the human.
+
 **Keep one append-only operational log per video.** Immediately after every successful
 subagent launch and terminal result, call `tools/coordinator_log.py <VIDEO_ID> spawn` or
 `finish`; after an applied sample change, call `sample-edit`. Only the coordinator writes
-`data/reviews/<VIDEO_ID>/coordinator.log`, never truncates it, and runs `check` before final
-acceptance. The log records scheduling and edits; it does not replace per-question
+`data/reviews/<VIDEO_ID>/coordinator.log`, never truncates it, and runs `check --final` before
+final acceptance. The log records scheduling and edits; it does not replace per-question
 `coordinator.<ROUND>.md` decisions.
 
 ---
@@ -232,9 +307,9 @@ frames and from nothing but the frames** — the metadata of the description run
 `with_transcript: false`. So for `probe_vision` it is not somebody else's modality but a
 dense reading of its own, and it must be handed over.
 
-**Why it must be, not merely may be.** Without the index the probe gets forty frames for a
-half-hour video — one frame every forty-five seconds. Then `visiononly_solved = false`
-means "they showed me forty pictures" rather than "vision was not enough", and the
+**Why it must be, not merely may be.** Without the index the probe has only the scene-change
+frames, which can be sparse over a long lecture. Then `visiononly_solved = false` means
+"they showed me a few pictures" rather than "vision was not enough", and the
 `audio_dependency` label, which is derived straight from that flag, drifts systematically
 to `required`. The index is built on a 0.5-second grid — denser than any budget that could
 be handed to the probe as frames. That is, it moves the measurement towards honesty rather
@@ -260,7 +335,7 @@ both bans itself.
 
 ## 5. Reviewer workspaces are per role and are deleted after consolidation
 
-Use exactly one workspace per reviewer role:
+Use exactly one workspace per subagent (`$PROJECT` is the repository root):
 
 ```
 $PROJECT/.review_ws/<VIDEO_ID>/<QUESTION>/<SUBAGENT_NAME>/
@@ -268,11 +343,11 @@ $PROJECT/.review_ws/<VIDEO_ID>/<QUESTION>/<SUBAGENT_NAME>/
 
 Use this source matrix; a boundary-clipped source is clipped to the permitted interval for the role:
 
-| Role | Transcript | `description.jsonl` index | Initial real frames | On-demand `--dense` |
+| Role | Transcript | Screen index (`screen_text.md`, `screen.jsonl`) | Initial real frames | On-demand `--dense` |
 |---|---|---|---|---|
 | `semiblind` | clipped | clipped | existing scene frames, copied | allowed |
 | `full_sample` | full | full | existing scene frames or manifest | allowed |
-| `full_window` | clipped | clipped | existing scene frames or manifest | allowed |
+| `full_window` | full | full | existing scene frames or manifest | allowed |
 | `probe_text` | clipped | forbidden | forbidden | forbidden |
 | `probe_vision` | forbidden | clipped | existing scene frames, copied | allowed |
 | `probe_frame` | forbidden | forbidden | exactly one frozen frame | forbidden |
@@ -289,17 +364,19 @@ After a review passes `schema/review.py --check` and its decisions have been inc
 into `coordinator.<ROUND>.md`, remove that role's reproducible workspace:
 
 ```bash
-python3 tools/prepare_review_workspace.py <VIDEO_ID> \
+/home/user/conda/bin/python3 tools/prepare_review_workspace.py <VIDEO_ID> \
     --cleanup --out "$PROJECT/.review_ws/<VIDEO_ID>/<QUESTION>/<SUBAGENT_NAME>"
 ```
 
 Keep an invalid or unconsolidated workspace for diagnosis. Never ask a validator to delete
 it, and never share one workspace between roles.
 
-**What the launch message may contain.** A semi-blind role (`semiblind`, `probe_verify`) and
-the modality probes receive exactly: the sample id, the path of their workspace, the `until`
-of the stretch, and any deviation in how to read the material (for example "read
-`screen_text.md` in full, `screen.jsonl` only for the last three minutes"). Nothing else:
+**What the launch message may contain.** Besides the role prompt with its substitutions (the
+question or the task, and `question_time` for the semi-blind reviewer), a semi-blind role
+(`semiblind`, `probe_verify`) and the modality probes are told only: the sample id, the path
+of their workspace, the `until` of the stretch (not to `probe_frame`, which has one frame and
+no stretch), and a change in the order of reading the material that does not shorten what the
+role prompt says to read in full. Nothing else:
 no timecode of the evidence, no description of what the screen shows, no `t_val` or `t_s`
 of earlier rounds, no answer, and nothing the coordinator learned from the human's brief.
 The reviewer's step 0 is only worth anything if it really is step 0. A reviewer who is told
@@ -313,11 +390,10 @@ the content of the screen must report it in `violations`, and the adjudication i
 **The rule.** No `PASS` on 2.2 or 2.3 without an adjudication table, and no comparison of a
 `t_val` against `t_start` that the table did not produce.
 
-**Why.** On the pilot the semi-blind `t_val` was compared against `t_start` as two numbers,
-and in 19 of the 23 samples where a declared decoy abutted the window `t_val` was a
-function of the decoy's end, not of the video. The reviewers had written full answers
-about moments inside the decoys ("supplies all four concrete values and signs") and nobody
-read the phrase as "the rubric is met". The table makes the coordinator read every answer.
+**Why.** Comparing the reviewer's `t_val` with `t_start` as two numbers never reads the
+answers. Reviewers have written complete answers about moments earlier than their own
+`t_val` without marking them sufficient, and nobody checked those answers against the
+rubric. The table makes the coordinator read every one.
 
 **Vocabulary.** *Blind* — the answer before any material (`prior_answer`). *Semi-blind* —
 material up to `until`, no answer, no rubric, no `t_start`. *Sighted* — the full reviewer,
@@ -326,111 +402,223 @@ with the rubric.
 **Stage A.** The semi-blind reviewer returns, per stretch, a trajectory: a `Candidate` with a
 full answer at every change of the relevant state, the last at the end of the stretch. The
 coordinator checks **every** answer against the rubric of the corresponding window, item by
-item. The first answer that meets all required items is `t_val_A`. The reviewer's own
-`t_val` and `sufficient` flags are self-reports and carry no status.
+item, and judges each passing answer by what the stream had supplied up to its moment —
+read off or computed ([definitions.md](definitions.md), "`reasoning_level`") — not by how the
+reviewer reasoned. The first passing answer that the sample's level reaches by its own route
+or a cheaper one — on an `L2` sample the author stating the answer is a cheaper route — is
+`t_val_A`. An earlier passing answer that only a harder route reaches — on an `L1` sample,
+an answer that has to compute what the window later shows — is classified `harder route`
+and is not a hit (below). The reviewer's own `t_val` and `sufficient` flags are self-reports
+and carry no status.
 
 **Stage B.** `full_sample` may return `t_s`, the sighted proposal for the first moment the
 rubric is satisfiable, with a frame in `t_s_basis`. If `t_s` is null or `t_s ≥ t_val_A`,
 nothing more is needed: `t_val = t_val_A`.
 
-**Stage C.** If `t_s < t_val_A`: prepare a fresh workspace with `--until <t_s> --screen
---verify`, spawn `probe_verify` with the prompt `prompts/probe_verify.md`, giving it the
-task **without its when-clause** (strip the "when …" part by hand; if the clause defines
-the object of the task, give the task whole and treat "the object is not there yet" as an
-answer). Check its `answer` against the rubric. Met → `t_val = t_s`. Not met →
-`t_val = t_val_A`. One call, short material, only on disagreement.
+**Stage C.** If `t_s < t_val_A`, or `t_val_A` is null and `t_s` exists: prepare a fresh
+workspace with `--until <t_s> --screen --verify`, spawn `probe_verify` with the prompt
+`prompts/probe_verify.md`, giving it the task **without its when-clause** (strip the "when …"
+part by hand; if the clause defines the object of the task, give the task whole and treat "the
+object is not there yet" as an answer). Check its `answer` against the rubric and by the same
+route test as stage A. Met by the route of the level or a cheaper one → `t_val = t_s`. Met only
+by a harder route → `t_val = t_val_A`, and the `t_s` row is classified `harder route`. Not met
+→ `t_val = t_val_A`. One call, short material, only on disagreement.
 
 An early **correct** answer of an evaluated model at `t_m < t_start` (from
 `data/outputs`) is a ready-made `t_s`: skip stage B and run stage C at `t_m`. The absence
 of such an answer means nothing — the models are weak.
 
-**Then** derive 2.2 and 2.3 from `t_val` as before (`t_val[0] < question_time` → 2.3;
+**Check every span against `t_val`** (checklist 7.5). For each required window take its
+annotated `evidence_span` and any span the window reviewer proposes. First mark the recaps on
+stage A: a stretch that gives a passing answer at its very start from material before the
+stretch — the answer was derivable before it began. A recap is not compared; it is an open
+question of the checklist. A span that ends more than 2 s before `t_val_A` of its stretch, or
+before `t_start` when there is no `t_val_A`, is a sighted `t_s` for that stretch — the annotator
+and the reviewer both know the answer — unless it ends before the stretch begins. Treat such a
+`t_s` exactly like that of `full_sample`: stage C, then the points below. With several `t_s` for
+one stretch, `t_val` is the earliest of `t_val_A` and the `t_s` that stage C passes by the route
+of the level or a cheaper one. Once 2.2 has decided, a span agrees with `t_val` when `t_val`
+lies inside it, 2 s of tolerance on each side, and it starts no more than 2 s before the piece
+that completes at `t_val` begins — the transcript line `t_val` falls in, or the last needed part
+of a picture. Apply a proposed span only if it agrees, as an ordinary 7.5 edit (§3); set an
+annotated span that does not agree by checklist 1.9 on that piece, logged by §3. Never widen a
+span past this to let a moved `t_start` pass the validator: a move of `t_start` left of the
+span's start takes the start with it only as far as the span may start, and stops there; when a
+re-set span starts after `t_start`, move `t_start` to its start (`boundary`). Also not compared:
+a stretch with no `t_val`, the author's own answer as `t_val` on `L2`, `L3` or `predict` (the
+point below), and a required window kept for a substantive when-clause. On a window that is not
+compared, do not apply a proposed span; a span whose `t_s` failed stage C there goes into
+`coordinator.<ROUND>.md` as unresolved. Give each `t_s` its own row in the table, with its
+stretch and source (`full_sample`, `annotation`, `full_window<k>`, `provenance`, a model), and
+log one `adjudicate` event per stretch and per `t_s`.
+
+**Then** derive 2.2 and 2.3 from `t_val` (`t_val[0] < question_time` → 2.3;
 `t_val[k] < t_start[k]` → 2.2). Inside an optional window is not a hit.
 
-**The table**, one per sample and iteration, in `coordinator.<ROUND>.md`:
+**The table**, one per sample and iteration, in `coordinator.<ROUND>.md`. The example is an
+invented `L2` sample: the rubric asks for τ, and the window shows R and C.
 
 | t | answer (short) | rubric items ✓/✗ | reviewer's own view | classification |
 |---|---|---|---|---|
-| 704.0 | signs 0, −, 0, + via the cosine derivatives | 0 ✓ 1 ✓ 2 ✓ 3 ✓ | sufficient, high | **t_val_A** |
-| 718.0 | the same | all ✓ | sufficient, high | confirmation |
-| 737.0 | the same, through f | all ✓ | sufficient, high | (annotated t_start) |
-| 690.0 (t_s) | — | — | sighted proposal | verified: not met → stays t_val_A |
+| 212.0 | τ = 12 ms from R and C on the diagram | 1 ✓ 2 ✓ | sufficient, high | **t_val_A** |
+| 226.0 | the same | all ✓ | sufficient, high | confirmation |
+| 241.0 | the same, R and C now also in the table | all ✓ | sufficient, high | (annotated t_start) |
+| 198.0 (t_s) | — | — | sighted proposal | verified: not met → stays t_val_A |
 
-Classifications: `t_val_A`, `confirmation`, `partial` (some items ✗ — name them), `no answer`,
-and one row for `t_s` with the stage-C outcome. If the launch message broke the rule of §5
-on what a semi-blind role may be told, or the reviewer reported such a leak in `violations`,
-mark the table **`contaminated`**: that `t_val_A` still counts as evidence that a hit exists
-(the leak could only have made the answer earlier), but not as evidence that the boundary is
-clean, and a fresh clean run is needed before a `PASS` on 2.2/2.3. Then record the decision
-in the log:
+Classifications: `t_val_A`, `harder route`, `confirmation`, `partial` (some items ✗ — name
+them), `no answer`, and one row per `t_s`, with its stretch, its source and the stage-C outcome.
+If the launch message broke the rule of §5 on what a semi-blind role may be told, or the
+reviewer reported such a leak in `violations`, mark the table **`contaminated`**: that `t_val_A`
+still counts as evidence that a hit exists (the leak could only have made the answer earlier),
+but not as evidence that the boundary is clean, and a fresh clean run is needed before a `PASS`
+on 2.2/2.3. Then record the decision in the log:
 
 ```bash
-python3 tools/coordinator_log.py <VIDEO_ID> adjudicate --sample-id <SAMPLE_ID> \
-    --iteration <ROUND> --t-val-a 704.0 --t-s 690.0 --verified no --t-val 704.0 \
-    --source semiblind.<ROUND>.json
+/home/user/conda/bin/python3 tools/coordinator_log.py <VIDEO_ID> adjudicate \
+    --sample-id <SAMPLE_ID> --iteration <ROUND> --t-val-a 212.0 --t-s 198.0 --verified no \
+    --t-val 212.0 --source semiblind.<ROUND>.json
 ```
 
-**What to do on a hit** is the ladder of checklist 2.2, and it is yours to apply: a hit
-reaches the human only when the ladder ends in rejection. Measure the gap first.
+**What to do on a hit** is the ladder below, and it is yours to apply: a hit reaches the
+human only when the ladder ends in rejection.
 
-- **Gap up to 2 s** (`t_start − t_val`): not a hit. Move `t_start` to `t_val` with
-  `evidence_span`, log `sample-edit --kind nudge --window <idx>`, no re-review; a sub-second
-  gap the frame step cannot resolve is recorded in the table and the boundary stays.
-- **Gap of 2 to 10 s** (`t_start − t_val`, or `question_time − t_val` for 2.3 with every
-  referent of the wording existing by `t_val`): an interval edit. Move `t_start` (or
-  `question_time`) to `t_val` with `evidence_span`, log `sample-edit --kind boundary
-  --window <idx>` (`--kind timing` for a `question_time` move), re-review the touched
-  window with `full_window<idx>`.
-- **Larger gap:** ask which rubric items the when-clause contributes. **Substantive** clause
-  → keep the window, add an optional trigger for the early form, `full_window` on it.
-  **Empty** clause → the ladder: (0) re-read the question without its when-part and check
-  that every referent resolves to one object on the material up to `question_time`; if not,
-  replace the clause by a discriminator — a mathematical property of the object first, the
-  state at the moment of the question second, a colour or the appearance of a symbol last —
-  rather than dropping it (checklist 5.3 is the sighted side of the same check); and ask
-  whether the clause keeps the trigger unique — a question that names a state fires at
-  every recurrence of that state (3.1), so such a clause is narrowed to a time qualifier
-  that holds through the window, not dropped; (1) add an **optional** early window
-  `[t_val, old t_start)` and keep the window of the explicit showing **required** — the
-  early window becomes the required one only when there is no separate showing; give
-  **both** windows a fresh `evidence_span`, the early one from `t_val`, the required one on
-  the last real evidence and never on the cut (an `evidence_span` ending at its own
-  `t_start` is the tell); do not join them — the early window closes at the start of the
-  transcript line the old `t_start` falls in (2.1); drop or weaken the clause just enough;
-  this is the whole fix when `t_val ≥ question_time`; (2) if `t_val <
-  question_time`, move `question_time` back to `t_val` when the referents allow, otherwise
-  open the early optional window at `question_time`, keep the required window's
-  `evidence_span` on the real evidence and let the validator derive `at`/`post`; (3) reject
-  only when step 2 leaves nothing to measure — that one is written up for the human. On
-  every step re-derive `reasoning_level` by 7.3, the cheapest route including waiting for
-  the required showing: a value read off the screen there makes the sample `L1`. Steps 0–2
-  change the participant-visible question or the axis, so the sample goes to `draft` and
-  through the question-version rule of §3.
+- **An earlier, harder route** (a `harder route` row before `t_val_A`, or before `t_start`
+  when there is no hit): not a hit. The stretch from that answer (or from `question_time`, if
+  it is later) to `t_val`, or to `t_start` if no hit comes, gets an optional window when it
+  can hold one — at least 5 s, with the transcript line 2.1 keeps between the windows — and
+  none otherwise; log `sample-edit --kind boundary --window <idx>` and run `full_window` on
+  it. Within 2 s of `t_start` the route is not asked: the point on a gap up to 2 s applies.
+  Inserting a window renumbers the later ones: log `--kind boundary --window <idx>` for the
+  new window and for every renumbered one, and name the old → new indices in
+  `coordinator.<ROUND>.md`.
+- **The author's own answer as `t_val`** on an `L2`, `L3` or `predict` sample: do not move a
+  window onto it — a window there repeats the author — and the 2 s tolerance and the gaps
+  below do not apply to it. Treat it as an empty residue in a required window:
+  `FIX_INTERVALS` when a window of at least 5 s that still contains what the answer is
+  worked out from can close 10 s before that moment, otherwise `CRITICAL_FAIL` (§3).
+- **Gap up to 2 s** (`t_start − t_val`): not a hit. Move `t_start` to `t_val` (the
+  `evidence_span` stays as annotated if it agrees with `t_val`, see the spans above), log
+  `sample-edit --kind nudge --window <idx>`, no re-review; a sub-second
+  gap the frame step cannot resolve is recorded in the table and the boundary stays. For 2.3,
+  a `question_time − t_val` of up to 2 s: move `question_time`, log `--kind timing`, no
+  re-review, and measure `t_start` against the same `t_val` by these points.
+- **Gap of 2 to 10 s** (`t_start − t_val`): an interval edit. Move `t_start` to `t_val` with
+  `evidence_span`, log `sample-edit --kind boundary --window <idx>`, re-review the touched
+  window with `full_window<idx>` and rerun the probes whose material moved (the repairs table
+  in section 3). For 2.3, a `question_time − t_val` over 2 s goes by step 2 of the ladder
+  below.
+- **Larger gap:** ask which rubric items become satisfiable, by the route of the level or a
+  cheaper one, only once the event of the when-clause has occurred. **Substantive** clause →
+  keep the window, add an optional trigger for the early form, log `--kind boundary` for it
+  (and for the windows it renumbers), `full_window` on it. **Empty**
+  clause → the ladder, in this order:
+
+  0. **Referents and uniqueness.** Re-read the question without its when-part and check that
+     every referent resolves to one object on the material up to `question_time`; if not,
+     replace the clause by a discriminator rather than dropping it — a mathematical property
+     of the object first, the state at the moment of the question second (`full_sample`
+     checks the same property from the sighted side). Then ask whether the clause keeps the
+     trigger unique: a question that names a state fires at every recurrence of that state,
+     so such a clause is narrowed to a time qualifier that holds through the window, not
+     dropped. On an `L2`/`L3` or `predict` sample, a moment whose answer the author has
+     already said or shown is not a recurrence to cover.
+  1. **The early window becomes the required one.** It opens at `t_val`, and its
+     `evidence_span` sits on the real evidence. The window of the explicit showing stays as an
+     optional one on an `L1` sample; on `L2`/`L3` and `predict` it is removed, and the new
+     required window closes at least 10 s before the showing. On `L1`, where both windows
+     remain, give **both** a fresh `evidence_span`, each on its own evidence and never on the
+     cut (an `evidence_span` ending at its own `t_start` is the tell), and do not join them —
+     the early window closes at the start of the transcript line the old `t_start` falls in
+     (2.1). On `L2`/`L3` and `predict` only the new required window remains, its
+     `evidence_span` on its own evidence. Drop or weaken the clause
+     just enough that the wording no longer forbids the early answer. The validator derives
+     the axis afresh: `pre` if the evidence comes after `question_time`, otherwise `at` or
+     `post`. This is the whole fix when `t_val ≥ question_time`.
+  2. **If `t_val < question_time`,** move `question_time` back to `t_val` when the wording
+     allows: at the new moment a participant must understand every term, name and formula
+     the question uses as known — each is common vocabulary, has been introduced by the video
+     by then, or is explained by the question itself in words understood at that moment. If
+     one has not, reword the question for the new moment; that is a new version of the
+     question (§3). A formula or value the question itself writes out is not evidence for
+     the answer: if the video derives it later, the question gives the derivation away, and
+     the wording changes with the move. Prefer moving `question_time` — a `pre` is worth
+     keeping; any move of it by more than 2 s is a new version of the question (§3),
+     reworded or not. Only when no wording can be understood at the new moment, open the
+     early window at `question_time`, keep its `evidence_span` on the real evidence and let
+     the validator derive `at`/`post`.
+  3. **Reject** only when step 2 leaves nothing to measure — that one is written up for the
+     human.
+
+  On every step re-derive `reasoning_level`: the cheapest legal route to the full rubric
+  inside the required window; a value read off the screen there makes the sample `L1`, and
+  an earlier, harder route gets an optional window. Steps 0–2 change the participant-visible
+  question or the axis, so the sample goes to `draft` and through the question-version rule
+  of §3.
 
 Write in `coordinator.<ROUND>.md` which step was taken and why the lower ones were not.
 
-**A `CRITICAL_FAIL` on 2.5 is read against the residue rule** of checklist 2.5: if the
-`findings` of the 2.5 check show that the stream handed over an ingredient but not the
-answer built from it, the verdict is `FIX_QUESTION` with a re-level by 7.3, not a
-rejection, and the sample's status is not lowered. `reasoning_level` is one per sample:
-when several windows propose different levels, take the lowest (the cheapest route of
-7.3). Only an empty residue — the whole answer in the stream —
-compromises an `L2`/`L3` sample. A `full_window` written before 2026-09-08 that set
-`CRITICAL_FAIL` without the split is re-read this way, from its own evidence, before
-anything is done to the sample.
+**A verdict on 2.5 is read against the split** the window reviewer gives for each window,
+in the `split` of the 2.5 check: `handed_over` — the rubric items, numbered from 1, the
+stream hands over inside the window; `handed_over_by_question` — those of them that would not
+be handed over without what the question itself states; `residue` — every other item;
+`handed_over_after` —
+among the residue, the items handed over in the 10 s after the window; and copies of the
+sample's `reasoning_level`, `act` and the window's `required` flag. The contract has already
+refused a verdict the split does not allow; what is left to you:
+
+- **Compare the copies with the sample** as it was when the review was launched. A reviewer
+  who copied a wrong level, act or flag applied the rules of a different sample: rerun the
+  review of that window with the correct values in view, rather than correcting its verdict
+  yourself.
+- **Check the split, not only the verdict.** Count the question's own statements together
+  with the stream: an item that follows from them without any work by the participant is
+  handed over. When an item's place in the split decides the verdict, look at the
+  transcript lines and the frames the reviewer cites for it (section 7). Check in particular
+  `handed_over_by_question`: the contract allows `FIX_QUESTION` on an empty residue only
+  because of those items, so an item the author's reveal hands over must not be there. On a
+  `predict`, `FIX_QUESTION` for revealed items stands only when they can leave the rubric and
+  something is still left to predict.
+- **Read the findings for a stated disagreement.** A reviewer who disagrees with the rule
+  of 2.5 in this case writes `fail` and explains why in `findings`; you decide. If deciding
+  needs a rule this prompt does not give, it is an open objection (§3).
+- **Re-derive the level** from what the stream hands over inside the window only; the
+  contract cannot check this. If the stream handed over an ingredient but not the answer
+  built from it, the residue sets the level: the same level as annotated is `ok`, another
+  is `FIX_QUESTION` with the re-derived level, not a rejection.
+
+What the author says in `(t_end, t_end + 10]` is a defect of the window (`FIX_INTERVALS` or
+`FIX_QUESTION`), whatever the level: fix the window first, have the split made again on the
+moved window, and do not change the level because of it — neither lower it nor, on `L1`,
+raise it.
+
+Only an empty residue in a required window compromises an `L2`/`L3` sample; in an optional one
+it is `FIX_INTERVALS` — close or remove the window, the level unchanged — unless a later
+required window scores the same items: then `CRITICAL_FAIL`, because removing the optional
+window would hide that the required one comes after the author's answer. In a required window
+it is `FIX_INTERVALS` too when the reviewer's `proposal` gives a new `t_end` at which the
+window still contains what the answer is worked out from, lasts at least 5 s and closes 10 s
+before the author's answer: move it and keep the level. When items handed over by the question
+are what empties the residue, it is `FIX_QUESTION`: rewording returns them to it. Otherwise it
+is `CRITICAL_FAIL` (§3). On a `predict` an item the author reveals inside the window is not
+reading: the window takes the verdicts of an empty residue, or `FIX_QUESTION` when the revealed
+items can leave the rubric and something is still left to predict. `reasoning_level` is one per
+sample: re-derive it from the required windows, and when they give different levels, take the
+lowest.
 
 ---
 
 ## 7. When reviews disagree about the screen, look
 
-Two roles may report different things about the same stretch of the screen: one says a
-state appears at 502 s, another that it never appears; one saw labels at 517 s, another
-says they were gone by 503 s. **Do not settle such a disagreement by reasoning about who
-is more likely right, and do not settle it from `description.jsonl`.** Look:
+Two roles may report different things about the same stretch of the screen: one says a state
+appears at a given second, another that it never appears; one saw labels at some second,
+another says they were gone ten seconds earlier. **Do not settle such a disagreement by
+reasoning about who is more likely right, and do not settle it from `description.jsonl`.**
+Look:
 
 ```bash
-python3 tools/prepare_review_workspace.py <VIDEO_ID> \
-    --dense <A> <B> --step 1 --sheet --out "$PROJECT/.review_ws/<VIDEO_ID>/<QUESTION>/coordinator_sheet"
+/home/user/conda/bin/python3 tools/prepare_review_workspace.py <VIDEO_ID> \
+    --dense <A> <B> --step 1 --sheet \
+    --out "$PROJECT/.review_ws/<VIDEO_ID>/<QUESTION>/coordinator_sheet"
 ```
 
 One call gives one image of up to 16 frames with the second stamped on each cell; take
@@ -439,15 +627,16 @@ into the same folder needs `--force`: the folder carries no `mode.json`). Open t
 yourself, write into `coordinator.<ROUND>.md` what is on each second that matters, and
 adjudicate from that. Remove the folder with `--cleanup` afterwards.
 
-This applies when the disagreement is about **what** is on the screen, or about **when**
-by more than the 2 s tolerance of checklist group 2. A gap within the tolerance is not
-looked at: the first measurement stands.
+This applies when the disagreement is about **what** is on the screen, or about **when** by more
+than 2 s ([definitions.md](definitions.md), "Boundary tolerance"). A gap within 2 s is not
+looked at: the first measurement stands. A disagreement about from when the answer is derivable
+is not settled by your look either: you know the answer too, so it goes through stage C (§6).
 
 **Why.** The description is written by a model from the same frames and shares the
-reviewers' blind spots: on the pilot it called ten clearly separate bands "a clean
-gradient", the semi-blind reviewer repeated the phrase for the same second, and the
-coordinator took that second as `t_val` because the other role's "never appears" was
-easy to explain away. The explanation was right and the second was wrong by 3 s. A state
+reviewers' blind spots: a role that read the description repeats its wording, so the
+description agreeing with one reviewer is one observation, not two. And a sound explanation
+of why the other role is mistaken does not confirm the timestamp of the role you side with:
+the explanation can be right and that timestamp still be off by several seconds. A state
 that changes gradually reads the same on every frame opened alone; side by side it does
 not. The same holds for your own claims: **no verdict, boundary or repair may rest on a
 second that no role and no sheet has looked at.**

@@ -53,10 +53,14 @@ Measures:
 - **A blind baseline is mandatory for every sample.** The model gets only the question, without
   the video. If it solves it, set `blind_solved: true`: the sample is excluded from the
   primary benchmark, but may remain `validated` when its review is otherwise complete and
-  correct.
+  correct. An answer that rests on content only this video has is not solving blind, however
+  the model came by it (`docs/prompts/definitions.md`, "`blind_solved`"): the flag measures
+  what the subject alone gives away, and memory of the video is measured separately.
 - **The pilot is built on 2026 videos** (`_2026/*`), released after the cutoff of most models, and
   **in parallel we take a control video from 2017**, so as to *measure* the size of the gap rather
-  than deny the problem.
+  than deny the problem. The measure is a separate ablation: questions about content only one
+  video has, which nobody can answer without it unless they remember it, asked of a model
+  without the video; the share of right answers is how well that model remembers that video.
 - Question wordings are anchored to *this* exposition ("what method does the author use", not "what
   method is this solved by").
 
@@ -521,8 +525,10 @@ The candidates (all with a working source in `vendor/videos`):
       point 3 names spam as the main threat of multi-trigger samples)
 - [ ] filling in `validation.*`; `rejected` is reserved for incorrect or deliberately
       abandoned samples, while `blind_solved` controls primary-set eligibility
-- [ ] **measuring contamination**: compare the share of blind-solved on the 2026 video vs the 2017
-      one. This is a result in its own right, worth publishing independently of the benchmark.
+- [ ] **measuring contamination**: the memory ablation of §1.1 on the 2017 video vs the 2026
+      ones. The share of blind-solved does not measure it: an answer from memory of the video is
+      not solving blind. This is a result in its own right, worth publishing independently of
+      the benchmark.
 - [ ] computing `audio_dependency` from the measurements
 - [ ] a second annotator on 30% of the samples + IAA (Cohen's κ on `act`, agreement on windows)
 

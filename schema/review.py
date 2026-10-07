@@ -44,13 +44,16 @@ from typing import Annotated, Literal
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 # The version of the contract itself: it changes when the fields here change.
-SCHEMA_VERSION = "1.3"   # 1.1: the full role was split into full_sample and full_window
+SCHEMA_VERSION = "1.4"   # 1.1: the full role was split into full_sample and full_window
 # 1.2: the verdict on 4.2 moved to the coordinator; for the
 #      semi-blind reviewer it stayed preliminary (see COORDINATOR_ITEMS)
 # 1.3: distractor_windows removed from the sample, and with them the four items of
 #      group 6, 1.2 and 1.5 (kept below as retired names so that old reviews still
 #      read); the semi-blind scan became a trajectory of full answers (`Candidate`);
 #      the full reviewer may propose `t_s`; a new role `probe_verify` checks it
+# 1.4: the 2.5 check of the window reviewer carries its split of the rubric
+#      (`ResidueSplit`), and the verdict is checked against it; required only of a
+#      review that states 1.4 or later (see `FullWindowReview.carries_split`)
 CHECKLIST_VERSION = "2026-09-07"
 # The checklist of 2026-10-05 added three role items (2.6, 4.9, 7.8; see INTRODUCED_ITEMS).
 # The version is not moved yet: the reviewer prompts still state 2026-09-07, and a moved
@@ -59,6 +62,18 @@ CHECKLIST_VERSION = "2026-09-07"
 # The previous checklist version. Reviews saved under it may still carry the retired
 # items and the old shape of `candidates`; anything newer may not.
 PREVIOUS_CHECKLIST_VERSION = "2026-08-24"
+
+# The first contract version whose window reviews carry the 2.5 split.
+SPLIT_SINCE = "1.4"
+
+
+def version_tuple(version: str) -> tuple[int, ...]:
+    """"1.4" -> (1, 4). Contract versions are not dates: compared as strings, "1.10" would
+    come before "1.9". A value that is not a version reads as the oldest one."""
+    try:
+        return tuple(int(x) for x in version.split("."))
+    except ValueError:
+        return (0,)
 
 
 class Strict(BaseModel):
@@ -235,7 +250,7 @@ class Role(StrEnum):
     PROBE_VISION = "probe_vision"
     PROBE_FRAME = "probe_frame"
     PROBE_FULL = "probe_full"
-    PROBE_VERIFY = "probe_verify"  # stage C: answers with material up to the t_s proposed by full_sample
+    PROBE_VERIFY = "probe_verify"  # stage C: answers with material up to a sighted t_s
 
 
 # Which items each role must close. This is not a reference table but part of the
@@ -416,6 +431,14 @@ class Verdict(StrEnum):
     CRITICAL_FAIL = "CRITICAL_FAIL"    # not curable within this sample: rejected, or rebuilt as a new sample
 
 
+# The rungs of the ladder, explicitly rather than by the order of the enum (see
+# GROUP_BY_NUMBER for why). The verdict of a review is the worst of its checks, so a rule
+# about one item can only demand a rung at least this high.
+VERDICT_RANK: dict[Verdict, int] = {
+    Verdict.PASS: 0, Verdict.FIX_INTERVALS: 1, Verdict.FIX_QUESTION: 2, Verdict.CRITICAL_FAIL: 3,
+}
+
+
 class Result(StrEnum):
     OK = "ok"            # checked, did not fire
     FAIL = "fail"        # checked, fired
@@ -556,6 +579,79 @@ class Budget(Strict):
 
 
 # --------------------------------------------------------------------------
+# The split of item 2.5
+# --------------------------------------------------------------------------
+
+Level = Literal["L1", "L2", "L3"]
+Act = Literal["alert", "monitor", "ground", "narrate", "predict", "verify",
+              "counterfact", "extend"]
+RubricItem = Annotated[int, Field(ge=1, description="a rubric item of the window, numbered from 1 "
+                                                    "in the order of the list")]
+
+
+class ResidueSplit(Strict):
+    """What the stream hands over in the window and what is left to the participant.
+
+    Item 2.5 (`author-says-answer-in-window`) is decided by this split, not by an
+    impression: a verdict written without it cannot be checked, and the coordinator used
+    to find the split only in prose, if at all. With the split in fields the contract
+    checks the verdict against it (`FullWindowReview._verdict_follows_the_split`).
+
+    The first three fields are copies from the sample. They are written down so that the
+    rule can be applied without the sample at hand, and the coordinator compares them with
+    the sample when consolidating: a reviewer who read the level or the act wrong judged
+    a different sample.
+    """
+
+    reasoning_level: Level = Field(description="the sample's `reasoning_level`, copied as annotated")
+    act: Act = Field(description="the sample's `act`, copied")
+    window_required: bool = Field(description="the `required` flag of this window, copied")
+    handed_over: list[RubricItem] = Field(
+        description="the items whose content the stream gives in finished form inside "
+                    "[t_start, t_end] — spoken or shown, a number, a term, a formula that can be "
+                    "repeated; an item that follows without any work from what the question "
+                    "states together with what the stream gives inside the window counts as "
+                    "handed over too")
+    handed_over_by_question: list[RubricItem] = Field(
+        default_factory=list,
+        description="among handed_over, the items that would not be handed over without what "
+                    "the question itself states: rewording the question returns them to the "
+                    "residue")
+    residue: list[RubricItem] = Field(
+        description="every other item of the window's rubric: inside the window it still has "
+                    "to be worked out")
+    handed_over_after: list[RubricItem] = Field(
+        default_factory=list,
+        description="among the residue, the items whose content (or something it follows from "
+                    "without any work) the stream gives only in (t_end, t_end + 10]")
+
+    @model_validator(mode="after")
+    def _a_partition(self) -> ResidueSplit:
+        for name in ("handed_over", "handed_over_by_question", "residue", "handed_over_after"):
+            items = getattr(self, name)
+            if len(set(items)) != len(items):
+                raise ValueError(f"split: {name} names an item twice")
+        both = set(self.handed_over) & set(self.residue)
+        if both:
+            raise ValueError(f"split: items {sorted(both)} are both handed over and in the residue; "
+                             f"every item goes to exactly one of the two")
+        every = set(self.handed_over) | set(self.residue)
+        if not every or every != set(range(1, max(every) + 1)):
+            raise ValueError(f"split: handed_over and residue together give {sorted(every)}, not "
+                             f"1..N — every item of the window's rubric goes to one of them")
+        by_question = set(self.handed_over_by_question) - set(self.handed_over)
+        if by_question:
+            raise ValueError(f"split: items {sorted(by_question)} in handed_over_by_question are not "
+                             f"in handed_over; an item the question hands over is handed over too")
+        stray = set(self.handed_over_after) - set(self.residue)
+        if stray:
+            raise ValueError(f"split: items {sorted(stray)} in handed_over_after are not in the "
+                             f"residue. Inside the window the participant has not heard them yet, "
+                             f"so they stay in the residue as well")
+        return self
+
+
+# --------------------------------------------------------------------------
 # A check against a checklist item (SGR Cascade)
 # --------------------------------------------------------------------------
 
@@ -592,6 +688,11 @@ class Check(Strict):
     steps: list[SubAnswer] = Field(
         default_factory=list,
         description="the intermediate answers the verdict is assembled from")
+    split: ResidueSplit | None = Field(
+        default=None,
+        description="item author-says-answer-in-window only, and required there when the "
+                    "result is ok or fail: the split of the window's rubric the verdict "
+                    "follows from")
 
         # --- and only now the conclusion ---------------------------------------
     result: Result
@@ -613,6 +714,9 @@ class Check(Strict):
         if expected is not None and self.group is not expected:
             raise ValueError(f"item {self.item.value} belongs to group "
                              f"{expected.value}, not {self.group.value}")
+        if self.split is not None and self.item is not Item.AUTHOR_SAYS_ANSWER_IN_WINDOW:
+            raise ValueError(f"item {self.item.value} carries a split: only "
+                             f"{Item.AUTHOR_SAYS_ANSWER_IN_WINDOW.value} has one")
         if self.item in ITEMS_NEEDING_TARGET and self.target is None:
             raise ValueError(f"item {self.item.value} concerns a specific window: "
                              f"without a target the coordinator cannot tell what to fix")
@@ -978,9 +1082,9 @@ class FullSampleReview(FullReview):
     knows the answer and is biased leftwards: in a half-drawn frame they "recognise" what
     is not there yet. That is why 2.2 was forbidden to them outright. Now they may
     PROPOSE the first moment from which the rubric is, in their view, satisfiable — and
-    the proposal moves nothing by itself: when it is earlier than the semi-blind `t_val`,
-    the coordinator launches `probe_verify` with material up to `t_s`, and only a passing
-    answer from that probe makes `t_s` the boundary.
+        the proposal moves nothing by itself: when it is earlier than the semi-blind `t_val`,
+    or there is none, the coordinator launches `probe_verify` with material up to `t_s`,
+    and only a passing answer from that probe makes `t_s` the boundary.
     """
 
     role: Literal[Role.FULL_SAMPLE] = Role.FULL_SAMPLE
@@ -1024,6 +1128,124 @@ class FullWindowReview(FullReview):
                              f"anybody else's")
         return self
 
+    def carries_split(self) -> bool:
+        """Is this review under the rules of the 2.5 split.
+
+        Only when the file itself states contract 1.4 or later. The reviews saved before
+        stated an older version or none at all, and the split did not exist for them; the
+        default of `schema_version` is the current version, so the test is on what the file
+        says, not on the default. `--check` refuses a new window review that does not say it.
+        """
+        return ("schema_version" in self.model_fields_set
+                and version_tuple(self.schema_version) >= version_tuple(SPLIT_SINCE))
+
+    @model_validator(mode="after")
+    def _verdict_follows_the_split(self) -> FullWindowReview:
+        """Item 2.5: the verdict must be one the split of the rubric allows.
+
+        The split is the substance of the check. The commonest error of the item is a
+        verdict that does not follow from it: a sample whose whole answer is in the stream
+        marked with a re-level instead of a rejection, an author's line right after the
+        window left without a fix, a `predict` whose window gives the prediction away
+        passed as reading. What the contract cannot check is whether the level re-derived
+        from a non-empty residue equals the annotated one — that is a judgement, and the
+        coordinator checks it together with the copies of the sample's fields.
+        """
+        if not self.carries_split():
+            return self
+        for c in self.checks:
+            if c.item is not Item.AUTHOR_SAYS_ANSWER_IN_WINDOW or c.result not in (Result.OK, Result.FAIL):
+                continue
+            if c.split is None:
+                raise ValueError(
+                    f"{c.item.value} is {c.result.value} without a split: fill `split` — the copies "
+                    f"of reasoning_level, act and the window's required flag, and the rubric items "
+                    f"(numbered from 1) in handed_over, residue and handed_over_after")
+            problems = split_problems(c, self.verdict)
+            if problems:
+                raise ValueError(
+                    f"{c.item.value}: " + "; ".join(problems) + ". Change the verdict, not the "
+                    f"split: the split is what you saw. If you disagree with the rule in this "
+                    f"case, keep the split, give the verdict it requires and explain the "
+                    f"disagreement in findings — the coordinator decides")
+        return self
+
+
+def split_problems(check: Check, verdict: Verdict) -> list[str]:
+    """The verdicts the 2.5 split allows (checklist 2.5); empty when the check agrees.
+
+    Every rule only demands a rung of the ladder: the verdict of a review is the worst of
+    its checks, so another item may push it higher. Items the question itself hands over
+    are cured by rewording: it returns them to the residue, so `FIX_QUESTION` is allowed
+    where they are what empties the residue.
+    """
+    s = check.split
+    assert s is not None
+    rank = VERDICT_RANK[verdict]
+    fired = check.result is Result.FAIL
+    moves_t_end = check.proposal is not None and "t_end" in check.proposal.field
+    got = f"got result={check.result.value}, verdict={verdict.value}"
+    problems = []
+    if s.handed_over_after and not (fired and rank >= VERDICT_RANK[Verdict.FIX_INTERVALS]):
+        problems.append(
+            f"items {s.handed_over_after} are handed over only after the window, which is a defect "
+            f"of the window whatever the level: fail with FIX_INTERVALS (move the window so that "
+            f"the author's words fall inside it on L1, or more than ten seconds after it on L2/L3) "
+            f"or with FIX_QUESTION; {got}")
+    predict = s.act == "predict"
+    by_question = sorted(s.handed_over_by_question)
+    reworded = (f" — or with FIX_QUESTION, since items {by_question} are handed over by the "
+                f"question itself and rewording returns them to the residue" if by_question else "")
+    if not s.residue and s.reasoning_level != "L1" and not predict:
+        if s.window_required:
+            allowed = fired and (verdict is Verdict.CRITICAL_FAIL
+                                 or (rank >= VERDICT_RANK[Verdict.FIX_INTERVALS] and moves_t_end)
+                                 or (by_question and rank >= VERDICT_RANK[Verdict.FIX_QUESTION]))
+            rule = ("fail with CRITICAL_FAIL, or with FIX_INTERVALS when the proposal names a new "
+                    "t_end at which the window still contains what the answer is worked out from, "
+                    "lasts at least 5 s and closes 10 s before the author's answer" + reworded)
+        else:
+            allowed = fired and rank >= VERDICT_RANK[Verdict.FIX_INTERVALS]
+            rule = ("fail with FIX_INTERVALS (close the window 10 s before the author's answer or "
+                    "remove it), or with CRITICAL_FAIL when a later required window scores the "
+                    "same items")
+        if not allowed:
+            where = "a required" if s.window_required else "an optional"
+            problems.append(f"the residue is empty in {where} window of an "
+                            f"{s.reasoning_level} sample — the whole answer is in the stream: "
+                            f"{rule}; {got}")
+    if predict and s.handed_over:
+        if s.window_required:
+            allowed = fired and (verdict is Verdict.CRITICAL_FAIL
+                                 or (rank >= VERDICT_RANK[Verdict.FIX_INTERVALS] and moves_t_end)
+                                 or (rank >= VERDICT_RANK[Verdict.FIX_QUESTION]
+                                     and bool(s.residue or by_question)))
+            empty = "CRITICAL_FAIL, or FIX_INTERVALS with a proposal naming a new t_end"
+        else:
+            allowed = fired and rank >= VERDICT_RANK[Verdict.FIX_INTERVALS]
+            empty = "FIX_INTERVALS, or CRITICAL_FAIL when a later required window scores them"
+        if not allowed and not s.residue:
+            problems.append(
+                f"on a predict an item handed over inside the window is not reading, and here "
+                f"nothing is left to predict: fail with {empty}; FIX_QUESTION only when items "
+                f"the question itself hands over (handed_over_by_question) return to the "
+                f"residue once it is reworded; {got}")
+        elif not allowed:
+            problems.append(
+                f"on a predict an item handed over inside the window is not reading: items "
+                f"{s.handed_over} give the prediction away. fail with FIX_QUESTION when they can "
+                f"leave the rubric and something is still left to predict (or the question's own "
+                f"statements hand them over); otherwise with the verdicts of an empty residue — "
+                f"{empty}; {got}")
+    if (not s.residue and s.reasoning_level == "L1" and not predict and s.handed_over
+            and set(by_question) == set(s.handed_over)
+            and not (fired and rank >= VERDICT_RANK[Verdict.FIX_QUESTION])):
+        problems.append(
+            f"the question itself hands over every item: an L1 task reads its answer from the "
+            f"stream, and a question that gives it measures nothing — fail with FIX_QUESTION "
+            f"(reword it so that the answer has to be read) or worse; {got}")
+    return problems
+
 
 # --------------------------------------------------------------------------
 # The modality probes
@@ -1062,14 +1284,17 @@ class ProbeAnswer(ReviewBase):
 class VerifyProbe(ProbeAnswer):
     """Stage C: a fresh semi-blind probe answers with material up to `t_upto`.
 
-    Launched by the coordinator when the sighted proposal `t_s` (or an early correct
-    answer of an evaluated model) lies earlier than the semi-blind `t_val`. The probe
+        Launched by the coordinator when a sighted `t_s` — the full reviewer's proposal, an
+    early correct answer of an evaluated model, or the end of a required window's
+    `evidence_span` (checklist 7.5) — lies earlier than the semi-blind `t_val`, or there is
+    none. The probe
     gets the task without its when-clause, the transcript, the description and the
     frames up to `t_upto`, and nothing else — it neither knows the reference answer nor
-    that a boundary is being checked. The coordinator checks `answer` against the rubric:
-    passes → `t_val = t_upto`, the semi-blind reviewer missed an earlier form of the
-    information; fails → `t_val` stays, the sighted reviewer recognised the answer in a
-    half-frame.
+        that a boundary is being checked. The coordinator checks `answer` against the rubric:
+    passes by the route of the level or a cheaper one → `t_val = t_upto` (the earliest such
+    `t_s` of the stretch), the semi-blind reviewer missed an earlier form of the
+    information; passes only by a harder route, or fails → `t_val` stays, the sighted
+    reviewer recognised the answer in a half-frame.
     """
 
     role: Literal[Role.PROBE_VERIFY] = Role.PROBE_VERIFY
@@ -1209,11 +1434,25 @@ if __name__ == "__main__":
             print(f"the review is NOT accepted as new: it states checklist_version={stated}, "
                   f"so it was read under checklist {obj.effective_checklist()} — without the "
                   f"trajectory rules, with the retired items tolerated. A new review must state "
-                  f"checklist_version={CHECKLIST_VERSION}; to check an OLD file pass --legacy")
+                  f"checklist_version={CHECKLIST_VERSION}; --legacy is only for a file saved under "
+                  f"an older checklist, never for a review you have just written")
             raise SystemExit(1)
+        if isinstance(obj, FullWindowReview) and not obj.carries_split() and not allow_legacy:
+            # The same enforcement point for the 2.5 split: a window review that does not
+            # state the contract version would otherwise pass without it.
+            stated_schema = (obj.schema_version if "schema_version" in obj.model_fields_set
+                             else "nothing")
+            print(f"the review is NOT accepted as new: it states schema_version={stated_schema}, "
+                  f"and the 2.5 split is required from contract {SPLIT_SINCE}. A new window review "
+                  f"states schema_version={SCHEMA_VERSION} and fills `split` in its "
+                  f"{Item.AUTHOR_SAYS_ANSWER_IN_WINDOW.value} check; --legacy is only for a window "
+                  f"review saved before contract {SPLIT_SINCE}, never for one you have just written")
+            raise SystemExit(1)
+        no_split = isinstance(obj, FullWindowReview) and not obj.carries_split()
         print(f"the review is valid: {obj.role.value}, sample {obj.sample_id}, "
               f"round {obj.iteration}" + (f" (LEGACY, checklist {obj.effective_checklist()})"
-                                         if obj.is_legacy() else ""))
+                                         if obj.is_legacy() else "")
+              + (f" (contract before {SPLIT_SINCE}: no 2.5 split)" if no_split else ""))
         raise SystemExit(0)
 
     missing = [i.value for i in Item if i not in ITEM_NUMBER]
