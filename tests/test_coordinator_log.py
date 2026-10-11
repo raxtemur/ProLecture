@@ -11,6 +11,14 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SCRIPT = ROOT / "tools" / "coordinator_log.py"
+sys.path.insert(0, str(ROOT / "tools"))
+import review_inputs  # noqa: E402
+
+
+def record(sample_id, windows=((100.0, 110.0), (200.0, 210.0), (300.0, 310.0), (400.0, 410.0))):
+    return {"id": sample_id, "validation": {"status": "draft"},
+            "triggers": [{"idx": i, "required": True, "t_start": a, "t_end": b}
+                         for i, (a, b) in enumerate(windows)]}
 
 
 class CoordinatorLogCliTest(unittest.TestCase):
@@ -18,6 +26,33 @@ class CoordinatorLogCliTest(unittest.TestCase):
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
         self.log_root = Path(self.tmp.name)
+        self.annotations = self.log_root / "data" / "annotations" / "video-id.jsonl"
+        self.annotations.parent.mkdir(parents=True)
+        self.write_records(*(record(f"sample-q{n:02d}") for n in range(1, 18)))
+
+    def write_records(self, *records):
+        self.annotations.write_text("".join(json.dumps(r) + "\n" for r in records),
+                                    encoding="utf-8")
+
+    def records(self):
+        return review_inputs.read_records(self.annotations)
+
+    def workspace(self, agent, sample_id, role):
+        """A workspace note as prepare_review_workspace.py --sample-id leaves it."""
+        base = role.rstrip("0123456789")
+        window = int(role[len(base):]) if role != base else None
+        if base == "semiblind":
+            window = 0
+        current = self.records()[sample_id]
+        ws = self.log_root / ".review_ws" / "video-id" / sample_id / agent
+        ws.mkdir(parents=True, exist_ok=True)
+        inputs = (review_inputs.derive_inputs(base, current, window, until=95.0, duration=1000.0)
+                  if base in review_inputs.ROLES else {})
+        review_inputs.write_sidecar(ws, {
+            "sample_id": sample_id, "annotations": str(self.annotations),
+            "record_sha": review_inputs.record_sha(current), "role": base,
+            "window": window, "inputs": inputs})
+        return ws
 
     def run_cli(self, *args):
         return self.run_for_video("video-id", *args)
@@ -46,6 +81,7 @@ class CoordinatorLogCliTest(unittest.TestCase):
             "--iteration", "4",
             "--model", "gpt-5.6-sol",
             "--reasoning-effort", "medium",
+            "--workspace", str(self.workspace("q05_semiblind_r4", "sample-q05", "semiblind")),
         )
         self.assertEqual(launch.returncode, 0, launch.stderr)
 
@@ -78,8 +114,9 @@ class CoordinatorLogCliTest(unittest.TestCase):
 
     def test_adjudicate_is_recorded_and_checked(self):
         ok = self.run_cli(
-            "adjudicate", "--sample-id", "sample-q10", "--iteration", "3",
-            "--t-val-a", "704.0", "--t-s", "690.0", "--verified", "no",
+            "adjudicate", "--sample-id", "sample-q10", "--iteration", "3", "--window", "0",
+            "--t-val-a", "704.0", "--t-s", "690.0", "--t-s-source", "full_sample",
+            "--verified", "no",
             "--t-val", "704.0", "--source", "semiblind.3.json",
         )
         self.assertEqual(ok.returncode, 0, ok.stderr)
@@ -91,62 +128,110 @@ class CoordinatorLogCliTest(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("1 adjudications", result.stdout)
 
-    def test_check_rejects_an_inconsistent_adjudication(self):
-        self.assertEqual(self.run_cli(
-            "adjudicate", "--sample-id", "sample-q10", "--iteration", "3",
-            "--t-val-a", "704.0", "--t-s", "690.0", "--verified", "yes",
-            "--t-val", "704.0", "--source", "semiblind.3.json",
-        ).returncode, 0)
-        result = self.run_cli("check")
-        self.assertEqual(result.returncode, 1)
-        self.assertIn("verified=yes but t_val != t_s", result.stderr)
+    def write_log(self, *events, video="video-id"):
+        """Events as an old log holds them, bypassing the checks of the command line."""
+        path = self.log_root / "data" / "reviews" / video / "coordinator.log"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.open("a", encoding="utf-8") as stream:
+            for event in events:
+                stream.write(json.dumps({"ts": "2026-10-01T00:00:00+03:00", **event}) + "\n")
 
-        self.assertEqual(self.run_for_video(
-            "other-video",
-            "adjudicate", "--sample-id", "sample-q11", "--iteration", "1",
-            "--t-val-a", "800.0", "--t-s", "790.0", "--verified", "na",
-            "--t-val", "800.0", "--source", "semiblind.1.json",
-        ).returncode, 0)
-        result = self.run_for_video("other-video", "check")
-        self.assertEqual(result.returncode, 1)
-        self.assertIn("no verification was run", result.stderr)
+    def adjudicate(self, *args, video="video-id"):
+        return self.run_for_video(video, "adjudicate", "--sample-id", "sample-q10",
+                                  "--iteration", "1", "--source", "semiblind.1.json", *args)
 
-    def test_check_rejects_unverified_and_unbound_adjudications(self):
+    def test_adjudicate_refuses_inconsistent_arithmetic_at_once(self):
         cases = {
-            "no-t-val-a": (["--t-s", "690.0", "--verified", "na", "--t-val", "690.0"],
+            "unverified": (["--window", "0", "--t-val-a", "800.0", "--t-s", "790.0",
+                            "--t-s-source", "full_sample", "--verified", "na", "--t-val", "800.0"],
                            "no verification was run"),
-            "unbound": (["--t-val-a", "704.0", "--verified", "na", "--t-val", "123.0"],
-                        "verified=na but t_val != t_val_a"),
-            "yes-without-t-s": (["--t-val-a", "704.0", "--verified", "yes"],
+            "no-t-val-a": (["--window", "0", "--t-s", "690.0", "--t-s-source", "annotation",
+                            "--verified", "na", "--t-val", "690.0"], "no verification was run"),
+            "yes-without-t-s": (["--window", "0", "--t-val-a", "704.0", "--verified", "yes"],
                                 "verified=yes without a t_s"),
+            "source-missing": (["--window", "0", "--t-val-a", "704.0", "--t-s", "690.0",
+                                "--verified", "no", "--t-val", "704.0"], "go together"),
+            "source-unknown": (["--window", "0", "--t-val-a", "704.0", "--t-s", "690.0",
+                                "--t-s-source", "reviewer", "--verified", "no", "--t-val", "704.0"],
+                               "full_window<N>"),
         }
         for video, (args, message) in cases.items():
-            self.assertEqual(self.run_for_video(
-                video, "adjudicate", "--sample-id", "sample-q10", "--iteration", "1",
-                *args, "--source", "semiblind.1.json",
-            ).returncode, 0)
-            result = self.run_for_video(video, "check")
-            self.assertEqual(result.returncode, 1, video)
+            result = self.adjudicate(*args, video=video)
+            self.assertEqual(result.returncode, 2, video)
             self.assertIn(message, result.stderr, video)
+        missing_window = self.adjudicate("--t-val-a", "704.0", "--verified", "na", "--t-val", "704.0")
+        self.assertEqual(missing_window.returncode, 2)
+
+    def test_several_t_s_of_one_stretch_settle_on_the_earliest_that_passed(self):
+        rows = [("full_sample", "690.0", "harder"), ("annotation", "695.0", "yes"),
+                ("full_window0", "698.0", "yes")]
+        for source, t_s, verified in rows:
+            self.assertEqual(self.adjudicate(
+                "--window", "0", "--t-val-a", "704.0", "--t-s", t_s, "--t-s-source", source,
+                "--verified", verified, "--t-val", "695.0").returncode, 0, source)
+        result = self.run_cli("check")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(self.read_events()[0]["t_s_source"], "full_sample")
+
+        # a row that keeps t_val at a later t_s than the earliest one that passed
+        self.assertEqual(self.adjudicate(
+            "--window", "1", "--t-val-a", "704.0", "--t-s", "695.0", "--t-s-source", "annotation",
+            "--verified", "yes", "--t-val", "695.0", video="v2").returncode, 0)
+        self.assertEqual(self.adjudicate(
+            "--window", "1", "--t-val-a", "704.0", "--t-s", "690.0", "--t-s-source", "full_sample",
+            "--verified", "yes", "--t-val", "695.0", video="v2").returncode, 0)
+        result = self.run_for_video("v2", "check")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("earliest of t_val_a and the t_s verified yes is 690.0", result.stderr)
+
+    def test_a_harder_route_leaves_t_val_at_t_val_a(self):
+        self.assertEqual(self.adjudicate(
+            "--window", "0", "--t-val-a", "704.0", "--t-s", "690.0", "--t-s-source", "full_sample",
+            "--verified", "harder", "--t-val", "690.0").returncode, 0)
+        result = self.run_cli("check")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("earliest of t_val_a and the t_s verified yes is 704.0", result.stderr)
+
+    def test_old_adjudications_without_a_window_are_read_by_the_old_rules(self):
+        self.write_log(
+            {"event": "adjudicate", "sample_id": "q10", "iteration": 3, "t_val_a": 704.0,
+             "t_s": 690.0, "verified": "yes", "t_val": 704.0, "source": "semiblind.3.json"},
+            {"event": "adjudicate", "sample_id": "q11", "iteration": 1, "t_val_a": 800.0,
+             "t_s": 790.0, "verified": "na", "t_val": 800.0, "source": "semiblind.1.json"},
+            # two windows of one sample and round, logged before --window existed
+            {"event": "adjudicate", "sample_id": "q12", "iteration": 2, "t_val_a": 90.0,
+             "t_s": None, "verified": "na", "t_val": 90.0, "source": "semiblind.2.json"},
+            {"event": "adjudicate", "sample_id": "q12", "iteration": 2, "t_val_a": 85.0,
+             "t_s": None, "verified": "na", "t_val": 85.0, "source": "semiblind.2.json"},
+        )
+        result = self.run_cli("check")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("line 1: verified=yes but t_val != t_s", result.stderr)
+        self.assertIn("line 2: t_s lies before t_val_a", result.stderr)
+        self.assertNotIn("line 3", result.stderr)
+        self.assertNotIn("line 4", result.stderr)
 
     def test_check_accepts_an_adjudication_with_no_answer_and_no_proposal(self):
-        self.assertEqual(self.run_cli(
-            "adjudicate", "--sample-id", "sample-q10", "--iteration", "1",
-            "--verified", "na", "--source", "semiblind.1.json",
-        ).returncode, 0)
+        self.assertEqual(self.adjudicate("--window", "0", "--verified", "na").returncode, 0)
         result = self.run_cli("check")
         self.assertEqual(result.returncode, 0, result.stderr)
 
+    def spawn(self, agent, sample_id, role, video="video-id", workspace=None):
+        if workspace is None:
+            workspace = self.workspace(agent, sample_id, role)
+        return self.run_for_video(
+            video, "spawn", "--agent", agent, "--sample-id", sample_id, "--role", role,
+            "--iteration", "1", "--model", "local", "--reasoning-effort", "default",
+            "--workspace", str(workspace),
+        )
+
+    def finish(self, agent, *args, video="video-id"):
+        return self.run_for_video(video, "finish", "--agent", agent, "--status", "completed",
+                                  "--summary", "ok", *args)
+
     def test_check_accepts_a_balanced_log(self):
-        self.assertEqual(self.run_cli(
-            "spawn", "--agent", "agent-1", "--sample-id", "sample-q01",
-            "--role", "probe_text", "--iteration", "1",
-            "--model", "gpt-5.6-sol", "--reasoning-effort", "medium",
-        ).returncode, 0)
-        self.assertEqual(self.run_cli(
-            "finish", "--agent", "agent-1", "--status", "completed",
-            "--artifact", "probe_text.1.json", "--summary", "Text was insufficient.",
-        ).returncode, 0)
+        self.assertEqual(self.spawn("agent-1", "sample-q01", "probe_text").returncode, 0)
+        self.assertEqual(self.finish("agent-1", "--artifact", "probe_text.1.json").returncode, 0)
 
         result = self.run_cli("check")
 
@@ -154,62 +239,72 @@ class CoordinatorLogCliTest(unittest.TestCase):
         self.assertIn("1 launches, 1 finishes, 0 sample edits", result.stdout)
 
     def test_check_rejects_a_launch_without_finish(self):
-        self.assertEqual(self.run_cli(
-            "spawn", "--agent", "agent-1", "--sample-id", "sample-q01",
-            "--role", "probe_text", "--iteration", "1",
-            "--model", "gpt-5.6-sol", "--reasoning-effort", "medium",
-        ).returncode, 0)
+        self.assertEqual(self.spawn("agent-1", "sample-q01", "probe_text").returncode, 0)
 
         result = self.run_cli("check")
 
         self.assertEqual(result.returncode, 1)
         self.assertIn("launch without finish: agent-1", result.stderr)
 
-    def test_check_rejects_finish_without_launch(self):
-        self.assertEqual(self.run_cli(
-            "finish", "--agent", "agent-1", "--status", "failed",
-            "--summary", "The reviewer process failed before writing an artifact.",
-        ).returncode, 0)
+    def test_finish_refuses_a_name_with_no_open_launch(self):
+        self.assertEqual(self.spawn("q03_probe_text_r1", "sample-q03", "probe_text").returncode, 0)
+
+        result = self.finish("019a2f-thread-id")
+
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("not under a thread id", result.stderr)
+        self.assertIn("Open launches: q03_probe_text_r1", result.stderr)
+        self.assertEqual(len(self.read_events()), 1)
+
+    def test_check_rejects_finish_without_launch_in_an_old_log(self):
+        self.write_log({"event": "finish", "agent": "agent-1", "status": "failed",
+                        "summary": "The reviewer process failed before writing an artifact."})
 
         result = self.run_cli("check")
 
         self.assertEqual(result.returncode, 1)
         self.assertIn("finish without launch: agent-1", result.stderr)
 
+    def test_a_relaunch_under_the_same_name_needs_a_note(self):
+        self.assertEqual(self.spawn("agent-1", "sample-q01", "probe_text").returncode, 0)
+        second = self.spawn("agent-1", "sample-q01", "probe_text")
+        self.assertEqual(second.returncode, 2)
+        self.assertIn("is still open", second.stderr)
 
-    def test_check_rejects_a_second_active_launch_of_the_same_agent(self):
-        command = (
-            "spawn", "--agent", "agent-1", "--sample-id", "sample-q01",
-            "--role", "probe_text", "--iteration", "1",
-            "--model", "gpt-5.6-sol", "--reasoning-effort", "medium",
-        )
-        self.assertEqual(self.run_cli(*command).returncode, 0)
-        self.assertEqual(self.run_cli(*command).returncode, 0)
+        self.assertEqual(self.run_cli(
+            "note", "--agent", "agent-1", "--text", "First start hit the thread limit; relaunched.",
+        ).returncode, 0)
+        self.assertEqual(self.spawn("agent-1", "sample-q01", "probe_text").returncode, 0)
+        self.assertEqual(self.finish("agent-1").returncode, 0)
+        result = self.run_cli("check")
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_check_rejects_a_second_active_launch_in_an_old_log(self):
+        launch = {"event": "spawn", "agent": "agent-1", "sample_id": "sample-q01",
+                  "role": "probe_text", "iteration": 1}
+        self.write_log(launch, launch)
 
         result = self.run_cli("check")
 
         self.assertEqual(result.returncode, 1)
         self.assertIn("duplicate active launch: agent-1", result.stderr)
 
-    def spawn(self, agent, sample_id, role, video="video-id"):
-        return self.run_for_video(
-            video, "spawn", "--agent", agent, "--sample-id", sample_id, "--role", role,
-            "--iteration", "1", "--model", "claude-sonnet-5", "--reasoning-effort", "medium",
-        )
+        # a note documents the relaunch (5.1)
+        self.write_log({"event": "note", "agent": "agent-1", "text": "relaunched after HTTP 429"},
+                       {"event": "finish", "agent": "agent-1", "status": "completed",
+                        "summary": "ok"})
+        result = self.run_cli("check")
+        self.assertEqual(result.returncode, 0, result.stderr)
 
     def test_a_note_documents_an_unmatched_finish_or_launch(self):
         self.assertEqual(self.run_cli(
-            "finish", "--agent", "sb_q02_b", "--status", "completed",
-            "--summary", "Second run after HTTP 429.",
+            "note", "--agent", "sb_q02_b", "--refers-to", "line 1",
+            "--text", "spawn of the relaunch was never written; the artifact exists.",
         ).returncode, 0)
+        self.assertEqual(self.finish("sb_q02_b").returncode, 0)
         self.assertEqual(self.spawn("sb_q07", "sample-q07", "semiblind").returncode, 0)
         self.assertEqual(self.run_cli("check").returncode, 1)
 
-        noted = self.run_cli(
-            "note", "--agent", "sb_q02_b", "--refers-to", "line 1",
-            "--text", "spawn of the relaunch was never written; the artifact exists.",
-        )
-        self.assertEqual(noted.returncode, 0, noted.stderr)
         self.assertEqual(self.run_cli(
             "note", "--agent", "sb_q07", "--text", "fate unknown after the session was cut.",
         ).returncode, 0)
@@ -218,8 +313,8 @@ class CoordinatorLogCliTest(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("2 notes", result.stdout)
         events = self.read_events()
-        self.assertEqual(events[2]["event"], "note")
-        self.assertEqual(events[2]["refers_to"], "line 1")
+        self.assertEqual(events[0]["event"], "note")
+        self.assertEqual(events[0]["refers_to"], "line 1")
 
     def test_a_note_without_text_or_an_unknown_kind_is_rejected(self):
         self.assertNotEqual(self.run_cli("note", "--agent", "x").returncode, 0)
@@ -233,7 +328,6 @@ class CoordinatorLogCliTest(unittest.TestCase):
             "sample-edit", "--sample-id", "sample-q03", "--kind", "rubric",
             "--changes", "R2 now names the displayed value.", "--source", "full_sample.5.json",
         ).returncode, 0)
-        # a spawn that happened before the edit does not count
         self.assertEqual(self.read_events()[-1]["kind"], "rubric")
 
         lenient = self.run_cli("check")
@@ -248,36 +342,43 @@ class CoordinatorLogCliTest(unittest.TestCase):
 
         # the rerun of another sample does not satisfy it
         self.assertEqual(self.spawn("fs_q04", "sample-q04", "full_sample").returncode, 0)
-        self.assertEqual(self.run_cli(
-            "finish", "--agent", "fs_q04", "--status", "completed", "--summary", "ok",
-        ).returncode, 0)
+        self.assertEqual(self.finish("fs_q04").returncode, 0)
         self.assertEqual(self.run_cli("check", "--final").returncode, 1)
 
         # the window review is logged per window, as the real logs do
         for agent, role in (("fs_q03", "full_sample"), ("fw0_q03", "full_window0")):
             self.assertEqual(self.spawn(agent, "sample-q03", role).returncode, 0)
-            self.assertEqual(self.run_cli(
-                "finish", "--agent", agent, "--status", "completed", "--summary", "ok",
-            ).returncode, 0)
+            self.assertEqual(self.finish(agent).returncode, 0)
         result = self.run_cli("check", "--final")
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertNotIn("pending", result.stdout)
 
+    def test_a_rejected_sample_owes_no_reruns(self):
+        self.assertEqual(self.run_cli(
+            "sample-edit", "--sample-id", "sample-q03", "--kind", "wording",
+            "--changes", "v2 of the question.", "--source", "coordinator.2.md",
+        ).returncode, 0)
+        self.assertEqual(self.run_cli("check", "--final").returncode, 1)
+        records = self.records()
+        records["sample-q03"]["validation"]["status"] = "rejected"
+        self.write_records(*records.values())
+        result = self.run_cli("check", "--final")
+        self.assertEqual(result.returncode, 0, result.stderr)
+
     def test_a_boundary_edit_with_a_window_is_settled_only_by_that_window(self):
         self.assertEqual(self.run_cli(
             "sample-edit", "--sample-id", "sample-q03", "--kind", "boundary", "--window", "2",
-            "--changes", "evidence_span of trigger 2 -> [228.7, 229.6].",
-            "--source", "full_window2.11.json",
+            "--changes", "t_start of trigger 2 -> 296.0.", "--source", "full_window2.11.json",
         ).returncode, 0)
         self.assertEqual(self.read_events()[-1]["window"], 2)
         # a review of another window of the same sample does not settle the debt
         self.assertEqual(self.spawn("fw3", "sample-q03", "full_window3").returncode, 0)
-        self.run_cli("finish", "--agent", "fw3", "--status", "completed", "--summary", "ok")
+        self.finish("fw3")
         result = self.run_cli("check", "--final")
         self.assertEqual(result.returncode, 1)
         self.assertIn("not followed by full_window2", result.stderr)
         self.assertEqual(self.spawn("fw2", "sample-q03", "full_window2").returncode, 0)
-        self.run_cli("finish", "--agent", "fw2", "--status", "completed", "--summary", "ok")
+        self.finish("fw2")
         result = self.run_cli("check", "--final")
         self.assertEqual(result.returncode, 0, result.stderr)
 
@@ -293,9 +394,45 @@ class CoordinatorLogCliTest(unittest.TestCase):
             "--changes", "referent fixed.", "--source", "coordinator.5.md",
         )
         self.assertEqual(stray.returncode, 2)
-        self.assertIn("applies to --kind boundary, nudge or rubric", stray.stderr)
+        self.assertIn("applies to --kind boundary, nudge, rubric or metadata", stray.stderr)
         self.assertFalse((self.log_root / "data" / "reviews" / "video-id" /
                           "coordinator.log").exists())
+
+    def test_a_span_edit_waits_for_the_adjudication_of_its_stretch(self):
+        early = self.run_cli(
+            "sample-edit", "--sample-id", "sample-q03", "--kind", "metadata", "--window", "1",
+            "--span", "--changes", "evidence_span of trigger 1 -> [198.0, 201.0].",
+            "--source", "full_window1.2.json",
+        )
+        self.assertEqual(early.returncode, 2)
+        self.assertIn("checked against t_val", early.stderr)
+        nudge = self.run_cli(
+            "sample-edit", "--sample-id", "sample-q03", "--kind", "nudge", "--window", "1",
+            "--span", "--changes", "x", "--source", "y",
+        )
+        self.assertEqual(nudge.returncode, 2)
+        self.assertIn("never a nudge", nudge.stderr)
+
+        self.assertEqual(self.run_cli(
+            "adjudicate", "--sample-id", "sample-q03", "--iteration", "2", "--window", "1",
+            "--t-val-a", "201.0", "--verified", "na", "--t-val", "201.0",
+            "--source", "semiblind.2.json",
+        ).returncode, 0)
+        late = self.run_cli(
+            "sample-edit", "--sample-id", "sample-q03", "--kind", "metadata", "--window", "1",
+            "--span", "--changes", "evidence_span of trigger 1 -> [198.0, 201.0].",
+            "--source", "full_window1.2.json",
+        )
+        self.assertEqual(late.returncode, 0, late.stderr)
+        self.assertTrue(self.read_events()[-1]["span"])
+        self.assertEqual(self.run_cli("check", "--final").returncode, 0)
+
+        # an old log with the order reversed
+        self.write_log({"event": "sample_edit", "sample_id": "sample-q04", "kind": "metadata",
+                        "window": 0, "span": True, "changes": "x", "source": "y"}, video="v2")
+        result = self.run_for_video("v2", "check")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("edited before its stretch was adjudicated", result.stderr)
 
     def test_a_rubric_edit_with_a_window_is_settled_by_that_window_and_full_sample(self):
         self.assertEqual(self.run_cli(
@@ -305,12 +442,12 @@ class CoordinatorLogCliTest(unittest.TestCase):
         self.assertEqual(self.spawn("fs", "sample-q16", "full_sample").returncode, 0)
         self.assertEqual(self.spawn("fw1", "sample-q16", "full_window1").returncode, 0)
         for agent in ("fs", "fw1"):
-            self.run_cli("finish", "--agent", agent, "--status", "completed", "--summary", "ok")
+            self.finish(agent)
         result = self.run_cli("check", "--final")
         self.assertEqual(result.returncode, 1)
         self.assertIn("not followed by full_window0", result.stderr)
         self.assertEqual(self.spawn("fw0", "sample-q16", "full_window0").returncode, 0)
-        self.run_cli("finish", "--agent", "fw0", "--status", "completed", "--summary", "ok")
+        self.finish("fw0")
         self.assertEqual(self.run_cli("check", "--final").returncode, 0)
 
     def test_a_wording_edit_requires_the_whole_cycle(self):
@@ -320,15 +457,15 @@ class CoordinatorLogCliTest(unittest.TestCase):
             "--source", "coordinator.5.md",
         ).returncode, 0)
         for agent, role in (("sb", "semiblind"), ("pt", "probe_text"), ("pv", "probe_vision"),
-                            ("pf", "probe_frame"), ("fs", "full_sample")):
-            self.assertEqual(self.spawn(agent, "sample-q02", role).returncode, 0)
+                            ("pf", "probe_frame0"), ("fs", "full_sample")):
+            self.assertEqual(self.spawn(agent, "sample-q02", role).returncode, 0, role)
         result = self.run_cli("check", "--final")
         self.assertEqual(result.returncode, 1)
         self.assertIn("not followed by full_window", result.stderr)
         self.assertNotIn("probe_", result.stderr)
         self.assertEqual(self.spawn("fw2", "sample-q02", "full_window2").returncode, 0)
         for agent in ("sb", "pt", "pv", "pf", "fs", "fw2"):
-            self.run_cli("finish", "--agent", agent, "--status", "completed", "--summary", "ok")
+            self.finish(agent)
         result = self.run_cli("check", "--final")
         self.assertEqual(result.returncode, 0, result.stderr)
 
@@ -374,30 +511,93 @@ class CoordinatorLogCliTest(unittest.TestCase):
         self.assertIn("video id", result.stderr.lower())
         self.assertFalse((self.log_root / "data" / "outside" / "coordinator.log").exists())
 
-
-    def test_spawn_records_the_prompt_its_subagent_reads(self):
-        self.assertEqual(self.spawn("fw1", "sample-q01", "full_window1").returncode, 0)
+    def test_spawn_records_the_prompt_and_the_material_its_subagent_reads(self):
+        self.assertEqual(self.spawn("pf1", "sample-q01", "probe_frame1").returncode, 0)
 
         event = self.read_events()[0]
 
-        prompt = ROOT / "docs" / "prompts" / "reviewer_full_window.md"
+        prompt = ROOT / "docs" / "prompts" / "probe_frame.md"
         checklist = ROOT / "docs" / "annotation_checklist.md"
-        self.assertEqual(event["prompt"], "docs/prompts/reviewer_full_window.md")
+        self.assertEqual(event["prompt"], "docs/prompts/probe_frame.md")
         self.assertEqual(event["prompt_sha"], hashlib.sha256(prompt.read_bytes()).hexdigest())
         self.assertEqual(event["checklist_sha"],
                          hashlib.sha256(checklist.read_bytes()).hexdigest())
         self.assertRegex(event["git_head"], r"^[0-9a-f]{40}$")
         self.assertIsInstance(event["prompts_dirty"], bool)
+        self.assertEqual(event["window"], 1)
+        self.assertEqual(event["inputs"], {"frame": 205.0})
+        self.assertEqual(event["record_sha"],
+                         review_inputs.record_sha(self.records()["sample-q01"]))
 
-    def test_spawn_refuses_a_bare_window_role_and_unknown_roles(self):
-        bare = self.spawn("fw", "sample-q01", "full_window")
-        self.assertEqual(bare.returncode, 2)
-        self.assertIn("needs the window index", bare.stderr)
+    def test_spawn_refuses_a_bare_indexed_role_and_unknown_roles(self):
+        for role in ("full_window", "probe_frame"):
+            bare = self.spawn("fw", "sample-q01", role, workspace=self.log_root / "none")
+            self.assertEqual(bare.returncode, 2, role)
+            self.assertIn("needs the window index", bare.stderr)
         for role in ("full", "semiblind2", "reviewer"):
-            result = self.spawn("x", "sample-q01", role)
+            result = self.spawn("x", "sample-q01", role, workspace=self.log_root / "none")
             self.assertEqual(result.returncode, 2, role)
             self.assertIn("unknown --role", result.stderr)
         self.assertFalse((self.log_root / "data" / "reviews" / "video-id" / "coordinator.log").exists())
+
+    def test_spawn_refuses_a_workspace_that_does_not_match_the_record(self):
+        missing = self.spawn("pt", "sample-q01", "probe_text", workspace=self.log_root / "bare")
+        self.assertEqual(missing.returncode, 2)
+        self.assertIn("--sample-id <ID>", missing.stderr)
+
+        ws = self.workspace("pf", "sample-q01", "probe_frame1")
+        wrong_window = self.spawn("pf", "sample-q01", "probe_frame2", workspace=ws)
+        self.assertEqual(wrong_window.returncode, 2)
+        self.assertIn("cut at window 1", wrong_window.stderr)
+        wrong_sample = self.spawn("pf", "sample-q02", "probe_frame1", workspace=ws)
+        self.assertEqual(wrong_sample.returncode, 2)
+        self.assertIn("prepared for sample-q01", wrong_sample.stderr)
+
+        records = self.records()
+        records["sample-q01"]["triggers"][1]["t_start"] = 196.0
+        self.write_records(*records.values())
+        changed = self.spawn("pf", "sample-q01", "probe_frame1", workspace=ws)
+        self.assertEqual(changed.returncode, 2)
+        self.assertIn("has changed since", changed.stderr)
+
+    def test_a_probe_whose_window_moved_is_stale_until_run_again(self):
+        self.assertEqual(self.spawn("pf_r1", "sample-q05", "probe_frame1").returncode, 0)
+        self.assertEqual(self.spawn("pt_r1", "sample-q05", "probe_text").returncode, 0)
+        records = self.records()
+        records["sample-q05"]["triggers"][1]["t_start"] = 190.0
+        self.write_records(*records.values())
+
+        late = self.finish("pf_r1")
+        self.assertEqual(late.returncode, 0)
+        self.assertIn("stale", late.stderr)
+        self.assertIn("frame=205.0, the record now gives frame=200.0", late.stderr)
+        self.assertIn("stale_inputs", self.read_events()[-1])
+        self.assertEqual(self.finish("pt_r1").returncode, 0)
+
+        result = self.run_cli("check", "--final")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("probe_frame1 of sample-q05 (pf_r1) is stale", result.stderr)
+        self.assertNotIn("probe_text", result.stderr)  # t_end of the last window did not move
+
+        self.assertEqual(self.spawn("pf_r2", "sample-q05", "probe_frame1").returncode, 0)
+        self.assertEqual(self.finish("pf_r2").returncode, 0)
+        result = self.run_cli("check", "--final")
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_finish_records_the_artifact_and_warns_on_a_mismatch(self):
+        artifact = self.log_root / "full_window2.3.json"
+        artifact.write_text(json.dumps({"role": "full_window", "sample_id": "sample-q04",
+                                        "verdict": "FIX_QUESTION"}), encoding="utf-8")
+        self.assertEqual(self.spawn("fw2", "sample-q03", "full_window2").returncode, 0)
+
+        result = self.finish("fw2", "--artifact", str(artifact))
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("does not match the launch", result.stderr)
+        event = self.read_events()[-1]
+        self.assertEqual(event["artifact_verdict"], "FIX_QUESTION")
+        self.assertEqual(event["artifact_role"], "full_window")
+        self.assertIn("sample sample-q04", event["artifact_mismatch"])
 
 
 if __name__ == "__main__":

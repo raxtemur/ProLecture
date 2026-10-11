@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-"""A working folder for a reviewer subagent: the transcript and the frames, nothing more.
+"""A working folder for a subagent: the transcript and the frames, nothing more.
 
-The reviewer must not have access to data/annotations — that is where the reference
-answers to their own question and the answers of the neighbouring questions live. So a
-separate directory is prepared for them, holding only what they are allowed to see.
+The subagent works only in this folder: a separate directory is prepared for it, holding
+only what its role is allowed to see.
 
-    # blind mode: everything that was in the video up to the moment T
+    # everything that was in the video up to the moment T
     prepare_review_workspace.py <video_id> --until 957 --out /tmp/rev_q07_blind
 
     # re-sample a stretch with a dense grid into the same folder
@@ -14,14 +13,20 @@ separate directory is prepared for them, holding only what they are allowed to s
     # a quick look at up to 16 moments: the same frames, also tiled into ONE labelled image
     prepare_review_workspace.py <video_id> --dense 499 510 --step 1 --sheet --out /tmp/rev_q07_blind
 
-    # stage C of the left-boundary check: the same material as the semi-blind reviewer's,
-    # cut at the sighted proposal t_s, in a folder marked as the verification probe's
+    # the probe_verify folder: the transcript, the scene frames and the screen description
+    # up to T
     prepare_review_workspace.py <video_id> --until 690 --screen --verify --out /tmp/verify_q10
 
-    # the probe folders: one modality instead of two
+    # one modality instead of two, or a single frame
     prepare_review_workspace.py <video_id> --until 992 --only transcript --out /tmp/probe_text
     prepare_review_workspace.py <video_id> --until 992 --only frames    --out /tmp/probe_vision
     prepare_review_workspace.py <video_id> --frame 946                  --out /tmp/probe_frame
+
+    # the same, with the boundaries read off the record: the way a role's workspace is made
+    # for a launch. The record is found by its id; a note of which version of it the folder
+    # was built from is left next to the folder (<out>.inputs.json, see review_inputs.py)
+    prepare_review_workspace.py <video_id> --sample-id <id> --role probe_frame --window 1 \
+        --out .review_ws/<video_id>/<question>/<subagent>
 
     # after a validated review has been consolidated
     prepare_review_workspace.py <video_id> --cleanup --out \
@@ -43,6 +48,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from describe_video import (  # noqa: E402  (the timeline is shared with the bundle's copy)
     REAPPEAR_GAP, format_screen_rows, load_description_records, screen_text_rows)
+import review_inputs  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -153,13 +159,34 @@ def write_frame_index(bundle: dict, out: Path, t0: float, t1: float) -> int:
              f"# Look at them right here: {src_dir}/<name>",
              f"# The cut is by scene changes; between neighbouring lines the screen did not",
              f"# change abruptly. Need it denser — tools/prepare_review_workspace.py --dense.",
+             f"# The frames at the two edges of the stretch are cut into this folder, frames/.",
              ""]
-    lines += [f"{fr['t']:8.1f}  {Path(fr['path']).name}" for fr in picked]
+    # The edges, as in copy_sparse; here they are cut into the folder itself, since the
+    # bundle's directory is not ours to write to. The end replaces a scene frame of its second.
+    edges = out / "frames"
+    edges.mkdir(exist_ok=True)
+    added = cut_edges(bundle["video_id"], edges, t0, t1,
+                      have={frame_name(fr["t"]) for fr in picked})
+    rows = [(fr["t"], Path(fr["path"]).name) for fr in picked
+            if not (frame_name(fr["t"]) == frame_name(t1) and (edges / frame_name(t1)).exists())]
+    for t in (t0, t1):
+        if (edges / frame_name(t)).exists():
+            rows.append((t, f"{frame_name(t)}  (in this folder: frames/{frame_name(t)})"))
+    lines += [f"{t:8.1f}  {name}" for t, name in sorted(rows)]
     (out / "frames.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
-    return len(picked)
+    return len(picked) + added
 
 
 def copy_sparse(bundle: dict, out: Path, t0: float, t1: float, cap: int) -> int:
+    """Copies of the bundle's scene frames in [t0, t1), thinned to `cap`, plus both edges.
+
+    The frame exactly at `t1` is the state of the screen the whole folder is about: "is
+    the material up to `until` enough" is decided there, and a scene cut need not fall on
+    it. A probe that saw the last scene frame a second earlier, in the middle of an
+    animation, took the animation for unfinished at the boundary (fix list 2, 2.3). So
+    both edges are cut from the video whatever the bundle has; the thinning never drops
+    them, and nothing later than `t1` gets in.
+    """
     dst = out / "frames"
     dst.mkdir(exist_ok=True)
     picked = [fr for fr in bundle["frames"] if t0 <= fr["t"] < t1]
@@ -176,7 +203,42 @@ def copy_sparse(bundle: dict, out: Path, t0: float, t1: float, cap: int) -> int:
         if src.exists():
             shutil.copy2(src, dst / frame_name(fr["t"]))
             n += 1
-    return n
+    return n + cut_edges(bundle["video_id"], dst, t0, t1)
+
+
+def cut_edges(vid: str, dst: Path, t0: float, t1: float, have: set[str] = frozenset()) -> int:
+    """Put the frames exactly at `t0` and `t1` into `dst`; return how many were added.
+
+    The start is cut only when no frame of that second is there yet, in `dst` or among
+    the names in `have`. The end always replaces what lies under its name: a scene frame
+    up to half a second earlier rounds to the same second, and the folder must show the
+    screen at the boundary itself.
+    """
+    mp4 = ROOT / "data" / "videos" / vid / f"{vid}.mp4"
+    if not mp4.exists():
+        print(f"warning: no video {mp4}, so the frames at {t0:.1f} and {t1:.1f} s were not cut; "
+              f"fetch it with tools/fetch_video.py {vid} and prepare the folder again")
+        return 0
+    added = 0
+    start = dst / frame_name(t0)
+    if frame_name(t0) != frame_name(t1) and frame_name(t0) not in have and not start.exists():
+        added += grab_frame(mp4, t0, start)
+    end = dst / frame_name(t1)
+    existed = end.exists()
+    if grab_frame(mp4, t1, end) and not existed:
+        added += 1
+    return added
+
+
+def grab_frame(mp4: Path, t: float, target: Path) -> bool:
+    """One frame of the video at `t` (the first one at or after it), written to `target`."""
+    target.unlink(missing_ok=True)
+    subprocess.run(
+        ["ffmpeg", "-v", "error", "-ss", str(t), "-i", str(mp4),
+         "-frames:v", "1", "-q:v", "4", str(target), "-y"],
+        check=False,
+    )
+    return target.exists()
 
 
 def check_mode(out: Path, mode: str, force: bool) -> None:
@@ -266,11 +328,16 @@ SHEET_MAX = 16  # a 4x4 grid: beyond that a cell is too small to tell a band fro
 
 
 def dense_times(t0: float, t1: float, step: float) -> list[float]:
-    times, t = [], t0
-    while t < t1:
-        times.append(round(t, 2))
-        t += step
-    return times
+    """The grid of a stretch with both edges: t0, t0 + step, ... and t1 itself.
+
+    A grid that stops short of `t1` leaves the screen at the boundary unseen (fix list 2,
+    2.3). A grid point that rounds to the same second as `t1` gives way to it.
+    """
+    times, k = [], 0
+    while (t := round(t0 + k * step, 2)) < t1 and frame_name(t) != frame_name(t1):
+        times.append(t)
+        k += 1
+    return times + [round(t1, 2)]
 
 
 def build_sheet(frames_dir: Path, times: list[float], cols: int = 4, cell_w: int = 480) -> Path:
@@ -310,30 +377,28 @@ def build_sheet(frames_dir: Path, times: list[float], cols: int = 4, cell_w: int
 
 
 def extract_dense(vid: str, out: Path, t0: float, t1: float, step: float, cap: int) -> int:
+    """The grid of dense_times, both edges included; the frame at `t1` replaces one of
+    the same second that is already there, as in cut_edges."""
     mp4 = ROOT / "data" / "videos" / vid / f"{vid}.mp4"
     if not mp4.exists():
-        sys.exit(f"no video {mp4}")
+        sys.exit(f"no video {mp4}; fetch it with tools/fetch_video.py {vid}")
     dst = out / "frames"
     dst.mkdir(parents=True, exist_ok=True)
 
     times = dense_times(t0, t1, step)
     if len(times) > cap:
         sys.exit(
-            f"{len(times)} frames requested against a ceiling of {cap}: narrow the stretch "
-            f"or increase --step (currently {step} s)"
+            f"{len(times)} frames requested (both edges included) against a ceiling of {cap}: "
+            f"narrow the stretch or increase --step (currently {step} s)"
         )
 
     n = 0
     for t in times:
         target = dst / frame_name(t)
-        if target.exists():
+        existed = target.exists()
+        if existed and t != times[-1]:
             continue
-        subprocess.run(
-            ["ffmpeg", "-v", "error", "-ss", str(t), "-i", str(mp4),
-             "-frames:v", "1", "-q:v", "4", str(target), "-y"],
-            check=False,
-        )
-        n += target.exists()
+        n += grab_frame(mp4, t, target) and not existed
     return n
 
 
@@ -363,6 +428,7 @@ def cleanup_workspace(video_id: str, out: Path) -> bool:
         )
     if requested.is_symlink():
         raise ValueError("cleanup target must not be a symlink")
+    review_inputs.sidecar_path(resolved).unlink(missing_ok=True)
     if not resolved.exists():
         return False
 
@@ -373,6 +439,54 @@ def cleanup_workspace(video_id: str, out: Path) -> bool:
         except OSError:
             break
     return True
+
+
+# What --role sets, besides the boundary: the channels and the form of the frames.
+ROLE_MODES = {
+    "semiblind": {"only": "both", "screen": True},
+    "probe_verify": {"only": "both", "screen": True, "verify": True},
+    "probe_text": {"only": "transcript"},
+    "probe_vision": {"only": "frames", "screen": True},
+    "probe_full": {"only": "both", "screen": True},
+    "probe_frame": {},
+    "full_sample": {"only": "both", "screen": True, "index_only": True},
+    "full_window": {"only": "both", "screen": True, "index_only": True},
+}
+
+
+def derive_from_record(args: argparse.Namespace) -> dict:
+    """Set the mode flags of `args` from the record and return the note for the sidecar."""
+    if not args.role:
+        sys.exit("--sample-id needs --role: the role decides what the folder holds")
+    typed = [flag for flag, on in (("--frame", args.frame is not None), ("--only", args.only != "both"),
+                                   ("--screen", args.screen), ("--verify", args.verify),
+                                   ("--index-only", args.index_only), ("--dense", args.dense is not None),
+                                   ("--cleanup", args.cleanup)) if on]
+    if args.until is not None and args.role != "probe_verify":
+        typed.append("--until")
+    if typed:
+        sys.exit(f"{', '.join(typed)}: with --sample-id the role {args.role} sets the material "
+                 f"itself; drop {'it' if len(typed) == 1 else 'them'}")
+    try:
+        path, record = review_inputs.find_record(ROOT, args.sample_id, args.annotations)
+        video = record.get("video", {})
+        if isinstance(video, dict) and video.get("youtube_id") not in (None, args.video_id):
+            raise review_inputs.InputsError(
+                f"record {args.sample_id} is about video {video.get('youtube_id')}, "
+                f"not {args.video_id}")
+        duration = load_bundle(args.video_id).get("duration")
+        inputs = review_inputs.derive_inputs(args.role, record, args.window, args.until, duration)
+    except review_inputs.InputsError as exc:
+        sys.exit(str(exc))
+    for flag, value in ROLE_MODES[args.role].items():
+        setattr(args, flag, value)
+    if "frame" in inputs:
+        args.frame = inputs["frame"]
+    else:
+        args.until = inputs["until"]
+    return {"sample_id": args.sample_id, "annotations": str(path),
+            "record_sha": review_inputs.record_sha(record), "role": args.role,
+            "window": args.window, "inputs": inputs}
 
 
 def main() -> None:
@@ -401,26 +515,37 @@ def main() -> None:
                     help="the ceiling of overview frames with --until; the bundle's cut is "
                          "denser, and the surplus is thinned uniformly")
     ap.add_argument("--frame", type=float, metavar="T",
-                    help="a folder of exactly one frame (the frozen-frame probe)")
+                    help="a folder of exactly one frame (probe_frame)")
     ap.add_argument("--cleanup", action="store_true",
                     help="remove exactly one completed reviewer workspace under "
                          ".review_ws/<video>/<question>/<subagent>")
     ap.add_argument("--only", choices=("both", "transcript", "frames"), default="both",
                     help="what to put in the folder with --until: both modalities "
-                         "(the default), the transcript only (the text probe) or "
-                         "the frames only (the vision probe)")
+                         "(the default), the transcript only (probe_text) or "
+                         "the frames only (probe_vision)")
     ap.add_argument("--verify", action="store_true",
-                    help="mark the folder as the verification probe's (stage C of the "
-                         "left-boundary check, checklist 2.2): the same material as the "
-                         "semi-blind reviewer's — transcript, scene frames as copies and the "
-                         "screen description — cut at the sighted proposal t_s. Requires "
-                         "--until and --screen; incompatible with --only and --index-only, "
-                         "because the probe must get both channels and must not see past "
-                         "the boundary")
+                    help="mark the folder as probe_verify's: the transcript, the scene "
+                         "frames as copies and the screen description, all up to --until. "
+                         "Requires --until and --screen; incompatible with --only and "
+                         "--index-only")
     ap.add_argument("--screen", action="store_true",
                     help="put in the text index of the video track (screen_text.md "
                          "and screen.jsonl) from description.jsonl. Allowed for reviewers "
-                         "and visual/full probes; forbidden for text and frozen-frame probes")
+                         "and probe_vision/probe_full/probe_verify; forbidden for probe_text "
+                         "and probe_frame")
+    ap.add_argument("--sample-id", dest="sample_id",
+                    help="read the boundaries of the material off this record instead of "
+                         "typing them: needs --role, and --window for semiblind and "
+                         "probe_frame. Leaves <out>.inputs.json, which coordinator_log.py "
+                         "spawn checks against the record")
+    ap.add_argument("--annotations", type=Path,
+                    help="the file holding the record, when its id is in several files")
+    ap.add_argument("--role", choices=review_inputs.ROLES,
+                    help="with --sample-id: whose workspace this is; decides the mode")
+    ap.add_argument("--window", type=int,
+                    help="with --sample-id: the window the material is cut at (semiblind: "
+                         "the stretch ends at its t_end, any window; probe_frame: the middle "
+                         "of a required window)")
     ap.add_argument("--index-only", action="store_true", dest="index_only",
                     help="do not copy the frames but put in a manifest frames.md "
                          "with the timecodes and the path. ONLY for full_sample and "
@@ -428,6 +553,15 @@ def main() -> None:
                          "not hold the folder's boundary, so the semi-blind reviewer and the "
                          "probes get the frames as copies")
     args = ap.parse_args()
+
+    # A space in the path is a mistake, not a name: ".../q06 full_sample" took a slash for a
+    # space, left a folder that --cleanup does not recognise, and it stayed behind.
+    if any(ch.isspace() for ch in args.out):
+        sys.exit(f"--out {args.out!r} contains a space; the shape is "
+                 f".review_ws/<video_id>/<question>/<subagent>, with slashes")
+    note = derive_from_record(args) if args.sample_id else None
+    if note is None and (args.role or args.window is not None or args.annotations):
+        sys.exit("--role, --window and --annotations only work together with --sample-id")
 
     modes = [args.until is not None, args.dense is not None,
              args.frame is not None, args.cleanup]
@@ -516,11 +650,12 @@ def main() -> None:
         # The frozen-frame probe must not even be given the boundaries: limits.json by
         # itself says up to what moment the material runs, and it must see one frame and
         # nothing around it.
-        n = extract_dense(args.video_id, out, args.frame, args.frame + 0.01,
-                          1.0, 1)
+        n = extract_dense(args.video_id, out, args.frame, args.frame, 1.0, 1)
         print(f"working folder : {out}")
         print(f"  frame        : {n} of them at {args.frame:.0f} s")
         print("  no transcript, no neighbouring frames, no limits.json")
+        if note is not None:
+            print(f"  inputs note  : {review_inputs.write_sidecar(out, note)}")
     elif args.until is not None:
         # Rebuilding the same folder is obliged to be idempotent (9.3): copy_sparse only
         # adds, so a repeat call with a smaller --until left frames beyond the new
@@ -564,6 +699,8 @@ def main() -> None:
             print(f"  screen       : {screen[0]} chunks, {screen[1]} lines of text "
                   f"(a model-made description: read in full, confirm on frames)")
         print("  there is no annotation in the folder and there must not be")
+        if note is not None:
+            print(f"  inputs note  : {review_inputs.write_sidecar(out, note)}")
     else:
         check_dense_allowed(out, args.force)
         a, b = clamp_to_workspace(out, *args.dense)

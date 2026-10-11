@@ -1,7 +1,6 @@
-# Prompt: frame probe (`vision`)
+# Prompt: frames-only probe (`vision`)
 
-Draft. The role is step 3 of the pipeline [../annotation_pipeline.md](../annotation_pipeline.md),
-checklist group 4. `<QUESTION>` and `<WORKSPACE>` are substituted in.
+`<QUESTION>`, `<WORKSPACE>`, `<VIDEO_ID>`, `<SAMPLE_ID>` and `<ROUND>` are substituted in.
 
 You are given a question about a video lecture and part of its material. Answer the
 question — that is the whole task. There is no need to assess the task, propose fixes or
@@ -9,12 +8,14 @@ reason about whether this is a good question: extra text only gets in the way.
 
 ## What you are given
 
-`<WORKSPACE>/frames/` — the frames of the lecture up to the moment `t_end`. A frame's
-timecode is written in its file name: `t000946.jpg` — the moment 946 s.
+`<WORKSPACE>/frames/` — the frames of the lecture up to the moment `until` (see
+`limits.json`). A frame's timecode is written in its file name: `t000946.jpg` — the moment
+946 s.
 
 `<WORKSPACE>/screen_text.md` and `<WORKSPACE>/screen.jsonl` — a text index of that same
-video track, built from the frames and from nothing but the frames. How to use it is
-below, in a section of its own.
+video track up to the same moment, built by a model from the picture alone, without the
+sound, on a denser grid than your frames. How to use it is below, in a section of its
+own.
 
 You have no transcript and no audio track — not one line of what the author says. That
 is how the task is set: answer from what is visible. Getting hold of the text of the
@@ -39,6 +40,9 @@ Rules:
   in there), `data/bundles/` or `data/videos/` (the whole video is in there — including
   the modality that was deliberately taken away from you), or any `*.vtt` file. One look
   in there and your whole piece of work is worthless;
+- do not answer from memory of this video. If you recognise it, answer from the material
+  anyway and say in `basis` that you recognised it. General knowledge of the subject may
+  connect what the material shows; it may not replace it;
 - **if a forbidden file did get read — say so.** It happens: a path turned up in `grep`
   output, a file was opened alongside its neighbour. The failure is not in that but in
   keeping quiet: fill in `violations` — which path, why you opened it, what you managed
@@ -54,8 +58,8 @@ Rules:
 
 ### The screen index: something to search with, not to answer with
 
-Besides the frames you have a text index of the same video track — it is built **from
-those same frames** and knows nothing beyond them:
+Besides the frames you have a text index of the same video track — it is built from the
+picture alone, by a model, and it can misread:
 
 - `screen_text.md` — what was recognised on screen and from which second; a line gets in
   there once, at the moment it first appears;
@@ -68,19 +72,33 @@ frames there**, and answer from them.
 
 Two rules, and both matter for what is being measured here:
 
-1. **A "yes" answer must rest on a frame, not on a line of the index.** Recognition makes
+1. **What you name must rest on a frame, not on a line of the index.** Recognition makes
    mistakes: it confuses similar digits, it finishes off things that are not there. If
    you name a quantity, you saw it — in a frame that is named in `looked_at`. Too few
-   frames over the stretch you need — sample more for yourself:
-   `tools/prepare_review_workspace.py --dense A B --step S --out <WORKSPACE>`.
-   Start with 1 fps (`--step 1`) and narrow the interval before asking for more frames.
+   frames over the stretch you need — sample more for yourself, `<A>` and `<B>` being the
+   first and the last second of the stretch:
+
+   ```bash
+   /home/user/conda/bin/python3 tools/prepare_review_workspace.py <VIDEO_ID> \
+       --dense <A> <B> --step 1 --out <WORKSPACE>
+   ```
+
+   The script keeps to your boundary. A step of 1 s is the finest there is; keep the
+   stretch short.
    For a quick look of up to 16 frames add `--sheet`: the script also tiles them into one
    image, `frames/sheet_<first>-<last>.jpg`, with the second stamped on each cell. Open
-   that one image instead of the frames — a slow change (a fade, layers subdividing) is
+   that one image instead of the frames — a slow change (a fade, a morph) is
    visible only side by side — and open a single frame only to read small text.
-2. **Set `screen_index_used: true` in `budget`.** A measurement with the index and one
+2. **If you opened `screen_text.md` or `screen.jsonl`, set `screen_index_used: true` in
+   `budget`.** A measurement with the index and one
    without it are not comparable, and they must be told apart by a mark rather than from
    memory.
+
+A frame shows only its own moment. For the screen at another moment rely on the
+index, and open that moment's frame only if the index looks inaccurate, incomplete or
+silent on what you need; do not extrapolate from a neighbouring frame. A quantity or a
+text you name still rests on a frame (rule 1). The frame at the last moment of your
+material is always in the folder.
 
 The index does not replace looking — it tells you where to look.
 
@@ -98,7 +116,10 @@ measurement will be false: "the modality was enough" gets recorded where it was 
 Could not make it out — say exactly that: `insufficient: true` plus an attempt at an
 answer from whatever you could extract. Half an answer with an honest flag is more useful
 than a whole one with guesswork. If the answer rests on a guess, say so in `basis`
-outright, in those very words.
+outright: "a guess about …".
+
+If something you read on a frame looks malformed or does not fit the rest of the
+material, read it again part by part before you conclude anything from it.
 
 ---
 
@@ -108,8 +129,12 @@ Two things, and they are different things.
 
 ### 1. The answer file
 
-Assemble an object per the contract [../../schema/review.py](../../schema/review.py),
-class `ProbeAnswer` with `role: "probe_vision"`, and save it to
+Assemble an object per the contract `schema/review.py`, class `ProbeAnswer` with
+`role: "probe_vision"`, and save it to
+
+```
+data/reviews/<VIDEO_ID>/<SAMPLE_ID>/probe_vision.<ROUND>.json
+```
 
 **The contract is the example — do not go looking for one in that folder.** The files
 already sitting next to yours are other roles' *answers* to this same sample, including
@@ -119,12 +144,13 @@ a probe that has seen the answer measures nothing. `schema/review.py` is the spe
 read the pydantic class for your role. If you want a worked example, generate one from the
 contract; do not read an answer.
 
-```
-data/reviews/<VIDEO_ID>/<SAMPLE_ID>/probe_vision.<ROUND>.json
-```
-
 What matters in it:
 
+- `schema_version`, `checklist_version`, `iteration` — write `"1.4"`, `"2026-10-11"` and
+  `<ROUND>` explicitly: a file that does not state its checklist version is read under
+  older rules, and `--check` refuses it;
+- `sample_id` = `<SAMPLE_ID>`, `workspace` = `<WORKSPACE>`, `model` — the model you run
+  on, `date` — today: required, as in every file of the contract;
 - `looked_at` — what you looked at: the frames with their timecodes;
 - `steps` — how you got to the answer. For a probe this is also the way to tell an
   inference from the material apart from a recollection about the subject: the steps show
@@ -139,9 +165,10 @@ What matters in it:
 - `confidence`, `insufficient` — honestly. `insufficient: true` is set **together**
   with an attempt at an answer, not instead of one: fill `answer` with whatever you
   could extract, even if you consider it a guess yourself;
-- `budget` — how many frames you looked at and how many lines you read. Without that
-  number your negative answer cannot be read: "there was not enough material" and "they
-  showed me forty pictures for half an hour of video" look the same;
+- `budget` — `frames_viewed` (a sheet counts as one), `dense_intervals` for every
+  `--dense` call, and `screen_index_used`. Without these your negative answer cannot be
+  read: "there was not enough material" and "they showed me forty pictures for half an
+  hour of video" look the same;
 - `violations` — if you had to confess.
 
 Check yourself before reporting:

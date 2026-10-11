@@ -140,7 +140,8 @@ Write the check into the decision.
 Use a **work-conserving, cheap-first scheduler** across questions. Whenever a slot is free,
 give priority to a runnable `semiblind`, `probe_text`, `probe_vision` or `probe_frame` job.
 These roles are independent and should run in parallel; `probe_frame` runs once per
-required window, with one frame each (the window's middle). `probe_text`, `probe_vision` and
+required window, with one frame each (the window's middle), and is logged as
+`probe_frame<idx>`. `probe_text`, `probe_vision` and
 `probe_full` run once per sample, on material up to the `t_end` of the last required window,
 and their answer is scored against the rubric of every required window: a modality is
 sufficient when the answer meets the rubric of at least one of them. There is no global stage
@@ -239,8 +240,8 @@ and `check --final` verifies that the reviews were rerun:
 
 | Repair (`question` text untouched) | `--kind` | Rerun | Without a rerun |
 |---|---|---|---|
-| a window boundary, or an `evidence_span` that changes the derived `temporal_rel` — a span only after §6 has checked it against `t_val` | `boundary --window <idx>` | `full_window<idx>` of that window — the index is required, or any window's review would settle the debt; and every probe whose input moved: `probe_frame` of that window (its frame is the window's middle), and `probe_text`, `probe_vision`, `probe_full` when the `t_end` their material ran to has moved. The flag of the old run does not carry over | re-adjudicate stage A against the new `t_start` |
-| an `evidence_span` that leaves the derived `temporal_rel` unchanged and passes the validator — a span only after §6 has checked it against `t_val` | `metadata` | — | — |
+| a window boundary, or an `evidence_span` that changes the derived `temporal_rel` — a span only after §6 has checked it against `t_val` | `boundary --window <idx>`, with `--span` when the span changed | `full_window<idx>` of that window — the index is required, or any window's review would settle the debt; and every probe whose input moved: `probe_frame` of that window (its frame is the window's middle), and `probe_text`, `probe_vision`, `probe_full` when the `t_end` their material ran to has moved. The flag of the old run does not carry over | re-adjudicate stage A against the new `t_start` |
+| an `evidence_span` that leaves the derived `temporal_rel` unchanged and passes the validator — a span only after §6 has checked it against `t_val` | `metadata --window <idx> --span` | — | — |
 | `t_start` or `t_end` moved by **at most 2 s** to a `full_window` or semi-blind review's own frame measurement, or to a `t_s` verified in stage C, widening or shifting the window | `nudge --window <idx>` | — (the reviewer's frames are the verification). A cut of 2 s or less that only narrows a window is not made. An `evidence_span` disagreement of 2 s or less is not applied: the annotated value stands and the measurement goes into a `note` | nothing; if a later review measures a different second within the same 2 s, the first measurement stands and the disagreement goes into a `note` |
 | the text of a rubric item | `rubric --window <idx>`, one event per touched window; omit `--window` when every window's rubric changed | `full_sample` (5.x); `full_window<idx>` of each touched window (2.5, the residue) | re-score the saved blind answer and probe answers against the new rubric; re-adjudicate stage A |
 | `reasoning_level` only | `level` | — | re-read every 2.5 split against the new level — its copies show the level the review ran with, which is not a defect of the review — and re-adjudicate stage A by the route of the new level |
@@ -248,9 +249,10 @@ and `check --final` verifies that the reviews were rerun:
 | provenance, notes, `trap_note` | `metadata` | — | — |
 
 Consolidate all relevant findings before applying the repair, then rerun the roles the table
-names; unaffected evidence remains. `check --final` tracks only the reviews of the windows and
-of the sample: the probes a `boundary` edit sends back are yours to track — name them in
-`coordinator.<ROUND>.md`, and do not accept the sample until each has a new run. When a
+names; unaffected evidence remains. `check --final` tracks the reviews of the windows and of
+the sample, and it names every modality probe whose last run was cut at material the record
+no longer gives — the frame probe of a moved window, a text, vision or full probe whose `t_end`
+moved. Run each anew before you accept the sample, and name them in `coordinator.<ROUND>.md`. When a
 boundary is uncertain within 2 s, set the window wider rather than narrower — `t_start` at the
 early edge, `t_end` at the late one — as long as the rule of the author's reveal still holds
 (on `L2`/`L3` and `predict` a window closes at least 10 s before the author says or shows the
@@ -293,7 +295,11 @@ report to the human.
 
 **Keep one append-only operational log per video.** Immediately after every successful
 subagent launch and terminal result, call `tools/coordinator_log.py <VIDEO_ID> spawn` or
-`finish`; after an applied sample change, call `sample-edit`. Only the coordinator writes
+`finish`; after an applied sample change, call `sample-edit`. `spawn` takes `--workspace`, the
+folder §5 prepared, and refuses it if the record has changed since; `finish` goes under the
+name the spawn was logged with, never under a thread id, and the tool refuses a name with no
+open launch. A span edit carries `--span` and is refused until its stretch has been
+adjudicated (§6). Only the coordinator writes
 `data/reviews/<VIDEO_ID>/coordinator.log`, never truncates it, and runs `check --final` before
 final acceptance. The log records scheduling and edits; it does not replace per-question
 `coordinator.<ROUND>.md` decisions.
@@ -353,6 +359,35 @@ Use this source matrix; a boundary-clipped source is clipped to the permitted in
 | `probe_frame` | forbidden | forbidden | exactly one frozen frame | forbidden |
 | `probe_full` | clipped | clipped | existing scene frames, copied | allowed |
 | `probe_verify` | clipped to `t_s` | clipped to `t_s` | existing scene frames, copied | allowed |
+
+**Prepare every workspace from the record.** Do not type a boundary: the script finds the
+record by its id, cuts the material for the role, and leaves a note of the record's version
+next to the folder (`<folder>.inputs.json`). Name the file you edit:
+
+```bash
+P=/home/user/conda/bin/python3
+$P tools/prepare_review_workspace.py <VIDEO_ID> --sample-id <SAMPLE_ID> \
+    --annotations data/annotations/<VIDEO_ID>.jsonl --role <ROLE> [--window <k>] [--until <t_s>] \
+    --out "$PROJECT/.review_ws/<VIDEO_ID>/<QUESTION>/<SUBAGENT_NAME>"
+```
+
+| `--role` | Also | The material |
+|---|---|---|
+| `semiblind` | `--window <k>` | up to `t_end` of window `k`, required or optional: one stretch per window; the next stretch is the same command with the next `k`, into the same folder |
+| `probe_text`, `probe_vision`, `probe_full` | — | up to `t_end` of the last required window |
+| `probe_frame` | `--window <k>` | the middle frame of required window `k`; one probe per required window |
+| `probe_verify` | `--until <t_s>` | up to the `t_s` being verified |
+| `full_sample`, `full_window` | — | the whole video, frames as a manifest |
+
+Then log the launch with `spawn --workspace` and the same folder. A folder whose record has
+changed since it was prepared is refused: prepare it again.
+
+**The file a role writes** is named in its prompt, and you substitute the placeholders:
+`<ROUND>` is the review iteration; `<WINDOW_IDX>` is the window `k` of `full_window` and
+`probe_frame` (`full_window<k>.<ROUND>.json`, `probe_frame<k>.<ROUND>.json`); `<N>` numbers
+the `probe_verify` launches of a sample within a round from 1, in the order you launch them
+(`probe_verify<N>.<ROUND>.json`), and the adjudication table names the `N` of each `t_s`.
+Without the index two windows, or two `t_s`, of one round write one file.
 
 The initial visual material is the permitted part of `description.jsonl` plus the
 existing scene-change frames listed in `bundle.json["frames"]`. Those frames were
@@ -416,13 +451,13 @@ rubric is satisfiable, with a frame in `t_s_basis`. If `t_s` is null or `t_s ≥
 nothing more is needed: `t_val = t_val_A`.
 
 **Stage C.** If `t_s < t_val_A`, or `t_val_A` is null and `t_s` exists: prepare a fresh
-workspace with `--until <t_s> --screen --verify`, spawn `probe_verify` with the prompt
+workspace (§5: `--role probe_verify --until <t_s>`), spawn `probe_verify` with the prompt
 `prompts/probe_verify.md`, giving it the task **without its when-clause** (strip the "when …"
 part by hand; if the clause defines the object of the task, give the task whole and treat "the
 object is not there yet" as an answer). Check its `answer` against the rubric and by the same
 route test as stage A. Met by the route of the level or a cheaper one → `t_val = t_s`. Met only
 by a harder route → `t_val = t_val_A`, and the `t_s` row is classified `harder route`. Not met
-→ `t_val = t_val_A`. One call, short material, only on disagreement.
+→ `t_val = t_val_A`. One call per `t_s`, short material, only on disagreement.
 
 An early **correct** answer of an evaluated model at `t_m < t_start` (from
 `data/outputs`) is a ready-made `t_s`: skip stage B and run stage C at `t_m`. The absence
@@ -450,7 +485,9 @@ point below), and a required window kept for a substantive when-clause. On a win
 compared, do not apply a proposed span; a span whose `t_s` failed stage C there goes into
 `coordinator.<ROUND>.md` as unresolved. Give each `t_s` its own row in the table, with its
 stretch and source (`full_sample`, `annotation`, `full_window<k>`, `provenance`, a model), and
-log one `adjudicate` event per stretch and per `t_s`.
+log one `adjudicate` event per stretch and per `t_s`: `--window` names the stretch's required
+window, `--t-s-source` the source, and `--verified` is `yes` (met by the route of the level or
+a cheaper one), `harder` (only by a harder route) or `no`.
 
 **Then** derive 2.2 and 2.3 from `t_val` (`t_val[0] < question_time` → 2.3;
 `t_val[k] < t_start[k]` → 2.2). Inside an optional window is not a hit.
@@ -466,7 +503,8 @@ invented `L2` sample: the rubric asks for τ, and the window shows R and C.
 | 198.0 (t_s) | — | — | sighted proposal | verified: not met → stays t_val_A |
 
 Classifications: `t_val_A`, `harder route`, `confirmation`, `partial` (some items ✗ — name
-them), `no answer`, and one row per `t_s`, with its stretch, its source and the stage-C outcome.
+them), `no answer`, and one row per `t_s`, with its stretch, its source, the `N` of its
+`probe_verify` and the stage-C outcome.
 If the launch message broke the rule of §5 on what a semi-blind role may be told, or the
 reviewer reported such a leak in `violations`, mark the table **`contaminated`**: that `t_val_A`
 still counts as evidence that a hit exists (the leak could only have made the answer earlier),
@@ -475,8 +513,9 @@ on 2.2/2.3. Then record the decision in the log:
 
 ```bash
 /home/user/conda/bin/python3 tools/coordinator_log.py <VIDEO_ID> adjudicate \
-    --sample-id <SAMPLE_ID> --iteration <ROUND> --t-val-a 212.0 --t-s 198.0 --verified no \
-    --t-val 212.0 --source semiblind.<ROUND>.json
+    --sample-id <SAMPLE_ID> --iteration <ROUND> --window 0 --t-val-a 212.0 \
+    --t-s 198.0 --t-s-source full_sample --verified no --t-val 212.0 \
+    --source semiblind.<ROUND>.json
 ```
 
 **What to do on a hit** is the ladder below, and it is yours to apply: a hit reaches the

@@ -49,3 +49,8 @@ serve-vllm-log.txt
 serve-vllm-log-temp.txt
 vllm.pid
 serve-vllm.sh
+serve-vllm-multi.sh
+vllm-router.py
+serve-vllm-log-*.txt
+vllm-multi.pid
+dash_multi.pid

@@ -1,7 +1,6 @@
 # Prompt: transcript probe (`text`)
 
-Draft. The role is step 3 of the pipeline [../annotation_pipeline.md](../annotation_pipeline.md),
-checklist group 4. `<QUESTION>` and `<WORKSPACE>` are substituted in.
+`<QUESTION>`, `<WORKSPACE>`, `<VIDEO_ID>`, `<SAMPLE_ID>` and `<ROUND>` are substituted in.
 
 You are given a question about a video lecture and part of its material. Answer the
 question — that is the whole task. There is no need to assess the task, propose fixes or
@@ -9,8 +8,8 @@ reason about whether this is a good question: extra text only gets in the way.
 
 ## What you are given
 
-`<WORKSPACE>/transcript.md` — the lines of the lecture with timecodes, up to and
-including the moment `t_end`.
+`<WORKSPACE>/transcript.md` — the lines of the lecture with timecodes, up to the moment
+`until` (see `limits.json`). A line that crosses that moment has been cut away whole.
 
 You have no frames: not one image, and no description of what is happening on screen.
 That is how the task is set: answer from what is written. Getting hold of frames by a
@@ -32,6 +31,9 @@ Rules:
   in there), `data/bundles/` or `data/videos/` (the whole video is in there — including
   the modality that was deliberately taken away from you), or any `*.vtt` file. One look
   in there and your whole piece of work is worthless;
+- do not answer from memory of this video. If you recognise it, answer from the material
+  anyway and say in `basis` that you recognised it. General knowledge of the subject may
+  connect what the material shows; it may not replace it;
 - **if a forbidden file did get read — say so.** It happens: a path turned up in `grep`
   output, a file was opened alongside its neighbour. The failure is not in that but in
   keeping quiet: fill in `violations` — which path, why you opened it, what you managed
@@ -47,9 +49,10 @@ Rules:
 
 ### Filling in what you cannot read is forbidden
 
-Answer only from what is **genuinely distinguishable** in the material you were given.
-Not from what such a scene usually contains; not from what the example "ought" to turn
-out to be; not by substituting familiar textbook numbers for a caption you failed to read.
+Answer only from what is **genuinely said** in the material you were given. Not from
+what such a lecture usually contains; not from what the example "ought" to turn out to
+be; not by substituting familiar textbook numbers for a quantity the speaker does not
+name.
 
 This is not about honesty but about what is being measured here. Your answer decides
 whether **this modality** was enough. If you did not make out a quantity and filled it in
@@ -59,7 +62,7 @@ measurement will be false: "the modality was enough" gets recorded where it was 
 Could not make it out — say exactly that: `insufficient: true` plus an attempt at an
 answer from whatever you could extract. Half an answer with an honest flag is more useful
 than a whole one with guesswork. If the answer rests on a guess, say so in `basis`
-outright, in those very words.
+outright: "a guess about …".
 
 ---
 
@@ -69,8 +72,12 @@ Two things, and they are different things.
 
 ### 1. The answer file
 
-Assemble an object per the contract [../../schema/review.py](../../schema/review.py),
-class `ProbeAnswer` with `role: "probe_text"`, and save it to
+Assemble an object per the contract `schema/review.py`, class `ProbeAnswer` with
+`role: "probe_text"`, and save it to
+
+```
+data/reviews/<VIDEO_ID>/<SAMPLE_ID>/probe_text.<ROUND>.json
+```
 
 **The contract is the example — do not go looking for one in that folder.** The files
 already sitting next to yours are other roles' *answers* to this same sample, including
@@ -80,12 +87,13 @@ a probe that has seen the answer measures nothing. `schema/review.py` is the spe
 read the pydantic class for your role. If you want a worked example, generate one from the
 contract; do not read an answer.
 
-```
-data/reviews/<VIDEO_ID>/<SAMPLE_ID>/probe_text.<ROUND>.json
-```
-
 What matters in it:
 
+- `schema_version`, `checklist_version`, `iteration` — write `"1.4"`, `"2026-10-11"` and
+  `<ROUND>` explicitly: a file that does not state its checklist version is read under
+  older rules, and `--check` refuses it;
+- `sample_id` = `<SAMPLE_ID>`, `workspace` = `<WORKSPACE>`, `model` — the model you run
+  on, `date` — today: required, as in every file of the contract;
 - `looked_at` — what you looked at: the transcript lines with their timecodes;
 - `steps` — how you got to the answer. For a probe this is also the way to tell an
   inference from the material apart from a recollection about the subject: the steps show
@@ -100,9 +108,9 @@ What matters in it:
 - `confidence`, `insufficient` — honestly. `insufficient: true` is set **together**
   with an attempt at an answer, not instead of one: fill `answer` with whatever you
   could extract, even if you consider it a guess yourself;
-- `budget` — how many frames you looked at and how many lines you read. Without that
-  number your negative answer cannot be read: "there was not enough material" and "they
-  showed me forty pictures for half an hour of video" look the same;
+- `budget` — `frames_viewed: 0` and `transcript_cues`, the number of lines you read.
+  Without that number your negative answer cannot be read: "there was not enough
+  material" and "I read three lines of half an hour" look the same;
 - `violations` — if you had to confess.
 
 Check yourself before reporting:

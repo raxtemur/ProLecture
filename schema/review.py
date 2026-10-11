@@ -30,7 +30,9 @@ that the verdicts differ.
     https://abdullin.com/schema-guided-reasoning/
 
 The subagent **saves the filled-in model to the file** `data/reviews/<VIDEO_ID>/<SAMPLE_ID>/
-<role>.<iteration>.json` and returns its reasoning as text to the coordinator. That way
+<role>.<iteration>.json` — with the window index after `full_window` and `probe_frame`
+(`full_window2.1.json`) and the number of its `t_s` after `probe_verify` — and returns its
+reasoning as text to the coordinator. That way
 the coordinator does not drag every subagent's full json into context but can always
 re-read it — and so can the human at acceptance.
 """
@@ -54,14 +56,17 @@ SCHEMA_VERSION = "1.4"   # 1.1: the full role was split into full_sample and ful
 # 1.4: the 2.5 check of the window reviewer carries its split of the rubric
 #      (`ResidueSplit`), and the verdict is checked against it; required only of a
 #      review that states 1.4 or later (see `FullWindowReview.carries_split`)
-CHECKLIST_VERSION = "2026-09-07"
-# The checklist of 2026-10-05 added three role items (2.6, 4.9, 7.8; see INTRODUCED_ITEMS).
-# The version is not moved yet: the reviewer prompts still state 2026-09-07, and a moved
-# version would turn every review they produce into a legacy one. It moves, to a date not
-# earlier than 2026-10-05, together with the prompts that carry the new items.
-# The previous checklist version. Reviews saved under it may still carry the retired
-# items and the old shape of `candidates`; anything newer may not.
-PREVIOUS_CHECKLIST_VERSION = "2026-08-24"
+CHECKLIST_VERSION = "2026-10-11"
+# 2026-10-11: the role prompts carry the items the checklist of 2026-10-05 added (2.6,
+# 4.9, 7.8; see INTRODUCED_ITEMS), and a review saved under this version needs a line for
+# each of them. A review saved under 2026-09-07 is read by the rules of 2026-09-07.
+# The previous checklist version: a review that states it is legacy, read by its own rules.
+PREVIOUS_CHECKLIST_VERSION = "2026-09-07"
+# The first checklist. A review that does not state its version was saved before the field
+# existed, under this one: it may still carry the retired items and the old shape of
+# `candidates` (TRAJECTORY_SINCE); anything newer may not.
+FIRST_CHECKLIST_VERSION = "2026-08-24"
+TRAJECTORY_SINCE = "2026-09-07"
 
 # The first contract version whose window reviews carry the 2.5 split.
 SPLIT_SINCE = "1.4"
@@ -250,7 +255,7 @@ class Role(StrEnum):
     PROBE_VISION = "probe_vision"
     PROBE_FRAME = "probe_frame"
     PROBE_FULL = "probe_full"
-    PROBE_VERIFY = "probe_verify"  # stage C: answers with material up to a sighted t_s
+    PROBE_VERIFY = "probe_verify"
 
 
 # Which items each role must close. This is not a reference table but part of the
@@ -772,6 +777,19 @@ class Check(Strict):
 # --------------------------------------------------------------------------
 
 
+def legacy_hint(review: "ReviewBase") -> str:
+    """Why a line may look foreign: the file states no current checklist version.
+
+    A new review that forgot `checklist_version` is read under the first checklist, and
+    the items introduced since then look like items of another mode. Without this the
+    message invites deleting required lines.
+    """
+    if not review.is_legacy():
+        return ""
+    return (f". If these are lines of your mode, the file is read under checklist "
+            f"{review.effective_checklist()}: state checklist_version={CHECKLIST_VERSION}")
+
+
 class ReviewBase(Strict):
     """The common part of any review.
 
@@ -782,11 +800,11 @@ class ReviewBase(Strict):
     """
 
     schema_version: str = SCHEMA_VERSION
-    # The default is the PREVIOUS checklist on purpose: a review that does not say which
-    # checklist it was made against is read under the old rules, and the value it reports
+    # The default is the FIRST checklist on purpose: a review that does not say which
+    # checklist it was made against is read under the oldest rules, and the value it reports
     # then says so too. A new review states CHECKLIST_VERSION explicitly, and `--check`
     # refuses a legacy reading unless told it is looking at an old file (--legacy).
-    checklist_version: str = PREVIOUS_CHECKLIST_VERSION
+    checklist_version: str = FIRST_CHECKLIST_VERSION
     sample_id: str
     role: Role
     iteration: int = Field(ge=1, description="the number of the fix round: reviews are not rewritten "
@@ -978,13 +996,13 @@ class SemiBlindReview(ReviewBase):
     @model_validator(mode="after")
     def _trajectory_shape(self) -> SemiBlindReview:
         """New reviews carry Candidates and end every stretch with an answer at its end."""
-        if self.is_legacy():
+        if self.effective_checklist() < TRAJECTORY_SINCE:
             return self
         for sc in self.scans:
             legacy = [c for c in sc.candidates if isinstance(c, SubAnswer)]
             if legacy:
                 raise ValueError(f"stretch {sc.idx}: candidates in the legacy SubAnswer shape; since "
-                                 f"checklist {CHECKLIST_VERSION} every candidate is a Candidate with a "
+                                 f"checklist {TRAJECTORY_SINCE} every candidate is a Candidate with a "
                                  f"full answer at its moment")
             if not sc.candidates:
                 raise ValueError(f"stretch {sc.idx}: an empty trajectory. At the very least the end "
@@ -1017,7 +1035,8 @@ class SemiBlindReview(ReviewBase):
             names = ", ".join(sorted(i.value for i in alien))
             raise ValueError(f"items outside this mode: {names}. Left boundaries "
                              f"are not judged by the semi-blind reviewer — the coordinator derives "
-                             f"them from scans, because t_start was never shown to them")
+                             f"them from scans, because t_start was never shown to them"
+                             + legacy_hint(self))
         return self
 
 
@@ -1051,7 +1070,7 @@ class FullReview(ReviewBase):
         alien = seen - required - tolerated
         if alien:
             names = ", ".join(sorted(i.value for i in alien))
-            raise ValueError(f"items outside mode {self.role.value}: {names}")
+            raise ValueError(f"items outside mode {self.role.value}: {names}" + legacy_hint(self))
         return self
 
     @model_validator(mode="after")
@@ -1082,7 +1101,7 @@ class FullSampleReview(FullReview):
     knows the answer and is biased leftwards: in a half-drawn frame they "recognise" what
     is not there yet. That is why 2.2 was forbidden to them outright. Now they may
     PROPOSE the first moment from which the rubric is, in their view, satisfiable — and
-        the proposal moves nothing by itself: when it is earlier than the semi-blind `t_val`,
+    the proposal moves nothing by itself: when it is earlier than the semi-blind `t_val`,
     or there is none, the coordinator launches `probe_verify` with material up to `t_s`,
     and only a passing answer from that probe makes `t_s` the boundary.
     """
@@ -1253,13 +1272,8 @@ def split_problems(check: Check, verdict: Verdict) -> list[str]:
 
 
 class ProbeAnswer(ReviewBase):
-    """A probe's answer. It issues no verdicts and does not reason about the question.
-
-    The probe does not know it is taking part in a check: it simply answers the question
-    from the material it was given. The decision about the flag is taken by the
-    coordinator, comparing the answer against the reference — otherwise the probe would
-    start tuning its answer to the expected flag.
-    """
+    """An answer to the question from the material in the workspace: what was looked at,
+    how the answer was reached, the answer itself and what it rests on."""
 
     role: Literal[Role.PROBE_TEXT, Role.PROBE_VISION,
                   Role.PROBE_FRAME, Role.PROBE_FULL]
@@ -1282,20 +1296,8 @@ class ProbeAnswer(ReviewBase):
 
 
 class VerifyProbe(ProbeAnswer):
-    """Stage C: a fresh semi-blind probe answers with material up to `t_upto`.
-
-        Launched by the coordinator when a sighted `t_s` — the full reviewer's proposal, an
-    early correct answer of an evaluated model, or the end of a required window's
-    `evidence_span` (checklist 7.5) — lies earlier than the semi-blind `t_val`, or there is
-    none. The probe
-    gets the task without its when-clause, the transcript, the description and the
-    frames up to `t_upto`, and nothing else — it neither knows the reference answer nor
-        that a boundary is being checked. The coordinator checks `answer` against the rubric:
-    passes by the route of the level or a cheaper one → `t_val = t_upto` (the earliest such
-    `t_s` of the stretch), the semi-blind reviewer missed an earlier form of the
-    information; passes only by a harder route, or fails → `t_val` stays, the sighted
-    reviewer recognised the answer in a half-frame.
-    """
+    """An answer to the task from the material up to `t_upto`, the `until` of the workspace;
+    the file is `probe_verify<N>.<iteration>.json`, with `N` given in the prompt."""
 
     role: Literal[Role.PROBE_VERIFY] = Role.PROBE_VERIFY
     t_upto: Seconds = Field(description="the upper bound of the material, the `until` of the workspace")
@@ -1432,8 +1434,8 @@ if __name__ == "__main__":
             # The only enforcement point of the pipeline. A new review that forgot the
             # field would otherwise pass under the old, weaker rules — silently.
             print(f"the review is NOT accepted as new: it states checklist_version={stated}, "
-                  f"so it was read under checklist {obj.effective_checklist()} — without the "
-                  f"trajectory rules, with the retired items tolerated. A new review must state "
+                  f"so it was read under checklist {obj.effective_checklist()} — by older rules, "
+                  f"without the items introduced since. A new review must state "
                   f"checklist_version={CHECKLIST_VERSION}; --legacy is only for a file saved under "
                   f"an older checklist, never for a review you have just written")
             raise SystemExit(1)

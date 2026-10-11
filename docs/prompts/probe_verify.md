@@ -1,10 +1,6 @@
 # Prompt: verification probe (`probe_verify`)
 
-Draft. The role is stage C of the left-boundary check, step 3 of the pipeline
-[../annotation_pipeline.md](../annotation_pipeline.md), checklist item 2.2. `<TASK>` and
-`<WORKSPACE>` are substituted in. The coordinator launches this probe when somebody who knows
-the reference answer has proposed that the question is answerable from an earlier moment than
-the annotation says; the probe does not know that, and must not.
+`<TASK>`, `<WORKSPACE>`, `<VIDEO_ID>`, `<SAMPLE_ID>`, `<N>` and `<ROUND>` are substituted in.
 
 You are given a task about a video lecture and the material of the lecture up to a certain
 moment. Answer the task — that is the whole job. There is no need to assess the task, propose
@@ -42,6 +38,9 @@ Rules:
   there), `data/bundles/` or `data/videos/` (the whole video is in there, including what
   comes after your boundary), or any `*.vtt` file. One look in there and your whole piece
   of work is worthless;
+- do not answer from memory of this video. If you recognise it, answer from the material
+  anyway and say in `basis` that you recognised it. General knowledge of the subject may
+  connect what the material shows; it may not replace it;
 - **if a forbidden file did get read — say so.** It happens: a path turned up in `grep`
   output, a file was opened alongside its neighbour. The failure is not in that but in
   keeping quiet: fill in `violations` — which path, why you opened it, what you managed to
@@ -59,10 +58,16 @@ Rules:
 - a number or a verbatim text taken from the description is confirmed on a real frame before
   it goes into the answer: the description was made by a model and finishes off things that
   are not there. If the scene frames are too sparse for that, sample more:
-  `tools/prepare_review_workspace.py --dense A B --step 1 --out <WORKSPACE>` — the script
-  keeps to your boundary. For a quick look of up to 16 frames add `--sheet` and open the
+  `/home/user/conda/bin/python3 tools/prepare_review_workspace.py <VIDEO_ID> --dense A B
+  --step 1 --out <WORKSPACE>` — the script keeps to your boundary. For a quick look of up to 16 frames add `--sheet` and open the
   one tiled image `frames/sheet_<first>-<last>.jpg` (the second is stamped on each cell)
   instead of the frames;
+- a frame shows only its own moment. For the screen at another moment rely on the
+  description of the video track, and open that moment's frame only if the description
+  looks inaccurate, incomplete or silent on what you need; do not extrapolate from a
+  neighbouring frame. The frame at `until` itself is always in the folder;
+- if something you read on a frame looks malformed or does not fit the rest of the
+  material, read it again part by part before you conclude anything from it;
 - if the material is not enough — say so, but **try to answer first**. "Not enough
   information" turns out far too often to be an unwillingness to take a risk;
 - do not propose fixes and do not reason about whether this is a good question. That is not
@@ -78,8 +83,12 @@ Two things, and they are different things.
 
 ### 1. The answer file
 
-Assemble an object per the contract [../../schema/review.py](../../schema/review.py), class
-`VerifyProbe` with `role: "probe_verify"`, and save it to
+Assemble an object per the contract `schema/review.py`, class `VerifyProbe` with
+`role: "probe_verify"`, and save it to
+
+```
+data/reviews/<VIDEO_ID>/<SAMPLE_ID>/probe_verify<N>.<ROUND>.json
+```
 
 **The contract is the example — do not go looking for one in that folder.** The files
 already sitting next to yours are other roles' *answers* to this same sample, including
@@ -89,13 +98,11 @@ a probe that has seen the answer measures nothing. `schema/review.py` is the spe
 read the pydantic class for your role. If you want a worked example, generate one from the
 contract; do not read an answer.
 
-```
-data/reviews/<VIDEO_ID>/<SAMPLE_ID>/probe_verify.<ROUND>.json
-```
-
 What matters in it:
 
-- `checklist_version` — write `"2026-09-07"` explicitly;
+- `schema_version`, `checklist_version`, `iteration` — write `"1.4"`, `"2026-10-11"` and
+  `<ROUND>` explicitly: a file that does not state its checklist version is read under
+  older rules, and `--check` refuses it;
 - `t_upto` — the `until` of your `limits.json`;
 - `looked_at` — the frames and lines the answer rests on;
 - `steps` — how you got to the answer; the steps show where each quantity came from — the
@@ -113,8 +120,10 @@ Check yourself before reporting:
 
 ```bash
 /home/user/conda/bin/python3 schema/review.py --check \
-    data/reviews/<VIDEO_ID>/<SAMPLE_ID>/probe_verify.<ROUND>.json
+    data/reviews/<VIDEO_ID>/<SAMPLE_ID>/probe_verify<N>.<ROUND>.json
 ```
+
+Fix and run again — hand the coordinator only what passed.
 
 ### 2. The text for the coordinator
 

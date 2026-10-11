@@ -5,10 +5,10 @@ question "in what order and by whose hands", whereas
 [annotation_checklist.md](annotation_checklist.md) answers the question "what exactly is
 checked". The role prompts are in [prompts/](prompts/).
 
-> **2026-10-06.** This document follows the checklist of 2026-10-06. The coordinator's prompt
-> follows it too; the reviewers' prompts are not yet brought in line with it, and until they
-> are, where they differ, the checklist and [prompts/definitions.md](prompts/definitions.md)
-> win.
+> **2026-10-12.** This document, the coordinator's prompt and the prompts of the reviewers and
+> the probes follow the checklist of version 2026-10-11 (`CHECKLIST_VERSION` in
+> `schema/review.py`). Where they differ, the checklist and
+> [prompts/definitions.md](prompts/definitions.md) win.
 
 The pipeline is designed around three constraints:
 
@@ -230,15 +230,23 @@ the semi-blind one, with `--verify`:
 
 ```bash
 /home/user/conda/bin/python3 tools/prepare_review_workspace.py <VIDEO_ID> \
-    --until <t_s> --screen --verify --out <WORKSPACE>
+    --sample-id <SAMPLE_ID> --annotations data/annotations/<VIDEO_ID>.jsonl \
+    --role probe_verify --until <t_s> --out <WORKSPACE>
 ```
 
 The folder is prepared and **extended** by the coordinator, stretch by stretch:
 
 ```bash
 /home/user/conda/bin/python3 tools/prepare_review_workspace.py <VIDEO_ID> \
-    --until <t_end of window k> --screen --out <WORKSPACE>
+    --sample-id <SAMPLE_ID> --annotations data/annotations/<VIDEO_ID>.jsonl \
+    --role semiblind --window <k> --out <WORKSPACE>
 ```
+
+With `--sample-id` the script reads the boundary off the record — here `t_end` of window `k`,
+required or optional — and sets the channels of the role itself (`--screen` for the semi-blind reviewer, `--verify`
+for the verification probe). It leaves `<WORKSPACE>.inputs.json` next to the folder: which version
+of the record the folder was cut from. `coordinator_log.py spawn --workspace` refuses a folder whose
+record has changed since.
 
 `--screen` puts in a **text index of the video track** — `screen_text.md` (what was recognised on
 the screen and from which second) and `screen.jsonl` (descriptions and per-second events), cut at
@@ -315,8 +323,8 @@ contamination (4.2, 4.3) only makes sense before the reference answer has entere
 `full_sample` — 3.1, 3.2, 3.4 (the optional triggers on elements that appear one by one), 4.8,
 4.9, 5.2–5.4, 7.3, 7.8, 8.2–8.5 and the proposal `t_s` of stage B; `full_window` — 2.4, 2.5,
 3.3, 7.4, 7.5. The lists are `ROLE_ITEMS` in the contract. Items 2.6 (the semi-blind reviewer's),
-4.9 and 7.8 entered it on 2026-10-05; a review is obliged to carry their lines from the next
-checklist version on, which comes together with the reviewers' prompts.
+4.9 and 7.8 entered it on 2026-10-05; a review carries their lines from checklist 2026-10-11
+on.
 
 On each stretch the semi-blind reviewer returns the whole **trajectory**, not a single `t_val`: a
 full answer at every moment where the relevant state changed. From a bare number one cannot tell a
@@ -380,14 +388,23 @@ The folders are prepared by the coordinator under
 
 ```bash
 P=/home/user/conda/bin/python3
-$P tools/prepare_review_workspace.py <VIDEO_ID> --until <t_end> --only transcript --out <WS>/probe_text
-$P tools/prepare_review_workspace.py <VIDEO_ID> --until <t_end> --only frames --screen --out <WS>/probe_vision
-$P tools/prepare_review_workspace.py <VIDEO_ID> --frame <(t_start+t_end)/2> --out <WS>/probe_frame
-$P tools/prepare_review_workspace.py <VIDEO_ID> --until <t_end> --screen --out <WS>/probe_full
+R="--sample-id <SAMPLE_ID> --annotations data/annotations/<VIDEO_ID>.jsonl"
+$P tools/prepare_review_workspace.py <VIDEO_ID> $R --role probe_text   --out <WS>/probe_text
+$P tools/prepare_review_workspace.py <VIDEO_ID> $R --role probe_vision --out <WS>/probe_vision
+$P tools/prepare_review_workspace.py <VIDEO_ID> $R --role probe_frame --window <k> --out <WS>/probe_frame<k>
+$P tools/prepare_review_workspace.py <VIDEO_ID> $R --role probe_full   --out <WS>/probe_full
 ```
 
+The text, vision and full probes get the material up to `t_end` of the last required window, the
+frame probe the middle frame of required window `k` — one per required window, logged as
+`probe_frame<k>`. The script derives these from the record; the explicit forms (`--until`,
+`--only`, `--frame`) remain for a look outside a launch.
+
 A visual or full role starts with the clipped `description.jsonl` index and the
-scene-change frames already present in `bundle.json["frames"]`. The coordinator does not
+scene-change frames already present in `bundle.json["frames"]`, together with the frames at
+both edges of its stretch: the script cuts them from the video whatever the scene detector
+picked, so the screen at `until` itself is always there, and a `--dense` grid likewise ends
+on its upper edge. Nothing later than `until` gets in. The coordinator does not
 pre-sample the answer window or `evidence_span`. If the supplied material points to a
 suspicious interval, the role may add a dense 1 fps pass itself:
 
@@ -499,7 +516,9 @@ new version and goes through the full cycle (checklist, group 2 and 2.2). Each c
 `PASS`, an explicit terminal rejection or a rebuild as a new sample.
 
 The reviews are saved: `data/reviews/<VIDEO_ID>/<SAMPLE_ID>/<role>.<ROUND>.json`, where the
-per-window ones have the window number appended to the role: `full_window3.1.json`. Without this
+per-window ones have the window number appended to the role (`full_window3.1.json`,
+`probe_frame3.1.json`), and `probe_verify` the number of its `t_s` within the round
+(`probe_verify2.1.json`). Without this
 neither the iteration counter nor the detection of oscillation would survive a restart of the
 coordinator, and the human at step 6 would have nothing to be shown.
 
@@ -592,7 +611,8 @@ data/reviews/<VIDEO_ID>/<SAMPLE_ID>/<role>.<ROUND>.json
 ```
 
 where `<role>` is a value of `Role` in the contract: `semiblind`, `full_sample`, `full_window`,
-`probe_text`, `probe_vision`, `probe_frame`, `probe_full`, `probe_verify`.
+`probe_text`, `probe_vision`, `probe_frame`, `probe_full`, `probe_verify` — with the window
+index after `full_window` and `probe_frame`, and the number of the `t_s` after `probe_verify`.
 Reviews are not overwritten: the accumulated rounds make oscillation visible, which a single last
 file hides. The folder goes under git — otherwise the plan's requirement "generator ≠ judge ≠
 participant" cannot be checked after the fact: the sample remembers the flags but does not remember
@@ -657,7 +677,11 @@ python3 tools/coordinator_log.py <VIDEO_ID> check --final
 ```
 
 The check validates the JSON lines and requires every recorded launch to have exactly one terminal
-event. The operational log supplements rather than replaces `coordinator.<ROUND>.md`.
+event. `--final` also fails on an edit whose reruns have not happened (a terminally rejected sample
+owes none) and on a modality probe whose last run was cut at material the record no longer gives.
+`spawn` records the workspace and the version of the record it was cut from, and `finish` the role
+and verdict of the artifact; a finish under a name with no open launch is refused. The operational
+log supplements rather than replaces `coordinator.<ROUND>.md`.
 
 Before reporting, the subagent checks itself:
 

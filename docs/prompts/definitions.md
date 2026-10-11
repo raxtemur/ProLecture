@@ -1,10 +1,5 @@
 # Definitions
 
-> **2026-10-06.** The proposer's and the coordinator's prompts and the checklist refer to this
-> file. The reviewers' prompts are not yet brought in line with it; until they are, where they
-> differ, this file wins. The `Copied into:` lines name the prompts that are to carry a
-> copy; the copies are not there yet.
-
 The terms the proposer and the coordinator use, defined in one place. The proposer and the
 coordinator read this file once at the start of their work, and its definitions are binding
 for them. Where a prompt or the checklist words a term differently, this file wins.
@@ -148,7 +143,8 @@ explanation; ask about something the author does not say (a consequence, the dir
 error, an application to another case); lower the level to `L1`, except on a `predict`,
 `counterfact` or `extend`.
 
-Copied into: `reviewer_full_sample.md`, `reviewer_full_window.md`.
+Copied into: `reviewer_full_sample.md`, `reviewer_full_window.md` (without the reference in
+parentheses).
 
 ---
 
@@ -183,7 +179,9 @@ itself — the author says it, it appears on the screen — the window runs at l
 event, the time a streaming model needs to produce the answer, and it is not narrowed below
 that on the right.
 
-Copied into: `reviewer_full_window.md`.
+Copied into: `reviewer_full_window.md`, without what concerns `t_start` against the earliest
+possible answer, which the window reviewer does not measure: the parenthesis on it and the
+step over 10 s; there the step from 2 s on reads "over 2 s".
 
 ---
 
@@ -204,9 +202,11 @@ level is set by the required window — reading the sine, `L1`.
 A required window never depends on an optional one (`depends_on`). A `predict` sample has no
 optional window after its last required one: that stretch is where the author reveals the
 answer. On `L2`, `L3` and `predict` an optional window obeys the rule of the author's reveal
-like any window ("Boundary tolerance").
+like any window: it closes at least 10 s before the author says or shows the answer
+("Boundary tolerance").
 
-Copied into: `reviewer_full_sample.md` (without the paragraph below).
+Copied into: `reviewer_full_sample.md` (without the paragraph below and the reference in
+parentheses).
 
 **Scoring.** An answer inside an optional window is not counted as an answer outside the
 windows (FAR), and silence there is not penalised. The window enters neither the main PAUC nor

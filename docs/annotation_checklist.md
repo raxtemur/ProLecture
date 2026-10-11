@@ -1023,8 +1023,8 @@ animation is running, and the picture looks incomplete.
   *Status.* The semi-blind reviewer: their first stretch begins at zero (2.3), so the
   material up to `question_time` is theirs, and they do not know the answer. Verdict
   `FIX_QUESTION`: the reviewer writes `fail` with a `proposal`, and the coordinator rewords
-  the question. In the contract since 2026-10-05; a review is obliged to carry the line from
-  the next checklist version on, which comes together with the semi-blind reviewer's prompt.
+  the question. In the contract since 2026-10-05; a review carries the line from checklist
+  2026-10-11 on.
 
   *Frequency.* Found in the meta-review of the rounds of September 2026, which introduced
   the item.
@@ -1562,8 +1562,7 @@ merged into 4.2; the former 4.7 (recognising the video) became 4.3; the former 4
   in `proposal`. A question that checks no claim is `na`.
 
   *Status.* Step 0 of the sample reviewer, no frames needed. Verdict `CRITICAL_FAIL`. In the
-  contract since 2026-10-05; a review is obliged to carry the line from the next checklist
-  version on, which comes together with the sample reviewer's prompt.
+  contract since 2026-10-05; a review carries the line from checklist 2026-10-11 on.
 
   *Frequency.* Found in the meta-review of the rounds of September 2026, which introduced
   the item.
@@ -1974,9 +1973,8 @@ reviewer.
 
   *Status.* Step 1 of the sample reviewer, after 3.1: it needs the whole transcript and the
   screen index, because the author may reveal a prediction a minute after the window.
-  Verdict `FIX_QUESTION`. In the contract since 2026-10-05; a review is obliged to carry the
-  line from the next checklist version on, which comes together with the sample reviewer's
-  prompt.
+  Verdict `FIX_QUESTION`. In the contract since 2026-10-05; a review carries the line from
+  checklist 2026-10-11 on.
 
   *Frequency.* Found in the meta-review of the rounds of September 2026, which introduced
   the item together with the act `extend`.
@@ -2368,9 +2366,8 @@ anew in a month.
 - **New review items** (2026-09-30 to 2026-10-05) — 2.6 for the semi-blind reviewer, 4.9 and
   7.8 for the sample reviewer; the new wording of 4.8 and the derivation paragraph of 8.4,
   with `FIX_QUESTION` for a wrong reference (2026-10-02). They are in the contract with the
-  date 2026-10-05, and `CHECKLIST_VERSION` stays `2026-09-07` until the reviewer prompts
-  carry them: the reviews written meanwhile are saved under the current version and must
-  still pass.
+  date 2026-10-05; `CHECKLIST_VERSION` became `2026-10-11` together with the reviewer prompts
+  that carry them, and a review saved under `2026-09-07` is read by the rules of that version.
 - **`blind_solved` by the answer, not by the list of assumptions** (2026-09-30 to
   2026-10-02) — a reading the wording forces is not an assumption; recognising the video does
   not decide the flag; a sign, an index or a unit is substantive, and "a displayed number"
