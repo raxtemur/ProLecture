@@ -25,6 +25,7 @@ Examples::
         --source semiblind.3.json
     python3 tools/coordinator_log.py VIDEO check
     python3 tools/coordinator_log.py VIDEO check --final
+    python3 tools/coordinator_log.py VIDEO open --wait 50
 
 The log is append-only: a line is never edited or deleted. A wrong or missing record is
 repaired by appending a ``note`` that names the agent; ``check`` then tolerates the
@@ -76,6 +77,12 @@ cheaper one; ``harder`` — only by a harder route; ``no``; ``na`` when no probe
 and ``t_val`` is the earliest of ``t_val_a`` and the ``t_s`` verified ``yes``. The table
 itself lives in ``coordinator.<ROUND>.md``; the event is the machine-readable summary of it.
 
+``open`` lists the launches that have no finish yet and, for each, whether its subagent has
+already saved a review file that passes ``schema/review.py --check``. A completion notice
+reaches the coordinator only while its turn lasts and only while the agent tools work; the
+file on disk does not depend on either. ``--wait N`` polls for up to N seconds and returns as
+soon as one more launch has a valid file. It writes nothing to the log.
+
 ``sample-edit --span`` marks an edit of a window's ``evidence_span``. It is refused until
 that window's stretch has been adjudicated: a span is applied only after it has been checked
 against ``t_val`` (checklist 7.5).
@@ -90,6 +97,7 @@ import os
 import re
 import subprocess
 import sys
+import time
 from datetime import datetime
 from pathlib import Path
 
@@ -464,6 +472,66 @@ def check_stretch(rows: list[dict]) -> list[str]:
     return []
 
 
+def saved_review(path: Path, spawn: dict) -> Path | None:
+    """The review file the launch has saved since it started, if any: ``<role>.<iteration>``
+    with the role as logged (``full_window0``), a number after ``probe_verify`` and a letter
+    after the round (a repeat, ``probe_frame0.1b``)."""
+    role, iteration = spawn.get("role") or "", spawn.get("iteration")
+    pattern = re.compile(rf"{re.escape(role)}\d*\.{iteration}[a-z]?\.json")
+    try:
+        started = datetime.fromisoformat(spawn["ts"]).timestamp()
+    except (KeyError, ValueError):
+        started = 0.0
+    folder = path.parent / (spawn.get("sample_id") or "")
+    found = [f for f in folder.glob(f"{role}*.json")
+             if pattern.fullmatch(f.name) and f.stat().st_mtime >= started]
+    return max(found, key=lambda f: f.stat().st_mtime) if found else None
+
+
+def passes_check(review: Path) -> bool:
+    result = subprocess.run([sys.executable, str(REPO / "schema" / "review.py"), "--check",
+                             str(review)], capture_output=True, text=True, check=False)
+    return result.returncode == 0
+
+
+def ready_launches(path: Path) -> tuple[dict[str, dict], dict[str, tuple[Path | None, bool]]]:
+    events, _ = read_log(path)
+    launches = {agent: spawn for agent, (_, spawn) in open_launches(events).items()}
+    status = {}
+    for agent, spawn in launches.items():
+        review = saved_review(path, spawn)
+        status[agent] = (review, review is not None and passes_check(review))
+    return launches, status
+
+
+def show_open(path: Path, wait: float) -> int:
+    launches, status = ready_launches(path)
+    deadline = time.monotonic() + wait
+    ready = sum(ok for _, ok in status.values())
+    while wait and time.monotonic() < deadline and launches:
+        time.sleep(min(5.0, max(0.0, deadline - time.monotonic())))
+        launches, status = ready_launches(path)
+        if sum(ok for _, ok in status.values()) > ready:
+            break
+    now = datetime.now().astimezone()
+    print(f"open launches: {len(launches)}")
+    for agent, spawn in launches.items():
+        review, ok = status[agent]
+        try:
+            age = f"{(now - datetime.fromisoformat(spawn['ts'])).total_seconds() / 60:.0f} min"
+        except (KeyError, ValueError):
+            age = "age unknown"
+        where = (f"saved and passes --check: {review.relative_to(ROOT)}" if ok else
+                 f"saved, does not pass --check yet: {review.relative_to(ROOT)}" if review else
+                 "no review file yet")
+        print(f"  {agent} ({spawn.get('role')}, {spawn.get('sample_id')}, round "
+              f"{spawn.get('iteration')}), {age}: {where}")
+    if any(ok for _, ok in status.values()):
+        print("A file that passes --check is the subagent's result even if its completion notice "
+              "has not reached you: record the finish with --artifact <that file> and go on.")
+    return 0
+
+
 def parser() -> argparse.ArgumentParser:
     result = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -541,6 +609,12 @@ def parser() -> argparse.ArgumentParser:
     check.add_argument("--final", action="store_true",
                        help="also fail on kind-tagged edits whose reruns have not happened and "
                             "on probes whose material the record no longer gives")
+
+    shown = commands.add_parser("open", help="list the launches with no finish and the review "
+                                             "files their subagents have already saved")
+    shown.add_argument("--wait", type=float, default=0.0, metavar="SECONDS",
+                       help="poll up to this long; return as soon as one more launch has a "
+                            "file that passes --check")
     return result
 
 
@@ -655,6 +729,8 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "check":
         return validate_log(path, final=args.final)
+    if args.command == "open":
+        return show_open(path, args.wait)
 
     events, _ = read_log(path)
     warnings: list[str] = []

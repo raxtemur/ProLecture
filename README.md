@@ -369,6 +369,7 @@ the checks across samples.
 - Record every launch, result and edit with tools/coordinator_log.py <VIDEO_ID>, and
   run tools/validate_samples.py after every edit of an annotation file.
 - Do not stop after the first round, and do not count a skipped check as passed.
+- Do not end your turn while a subagent is running (docs/prompts/coordinator.md, §3).
 - If this session is compacted, re-read docs/prompts/coordinator.md before you continue.
 ```
 

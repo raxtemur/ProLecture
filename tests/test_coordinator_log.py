@@ -238,6 +238,60 @@ class CoordinatorLogCliTest(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("1 launches, 1 finishes, 0 sample edits", result.stdout)
 
+    def probe_file(self, sample_id, name, valid=True):
+        sys.path.insert(0, str(ROOT / "schema"))
+        import review  # noqa: E402
+        answer = review.ProbeAnswer(
+            checklist_version=review.CHECKLIST_VERSION, sample_id=sample_id, role="probe_text",
+            iteration=1, model="local", date="2026-10-13", workspace="ws",
+            budget=review.Budget(frames_viewed=0), answer="an answer", basis="lines 1-2",
+            confidence="high").model_dump(mode="json")
+        if not valid:
+            del answer["answer"]
+        path = self.log_root / "data" / "reviews" / "video-id" / sample_id / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(answer), encoding="utf-8")
+        return path
+
+    def test_open_tells_a_saved_review_from_a_running_agent(self):
+        self.assertEqual(self.spawn("q01_text", "sample-q01", "probe_text").returncode, 0)
+        self.assertEqual(self.spawn("q02_text", "sample-q02", "probe_text").returncode, 0)
+        self.assertEqual(self.spawn("q03_text", "sample-q03", "probe_text").returncode, 0)
+        self.probe_file("sample-q01", "probe_text.1.json")
+        self.probe_file("sample-q02", "probe_text.1.json", valid=False)
+
+        result = self.run_cli("open")
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("open launches: 3", result.stdout)
+        self.assertRegex(result.stdout, r"q01_text .*saved and passes --check: "
+                                        r"data/reviews/video-id/sample-q01/probe_text\.1\.json")
+        self.assertRegex(result.stdout, r"q02_text .*does not pass --check yet")
+        self.assertRegex(result.stdout, r"q03_text .*no review file yet")
+        self.assertIn("record the finish with --artifact", result.stdout)
+
+    def test_open_ignores_a_file_older_than_the_launch_and_finished_launches(self):
+        stale = self.probe_file("sample-q01", "probe_text.1.json")
+        hour_ago = stale.stat().st_mtime - 3600
+        os.utime(stale, (hour_ago, hour_ago))
+        self.assertEqual(self.spawn("q01_text", "sample-q01", "probe_text").returncode, 0)
+        self.assertEqual(self.spawn("q02_text", "sample-q02", "probe_text").returncode, 0)
+        self.assertEqual(self.finish("q02_text").returncode, 0)
+
+        result = self.run_cli("open")
+
+        self.assertIn("open launches: 1", result.stdout)
+        self.assertRegex(result.stdout, r"q01_text .*no review file yet")
+        self.assertNotIn("q02_text", result.stdout)
+
+    def test_open_finds_the_file_of_a_repeat(self):
+        self.assertEqual(self.spawn("q01_text_r1b", "sample-q01", "probe_text").returncode, 0)
+        self.probe_file("sample-q01", "probe_text.1b.json")
+
+        result = self.run_cli("open")
+
+        self.assertRegex(result.stdout, r"q01_text_r1b .*sample-q01/probe_text\.1b\.json")
+
     def test_check_rejects_a_launch_without_finish(self):
         self.assertEqual(self.spawn("agent-1", "sample-q01", "probe_text").returncode, 0)
 

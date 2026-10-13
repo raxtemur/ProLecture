@@ -649,7 +649,9 @@ def main() -> None:
     if args.frame is not None:
         # The frozen-frame probe must not even be given the boundaries: limits.json by
         # itself says up to what moment the material runs, and it must see one frame and
-        # nothing around it.
+        # nothing around it. A rebuild after the window has moved must not leave the frame of
+        # the old middle beside the new one, so the folder is emptied first.
+        shutil.rmtree(out / "frames", ignore_errors=True)
         n = extract_dense(args.video_id, out, args.frame, args.frame, 1.0, 1)
         print(f"working folder : {out}")
         print(f"  frame        : {n} of them at {args.frame:.0f} s")

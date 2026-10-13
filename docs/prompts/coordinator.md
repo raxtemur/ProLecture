@@ -148,6 +148,19 @@ sufficient when the answer meets the rubric of at least one of them. There is no
 barrier: one question may advance as soon as its own prerequisites are satisfied while
 cheap work for other questions continues to fill the remaining slots.
 
+**Do not end your turn while a subagent is running.** A completion notice reaches you only
+while your turn lasts: once it has ended, nothing wakes the session, and the finished results
+lie uncollected for hours. A progress report is written without ending the turn. End the turn
+only when the work on the video is done: no subagent is running and nothing is left to launch
+or decide. When there is nothing to do but wait, call `wait_agent` on the running agents
+with a timeout of about ten minutes, and call it again after it returns. `wait_agent` works
+only while the agent service is up; when it returns an error, the completion notices do not
+reach you either. Then wait in the shell instead: run
+`tools/coordinator_log.py <VIDEO_ID> open --wait 50`, with the shell call allowed about a
+minute before it yields, and repeat it. For every launch it reports as saved and passing
+`--check`, record the finish with that file as `--artifact`. Run the same command whenever a
+launch has been running much longer than its role usually takes.
+
 Normally, do not repair a question from the first cheap result while its other cheap
 reviewers are still running. Collect all the cheap results for the same question version,
 consolidate their findings together, resolve disagreements once, and apply one coherent

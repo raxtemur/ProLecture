@@ -215,6 +215,11 @@ class EdgeFramesTest(unittest.TestCase):
         self.assertNotIn("84.6", index)
         self.assertEqual(index.count("t000000.jpg"), 1)
 
+    def test_a_frame_folder_rebuilt_holds_only_the_new_frame(self):
+        self.run_main("--frame", "20")
+        self.run_main("--frame", "10.4")
+        self.assertEqual(self.seconds(), {10: "video 10.4"})
+
 
 if __name__ == "__main__":
     unittest.main()
