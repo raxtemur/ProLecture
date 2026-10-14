@@ -146,7 +146,9 @@ required window, with one frame each (the window's middle), and is logged as
 and their answer is scored against the rubric of every required window: a modality is
 sufficient when the answer meets the rubric of at least one of them. There is no global stage
 barrier: one question may advance as soon as its own prerequisites are satisfied while
-cheap work for other questions continues to fill the remaining slots.
+cheap work for other questions continues to fill the remaining slots. A finished agent keeps
+its slot until it is closed: call `close_agent` on it as soon as its `finish` is logged, or
+the next launches fail with "agent thread limit reached".
 
 **Do not end your turn while a subagent is running.** A completion notice reaches you only
 while your turn lasts: once it has ended, nothing wakes the session, and the finished results
@@ -308,7 +310,10 @@ report to the human.
 
 **Keep one append-only operational log per video.** Immediately after every successful
 subagent launch and terminal result, call `tools/coordinator_log.py <VIDEO_ID> spawn` or
-`finish`; after an applied sample change, call `sample-edit`. `spawn` takes `--workspace`, the
+`finish`; after an applied sample change, call `sample-edit`. A launch is successful once
+`spawn_agent` has returned an agent id: log its `spawn` then, never ahead of a batch of
+launches. If a launch whose `spawn` is already logged fails to start, log
+`finish --status failed` for it at once. `spawn` takes `--workspace`, the
 folder §5 prepared, and refuses it if the record has changed since; `finish` goes under the
 name the spawn was logged with, never under a thread id, and the tool refuses a name with no
 open launch. A span edit carries `--span` and is refused until its stretch has been
