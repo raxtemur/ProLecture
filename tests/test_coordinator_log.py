@@ -292,6 +292,20 @@ class CoordinatorLogCliTest(unittest.TestCase):
 
         self.assertRegex(result.stdout, r"q01_text_r1b .*sample-q01/probe_text\.1b\.json")
 
+    def test_a_note_naming_the_record_file_relative_to_the_repository_is_read(self):
+        ws = self.workspace("q01_text", "sample-q01", "probe_text")
+        note_path = Path(str(ws) + ".inputs.json")
+        note = json.loads(note_path.read_text(encoding="utf-8"))
+        note["annotations"] = "data/annotations/video-id.jsonl"
+        note_path.write_text(json.dumps(note), encoding="utf-8")
+
+        self.assertEqual(self.spawn("q01_text", "sample-q01", "probe_text", workspace=ws).returncode, 0)
+        self.assertEqual(self.finish("q01_text").returncode, 0)
+        result = self.run_cli("check", "--final")
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(self.read_events()[0]["annotations"], "data/annotations/video-id.jsonl")
+
     def test_check_rejects_a_launch_without_finish(self):
         self.assertEqual(self.spawn("agent-1", "sample-q01", "probe_text").returncode, 0)
 

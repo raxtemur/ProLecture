@@ -112,6 +112,14 @@ class ReviewInputsTest(unittest.TestCase):
         self.assertNotEqual(review_inputs.record_sha(self.RECORD),
                             review_inputs.record_sha(edited))
 
+    def test_a_file_inside_the_repository_is_named_relative_to_it(self):
+        root = Path(self.tmp.name) if hasattr(self, "tmp") else Path(tempfile.mkdtemp())
+        inside = root / "data" / "annotations" / "vid.jsonl"
+        self.assertEqual(review_inputs.portable(inside, root), "data/annotations/vid.jsonl")
+        self.assertEqual(review_inputs.locate(root, "data/annotations/vid.jsonl"), inside)
+        self.assertEqual(review_inputs.portable(Path("/elsewhere/x.jsonl"), root), "/elsewhere/x.jsonl")
+        self.assertEqual(review_inputs.locate(root, "/elsewhere/x.jsonl"), Path("/elsewhere/x.jsonl"))
+
     def test_out_with_a_space_is_refused(self):
         script = Path(workspace.__file__)
         result = subprocess.run([sys.executable, str(script), "vid", "--out", "ws/q06 full_sample",

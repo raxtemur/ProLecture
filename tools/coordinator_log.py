@@ -276,7 +276,8 @@ def stale_inputs(spawn: dict) -> str | None:
     if not inputs or role not in review_inputs.STALE_ROLES or not spawn.get("annotations"):
         return None
     try:
-        _, record = review_inputs.find_record(REPO, spawn["sample_id"], Path(spawn["annotations"]))
+        _, record = review_inputs.find_record(
+            REPO, spawn["sample_id"], review_inputs.locate(ROOT, spawn["annotations"]))
         current = review_inputs.derive_inputs(role, record, spawn.get("window"))
     except (OSError, review_inputs.InputsError) as exc:
         return f"its material cannot be derived from the record any more: {exc}"
@@ -288,7 +289,7 @@ def stale_inputs(spawn: dict) -> str | None:
 def record_statuses(path: Path, events: list[tuple[int, dict]]) -> dict[str, str]:
     """validation.status of every sample the log names, read from the annotation files its
     launches were prepared from, or from data/annotations/<VIDEO_ID>.jsonl."""
-    files = {Path(e["annotations"]) for _, e in events if e.get("annotations")}
+    files = {review_inputs.locate(ROOT, e["annotations"]) for _, e in events if e.get("annotations")}
     files.add(ROOT / "data" / "annotations" / f"{path.parent.name}.jsonl")
     statuses: dict[str, str] = {}
     for file in files:
@@ -640,7 +641,8 @@ def spawn_event(args: argparse.Namespace, events: list[tuple[int, dict]]) -> dic
         if window is not None and note.get("window") not in (None, window):
             raise review_inputs.InputsError(
                 f"{args.workspace} was cut at window {note.get('window')}, not {window}")
-        _, record = review_inputs.find_record(REPO, args.sample_id, Path(note["annotations"]))
+        _, record = review_inputs.find_record(
+            REPO, args.sample_id, review_inputs.locate(ROOT, note["annotations"]))
         if review_inputs.record_sha(record) != note.get("record_sha"):
             raise review_inputs.InputsError(
                 f"{args.sample_id} has changed since {args.workspace} was prepared: prepare it "

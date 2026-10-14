@@ -71,6 +71,23 @@ def find_record(root: Path, sample_id: str, annotations: Path | None = None) -> 
     return path.resolve(), record
 
 
+def portable(path: Path, root: Path) -> str:
+    """The file as the repository names it: relative to the root when it lies inside it.
+
+    A job container mounts the same repository under another path, and `resolve()` there
+    writes that path into the note; read back in the notebook, it names nothing."""
+    try:
+        return str(path.resolve().relative_to(root.resolve()))
+    except ValueError:
+        return str(path)
+
+
+def locate(root: Path, name: str) -> Path:
+    """A path from a note or a log line: relative ones are relative to the repository root."""
+    path = Path(name)
+    return path if path.is_absolute() else root / path
+
+
 def record_sha(record: dict) -> str:
     """The version of a record: any edit of it — a boundary, a note, the status — changes it."""
     text = json.dumps(record, sort_keys=True, ensure_ascii=False, separators=(",", ":"))

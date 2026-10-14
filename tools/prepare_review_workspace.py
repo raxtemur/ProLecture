@@ -484,7 +484,7 @@ def derive_from_record(args: argparse.Namespace) -> dict:
         args.frame = inputs["frame"]
     else:
         args.until = inputs["until"]
-    return {"sample_id": args.sample_id, "annotations": str(path),
+    return {"sample_id": args.sample_id, "annotations": review_inputs.portable(path, ROOT),
             "record_sha": review_inputs.record_sha(record), "role": args.role,
             "window": args.window, "inputs": inputs}
 
