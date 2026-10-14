@@ -184,6 +184,30 @@ class CoordinatorLogCliTest(unittest.TestCase):
         self.assertEqual(result.returncode, 1)
         self.assertIn("earliest of t_val_a and the t_s verified yes is 690.0", result.stderr)
 
+    def test_a_stretch_logged_stage_by_stage_holds_the_boundary_as_it_stood(self):
+        # stage A as soon as the semi-blind review is scored, stage C once its probe has run
+        self.assertEqual(self.adjudicate(
+            "--window", "0", "--t-val-a", "300.0", "--verified", "na",
+            "--t-val", "300.0").returncode, 0)
+        self.assertEqual(self.adjudicate(
+            "--window", "0", "--t-val-a", "300.0", "--t-s", "295.0", "--t-s-source", "annotation",
+            "--verified", "yes", "--t-val", "295.0").returncode, 0)
+        result = self.run_cli("check")
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+        # an earlier row that holds neither the boundary of its time nor the final one
+        row = {"event": "adjudicate", "sample_id": "q10", "iteration": 1, "window": 0,
+               "t_val_a": 300.0, "source": "semiblind.1.json"}
+        self.write_log({**row, "t_s": None, "verified": "na", "t_val": 298.0},
+                       {**row, "t_s": 295.0, "t_s_source": "annotation", "verified": "yes",
+                        "t_val": 295.0}, video="v2")
+        result = self.run_for_video("v2", "check")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("line 1: q10, round 1, window 0: t_val 298.0 but the earliest of t_val_a "
+                      "and the t_s verified yes is 300.0 after this row and 295.0 at the end",
+                      result.stderr)
+        self.assertNotIn("line 2", result.stderr)
+
     def test_a_harder_route_leaves_t_val_at_t_val_a(self):
         self.assertEqual(self.adjudicate(
             "--window", "0", "--t-val-a", "704.0", "--t-s", "690.0", "--t-s-source", "full_sample",

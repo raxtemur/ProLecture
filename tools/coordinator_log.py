@@ -74,7 +74,9 @@ ends early, ``provenance`` for a reference that places the evidence before the w
 verification probe did at ``t_s`` (``yes`` — met the rubric by the route of the level or a
 cheaper one; ``harder`` — only by a harder route; ``no``; ``na`` when no probe was needed),
 ``t_val`` the resulting boundary. A stretch with several ``t_s`` gets one event per ``t_s``,
-and ``t_val`` is the earliest of ``t_val_a`` and the ``t_s`` verified ``yes``. The table
+and ``t_val`` is the earliest of ``t_val_a`` and the ``t_s`` verified ``yes``. An event may be
+logged as soon as its stage is done: its ``t_val`` is then the boundary as it stands after it,
+and the stretch's last event holds the final one. The table
 itself lives in ``coordinator.<ROUND>.md``; the event is the machine-readable summary of it.
 
 ``open`` lists the launches that have no finish yet and, for each, whether its subagent has
@@ -382,8 +384,8 @@ def validate_log(path: Path, final: bool = False) -> int:
             errors.append(f"line {line_number}: unknown event: {event_type!r}")
 
     for (sample_id, iteration, window), rows in stretches.items():
-        errors += [f"line {rows[-1][0]}: {sample_id}, round {iteration}, window {window}: {e}"
-                   for e in check_stretch([event for _, event in rows])]
+        errors += [f"line {rows[index][0]}: {sample_id}, round {iteration}, window {window}: {e}"
+                   for index, e in check_stretch([event for _, event in rows])]
 
     for agent in sorted(active - noted):
         errors.append(f"launch without finish: {agent}")
@@ -458,19 +460,31 @@ def check_adjudication(event: dict) -> list[str]:
     return problems
 
 
-def check_stretch(rows: list[dict]) -> list[str]:
-    """All rows of one stretch agree: one t_val_a, and t_val the earliest of t_val_a and the
-    t_s that the verification probe passed by the route of the level or a cheaper one."""
+def check_stretch(rows: list[dict]) -> list[tuple[int, str]]:
+    """All rows of one stretch agree on t_val_a, and the stretch ends on t_val the earliest of
+    t_val_a and the t_s that the verification probe passed by the route of the level or a
+    cheaper one. A row logged as soon as its stage is done holds the boundary as it stood then
+    (stage A before stage C has run); a row logged after the stretch holds the final one. Either
+    is right for a row before the last; the last one holds the final boundary. Returns the
+    index of each wrong row with its problem."""
     t_val_as = {row.get("t_val_a") for row in rows}
     if len(t_val_as) > 1:
-        return [f"rows disagree on t_val_a: {sorted(t_val_as, key=str)}"]
+        return [(len(rows) - 1, f"rows disagree on t_val_a: {sorted(t_val_as, key=str)}")]
     candidates = [t for t in [rows[0].get("t_val_a")] if t is not None]
-    candidates += [row["t_s"] for row in rows if row.get("verified") == "yes" and row.get("t_s") is not None]
-    expected = min(candidates) if candidates else None
-    wrong = sorted({row.get("t_val") for row in rows if row.get("t_val") != expected}, key=str)
-    if wrong:
-        return [f"t_val {wrong} but the earliest of t_val_a and the t_s verified yes is {expected}"]
-    return []
+    so_far = []
+    for row in rows:
+        if row.get("verified") == "yes" and row.get("t_s") is not None:
+            candidates.append(row["t_s"])
+        so_far.append(min(candidates) if candidates else None)
+    final = so_far[-1]
+    problems = []
+    for index, (row, then) in enumerate(zip(rows, so_far)):
+        if row.get("t_val") in (then, final):
+            continue
+        expected = f"{final}" if then == final else f"{then} after this row and {final} at the end"
+        problems.append((index, f"t_val {row.get('t_val')} but the earliest of t_val_a and the "
+                                f"t_s verified yes is {expected}"))
+    return problems
 
 
 def saved_review(path: Path, spawn: dict) -> Path | None:
@@ -602,7 +616,8 @@ def parser() -> argparse.ArgumentParser:
                           "route of the level or a cheaper one), harder (only by a harder "
                           "route), no; na when no probe was needed")
     adj.add_argument("--t-val", type=float, default=None,
-                     help="the resulting boundary of the stretch; omit if none")
+                     help="the boundary as it stands after this event: the earliest of t_val_a "
+                          "and the t_s verified yes so far; omit if none")
     adj.add_argument("--source", required=True,
                      help="the semi-blind review the trajectory came from")
 
