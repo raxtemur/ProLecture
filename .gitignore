@@ -17,6 +17,7 @@ demo/media/
 # runs of the models under evaluation: produced by scripts that live outside this repository,
 # so committing them would fix numbers nothing here can reproduce
 data/outputs/
+data/eval/
 
 # paper sources: we keep only the reviews and the figures
 articles/*/paper.pdf
