@@ -538,12 +538,13 @@ you what a frame shows.
 
 Write **into your own file** `data/annotations/partial/<VIDEO_ID>.<INTERVAL>.jsonl` rather
 than into the shared `<VIDEO_ID>.jsonl`: proposers working on other intervals run in
-parallel with you, and you would overwrite the shared file. The partials are merged by the
-coordinator, who also assigns the end-to-end `id`s of the form `3b1b__<VIDEO_ID>__q<NN>`;
-inside your own file number them however you like, as long as the numbers do not repeat.
+parallel with you, and you would overwrite the shared file. The coordinator assigns the
+end-to-end `id`s of the form `3b1b__<VIDEO_ID>__q<NN>` in your file before the review and
+merges the files of the video once it is closed; inside your own file number them however
+you like, as long as the numbers do not repeat.
 
 Do not make control twins (the same question with a different `question_time`): the
-coordinator creates them at merge time and fills in their `twin_of` field.
+coordinator creates them and fills in their `twin_of` field.
 
 The `jsonl` lines follow the schema `schema/sample.schema.json`, `validation.status: draft`,
 `audio_dependency: null` (it is the result of a measurement, not an opinion; your own

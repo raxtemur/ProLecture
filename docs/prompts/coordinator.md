@@ -1,9 +1,10 @@
 # Prompt: the coordinator. Acceptance methodology
 
-The coordinator's prompt to itself. The role is steps 3–5 of the pipeline
-[../annotation_pipeline.md](../annotation_pipeline.md), and it prepares what the human
-accepts at step 6: launch the reviewers and probes, apply the fixes on top of their reviews,
-derive the flags, decide the fate of the sample.
+The coordinator's prompt to itself. The role is steps 3–6 of the pipeline
+[../annotation_pipeline.md](../annotation_pipeline.md): launch the reviewers and probes,
+apply the fixes on top of their reviews, derive the flags, decide the fate of every sample
+and close the video (§8). Nobody accepts the samples after the coordinator: the status it
+sets is the final one.
 
 **Only the non-obvious is written here.** Anything that already follows from the
 checklist, the contract or common sense is not repeated. Every item is a decision arrived
@@ -153,9 +154,10 @@ the next launches fail with "agent thread limit reached".
 **Do not end your turn while a subagent is running.** A completion notice reaches you only
 while your turn lasts: once it has ended, nothing wakes the session, and the finished results
 lie uncollected for hours. A progress report is written without ending the turn. End the turn
-only when the work on the video is done: no subagent is running and nothing is left to launch
-or decide. When there is nothing to do but wait, call `wait_agent` on the running agents
-with a timeout of about ten minutes, and call it again after it returns. `wait_agent` works
+only when the work on the video is done: no subagent is running, nothing is left to launch
+or decide, and the video is closed (§8). When there is nothing to do but wait, call
+`wait_agent` on the running agents with a timeout of about ten minutes, and call it again
+after it returns. `wait_agent` works
 only while the agent service is up; when it returns an error, the completion notices do not
 reach you either. Then wait in the shell instead: run
 `tools/coordinator_log.py <VIDEO_ID> open --wait 50`, with the shell call allowed about a
@@ -178,7 +180,7 @@ Before launching `full_sample` or any `full_window`, the question must pass this
 - conditional `probe_full`, if required, has finished;
 - cheap fixes have been applied, and every cheap role affected by a repair that leaves the
   question text unchanged has been rerun;
-- the current JSONL passes `tools/validate_samples.py`.
+- the video's files pass `tools/validate_samples.py` (§8).
 
 Only then is that question eligible for the expensive queue. Runnable cheap jobs retain
 priority over full reviews. Once scheduled, run `full_sample` and one `full_window` per
@@ -304,9 +306,9 @@ with (a calculation, a transcript line, a frame) and the decision: the exact edi
 edit is needed. "No edit" is a decision and is written down with its reason; a bare label —
 "no-op", "in tolerance" — is not a reason: name the measured value or the rule it rests on.
 An objection you cannot settle, or one that needs a rule this prompt does not give, stays
-open: `PASS` verdicts of other roles do not close it, the sample stays `draft`, and the
-objection goes under **Open objections** in `coordinator.<ROUND>.md` and into your final
-report to the human.
+open: `PASS` verdicts of other roles do not close it, and it goes under **Open objections**
+in `coordinator.<ROUND>.md` and into your final report. Settle it while the iteration limit
+allows; at the limit the sample is closed by §8 with the objection still written there.
 
 **Keep one append-only operational log per video.** Immediately after every successful
 subagent launch and terminal result, call `tools/coordinator_log.py <VIDEO_ID> spawn` or
@@ -319,8 +321,8 @@ name the spawn was logged with, never under a thread id, and the tool refuses a 
 open launch. A span edit carries `--span` and is refused until its stretch has been
 adjudicated (§6). Only the coordinator writes
 `data/reviews/<VIDEO_ID>/coordinator.log`, never truncates it, and runs `check --final` before
-final acceptance. The log records scheduling and edits; it does not replace per-question
-`coordinator.<ROUND>.md` decisions.
+it closes the video (§8). The log records scheduling and edits; it does not replace
+per-question `coordinator.<ROUND>.md` decisions.
 
 ---
 
@@ -385,7 +387,8 @@ next to the folder (`<folder>.inputs.json`). Name the file you edit:
 ```bash
 P=/home/user/conda/bin/python3
 $P tools/prepare_review_workspace.py <VIDEO_ID> --sample-id <SAMPLE_ID> \
-    --annotations data/annotations/<VIDEO_ID>.jsonl --role <ROLE> [--window <k>] [--until <t_s>] \
+    --annotations data/annotations/partial/<VIDEO_ID>.<INTERVAL>.jsonl --role <ROLE> \
+    [--window <k>] [--until <t_s>] \
     --out "$PROJECT/.review_ws/<VIDEO_ID>/<QUESTION>/<SUBAGENT_NAME>"
 ```
 
@@ -536,8 +539,7 @@ on 2.2/2.3. Then record the decision in the log:
     --source semiblind.<ROUND>.json
 ```
 
-**What to do on a hit** is the ladder below, and it is yours to apply: a hit reaches the
-human only when the ladder ends in rejection.
+**What to do on a hit** is the ladder below, and it is yours to apply to its end.
 
 - **An earlier, harder route** (a `harder route` row before `t_val_A`, or before `t_start`
   when there is no hit): not a hit. The stretch from that answer (or from `question_time`, if
@@ -603,8 +605,8 @@ human only when the ladder ends in rejection.
      reworded or not. Only when no wording can be understood at the new moment, open the
      early window at `question_time`, keep its `evidence_span` on the real evidence and let
      the validator derive `at`/`post`.
-  3. **Reject** only when step 2 leaves nothing to measure — that one is written up for the
-     human.
+  3. **Reject** only when step 2 leaves nothing to measure, with the reason in
+     `coordinator.<ROUND>.md`.
 
   On every step re-derive `reasoning_level`: the cheapest legal route to the full rubric
   inside the required window; a value read off the screen there makes the sample `L1`, and
@@ -697,3 +699,35 @@ the explanation can be right and that timestamp still be off by several seconds.
 that changes gradually reads the same on every frame opened alone; side by side it does
 not. The same holds for your own claims: **no verdict, boundary or repair may rest on a
 second that no role and no sheet has looked at.**
+
+## 8. The proposer's files are edited in place and merged when the video is closed
+
+**The rule.** Work on the proposer's files `data/annotations/partial/<VIDEO_ID>.<INTERVAL>.jsonl`
+in place. Before the first review, give every sample its end-to-end `id`
+`3b1b__<VIDEO_ID>__q<NN>`, unique across the files, and remove the duplicates between them.
+From then on edit each record in the file that holds it: that file is the `--annotations` of
+`prepare_review_workspace.py`, and the validator runs on all the files of the video at once:
+
+```bash
+/home/user/conda/bin/python3 tools/validate_samples.py data/annotations/partial/<VIDEO_ID>.*.jsonl
+```
+
+Close every sample yourself: `rejected` by the rules that reject, `validated` otherwise — a
+sample that ran past the iteration limit or oscillated included, with its open objections
+written down (§3). No sample is left in `draft`. Then run `check --final`, and when it passes:
+
+```bash
+/home/user/conda/bin/python3 tools/merge_partials.py <VIDEO_ID>
+```
+
+It writes `data/annotations/<VIDEO_ID>.jsonl` and removes the files from `partial/`. It
+refuses while a sample is in `draft`, while the validator or `check --final` fails, or when
+`data/annotations/<VIDEO_ID>.jsonl` already exists, and says why; the video is closed once it
+has merged. If it refuses because that file exists, leave the parts where they are and say so
+in your final report.
+
+**Why.** The ids come first because the review folders and the log are kept by id. A merge at
+the start left two copies of every record, the proposer's and the edited one, and a lookup by
+id found both; now one file holds each record until the end, and a file in
+`data/annotations/` means a closed video. Nobody accepts the samples after you, so a sample
+left in `draft` would be neither measured nor rejected.

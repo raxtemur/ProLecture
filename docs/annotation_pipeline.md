@@ -34,7 +34,7 @@ The pipeline is designed around three constraints:
              │
    ┌─────────▼──────────┐
    │  Step 1. Proposer  │  prompts/proposer.md
-   │  generates questions│ → data/annotations/<id>.jsonl (status: draft)
+   │  generates questions│ → data/annotations/partial/<id>.<interval>.jsonl (status: draft)
    └─────────┬──────────┘
              │
    ┌─────────▼──────────┐
@@ -64,10 +64,11 @@ The pipeline is designed around three constraints:
              │
              │
    ┌─────────▼──────────┐
-   │  Step 6. A human   │  mandatory acceptance, not only on failure
+   │  Step 6. Closing   │  the coordinator: every sample validated or rejected,
+   │  the video         │  check --final, the files merged (tools/merge_partials.py)
    └─────────┬──────────┘
              ▼
-        status: draft → ready for the measurement phase
+        data/annotations/<id>.jsonl → the measurement phase
 ```
 
 ---
@@ -95,17 +96,18 @@ aligns the boundaries to frames, writes the `jsonl`. The prompt is
 [prompts/proposer.md](prompts/proposer.md).
 
 If the video is long, the step is split across subagents by chapter: each gets its own interval
-and returns candidate questions, and the coordinator merges them, removes duplicates and brings
-them to a common numbering. The point of the split is not speed but the coordinator's context:
+and returns candidate questions, and the coordinator removes duplicates and brings them to a
+common numbering. The point of the split is not speed but the coordinator's context:
 looking at frames eats it fastest.
 
 Parallel proposers **do not write into a common file**: each puts its candidates into
-`data/annotations/partial/<VIDEO_ID>.<interval>.jsonl`, and only the coordinator merges them into
-`<VIDEO_ID>.jsonl`, assigning end-to-end `id`s. Otherwise they would overwrite each other's file
-and collide on identical question numbers.
+`data/annotations/partial/<VIDEO_ID>.<interval>.jsonl`. The coordinator assigns end-to-end
+`id`s across the files before the first review, edits each record in the file that holds it, and
+merges the files into `<VIDEO_ID>.jsonl` only when the video is closed (step 6). Otherwise they
+would overwrite each other's file and collide on identical question numbers.
 
 Control twins (the same question with a different `question_time`) are created by the coordinator
-at merge time, not by the proposer: a twin by definition requires seeing the pair as a whole.
+(step 5), not by the proposer: a twin by definition requires seeing the pair as a whole.
 
 ## Step 2. The validator
 
@@ -520,7 +522,7 @@ per-window ones have the window number appended to the role (`full_window3.1.jso
 `probe_frame3.1.json`), and `probe_verify` the number of its `t_s` within the round
 (`probe_verify2.1.json`). Without this
 neither the iteration counter nor the detection of oscillation would survive a restart of the
-coordinator, and the human at step 6 would have nothing to be shown.
+coordinator.
 
 The review is checked for completeness before it is applied: it must contain a line for every item
 assigned to the mode — with the value `ok`, `fail`, `skipped` or `na`. A missing line is
@@ -530,10 +532,11 @@ eye.
 
 Limiters without which the cycle may not converge:
 
-- **no more than three iterations** per question; after the third the question goes to a human
-  with the accumulated reviews;
-- **oscillation** (the reviewers demand opposite things in turn) is also a stop and a handover to
-  a human: usually it means the wording of the question is vague, not the boundaries;
+- **no more than three iterations** per question; after the third the coordinator stops editing
+  and closes the question on what it has: `rejected` by the rules that reject, `validated`
+  otherwise, with the objections still open written down;
+- **oscillation** (the reviewers demand opposite things in turn) is also a stop, closed the same
+  way: usually it means the wording of the question is vague, not the boundaries;
 - **the first measurement stands.** If two reviewer measurements of the same edge disagree within
   2 s, the first stands and the second is a note, and no verdict may hinge on such a gap
   (checklist, preamble of group 2);
@@ -567,29 +570,26 @@ whole set rather than on individual files.
 On a hit the edit goes back to step 4, and **both** twins go for a repeat review: changing one of
 the pair changes the meaning of the comparison for both.
 
-It follows from the same that a twin is cheaper to create not when merging the partials but after
-the base sample has been through the cycle: otherwise both halves drift independently and the
+It follows from the same that a twin is cheaper to create not when numbering the partials but
+after the base sample has been through the cycle: otherwise both halves drift independently and the
 divergence has to be fixed twice.
 
-## Step 6. Acceptance by a human
+## Step 6. Closing the video
 
-The extent of this step changes over time, and that is worth stating explicitly.
+The coordinator closes every sample itself: `rejected` by the rules that reject, `validated`
+otherwise. Nobody accepts the samples after it, so no sample is left in `draft`: a `draft` would
+be neither measured nor rejected. A sample whose cycle ran past the iteration limit or oscillated
+is closed the same way, with the objections still open written in its `coordinator.<ROUND>.md`.
 
-This step does not contradict the fact that level `[H]` in the checklist is empty: an empty `[H]`
-means "no item waits for a human", while acceptance checks not the items but the checklist itself —
-that it catches everything it needs to.
+When every sample is closed and `tools/coordinator_log.py <VIDEO_ID> check --final` passes, the
+coordinator runs `tools/merge_partials.py <VIDEO_ID>`. It refuses while a sample is in `draft`,
+an `id` is not end-to-end or repeats, the validator or `check --final` fails, or
+`data/annotations/<VIDEO_ID>.jsonl` already exists (an earlier annotation of the video is never
+overwritten); otherwise it writes that file in the order of the `id`s and removes the files from
+`partial/`. A video is closed when its file in `data/annotations/` exists.
 
-**For now, while the pipeline is being calibrated, acceptance is exhaustive.** We do not yet know
-which errors the automatic cycle lets through, and the only way to find out is to look at
-everything and compare with what the reviewers found. The side result of this step matters more
-than its direct one: it yields new checklist items.
-
-**Later it becomes selective**, plus necessarily everything the cycle could not close by itself:
-questions with a `CRITICAL_FAIL`, those that went over the iteration limit, oscillating ones, and
-those with `skipped` items left at the last iteration.
-
-The human is given: the sample itself, the accumulated reviews from `data/reviews/` and the list
-of items marked `skipped` at the last iteration.
+Reading the closed videos is outside the pipeline: it corrects the roles, the checklist and the
+tools, not the statuses (see "What to measure the pipeline itself with").
 
 Recorded separately is **which model played the proposer and the reviewers**: the plan requires it
 to be excluded from the final table of results, and that can only be done after the fact if the
@@ -643,13 +643,13 @@ What must be in it, one paragraph per decision:
   flags, `solvable` from the single-modality ones. It is enough to name the rule and the numbers
   substituted;
 - **what was changed in the sample** — the field, before, after;
-- **what was left unresolved** — items with `skipped`, discrepancies between rounds, questions for
-  the human.
+- **what was left unresolved** — items with `skipped`, discrepancies between rounds, objections
+  still open at the iteration limit.
 
 Why this is needed when the coordinator remembers everything anyway: they do not. The context gets
 compressed, and two rounds later there is nowhere to recover the grounds for a flag from — while
-the flag will survive the session and travel into the dataset. Besides, the human at step 6
-otherwise sees the result but not what it was obtained from. And most importantly: the coordinator
+the flag will survive the session and travel into the dataset. Besides, whoever reads the closed
+video later would see the result but not what it was obtained from. And most importantly: the coordinator
 is the only participant who both **edits the samples** and **judges the probe answers**. We have
 deliberately not separated those roles for now; in that case the only thing distinguishing a
 decision from arbitrariness is the recorded grounds.
@@ -670,7 +670,7 @@ caused them. Timestamps come from the coordinator process in ISO 8601 with an of
 not write this file, resumed sessions append to it rather than truncating it, and unknown historical
 start times are never reconstructed as facts.
 
-Before final acceptance, run:
+Before closing the video, run:
 
 ```bash
 python3 tools/coordinator_log.py <VIDEO_ID> check --final
@@ -756,22 +756,21 @@ another):
 
 ## What is automated
 
-Steps 0 and 2 are tools, step 1 is the proposer agent. Steps 3–4 are run by the coordinator agent
+Steps 0 and 2 are tools, step 1 is the proposer agent. Steps 3–6 are run by the coordinator agent
 from its prompt, with
 `tools/prepare_review_workspace.py` (the workspaces of the roles, dense frames and sheets on
-request), `tools/coordinator_log.py` (the operational log) and the contract `schema/review.py`
-(the completeness of a review, `--check`). Launching the roles and merging their verdicts are not
+request), `tools/coordinator_log.py` (the operational log), `tools/merge_partials.py` (closing
+the video) and the contract `schema/review.py` (the completeness of a review, `--check`). Launching the roles and merging their verdicts are not
 automated: the coordinator does both by hand.
 
 ## What to measure the pipeline itself with
 
-Step 6 exists to find what the automation missed, but "finding" has to be turned into a count,
-otherwise there will be nothing to improve the pipeline by. Three quantities worth counting from
-the very first run:
+Reading the closed videos exists to find what the automation missed, but "finding" has to be
+turned into a count, otherwise there will be nothing to improve the pipeline by. Three quantities
+worth counting from the very first run:
 
-- how many errors only the human found — that is what replenishes the checklist;
-- how many of the reviewers' proposals the human rejected — the false alarm rate; it is exactly
-  what decides whether selective acceptance can be adopted;
+- how many errors only the reader found — that is what replenishes the checklist;
+- how many of the reviewers' proposals the reader would have rejected — the false alarm rate;
 - how many items were marked `ok` but turned out to be broken — the most expensive category.
 
 A cheap way to check the pipeline before it spoils anything: run it on the already annotated ten

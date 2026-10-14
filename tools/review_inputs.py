@@ -65,10 +65,19 @@ def find_record(root: Path, sample_id: str, annotations: Path | None = None) -> 
     if len(found) > 1:
         names = ", ".join(str(path.relative_to(root)) for path, _ in found)
         raise InputsError(f"record {sample_id!r} is in several files: {names}. Name the one "
-                          f"you are editing with --annotations <file> — the coordinator edits "
-                          f"data/annotations/<VIDEO_ID>.jsonl, the proposer's output stays in partial/")
+                          f"you are editing with --annotations <file> — until the video is "
+                          f"merged, the coordinator edits the proposer's files in "
+                          f"data/annotations/partial/")
     path, record = found[0]
     return path.resolve(), record
+
+
+def find_logged_record(root: Path, sample_id: str, name: str) -> tuple[Path, dict]:
+    """The record a workspace note or a log line names by its file: from that file while it
+    exists, and from wherever the record is now once it is gone — the proposer's files in
+    partial/ are merged into data/annotations/<VIDEO_ID>.jsonl when the video is closed."""
+    path = locate(root, name)
+    return find_record(root, sample_id, path if path.exists() else None)
 
 
 def portable(path: Path, root: Path) -> str:

@@ -278,8 +278,7 @@ def stale_inputs(spawn: dict) -> str | None:
     if not inputs or role not in review_inputs.STALE_ROLES or not spawn.get("annotations"):
         return None
     try:
-        _, record = review_inputs.find_record(
-            REPO, spawn["sample_id"], review_inputs.locate(ROOT, spawn["annotations"]))
+        _, record = review_inputs.find_logged_record(ROOT, spawn["sample_id"], spawn["annotations"])
         current = review_inputs.derive_inputs(role, record, spawn.get("window"))
     except (OSError, review_inputs.InputsError) as exc:
         return f"its material cannot be derived from the record any more: {exc}"
@@ -656,8 +655,7 @@ def spawn_event(args: argparse.Namespace, events: list[tuple[int, dict]]) -> dic
         if window is not None and note.get("window") not in (None, window):
             raise review_inputs.InputsError(
                 f"{args.workspace} was cut at window {note.get('window')}, not {window}")
-        _, record = review_inputs.find_record(
-            REPO, args.sample_id, review_inputs.locate(ROOT, note["annotations"]))
+        _, record = review_inputs.find_logged_record(ROOT, args.sample_id, note["annotations"])
         if review_inputs.record_sha(record) != note.get("record_sha"):
             raise review_inputs.InputsError(
                 f"{args.sample_id} has changed since {args.workspace} was prepared: prepare it "

@@ -17,7 +17,8 @@ data/
 │   ├── screen_text.md             # on-screen text, each line once, at its first appearance
 │   └── frames/tNNNNNN.N.jpg       # frames from scene-change detection
 └── annotations/<youtube_id>.jsonl # ← the annotation itself, one sample per line
-    └── partial/<id>.<interval>.jsonl  # a proposer's own file, merged by the coordinator
+    └── partial/<id>.<interval>.jsonl  # a proposer's file; the coordinator edits it in place
+                                       # and merges the files when the video is closed
 ```
 
 `schema/sample.schema.json` — JSON Schema draft 2020-12, `additionalProperties: false` at

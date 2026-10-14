@@ -676,6 +676,27 @@ class CoordinatorLogCliTest(unittest.TestCase):
         result = self.run_cli("check", "--final")
         self.assertEqual(result.returncode, 0, result.stderr)
 
+    def test_a_probe_prepared_from_a_part_is_checked_against_the_merged_file(self):
+        part = self.annotations.parent / "partial" / "video-id.a.jsonl"
+        part.parent.mkdir()
+        self.annotations.rename(part)
+        self.annotations = part
+        self.assertEqual(self.spawn("pf_r1", "sample-q05", "probe_frame1").returncode, 0)
+        self.assertEqual(self.finish("pf_r1").returncode, 0)
+
+        merged = part.parent.parent / "video-id.jsonl"
+        part.rename(merged)
+        self.annotations = merged
+        result = self.run_cli("check", "--final")
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+        records = self.records()
+        records["sample-q05"]["triggers"][1]["t_start"] = 190.0
+        self.write_records(*records.values())
+        result = self.run_cli("check", "--final")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("it ran on frame=205.0, the record now gives frame=200.0", result.stderr)
+
     def test_finish_records_the_artifact_and_warns_on_a_mismatch(self):
         artifact = self.log_root / "full_window2.3.json"
         artifact.write_text(json.dumps({"role": "full_window", "sample_id": "sample-q04",

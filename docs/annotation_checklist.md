@@ -23,37 +23,26 @@ Such situations almost never look like an error in the JSON. The file passes the
 the numbers are consistent, and the sample is broken all the same. So there are three
 levels of checking.
 
-## The three levels of checking
+## The two levels of checking
 
 | Tag | Who checks | What it can catch |
 |---|---|---|
 | `[A]` | `tools/validate_samples.py` | everything derivable from the numbers in the file itself |
 | `[M]` | a verifier model: a VLM over frames, an LLM over the transcript | whether the annotation matches the content of the video |
-| `[H]` | a human | what the fix cycle did not close by itself |
 
-**"`[H]` is empty" and "every sample is accepted by a human" are not a contradiction:
-these are two different ways a human enters.**
-
-- *By checklist item* — none at the moment. Every item that used to require a human has
-  been reduced either to arithmetic or to a question a subagent answers from the text of
-  the sample. So no item blocks an automatic run while waiting for a human.
-- *By exhaustion of the cycle* — escalation: `CRITICAL_FAIL`, running past the iteration
-  limit, oscillation, a persistent disagreement between reviewers. That is what `[H]` as a
-  level actually contains.
-- *Acceptance* — step 6 of the pipeline, applied to everything while the pipeline is being
-  calibrated. It is not tied to items at all: the human looks at the whole sample and
-  thereby checks **the checklist itself** rather than the sample against the checklist. Its
-  by-product is new items.
-
-The first may grow over time, the second will always remain, the third shrinks to spot
-checks. The details are in "The order of application" and in
-[docs/annotation_pipeline.md](annotation_pipeline.md), step 6.
+**No level waits for a human.** Every item that used to require one has been reduced either
+to arithmetic or to a question a subagent answers from the text of the sample, and what the
+fix cycle does not close by itself — `CRITICAL_FAIL`, running past the iteration limit,
+oscillation, a persistent disagreement between reviewers — the coordinator closes as the
+pipeline says ([docs/annotation_pipeline.md](annotation_pipeline.md), steps 4 and 6). A human
+reads the closed videos outside the pipeline, to check **the checklist itself** rather than a
+sample against it; the by-product is new items, not a changed status.
 
 The `[M]` items are the specification for the verifier; until it is written they are
 checked by hand, and it is they that take most of the annotation time.
 
-Within each group the items run in the order `[A]` → `[M]` → `[H]`: the cheap and
-automatic ones first, the ones needing a human at the end.
+Within each group the items run in the order `[A]` → `[M]`: the cheap and automatic ones
+first.
 
 ## Why `t_ideal` means nothing
 
@@ -777,8 +766,8 @@ animation is running, and the picture looks incomplete.
   move of `t_start` of up to 10 s (with no second review up to 2 s), and the optional trigger
   added for a **substantive** clause or for an earlier, harder route — are interval edits and
   need only the `full_window` re-review of the touched windows and the reruns of the probes
-  whose material moved (above). The ladder is the coordinator's to apply; a
-  hit reaches the human only when it ends in rejection.
+  whose material moved (above). The ladder is the coordinator's to apply, to its
+  end.
 
   *Status.* Not implemented as code. In the pipeline it is the semi-blind reviewer's
   `scans[].candidates` (stage A), the full reviewer's `t_s` (stage B) and the spans that end
@@ -1903,7 +1892,7 @@ reviewer.
   substantive when-clause, whose evidence is the event; a stretch with no `t_val`; and a `t_val`
   that is the author's own answer on `L2`, `L3` or `predict` (8.3). On a window that is not
   compared, a proposed span is not applied and the annotated one stays; one whose `t_s` failed
-  stage C is recorded as unresolved and reaches the human at acceptance.
+  stage C is recorded as unresolved in `coordinator.<ROUND>.md`.
 
   *Status.* Not implemented. Verdict `FIX_INTERVALS`. Every span, annotated or proposed, is
   first checked against `t_val` by the coordinator (above). Then: when the derived axis changes,
@@ -2128,7 +2117,7 @@ so that the annotation can be re-checked, and are therefore obliged to be correc
 
   This cannot be checked automatically — `S-24` compares the rubric, the modalities, the level
   and the act, that is, everything comparable as a string. Comparing the meaning of two free
-  texts is left to a human or a reviewer.
+  texts is left to the coordinator (step 5 of the pipeline) or a reviewer.
 
   *Checking algorithm.* If the sample has a `twin_of`, write out both `response` texts and name
   point by point what coincides in them: quantities, objects, direction of the conclusion. A
@@ -2214,8 +2203,9 @@ with it. It is caught badly, because the eye slides over familiar text.
 
 ## The order of application
 
-1. `[A]` — `/home/user/conda/bin/python3 tools/validate_samples.py data/annotations/*.jsonl`.
-   Cheap, run after every edit. The interpreter is named explicitly: the project has two
+1. `[A]` — `/home/user/conda/bin/python3 tools/validate_samples.py <files>`, the files of the
+   video: `data/annotations/partial/<VIDEO_ID>.*.jsonl` until it is closed. Cheap, run after
+   every edit. The interpreter is named explicitly: the project has two
    environments, and `python3` resolves differently in each.
 
 2. `[M]` — the verifier. The order within the level is set by cost: first 4.2 and 4.3
@@ -2226,13 +2216,7 @@ with it. It is caught badly, because the eye slides over familiar text.
    The full working order of the verifier is described in
    [docs/annotation_pipeline.md](annotation_pipeline.md).
 
-3. `[H]` — there are **no** items that would wait for a human: the last ones (4.8, 7.4) have
-   been handed to the reviewer and the validator. The level remains an escalation point:
-   everything the edit cycle has not closed in three iterations lands here, as do cases where the
-   reviewers persistently disagree. Separate from that is acceptance (step 6 of the pipeline) —
-   it is exhaustive, but it checks the checklist as a whole rather than individual items.
-
-4. **A repeat `[A]` run.** Edits following from `[M]` and `[H]` are shifts of boundaries, and the
+3. **A repeat `[A]` run.** Edits following from `[M]` are shifts of boundaries, and the
    boundaries are coupled: shifting `t_start` may violate 1.1, shifting `question_time` changes
    the derived `temporal_rel` label (7.1) and breaks the comparability of twins (5.1). The pass
    is not a one-off.
@@ -2244,7 +2228,7 @@ what is fixed is not the window but the intent — either `question_time` is mov
 opens at `question_time` and the validator derives `at` or `post` (the ladder of 2.2). After that
 7.1 and 5.1 are re-checked.
 
-None of the three levels replaces the others. Tellingly, independent adversarial reviews of the
+Neither level replaces the other. Tellingly, independent adversarial reviews of the
 pilot each found several substantive errors at a time when the validator was steadily showing
 zero.
 

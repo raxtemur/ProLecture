@@ -70,6 +70,7 @@ $BASE tools/make_bundle.py <youtube_id>            # frames are cut by the scene
 $BASE tools/detect_scenes.py <youtube_id>          # the scene detector on its own
 $BASE tools/describe_video.py <youtube_id> --settled 0.5   # VLM description of the video track, needs a server
 $BASE tools/validate_samples.py data/annotations/*.jsonl
+$BASE tools/merge_partials.py <youtube_id>         # the coordinator closes a video: partial/ -> <id>.jsonl
 
 # the review contract: cross-checking the checklist against Item and checking a saved review
 $BASE schema/review.py
