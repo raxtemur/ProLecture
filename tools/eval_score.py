@@ -33,6 +33,10 @@ any part of a phrase begun within it (so an answer may run past a short window).
 
 Chain accuracy is not computed: it needs a rubric item of its own that the samples do not have.
 
+An offline run (eval_run_offline.py, `"mode": "offline"` in its config) answers once, after the
+last window, so it has no timing to score: its `acc` is the share of the required windows' items
+credited over the whole answer, and its tables show that alone.
+
     $BASE tools/eval_score.py --out data/eval/minicpmo45/<date>
 
 Writes `<out>/scores/tasks.jsonl`, `<out>/scores/summary.json` and `<out>/scores/summary.md`.
@@ -255,10 +259,11 @@ def fmt(value, digits=3):
     return "—" if value is None else f"{value:.{digits}f}"
 
 
-def table(title: str, groups: dict[str, dict]) -> list[str]:
-    keys = ["acc", "pauc_0.0", "pauc_0.5", "pauc_all_0.5", "recall", "silence", "far", "far_chunks",
-            "n_utterances", "spoke_before_question", "chunks_before_question",
-            "chunks_after_question", "acc_in_window", "acc_anywhere", "acc_before_end"]
+def table(title: str, groups: dict[str, dict], offline: bool = False) -> list[str]:
+    keys = ["acc"] if offline else [
+        "acc", "pauc_0.0", "pauc_0.5", "pauc_all_0.5", "recall", "silence", "far", "far_chunks",
+        "n_utterances", "spoke_before_question", "chunks_before_question",
+        "chunks_after_question", "acc_in_window", "acc_anywhere", "acc_before_end"]
     names = dict(METRICS)
     lines = [f"### {title}", "", "| group | n | " + " | ".join(names[k] for k in keys) + " |",
              "|---|---|" + "---|" * len(keys)]
@@ -272,9 +277,10 @@ def table(title: str, groups: dict[str, dict]) -> list[str]:
     return lines + [""]
 
 
-def ci_table(title: str, groups: dict[str, dict]) -> list[str]:
-    keys = ["acc", "pauc_0.0", "pauc_0.5", "pauc_all_0.5", "pauc_chunk_0.0", "recall", "silence",
-            "acc_in_window", "acc_anywhere", "acc_before_end"]
+def ci_table(title: str, groups: dict[str, dict], offline: bool = False) -> list[str]:
+    keys = ["acc"] if offline else [
+        "acc", "pauc_0.0", "pauc_0.5", "pauc_all_0.5", "pauc_chunk_0.0", "recall", "silence",
+        "acc_in_window", "acc_anywhere", "acc_before_end"]
     names = dict(METRICS)
     lines = [f"### {title}", "", "| group | n | " + " | ".join(names[k] for k in keys) + " |",
              "|---|---|" + "---|" * len(keys)]
@@ -294,6 +300,7 @@ def main() -> int:
     out = args.out if args.out.is_absolute() else ec.ROOT / args.out
 
     config = json.loads((out / "config.json").read_text(encoding="utf-8"))
+    offline = config.get("mode") == "offline"
     wanted = set(config["samples"])
     samples = [s for video in ec.annotation_videos() for s in ec.read_records(video) if s["id"] in wanted]
     by_id = {s["id"]: s for s in samples}
@@ -306,6 +313,8 @@ def main() -> int:
         if sample is None:
             continue
         task = score_task(sample, judged)
+        if offline:
+            task["acc"] = task["acc_anywhere"]
         saved = out / "responses" / f"{judged['task']}.json"
         if saved.exists():
             task["seconds"] = json.loads(saved.read_text(encoding="utf-8")).get("seconds")
@@ -344,16 +353,18 @@ def main() -> int:
 
     md = [f"# Scores: {out.name}", "",
           f"Tasks scored: {len(tasks)} of {expected}" + (f" ({missing} missing)" if missing else ""),
-          "PAUC floor (silence) is 0.25; ± is the standard deviation across the runs' set means; "
+          ("Offline run: one answer after the last window, acc over the whole answer. "
+           if offline else "PAUC floor (silence) is 0.25; ")
+          + "± is the standard deviation across the runs' set means; "
           "[a, b] is a 95% bootstrap interval over samples.", ""]
-    md += table("Sets", summary["sets"])
+    md += table("Sets", summary["sets"], offline)
     for axis, groups in summary["breakdowns"].items():
-        md += table(f"Primary set by {axis}", groups)
+        md += table(f"Primary set by {axis}", groups, offline)
     md += ci_table("Primary set by reasoning_level, mean and 95% bootstrap interval over samples",
                    {"all primary": summary["sets"]["primary (not blind_solved)"],
-                    **summary["breakdowns"]["reasoning_level"]})
+                    **summary["breakdowns"]["reasoning_level"]}, offline)
     latency = summary["sets"]["primary (not blind_solved)"].get("latency")
-    if latency:
+    if latency and not offline:
         md += ["Latency of the first utterance inside a required window, from t_start (primary set): "
                + ", ".join(f"{k} {fmt(v, 1) if k != 'n' else v}" for k, v in latency.items()), ""]
     (scores_dir / "summary.md").write_text("\n".join(md), encoding="utf-8")
