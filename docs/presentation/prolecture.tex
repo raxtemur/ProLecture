@@ -45,6 +45,7 @@
 
 \newcommand{\lead}[1]{{\color{warm}\textbf{#1}}}
 \newcommand{\num}[1]{{\color{accent}\textbf{#1}}}
+\newcommand{\sd}[1]{{\color{muted}\,$\pm$#1}}  % a spread across runs, next to a number
 
 \title{ProLecture}
 \subtitle{A benchmark of proactive tasks for streaming VLMs}
@@ -65,7 +66,7 @@
   \end{minipage}
 
   \vfill
-  {\color{muted}\small The material is 3Blue1Brown lectures. Status: 3 videos through the whole cycle, 44 samples, the annotation pipeline assembled.}
+  {\color{muted}\small The material is 3Blue1Brown lectures. Status on 15 Oct 2026: 7 videos through the whole cycle, 54 validated samples, 8 more videos in review, the first evaluation run.}
   \vspace{0.8cm}
 \end{frame}
 
@@ -102,7 +103,7 @@
 
   \begin{columns}[T]
     \begin{column}{0.52\textwidth}
-      For \num{140} videos both the YouTube link \emph{and} an existing path to the
+      For \num{144} videos both the YouTube link \emph{and} an existing path to the
       manim source of the scene are known.\\[0.6em]
       None of the existing benchmarks has the sources of the video track.
     \end{column}
@@ -141,10 +142,10 @@
     \draw[accent, thick] (6.0,-0.32) rectangle (9.2,0.32);
     \node[accent, anchor=south, font=\small\bfseries] at (7.6,0.4) {answer window};
 
-    % the distractor
-    \fill[warm, opacity=0.12] (3.4,-0.32) rectangle (4.9,0.32);
-    \draw[warm, dashed] (3.4,-0.32) rectangle (4.9,0.32);
-    \node[warm, anchor=north, font=\scriptsize] at (4.15,-0.42) {distractor};
+    % an optional window
+    \fill[accent, opacity=0.07] (4.2,-0.32) rectangle (5.8,0.32);
+    \draw[accent, dashed] (4.2,-0.32) rectangle (5.8,0.32);
+    \node[accent, anchor=north, font=\scriptsize] at (5.0,-0.42) {optional window};
 
     % the evidence
     \draw[ink, very thick] (6.3,-1.15) -- (8.6,-1.15);
@@ -159,7 +160,8 @@
   \begin{itemize}
     \item The \texttt{temporal\_rel} axis (\texttt{pre} / \texttt{at} / \texttt{post}) is \lead{checked by the validator}:
           it recomputes it from \texttt{question\_time} and \texttt{evidence\_span} and rejects a mismatch.
-    \item \texttt{distractor\_windows} — moments where an answer looks apt but is premature.
+    \item An optional window (\texttt{required: false}) covers an earlier, harder route to the answer:
+          speaking there is not a false alarm, and silence there is not penalised.
     \item The confirmation of the reference answer lives separately, in \texttt{provenance}: it may lie later than the window and even outside the video.
   \end{itemize}
 \end{frame}
@@ -189,7 +191,7 @@
       {\small
       One flag per probe, each filled in by a \emph{model's answer}, not by an opinion:\\[0.2em]
       \texttt{solvable} — solvable at all\\
-      \texttt{blind\_solved} — without the video\\
+      \texttt{blind\_solved} — without the video (leaves the primary set)\\
       \texttt{textonly\_solved} — the transcript is enough\\
       \texttt{visiononly\_solved} — the frames are enough\\
       \texttt{frozenframe\_solved} — one frame is enough\\[0.5em]
@@ -215,7 +217,8 @@
       \texttt{narrate} — narration\\
       \texttt{predict} — prediction\\
       \texttt{verify} — verification\\
-      \texttt{counterfact} — a counterfactual}
+      \texttt{counterfact} — a counterfactual\\
+      \texttt{extend} — going further on the same premises}
     \end{column}
     \begin{column}{0.33\textwidth}
       {\bfseries B. The relation to the trigger}\\[0.4em]
@@ -231,7 +234,7 @@
       \texttt{L1} perception — read off\\[0.3em]
       \texttt{L2} integration or a short calculation\\[0.3em]
       \texttt{L3} derivation or substantial computation — work the video leaves undone\\[0.5em]
-      \color{muted} Separately, at every level: the blind baseline must not solve it.}
+      \color{muted} Separately, at every level: a sample solved blind leaves the primary set.}
     \end{column}
   \end{columns}
 
@@ -249,15 +252,13 @@
           is derived from the modality probes; the annotator's opinion lives in a separate
           field and influences no conclusion.
     \item \lead{Generator $\neq$ judge $\neq$ participant} — a rule \emph{for the measurement phase}.
-          At present the proposer, the reviewers and the coordinator are one model, and no judge
-          or participant has been run yet. The judge may be a pure text LLM: it reads the rubric
-          and the answer, not the video.
+          Now Qwen3.8-27B proposes, reviews and judges, so its own scores stay out of the final table.
+          The judge reads the rubric and the answer, not the video.
     \item \lead{Open answers with a rubric, no MCQs.} A skewed answer key breaks a benchmark quietly.
     \item \lead{Mandatory dummy baselines:} blind, text-only, vision-only, frozen-frame,
           ``answer immediately'', ``answer at the end'', ``stay silent''.
     \item \lead{No quotas} of the form ``exactly N samples per task'': however many passed validation is however many there are.
-    \item \lead{Contamination is measured, not denied:} a 2026 pilot video and a 2017 control
-          one, so the blind-baseline gap becomes a number.
+    \item \lead{Contamination is measured, not denied:} old and new videos side by side, and a separate ablation for memory of a video.
   \end{itemize}
 \end{frame}
 
@@ -278,7 +279,7 @@
     \node[box, right=of b] (c) {proposer\\(agent)};
     \node[box, right=of c] (d) {validator\\(schema)};
     \node[box, right=of d] (e) {reviewers\\and probes};
-    \node[box, right=of e] (f) {human\\acceptance};
+    \node[box, right=of e] (f) {coordinator\\closes\\the video};
     \draw[ar] (a) -- (b); \draw[ar] (b) -- (c); \draw[ar] (c) -- (d);
     \draw[ar] (d) -- (e); \draw[ar] (e) -- (f);
     \draw[ar] (e.south) .. controls +(0,-1.0) and +(0,-1.0) .. (d.south);
@@ -289,19 +290,18 @@
   \vspace{0.4em}
   \begin{itemize}
     \item \textbf{The validator} plays the role of tests: non-overlapping windows, references only backwards,
-          a distractor not coinciding with a trigger, \texttt{temporal\_rel} agreeing with the evidence.
-          It returns code 1 on any error.
+          \texttt{temporal\_rel} agreeing with the evidence. It returns code 1 on any error.
     \item \textbf{The reviewers and the probes} are covered shortly: three roles check the annotation
-          from different sides, four probes fill in the \texttt{validation} flags by measurement.
-    \item \textbf{The round repeats} until every verdict is \texttt{PASS};
-          a repeat round goes to fresh subagents that have not seen the previous discussions.
+          from different sides, five probes fill in the \texttt{validation} flags by measurement.
+    \item \textbf{The round repeats} until every verdict is \texttt{PASS}, with fresh subagents;
+          then the coordinator closes every sample itself, with no human acceptance.
   \end{itemize}
 \end{frame}
 
 % ------------------------------------------------------------------ 9
 \begin{frame}
   \frametitle{How this works on live samples}
-  \framesubtitle{one and the same blind check, opposite outcomes}
+  \framesubtitle{one and the same blind check, opposite outcomes (pilot samples)}
 
   \begin{columns}[T]
     \begin{column}{0.47\textwidth}
@@ -324,12 +324,12 @@
       native speaker, and the growth of the number of contexts as $27^n$. Three rubric items
       out of three, without a single assumption about a frame.\\[0.5em]
       \lead{\texttt{blind\_solved = true}}, \texttt{status: rejected}; the level was lowered
-      \texttt{L3} $\rightarrow$ \texttt{L1} along the way.}
+      \texttt{L3} $\rightarrow$ \texttt{L1}. Today it would stay \texttt{validated}, outside the primary set.}
     \end{column}
   \end{columns}
 
   \vspace{0.2em}
-  {\color{muted}\footnotesize The rule: leaning on a commonly known fact is contamination; guessing the problem is not.}
+  {\color{muted}\footnotesize The rule: leaning on a commonly known fact is solving blind; guessing the problem is not.}
 \end{frame}
 
 % ------------------------------------------------------------------ 10
@@ -338,16 +338,18 @@
   \framesubtitle{they run in parallel; none of them edits the files}
 
   \begin{itemize}
-    \item \lead{The semi-blind one.} Sees the material \emph{up to} \texttt{t\_end} but does not know
-          \texttt{t\_start} — and names for themselves the moment the answer became possible.
+    \item \lead{The semi-blind one.} Sees neither the reference answer, nor the rubric, nor the window
+          bounds. Walks the video from 0 s in stretches, one per window, and writes a full answer at every
+          change on the screen or in the speech; the coordinator finds the first one that meets the rubric.
           A checker who knows the answer ``recognises'' it on a half-drawn frame and keeps moving
           the left boundary of the window leftwards; this one does not have that knowledge.
           \begin{itemize}
-            \item[] {\small They separately record \texttt{prior\_answer} — their own answer \textbf{before} viewing,
-                    verbatim. It is what the coordinator derives \texttt{blind\_solved} from.}
+            \item[] {\small Before viewing they write \texttt{prior\_answer} — their own answer, verbatim.
+                    It is what the coordinator derives \texttt{blind\_solved} from.}
           \end{itemize}
     \item \lead{The sample reviewer.} Everything relating to the question as a whole: the wording,
-          the rubric, the decoys, the reference answer, the links between windows. The window boundaries are not their work.
+          the rubric, the level, the reference answer, the links between windows. May propose an earlier
+          moment \texttt{t\_s}; a blind probe then checks it.
     \item \lead{The per-window reviewer, one per window.} The role was separated not for symmetry:
           with a single reviewer on a question with nine windows, the frame budget was enough
           for the first, and after that they made things up.
@@ -360,7 +362,7 @@
 
 % ------------------------------------------------------------------ 11
 \begin{frame}
-  \frametitle{Four probes: the label is measured}
+  \frametitle{Five probes: the label is measured}
   \framesubtitle{each is given exactly one channel, and we see whether it answers}
 
   \begin{center}
@@ -369,15 +371,16 @@
     \toprule
     \textbf{Probe} & \textbf{Material} & \textbf{Frames} & \textbf{Fills in} \\
     \midrule
-    \texttt{text}   & transcript up to \texttt{t\_end} & 0        & \texttt{textonly\_solved} \\
-    \texttt{frame}  & one frame mid-window             & 1        & \texttt{frozenframe\_solved} \\
-    \texttt{vision} & frames up to \texttt{t\_end}     & up to 40 & \texttt{visiononly\_solved} \\
-    \texttt{full}   & transcript and frames            & up to 40 & \texttt{solvable} \\
+    \texttt{text}   & transcript up to \texttt{t\_end}            & 0          & \texttt{textonly\_solved} \\
+    \texttt{frame}  & one frame mid-window, per required window   & 1 each     & \texttt{frozenframe\_solved} \\
+    \texttt{vision} & frames up to \texttt{t\_end}                & up to 40   & \texttt{visiononly\_solved} \\
+    \texttt{full}   & transcript and frames                       & up to 40   & \texttt{solvable} \\
+    \texttt{verify} & all up to an earlier \texttt{t\_s}, no when-condition & about 20 & keeps or rejects \texttt{t\_s} \\
     \bottomrule
   \end{tabular}
   \end{center}
 
-  \vspace{0.6em}
+  \vspace{0.3em}
   {\small
   \texttt{solvable = textonly OR visiononly OR} the \texttt{full} answer; \texttt{solvable = false}
   is a \texttt{CRITICAL\_FAIL} — the question is not solvable even from the full material.\\[0.3em]
@@ -424,6 +427,72 @@
 \end{frame}
 
 % ------------------------------------------------------------------ 13
+% the numbers: data/eval/summary_both.md (2026-10-14)
+\begin{frame}
+  \frametitle{First measurements}
+  \framesubtitle{49 primary samples from 7 videos, 3 runs each; $\pm$ is the spread across runs}
+
+  \renewcommand{\arraystretch}{0.92}
+  \begin{columns}[T]
+    \begin{column}{0.34\textwidth}
+      {\color{accent}\bfseries Qwen3.8-27B — offline}\\[0.1em]
+      {\scriptsize\color{muted} one answer after the last window;\\ no audio, the subtitles as text}\\[0.4em]
+      \scriptsize
+      \begin{tabular}{@{}lrl@{}}
+        \toprule
+        & \textbf{n} & \textbf{acc} \\
+        \midrule
+        L1 & 16 & 0.979\sd{0.018} \\
+        L2 & 23 & 0.964\sd{0.045} \\
+        L3 & 10 & 0.867\sd{0.115} \\
+        \textbf{all} & 49 & \textbf{0.949}\sd{0.037} \\
+        \midrule
+        alert       &  1 & 1.000\sd{0.000} \\
+        counterfact &  6 & 0.861\sd{0.127} \\
+        extend      & 13 & 0.910\sd{0.059} \\
+        ground      &  7 & 1.000\sd{0.000} \\
+        monitor     &  1 & 1.000\sd{0.000} \\
+        narrate     & 11 & 0.970\sd{0.026} \\
+        predict     &  6 & 1.000\sd{0.000} \\
+        verify      &  4 & 0.958\sd{0.072} \\
+        \bottomrule
+      \end{tabular}
+    \end{column}
+    \begin{column}{0.62\textwidth}
+      {\color{warm}\bfseries MiniCPM-o 4.5 — streaming}\\[0.1em]
+      {\scriptsize\color{muted} watches the stream with audio\\ and decides itself when to speak}\\[0.4em]
+      \scriptsize
+      \begin{tabular}{@{}lrlll@{}}
+        \toprule
+        & \textbf{n} & \textbf{acc} & \textbf{PAUC} $\omega{=}0$ & \textbf{FAR}, chunks \\
+        \midrule
+        L1 & 16 & 0.250\sd{0.000} & 0.291\sd{0.008} & 0.856\sd{0.063} \\
+        L2 & 23 & 0.033\sd{0.020} & 0.199\sd{0.025} & 0.736\sd{0.037} \\
+        L3 & 10 & 0.017\sd{0.029} & 0.213\sd{0.030} & 0.815\sd{0.011} \\
+        \textbf{all} & 49 & \textbf{0.100}\sd{0.006} & \textbf{0.232}\sd{0.009} & \textbf{0.792}\sd{0.041} \\
+        \midrule
+        alert       &  1 & 0.333\sd{0.577} & 0.250\sd{0.000} & 0.850\sd{0.213} \\
+        counterfact &  6 & 0.028\sd{0.048} & 0.242\sd{0.014} & 0.908\sd{0.198} \\
+        extend      & 13 & 0.000\sd{0.000} & 0.186\sd{0.014} & 0.775\sd{0.078} \\
+        ground      &  7 & 0.381\sd{0.041} & 0.336\sd{0.035} & 0.735\sd{0.109} \\
+        monitor     &  1 & 0.250\sd{0.125} & 0.333\sd{0.116} & 0.952\sd{0.009} \\
+        narrate     & 11 & 0.121\sd{0.052} & 0.243\sd{0.013} & 0.870\sd{0.010} \\
+        predict     &  6 & 0.000\sd{0.000} & 0.186\sd{0.015} & 0.591\sd{0.140} \\
+        verify      &  4 & 0.042\sd{0.072} & 0.192\sd{0.116} & 0.784\sd{0.287} \\
+        \bottomrule
+      \end{tabular}
+    \end{column}
+  \end{columns}
+
+  \vspace{0.6em}
+  {\color{muted}\tiny \textbf{acc}: the share of the required windows' rubric items the judge credits
+  (over the whole answer offline, inside the windows in the stream).
+  \textbf{PAUC}: answer quality integrated over the window, a later answer earns less, silence scores 0.25.
+  \textbf{FAR}: the share of speech chunks outside every window.\par\vspace{0.3em}
+  Qwen3.8-27B also ran the annotation probes and is the judge, so its offline acc is an upper bound.\par}
+\end{frame}
+
+% ------------------------------------------------------------------ 14
 \begin{frame}
   \frametitle{Where we are now}
 
@@ -431,29 +500,29 @@
     \begin{column}{0.48\textwidth}
       \textbf{Done}\\[0.3em]
       {\small
-      the pipeline: mapping $\rightarrow$ download $\rightarrow$ bundle;\\[0.2em]
-      the schema and the semantic validator;\\[0.2em]
-      prompts: proposer, three reviewers, four probes;\\[0.2em]
-      the scene detector, the video-track description;\\[0.2em]
-      \num{3} videos through the whole cycle (entropy $\times 2$, 2026; Taylor series, 2017):
-      \num{44} samples, \num{43} validated, \num{61} triggers, \num{42} distractors;\\[0.2em]
-      first runs of streaming video models: \lead{the current tasks are too hard for them}.}
+      the pipeline, the schema and the validator, the scene detector, the video-track description;\\[0.2em]
+      prompts: proposer, three reviewers, five probes, coordinator;\\[0.2em]
+      \num{7} videos through the whole cycle (2015--2025): \num{59} samples, \num{54} validated;
+      the \num{3} pilot videos archived;\\[0.2em]
+      \num{8} more videos with the coordinators now;\\[0.2em]
+      first evaluation: MiniCPM-o 4.5 in the stream \lead{acc 0.10, PAUC below silence};
+      Qwen3.8-27B offline acc 0.95.}
     \end{column}
     \begin{column}{0.48\textwidth}
       \textbf{Next}\\[0.3em]
       {\small
-      run the dummy baselines and see that they fail;\\[0.2em]
-      measure the blind gap on the 2017 control video;\\[0.2em]
-      the streaming harness and an LLM judge against the rubric;\\[0.2em]
-      expanding the annotation: the share of \texttt{L3} must grow;\\[0.2em]
+      close the 8 videos in review;\\[0.2em]
+      separate the model from the mode: MiniCPM-o offline, Qwen by modality, another judge;\\[0.2em]
+      the dummy baselines, and memory of a video on old against new videos;\\[0.2em]
+      more annotation: the share of \texttt{L3} must grow;\\[0.2em]
       re-rendering scenes with an injected error.}
     \end{column}
   \end{columns}
 
   \vspace{0.6em}
   \begin{center}
-    {\color{muted}\footnotesize Open assumptions go to Limitations rather than being swept away: the leak of the
-    distractor's explanation, the difficulty (now confirmed on streaming models), the small volume.}
+    {\color{muted}\footnotesize Open assumptions go to Limitations: one model annotates and judges,
+    the difficulty, the small volume.}
   \end{center}
 \end{frame}
 

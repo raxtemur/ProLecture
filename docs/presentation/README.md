@@ -1,8 +1,8 @@
 # Project presentation
 
 `prolecture.tex` — a fourteen-slide talk: why the benchmark, how it differs from the
-three nearest works, how a sample is built, what the pipeline does, what has been done
-so far, and what the metric will be.
+three nearest works, how a sample is built, what the pipeline does, the first
+measurements, and what has been done so far.
 
 ```bash
 make          # -> prolecture.pdf
@@ -29,7 +29,9 @@ annotation grows:
 
 | What | Where to check it |
 |---|---|
-| 10 samples, 25 triggers | `tools/validate_samples.py data/annotations/*.jsonl` (the `distractor_windows` field the slides may still mention was removed on 2026-09-07) |
-| 140 videos with a live path to a manim source | `data/3b1b_mapping.json` |
+| 7 videos, 59 samples, 54 validated (without the 3 archived pilot videos) | `validation.status` in `data/annotations/*.jsonl` |
+| 8 more videos in review | `data/annotations/partial/` |
+| 144 videos with a live path to a manim source | `data/3b1b_mapping.json` |
+| the tables of the first measurements | `data/eval/summary_both.md`, taken from `scores/summary.md` of each run in `data/eval/` |
 | 13.5 / 12.9 / 10.1 frames per minute | `tools/detect_scenes.py <id>` |
 | 3878 frames, 485 fragments, 20 minutes | `meta` in `data/bundles/<id>/description.jsonl` |
