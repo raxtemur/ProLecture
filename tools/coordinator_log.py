@@ -63,6 +63,10 @@ into the event next to the summary, which is free text and has drifted from the 
 For a modality probe it also compares the material the probe was given with what the current
 record gives: a probe cut at a window that has moved since measured nothing about the
 current windows (5.10). ``check --final`` fails on such a probe until it has been run again.
+A frame probe cut at a window that is no longer required — the window turned optional, or
+the windows were renumbered when an optional one was put before it — is superseded rather
+than stale: it cannot be run there again, and it sets no flag. ``check --final`` then asks
+only that every required window of the record has a frame probe of its own.
 
 The ``adjudicate`` event records the outcome of the left-boundary check (checklist 2.2,
 stages A–C) for the stretch of one required window (``--window``): ``t_val_a`` is the first
@@ -287,6 +291,46 @@ def stale_inputs(spawn: dict) -> str | None:
     return None
 
 
+def record_windows(spawn: dict) -> tuple[set[int], set[int]] | None:
+    """The indices of all windows and of the required ones in the record a launch was
+    prepared from, as the record stands now; None when it cannot be read."""
+    try:
+        _, record = review_inputs.find_logged_record(ROOT, spawn["sample_id"], spawn["annotations"])
+    except (OSError, KeyError, review_inputs.InputsError):
+        return None
+    triggers = record.get("triggers", [])
+    return {t.get("idx") for t in triggers}, {t.get("idx") for t in triggers if t.get("required")}
+
+
+def superseded_frame_probe(spawn: dict, last_probe: dict[tuple[str, str], tuple[int, dict]]
+                           ) -> tuple[bool, str | None]:
+    """Whether a frame probe was cut at a window that is no longer required, and if so,
+    what is still owed: the required windows that have no frame probe of their own.
+
+    The frame probe runs on required windows only (review_inputs.window_trigger), so one cut
+    at a window that has since turned optional, or that went away when the windows were
+    renumbered, cannot be run there again; the probe of the window that is required now
+    replaces it. Asking for a rerun of the old one sent the coordinators of two videos round
+    three turns for a launch the tool itself refuses.
+    """
+    window, role = role_window(spawn.get("role") or ""), base_role(spawn.get("role"))
+    if role != "probe_frame" or window is None or not spawn.get("inputs"):
+        return False, None
+    windows = record_windows(spawn)
+    if windows is None or window in windows[1]:
+        return False, None
+    every, required = windows
+    owed = sorted(w for w in required if (spawn["sample_id"], f"probe_frame{w}") not in last_probe)
+    if not owed:
+        return True, None
+    now = "is optional now" if window in every else "the record no longer has"
+    names = ", ".join(f"probe_frame{w}" for w in owed)
+    return True, (f"it was cut at window {window}, which {now}, so it sets no flag and cannot "
+                  f"be run there again; required window(s) {', '.join(map(str, owed))} have no "
+                  f"frame probe of their own. Prepare a workspace with --sample-id --role "
+                  f"probe_frame --window <idx> and run {names}")
+
+
 def record_statuses(path: Path, events: list[tuple[int, dict]]) -> dict[str, str]:
     """validation.status of every sample the log names, read from the annotation files its
     launches were prepared from, or from data/annotations/<VIDEO_ID>.jsonl."""
@@ -397,6 +441,12 @@ def validate_log(path: Path, final: bool = False) -> int:
         errors += stale
         for (sample_id, role), (line, spawn) in sorted(last_probe.items()):
             if sample_id in rejected:
+                continue
+            superseded, owed = superseded_frame_probe(spawn, last_probe)
+            if superseded:
+                if owed:
+                    errors.append(f"line {line}: {role} of {sample_id} ({spawn.get('agent')}): "
+                                  f"{owed}")
                 continue
             why = stale_inputs(spawn)
             if why:

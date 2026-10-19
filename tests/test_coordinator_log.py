@@ -676,6 +676,50 @@ class CoordinatorLogCliTest(unittest.TestCase):
         result = self.run_cli("check", "--final")
         self.assertEqual(result.returncode, 0, result.stderr)
 
+    def test_a_frame_probe_of_a_window_that_turned_optional_is_superseded(self):
+        records = self.records()
+        records["sample-q05"]["triggers"] = [
+            {"idx": 0, "required": True, "t_start": 100.0, "t_end": 110.0}]
+        self.write_records(*records.values())
+        self.assertEqual(self.spawn("pf0_r1", "sample-q05", "probe_frame0").returncode, 0)
+        self.assertEqual(self.finish("pf0_r1").returncode, 0)
+
+        # an optional window is put before the required one, which becomes window 1
+        records["sample-q05"]["triggers"] = [
+            {"idx": 0, "required": False, "t_start": 90.0, "t_end": 99.0},
+            {"idx": 1, "required": True, "t_start": 100.0, "t_end": 110.0}]
+        self.write_records(*records.values())
+        result = self.run_cli("check", "--final")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("cut at window 0, which is optional now", result.stderr)
+        self.assertIn("run probe_frame1", result.stderr)
+        self.assertNotIn("is stale", result.stderr)
+
+        self.assertEqual(self.spawn("pf1_r1", "sample-q05", "probe_frame1").returncode, 0)
+        self.assertEqual(self.finish("pf1_r1").returncode, 0)
+        result = self.run_cli("check", "--final")
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_a_frame_probe_of_a_window_that_went_away_is_superseded(self):
+        self.assertEqual(self.spawn("pf0_r1", "sample-q05", "probe_frame0").returncode, 0)
+        self.assertEqual(self.spawn("pf3_r1", "sample-q05", "probe_frame3").returncode, 0)
+        for agent in ("pf0_r1", "pf3_r1"):
+            self.assertEqual(self.finish(agent).returncode, 0)
+        records = self.records()
+        records["sample-q05"]["triggers"] = records["sample-q05"]["triggers"][:1]
+        self.write_records(*records.values())
+
+        result = self.run_cli("check", "--final")
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+        # the window that is still required keeps its own check
+        records["sample-q05"]["triggers"][0]["t_start"] = 90.0
+        self.write_records(*records.values())
+        result = self.run_cli("check", "--final")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("probe_frame0 of sample-q05 (pf0_r1) is stale", result.stderr)
+        self.assertNotIn("probe_frame3", result.stderr)
+
     def test_a_probe_prepared_from_a_part_is_checked_against_the_merged_file(self):
         part = self.annotations.parent / "partial" / "video-id.a.jsonl"
         part.parent.mkdir()
