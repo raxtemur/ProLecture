@@ -228,14 +228,17 @@ the recall denominator.
   an assumption: the model under evaluation will make it too. A guess is a choice among
   concrete alternatives for the screen's content that the question leaves open.
 
-Recalling a known textbook or historical fact counts as solving blind. What decides is whether
+Recalling a known textbook, historical or published fact counts as solving blind, also when
+the video shows the same fact. What decides is whether
 someone who knows the subject but has never seen this video could give the answer. Content only
 this video has — its examples, its numbers, its construction — is not solving blind, however
 the answer came by it: the test is someone who has never seen this video. Whether a model
 remembers a video is not decided in the annotation; it is measured separately. Predicting which
 values, example or layout the screen will show is not solving blind either, even when the
-prediction is exactly right. The flag is set by the coordinator. `true` excludes the sample
-from the primary benchmark but does not prevent `status: validated`.
+prediction is exactly right. Whether the answer is correct is scored by the evaluation judge;
+whether it is honest, and so the flag, is set by the coordinator, who departs from the judge's
+verdict only by a ruling that names its grounds. `true` excludes the sample from the primary
+benchmark but does not prevent `status: validated`.
 
 ---
 

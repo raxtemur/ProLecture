@@ -307,11 +307,13 @@ def main() -> int:
 
     per_sample: dict[str, list[dict]] = defaultdict(list)
     tasks = []
+    versions: dict[str, int] = defaultdict(int)
     for path in sorted((out / "judged").glob("*.json")):
         judged = json.loads(path.read_text(encoding="utf-8"))
         sample = by_id.get(judged["sample_id"])
         if sample is None:
             continue
+        versions[str(judged.get("prompt_version"))] += 1
         task = score_task(sample, judged)
         if offline:
             task["acc"] = task["acc_anywhere"]
@@ -321,6 +323,11 @@ def main() -> int:
         tasks.append(task)
         per_sample[sample["id"]].append(task)
 
+    if len(versions) > 1:
+        # one score over two judges compares nothing: rejudge the older tasks
+        print("warning: the tasks were judged by different judge prompts ("
+              + ", ".join(f"{v}: {n}" for v, n in sorted(versions.items()))
+              + "); run eval_judge.py --force on this run", file=sys.stderr)
     expected = len(wanted) * int(config["runs"])
     missing = expected - len(tasks)
     scores_dir = out / "scores"

@@ -29,7 +29,7 @@ from urllib.parse import urlparse
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import eval_common as ec  # noqa: E402
 
-PROMPT_VERSION = "2026-10-14b"
+PROMPT_VERSION = "2026-10-19b"
 
 INSTRUCTIONS = """You grade the answer of a model that watched a lecture video as a stream and
 answered a question while watching. You get the question, the reference answer and the rubric
@@ -45,6 +45,15 @@ For every rubric item, list:
 - "wrong": the lines where the output states something for the same item that contradicts it,
   or offers alternatives for it ("X or Y", "either ... or ...", two different values), whether
   or not one of them is right. A line that says nothing about the item is in neither list.
+
+A claim the output does not commit to is not stated: one made only as an example or a
+possibility ("e.g. X", "X might be ..."), while declining to answer ("this cannot be answered;
+one candidate is X"), or only on an assumption about something the output says it does not
+know ("if the screen shows A, the answer is X"). Such a line is not "correct" for the item even
+when X is right, and not "wrong" either unless it offers alternatives. The steps of an argument
+are committed claims: a case analysis, a proof by contradiction ("if it stayed on one side,
+...; so it crosses"), a condition that is part of the claim ("for equal masses the velocities
+swap"). An answer more precise than the item, with nothing that contradicts it, states it.
 
 The "Not credited" notes of a window restrict its items: a statement they exclude is not
 correct for any item, and if it contradicts an item it is wrong for that item. The reference

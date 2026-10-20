@@ -1253,8 +1253,10 @@ merged into 4.2; the former 4.7 (recognising the video) became 4.3; the former 4
 
   *Checking algorithm.* The first question to the **semi-blind reviewer**, before any viewing
   (their step 0): "answer this question on the merits, relying only on general knowledge". The
-  answer goes into the review verbatim, and the coordinator compares it against the rubric and
-  writes `validation.blind_solved`.
+  answer goes into the review verbatim. The evaluation judge scores it against the rubric
+  (`coordinator_log.py blind-judge`), and the coordinator writes `validation.blind_solved`
+  from that verdict, departing from it only by a logged `blind-ruling` that names its grounds
+  ([coordinator.md](prompts/coordinator.md), §1).
 
   No separate probe is needed for this: at step 0 the semi-blind reviewer is in exactly the
   state of a probe — they have not opened the material yet.
@@ -1284,9 +1286,9 @@ merged into 4.2; the former 4.7 (recognising the video) became 4.3; the former 4
   defect of the question, to be fixed.
 
   **A caveat about notation, colour or verbatim wording is not an assumption about
-  content.** Score the blind answer against the rubric item by item; the definition of
-  `blind_solved` says which items decide and what a guess is. Two answers that look alike
-  are scored differently:
+  content.** The judge scores the content item by item; the definition of `blind_solved`
+  says which items decide and what a guess is. Two answers that look alike are ruled
+  differently:
 
   - "The time constant is 12 ms, if the diagram shows 4 kΩ and 3 µF" — the correctness
     depends on an assumption about the screen: a guess, `blind_solved = false`, even when
@@ -1299,8 +1301,11 @@ merged into 4.2; the former 4.7 (recognising the video) became 4.3; the former 4
     and a rubric item about a colour does not rescue the sample: such a sample tests colour
     recognition, not the science. It is repaired or kept as a blind baseline like any other.
 
-  The coordinator names in `coordinator.<ROUND>.md` which items were met blind, so that it
-  is visible what the sample rests on.
+  The coordinator copies the judge's item-by-item verdict into `coordinator.<ROUND>.md`, so
+  that it is visible what the sample rests on. Once a blind answer has met the rubric of a
+  version, a later version with the same rubric items keeps `blind_solved = true` whatever a
+  later run answers: only a repair that changes what the answer has to contain, or withholds
+  what the old wording gave, clears it.
 
   The reviewer, in turn, is asked for **content, not a meta-statement about it**: "I know
   only the general textbook derivation" scores nothing; the derivation itself followed by
@@ -2356,6 +2361,12 @@ anew in a month.
   2026-10-02) — a reading the wording forces is not an assumption; recognising the video does
   not decide the flag; a sign, an index or a unit is substantive, and "a displayed number"
   is no longer an item about the screen; a hedged answer is credited with neither branch.
+- **The blind answer is scored by the judge** (2026-10-19) — `coordinator_log.py
+  blind-judge` scores the `prior_answer` with the evaluation judge; the coordinator departs
+  from the verdict only by a logged `blind-ruling` (`screen-guess`, `video-content`,
+  `repaired`, `look-only`), and a rewrite that keeps the rubric keeps the flag. Scored by eye, the flag
+  had kept in the primary set answers that met every item: recalled published facts were
+  called guesses, and a refusal on the next version cleared it.
 - **Negative probe outcomes are re-measured, not argued** (2026-09-30) — at most once per
   probe and version of the sample (4.1); this replaces the pointwise repeats of the entry on
   the scale of the rubric.

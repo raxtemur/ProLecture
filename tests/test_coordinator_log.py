@@ -1,11 +1,14 @@
 import hashlib
 import json
 import os
+import re
 import subprocess
 import sys
 import tempfile
+import threading
 import unittest
 from datetime import datetime
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 
@@ -19,6 +22,36 @@ def record(sample_id, windows=((100.0, 110.0), (200.0, 210.0), (300.0, 310.0), (
     return {"id": sample_id, "validation": {"status": "draft"},
             "triggers": [{"idx": i, "required": True, "t_start": a, "t_end": b}
                          for i, (a, b) in enumerate(windows)]}
+
+
+class FakeJudge(BaseHTTPRequestHandler):
+    """An OpenAI-compatible server that credits the items listed in server.credit: True
+    credits every item, False none, a set the judged item ids (i1, i2, ...) it names."""
+
+    def do_POST(self):  # noqa: N802
+        body = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
+        prompt = body["messages"][-1]["content"]
+        ids = re.search(r"Item ids: (.*)$", prompt).group(1).split(", ")
+        credit = self.server.credit
+        if isinstance(credit, list):  # one verdict per request, in turn
+            with self.server.lock:
+                credit = credit[self.server.calls % len(credit)]
+                self.server.calls += 1
+        items = [{"id": i, "correct": [1] if credit is True or (credit and i in credit) else [],
+                  "wrong": []} for i in ids]
+        answer = {"id": "x", "object": "chat.completion", "created": 0, "model": "local",
+                  "choices": [{"index": 0, "finish_reason": "stop",
+                               "message": {"role": "assistant",
+                                           "content": json.dumps({"items": items})}}]}
+        data = json.dumps(answer).encode()
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(data)))
+        self.end_headers()
+        self.wfile.write(data)
+
+    def log_message(self, *args):
+        pass
 
 
 class CoordinatorLogCliTest(unittest.TestCase):
@@ -740,6 +773,282 @@ class CoordinatorLogCliTest(unittest.TestCase):
         result = self.run_cli("check", "--final")
         self.assertEqual(result.returncode, 1)
         self.assertIn("it ran on frame=205.0, the record now gives frame=200.0", result.stderr)
+
+    def judge_server(self, credit):
+        server = ThreadingHTTPServer(("127.0.0.1", 0), FakeJudge)
+        server.credit = credit
+        server.lock, server.calls = threading.Lock(), 0
+        threading.Thread(target=server.serve_forever, daemon=True).start()
+        self.addCleanup(server.server_close)
+        self.addCleanup(server.shutdown)
+        return server
+
+    def blind_sample(self, sample_id="sample-q05", flag=False, rubric=("item a", "item b")):
+        records = self.records()
+        records[sample_id]["validation"] = {"status": "validated", "blind_solved": flag}
+        records[sample_id]["question"] = "What is it?"
+        records[sample_id]["question_time"] = 100.0
+        records[sample_id]["triggers"] = [{"idx": 0, "required": True, "t_start": 100.0,
+                                           "t_end": 110.0, "rubric": list(rubric)}]
+        self.write_records(*records.values())
+
+    def semiblind(self, agent, sample_id, iteration, answer):
+        ws = self.workspace(agent, sample_id, "semiblind")
+        launched = self.run_cli("spawn", "--agent", agent, "--sample-id", sample_id, "--role",
+                                "semiblind", "--iteration", str(iteration), "--model", "local",
+                                "--reasoning-effort", "default", "--workspace", str(ws))
+        self.assertEqual(launched.returncode, 0, launched.stderr)
+        review = self.log_root / "data" / "reviews" / "video-id" / sample_id / f"semiblind.{iteration}.json"
+        review.parent.mkdir(parents=True, exist_ok=True)
+        review.write_text(json.dumps({"role": "semiblind", "sample_id": sample_id,
+                                      "iteration": iteration, "prior_answer": answer}))
+        finished = self.finish(agent, "--artifact", str(review))
+        self.assertEqual(finished.returncode, 0, finished.stderr)
+        self.assertIn("blind-judge", finished.stdout)
+        return review
+
+    def blind_judge(self, server, sample_id, review):
+        return self.run_cli("blind-judge", "--sample-id", sample_id, "--review", str(review),
+                            "--base-url", f"http://127.0.0.1:{server.server_address[1]}/v1")
+
+    def set_flag(self, sample_id, flag):
+        records = self.records()
+        records[sample_id]["validation"]["blind_solved"] = flag
+        self.write_records(*records.values())
+
+    def test_a_blind_answer_the_judge_credits_sets_the_flag_unless_a_ruling_says_why(self):
+        self.blind_sample()
+        review = self.semiblind("sb_r1", "sample-q05", 1, "It is a and b.")
+        result = self.run_cli("check", "--final")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("has no judge verdict on the current rubric", result.stderr)
+
+        judged = self.blind_judge(self.judge_server(True), "sample-q05", review)
+        self.assertEqual(judged.returncode, 0, judged.stderr)
+        self.assertIn("credited every required item", judged.stdout)
+        self.assertIn("prior_answer_assumptions", judged.stdout)
+        event = self.read_events()[-1]
+        self.assertEqual((event["event"], event["met"], event["items_met"]),
+                         ("blind_judge", True, ["w0.1", "w0.2"]))
+        self.assertTrue((self.log_root / event["result"]).is_file())
+        result = self.run_cli("check", "--final")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("but blind_solved is false and no blind-ruling explains it", result.stderr)
+
+        refused = self.run_cli("blind-ruling", "--sample-id", "sample-q05", "--basis",
+                               "screen-guess", "--items", "w0.3", "--text",
+                               "the screen may show 4 kΩ instead of 1 kΩ, then 4 ms")
+        self.assertEqual(refused.returncode, 2)
+        self.assertIn("w0.1, w0.2", refused.stderr)
+        ruled = self.run_cli("blind-ruling", "--sample-id", "sample-q05", "--basis",
+                             "screen-guess", "--items", "w0.2", "--text",
+                             "the screen may show 4 kΩ instead of 1 kΩ, then 4 ms")
+        self.assertEqual(ruled.returncode, 0, ruled.stderr)
+        result = self.run_cli("check", "--final")
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_an_item_is_met_when_most_judge_runs_credit_it(self):
+        self.blind_sample(flag=True)
+        review = self.semiblind("sb_r1", "sample-q05", 1, "It is a and b.")
+        server = self.judge_server([True, {"i1"}, True])
+        self.assertEqual(self.blind_judge(server, "sample-q05", review).returncode, 0)
+        event = self.read_events()[-1]
+        self.assertEqual(server.calls, 3)
+        self.assertEqual(event["votes"], {"w0.1": "3/3", "w0.2": "2/3"})
+        self.assertTrue(event["met"])
+
+        # the same answer is not judged again by the same judge on the same rubric
+        again = self.blind_judge(server, "sample-q05", review)
+        self.assertEqual(again.returncode, 2)
+        self.assertIn("judged already on this rubric by this judge", again.stderr)
+        self.assertEqual(server.calls, 3)
+
+        # another round, two of three runs against the second item: it is unmet
+        second = self.semiblind("sb_r2", "sample-q05", 2, "It is a, and b perhaps.")
+        server.credit, server.calls = [{"i1"}, {"i1"}, True], 0
+        self.assertEqual(self.blind_judge(server, "sample-q05", second).returncode, 0)
+        self.assertEqual(self.read_events()[-1]["items_unmet"], ["w0.2"])
+        self.assertEqual(self.run_cli("check", "--final").returncode, 0)
+
+    def test_a_verdict_of_a_single_judge_run_does_not_count(self):
+        self.blind_sample(flag=True)
+        review = self.semiblind("sb_r1", "sample-q05", 1, "It is a and b.")
+        judge = self.judge_server(True)
+        self.assertEqual(self.blind_judge(judge, "sample-q05", review).returncode, 0)
+        # as the first verdicts were logged: one run, no runs or votes field
+        path = self.log_root / "data" / "reviews" / "video-id" / "coordinator.log"
+        lines = [json.loads(line) for line in path.read_text().splitlines()]
+        for event in lines:
+            if event.get("event") == "blind_judge":
+                del event["runs"], event["votes"]
+        path.write_text("".join(json.dumps(e) + "\n" for e in lines))
+        result = self.run_cli("check", "--final")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("has no judge verdict on the current rubric", result.stderr)
+        refused = self.run_cli("blind-ruling", "--sample-id", "sample-q05", "--basis",
+                               "look-only", "--items", "w0.1", "--text",
+                               "item a names the colour of the curve only")
+        self.assertIn("run blind-judge first", refused.stderr)
+        self.assertEqual(self.blind_judge(judge, "sample-q05", review).returncode, 0)
+        self.assertEqual(self.run_cli("check", "--final").returncode, 0)
+
+    def test_blind_judge_refuses_an_empty_answer(self):
+        self.blind_sample()
+        review = self.semiblind("sb_r1", "sample-q05", 1, "  ")
+        judge = self.judge_server(True)
+        result = self.blind_judge(judge, "sample-q05", review)
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("has no prior_answer: send the semi-blind reviewer back", result.stderr)
+        self.assertEqual(judge.calls, 0)
+
+    def test_a_credited_blind_answer_needs_no_ruling_when_the_flag_is_true(self):
+        self.blind_sample(flag=True)
+        review = self.semiblind("sb_r1", "sample-q05", 1, "It is a and b.")
+        self.assertEqual(self.blind_judge(self.judge_server(True), "sample-q05", review).returncode, 0)
+        result = self.run_cli("check", "--final")
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_a_rewrite_that_keeps_the_rubric_keeps_the_flag(self):
+        self.blind_sample(flag=True)
+        first = self.semiblind("sb_r1", "sample-q05", 1, "It is a and b.")
+        self.assertEqual(self.blind_judge(self.judge_server(True), "sample-q05", first).returncode, 0)
+        # the when-clause is rewritten; the next run refuses to answer
+        self.set_flag("sample-q05", False)
+        second = self.semiblind("sb_r2", "sample-q05", 2, "I cannot know without the video.")
+        self.assertEqual(self.blind_judge(self.judge_server(False), "sample-q05", second).returncode, 0)
+        result = self.run_cli("check", "--final")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("does not clear the flag", result.stderr)
+        self.assertIn("semiblind.1.json", result.stderr)
+
+        # a repair that changes what the answer has to contain: the old verdicts do not apply
+        self.blind_sample(flag=False, rubric=("item c read off the screen",))
+        result = self.run_cli("check", "--final")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("round 2 has no judge verdict", result.stderr)
+        judge = self.judge_server(False)
+        self.assertEqual(self.blind_judge(judge, "sample-q05", second).returncode, 0)
+        # the first answer is judged again too: it may meet the new rubric as well
+        result = self.run_cli("check", "--final")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("semiblind.1.json was judged (line", result.stderr)
+        self.assertEqual(self.blind_judge(judge, "sample-q05", first).returncode, 0)
+        result = self.run_cli("check", "--final")
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_a_cosmetic_rubric_edit_keeps_the_flag_once_the_answers_are_judged_again(self):
+        self.blind_sample(flag=True)
+        first = self.semiblind("sb_r1", "sample-q05", 1, "It is a and b.")
+        judge = self.judge_server(True)
+        self.assertEqual(self.blind_judge(judge, "sample-q05", first).returncode, 0)
+        self.set_flag("sample-q05", False)
+        second = self.semiblind("sb_r2", "sample-q05", 2, "I cannot know without the video.")
+        judge.credit = False
+        self.assertEqual(self.blind_judge(judge, "sample-q05", second).returncode, 0)
+        # a comma in the rubric: the hash changes, what the answer has to contain does not
+        self.blind_sample(flag=False, rubric=("item a,", "item b"))
+        self.assertEqual(self.blind_judge(judge, "sample-q05", second).returncode, 0)
+        result = self.run_cli("check", "--final")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("semiblind.1.json was judged (line", result.stderr)
+        judge.credit = True
+        self.assertEqual(self.blind_judge(judge, "sample-q05", first).returncode, 0)
+        result = self.run_cli("check", "--final")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("does not clear the flag", result.stderr)
+        # the rounds keep their order however late the first one was judged again
+        ruled = self.run_cli("blind-ruling", "--sample-id", "sample-q05", "--review", str(first),
+                             "--basis", "repaired", "--items", "w0.1,w0.2", "--text",
+                             "the old wording named the resistance, the new one does not")
+        self.assertEqual(ruled.returncode, 0, ruled.stderr)
+        self.assertEqual(self.run_cli("check", "--final").returncode, 0)
+
+    def test_a_rewrite_that_withholds_what_the_old_wording_gave_is_ruled_repaired(self):
+        self.blind_sample(flag=True)
+        first = self.semiblind("sb_r1", "sample-q05", 1, "With the 4 kΩ the question names: 12 ms.")
+        judge = self.judge_server(True)
+        self.assertEqual(self.blind_judge(judge, "sample-q05", first).returncode, 0)
+        refused = self.run_cli("blind-ruling", "--sample-id", "sample-q05", "--review",
+                               str(first), "--basis", "repaired", "--items", "w0.1", "--text",
+                               "the old wording named the resistance, the new one does not")
+        self.assertEqual(refused.returncode, 2)
+        self.assertIn("once the new wording has its own judged round", refused.stderr)
+
+        self.set_flag("sample-q05", False)
+        second = self.semiblind("sb_r2", "sample-q05", 2, "The resistance is on screen; I cannot say.")
+        judge.credit = False
+        self.assertEqual(self.blind_judge(judge, "sample-q05", second).returncode, 0)
+        self.assertIn("--basis repaired", self.run_cli("check", "--final").stderr)
+        missing = self.run_cli("blind-ruling", "--sample-id", "sample-q05", "--review",
+                               "semiblind.9.json", "--basis", "repaired", "--items", "w0.1",
+                               "--text", "the old wording named the resistance, the new one does not")
+        self.assertEqual(missing.returncode, 2)
+        self.assertIn("the judged rounds are", missing.stderr)
+        ruled = self.run_cli("blind-ruling", "--sample-id", "sample-q05", "--review", str(first),
+                             "--basis", "repaired", "--items", "w0.1,w0.2", "--text",
+                             "the old wording named the resistance, the new one does not")
+        self.assertEqual(ruled.returncode, 0, ruled.stderr)
+        result = self.run_cli("check", "--final")
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_a_true_flag_the_judge_does_not_support_needs_a_look_only_ruling(self):
+        self.blind_sample(flag=True)
+        review = self.semiblind("sb_r1", "sample-q05", 1, "It is a; the colour I cannot tell.")
+        self.assertEqual(self.blind_judge(self.judge_server({"i1"}), "sample-q05", review).returncode, 0)
+        result = self.run_cli("check", "--final")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("unmet: w0.2", result.stderr)
+
+        refused = self.run_cli("blind-ruling", "--sample-id", "sample-q05", "--basis",
+                               "video-content", "--items", "w0.1", "--text",
+                               "the example is the video's own construction")
+        self.assertEqual(refused.returncode, 2)
+        self.assertIn("did not credit", self.run_cli(
+            "blind-ruling", "--sample-id", "sample-q05", "--basis", "look-only", "--items",
+            "w0.1", "--text", "item b names the colour of the curve only").stderr)
+        ruled = self.run_cli("blind-ruling", "--sample-id", "sample-q05", "--basis", "look-only",
+                             "--items", "w0.2", "--text", "item b names the colour of the curve only")
+        self.assertEqual(ruled.returncode, 0, ruled.stderr)
+        result = self.run_cli("check", "--final")
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_look_only_names_every_item_the_judge_did_not_credit(self):
+        self.blind_sample(flag=True, rubric=("item a", "item b", "item c"))
+        review = self.semiblind("sb_r1", "sample-q05", 1, "It is a; I cannot tell the rest.")
+        self.assertEqual(self.blind_judge(self.judge_server({"i1"}), "sample-q05", review).returncode, 0)
+        refused = self.run_cli("blind-ruling", "--sample-id", "sample-q05", "--basis", "look-only",
+                               "--items", "w0.2", "--text", "item b names the colour of the curve only")
+        self.assertEqual(refused.returncode, 2)
+        self.assertIn("look-only names every item the judge did not credit", refused.stderr)
+        ruled = self.run_cli("blind-ruling", "--sample-id", "sample-q05", "--basis", "look-only",
+                             "--items", "w0.2,w0.3", "--text",
+                             "items b and c name the colours of the curves only")
+        self.assertEqual(ruled.returncode, 0, ruled.stderr)
+        result = self.run_cli("check", "--final")
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_blind_judge_refuses_another_samples_review_and_a_ruling_without_a_verdict(self):
+        self.blind_sample()
+        review = self.semiblind("sb_r1", "sample-q05", 1, "It is a and b.")
+        result = self.blind_judge(self.judge_server(True), "sample-q06", review)
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("give the semiblind.<round>.json of sample-q06", result.stderr)
+        result = self.run_cli("blind-ruling", "--sample-id", "sample-q05", "--basis",
+                              "screen-guess", "--items", "w0.1", "--text",
+                              "the screen may show another circuit entirely")
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("run blind-judge first", result.stderr)
+
+    def test_a_semiblind_launch_before_the_judge_existed_owes_no_verdict(self):
+        self.blind_sample()
+        self.semiblind("sb_r1", "sample-q05", 1, "It is a and b.")
+        path = self.log_root / "data" / "reviews" / "video-id" / "coordinator.log"
+        lines = [json.loads(line) for line in path.read_text().splitlines()]
+        for event in lines:
+            event["ts"] = "2026-10-15T07:57:04+03:00"
+        path.write_text("".join(json.dumps(e) + "\n" for e in lines))
+        result = self.run_cli("check", "--final")
+        self.assertEqual(result.returncode, 0, result.stderr)
 
     def test_finish_records_the_artifact_and_warns_on_a_mismatch(self):
         artifact = self.log_root / "full_window2.3.json"

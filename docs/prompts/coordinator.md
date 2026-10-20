@@ -37,33 +37,90 @@ decided by the definition, not by whether the reviewer listed it in
 **Why.** Blind solving measures whether the answer is available without the video, not
 whether a reviewer can luckily reconstruct unseen screen content from a familiar genre.
 
+**Whether the blind answer is correct is the judge's call, not yours.** Once the semi-blind
+review is saved, run
+
+    /home/user/conda/bin/python3 tools/coordinator_log.py <VIDEO_ID> blind-judge --sample-id <id> \
+        --review data/reviews/<VIDEO_ID>/<id>/semiblind.<ROUND>.json
+
+It scores the `prior_answer` with the judge that will score the models
+(`tools/eval_judge.py`), against the rubric the record has now, item by item, and logs the
+verdict. The judge runs three times and an item is met when most runs credit it: on a
+borderline answer one run may differ, and that difference is not a ground for a ruling. One
+answer is judged once on one rubric: the tool refuses to draw the verdict again. After every
+edit of the rubric, judge again every answer judged before — each round's, not only the
+latest — since an earlier answer may meet the new rubric too; `check --final` names the ones
+left. A verdict logged from a single run of the judge does not count: judge that answer again.
+Do not re-score the answer yourself: an item the judge credits is met. "The accepted band is so wide that the hit is a coincidence" is
+an argument about the rubric, not about the answer: narrow the band (a `rubric` edit, with its
+reruns) or accept the verdict. Copy the judge's item-by-item verdict into
+`coordinator.<ROUND>.md`, so that it is visible what the sample rests on.
+
+**Departing from the judge is a ruling with its grounds.** Without a ruling,
+`blind_solved` is the judge's verdict. What the judge cannot see is whether a credited answer
+is honest, and whether an uncredited item decides at all. Read the review's
+`prior_answer_assumptions` next to the verdict: a credited item that rests on an assumption
+about the screen listed there is a `screen-guess`, and the assumption names the alternative.
+Each departure is logged, and belongs to one verdict: when the answer is judged again, rule
+again if the grounds still hold.
+
+    /home/user/conda/bin/python3 tools/coordinator_log.py <VIDEO_ID> blind-ruling --sample-id <id> \
+        --basis <basis> --items <item ids from the verdict> --text "<grounds>"
+
+- `screen-guess` (the flag stays `false`): a credited item rests on a choice among concrete
+  alternatives for the screen's content that the question leaves open. Name the alternative
+  and what the answer would have been under it. If you cannot name one, it is not a guess.
+- `video-content` (`false`): a credited item rests on content only this video has — its
+  example, its numbers, its construction — or on memory of this video. Name it. A published
+  fact about the thing the video discusses is prior knowledge, not this video's content, even
+  when the video shows it too: the measured value of a constant, Kepler's third law for a
+  named planet, the textbook proof that √2 is irrational.
+- `repaired` (`false`): an earlier round's answer was credited, and the version since took
+  from the question what that answer used — a value, a relation, a named case the old wording
+  gave and the new one leaves to the screen. Name it. It is a ruling on that round, with
+  `--review <its semiblind file>`, once the new wording has its own judged round.
+- `look-only` (`true`): the items the judge did not credit are about the look of the screen
+  only — a colour, the choice of symbols — and every substantive item is credited. Name every
+  uncredited item; if one of them is substantive, the flag stays `false`.
+
+A fact you have counted as prior knowledge in one sample of the video is prior knowledge in
+every sample of it. `check --final` fails on a validated sample whose flag disagrees with the
+judge and no ruling explains it.
+
+**A rewrite that keeps the rubric keeps the flag.** Once a blind answer has met the rubric of
+a version, every later version with the same rubric items stays `blind_solved = true`,
+whatever a later semi-blind run answers — a refusal, a sentence about its knowledge, a weaker
+answer. Two runs of one model are one measurement, and the first has already shown the answer
+is available without the video. Only a repair clears the flag: one that changes what the
+answer has to contain — the rubric items — or one that withholds what the old wording gave,
+ruled `repaired`. Changing only *when* to ask is neither. `check --final` compares the rubric
+the answers were judged on with the one the record has now.
+
 **A hedged answer is not credited with the better of its branches.** "3 ms, or 12 ms if the
 resistors turn out to be in series" does not count as solved, whichever branch matches the
 reference: in the measurement a model that names two values is penalised for the wrong one,
 and listing the plausible options is not solving.
 
 **A caveat about notation, colour or verbatim wording is not an assumption about
-content.** Score the blind answer against the rubric item by item; the definition of
-`blind_solved` says which items decide and what a guess is. Two answers that look alike are
-scored differently:
+content.** The definition of `blind_solved` says which items decide and what a guess is. Two
+answers that look alike are ruled differently:
 
 - "The time constant is 12 ms, if the diagram shows 4 kΩ and 3 µF" — the correctness
   depends on an assumption about the screen: a guess, `blind_solved = false`, even when the
-  screen shows exactly these values.
+  screen shows exactly these values and the judge credits the 12 ms. The ruling is
+  `screen-guess`, and the alternative is any other pair of values.
 - "The capacitor voltage follows V₀(1 − e^(−t/RC)), so it reaches 63 % of the supply
   voltage after one time constant; which letters and colours the screen uses I cannot say"
-  — its correctness does not depend on the screen. Ignore the caveat and score the content.
+  — its correctness does not depend on the screen. The caveat is no ground for a ruling.
   Items about the screen itself that the answer does not name are unmet, and they do not
-  decide. If every substantive item of the rubric is met, `blind_solved = true`, and a
-  rubric item about a colour does not rescue the sample: such a sample tests colour
-  recognition, not the science. It is repaired or kept as a blind baseline like any other.
-
-Name in `coordinator.<ROUND>.md` which items were met blind, so that it is visible what the
-sample rests on.
+  decide: if every substantive item is credited, the ruling is `look-only` and
+  `blind_solved = true`. A rubric item about a colour does not rescue the sample: such a
+  sample tests colour recognition, not the science. It is repaired or kept as a blind
+  baseline like any other.
 
 The reviewer is asked for content, not a meta-statement about it ("I know only the general
 textbook derivation" scores nothing; the derivation itself does). A `prior_answer` that is a
-sentence *about* the reviewer's knowledge is sent back for the content before it is scored —
+sentence *about* the reviewer's knowledge is sent back for the content before it is judged —
 that is a follow-up to the same subagent, not a new round.
 
 **A blind-solved sample is not dropped: the version that survives gets the whole cycle.**
@@ -71,7 +128,8 @@ that is a follow-up to the same subagent, not a new round.
 `full_window`. It is also not a reason to run them early: the full reviews belong to the
 version that survives, and the barrier in section 3 applies to a blind-repair exactly as to
 any other cheap fix. The flag itself stays recorded on the version that was measured (its
-review files and `coordinator.<ROUND>.md`); an edit never clears it.
+review files and `coordinator.<ROUND>.md`); only a repair clears it on a later version
+(above, "A rewrite that keeps the rubric keeps the flag").
 
 Decide once, from the consolidated cheap results, whether a repair is attempted:
 
@@ -85,7 +143,9 @@ Decide once, from the consolidated cheap results, whether a repair is attempted:
   rule in section 3; `full_sample` and every `full_window` run only on the rewritten version,
   once it has passed the barrier. Do not spend full reviews on the measured wording first: it
   is about to be replaced, and the new cycle re-checks everything they would have checked. Only
-  the new reviews can clear `blind_solved`.
+  the new reviews can clear `blind_solved`, and only when the rewrite changed the rubric items
+  or withholds what the measured wording gave (above, "A rewrite that keeps the rubric keeps
+  the flag").
 - **No repair** (none found, or the sample is deliberately kept as a blind baseline).
   Apply the non-wording cheap fixes, pass the barrier, and run `full_sample` and every
   `full_window` on that version. A waiting-only task (below) is not kept this way.
@@ -112,14 +172,14 @@ answer from the video inside the window, and the question itself does not give i
 The `solvable-without-video` line in the semi-blind reviewer's review is **preliminary**.
 They compare their answer not against the rubric but against their own impression of the
 material: they have no reference answer and must not have one. So their `result` is read
-as a self-report, and `validation.blind_solved` is derived by the coordinator under rule
-1.
+as a self-report, and `validation.blind_solved` is derived under rule 1 from the judge's
+verdict on the answer.
 
 The same holds in reverse: an `ok` from the semi-blind reviewer does not mean the sample
 is clean. They may have failed to recall a fact another model will recall.
 
-**Score every saved answer the way the judge will.** For the semi-blind reviewer's
-`prior_answer` and for each probe's answer, go through the rubric item by item, including
+**Score every probe's answer the way the judge will.** The blind answer is scored by the
+judge itself (§1). For each probe's answer, go through the rubric item by item, including
 what an item excludes, and use only the material that attempt had. An answer that offers
 alternatives for one rubric item does not meet that item, whichever alternative is right: a
 hedged answer is not credited with the better of its branches. If the alternatives come from
@@ -260,7 +320,7 @@ and `check --final` verifies that the reviews were rerun:
 | a window boundary, or an `evidence_span` that changes the derived `temporal_rel` — a span only after §6 has checked it against `t_val` | `boundary --window <idx>`, with `--span` when the span changed | `full_window<idx>` of that window — the index is required, or any window's review would settle the debt; and every probe whose input moved: `probe_frame` of that window (its frame is the window's middle), and `probe_text`, `probe_vision`, `probe_full` when the `t_end` their material ran to has moved. The flag of the old run does not carry over | re-adjudicate stage A against the new `t_start` |
 | an `evidence_span` that leaves the derived `temporal_rel` unchanged and passes the validator — a span only after §6 has checked it against `t_val` | `metadata --window <idx> --span` | — | — |
 | `t_start` or `t_end` moved by **at most 2 s** to a `full_window` or semi-blind review's own frame measurement, or to a `t_s` verified in stage C, widening or shifting the window | `nudge --window <idx>` | — (the reviewer's frames are the verification). A cut of 2 s or less that only narrows a window is not made. An `evidence_span` disagreement of 2 s or less is not applied: the annotated value stands and the measurement goes into a `note` | nothing; if a later review measures a different second within the same 2 s, the first measurement stands and the disagreement goes into a `note` |
-| the text of a rubric item | `rubric --window <idx>`, one event per touched window; omit `--window` when every window's rubric changed | `full_sample` (5.x); `full_window<idx>` of each touched window (2.5, the residue) | re-score the saved blind answer and probe answers against the new rubric; re-adjudicate stage A |
+| the text of a rubric item | `rubric --window <idx>`, one event per touched window; omit `--window` when every window's rubric changed | `full_sample` (5.x); `full_window<idx>` of each touched window (2.5, the residue) | run `blind-judge` again on the saved blind answer (§1); re-score the probe answers against the new rubric; re-adjudicate stage A |
 | `reasoning_level` only | `level` | — | re-read every 2.5 split against the new level — its copies show the level the review ran with, which is not a defect of the review — and re-adjudicate stage A by the route of the new level |
 | `question_time` moved by **at most 2 s** | `timing` | — | stage A's `t_val` does not depend on `question_time`. A larger move changes the moment at which the question must make sense: it is a new version of the question, as a wording change ([definitions.md](definitions.md), "Boundary tolerance") |
 | provenance, notes, `trap_note` | `metadata` | — | — |

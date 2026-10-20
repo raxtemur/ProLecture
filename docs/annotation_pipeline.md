@@ -438,7 +438,10 @@ practice this means the fourth probe is launched rarely.
 What the coordinator does with all this:
 
 - `blind_solved` is set by the **coordinator**, not by the semi-blind reviewer: the line in their
-  `checks` is preliminary, because they have nothing to compare against. When an answer counts as
+  `checks` is preliminary, because they have nothing to compare against. Whether the blind
+  answer meets the rubric is scored by the evaluation judge (`coordinator_log.py blind-judge`);
+  the coordinator departs from that verdict only by a logged `blind-ruling` that names its
+  grounds, and a rewrite that keeps the rubric keeps the flag. When an answer counts as
   blind solving is defined in [prompts/definitions.md](prompts/definitions.md), "`blind_solved`":
   it is at once **correct** (it meets every substantive rubric item) and **honest** (it does not
   rest on assumptions about screen content not seen). A guess of the form "probably the screen
@@ -472,8 +475,8 @@ What the coordinator does with all this:
   4.5 — it is never set by hand;
 - a modality counts as sufficient if its probe answered correctly on at least one **required**
   window (checklist 4.1);
-- the coordinator names in `coordinator.<ROUND>.md` which rubric items the blind answer met, so
-  that it is visible what the sample rests on (4.2);
+- the coordinator copies the judge's item-by-item verdict on the blind answer into
+  `coordinator.<ROUND>.md`, so that it is visible what the sample rests on (4.2);
 - when the 2.5 checks of several required windows give different levels, the sample takes the
   **lowest** of them (2.5), and the coordinator reads every 2.5 verdict against the level settled
   by 7.3: the two items belong to different roles and run in parallel;

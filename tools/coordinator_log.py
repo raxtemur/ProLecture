@@ -92,6 +92,24 @@ soon as one more launch has a valid file. It writes nothing to the log.
 ``sample-edit --span`` marks an edit of a window's ``evidence_span``. It is refused until
 that window's stretch has been adjudicated: a span is applied only after it has been checked
 against ``t_val`` (checklist 7.5).
+
+``blind-judge`` scores the semi-blind reviewer's answer before viewing (``prior_answer``)
+with the evaluation judge, ``tools/eval_judge.py``, against the rubric the record has now, and
+logs the verdict with a hash of the required windows' rubric. The judge runs ``JUDGE_RUNS``
+times, and an item is met when most runs credit it. The coordinator used to score it
+by eye and kept in the primary set answers that met every item
+(docs/reports/2026-10-18-objections-audit.md). ``blind-ruling`` records a departure
+from the judge with its grounds: ``screen-guess`` or ``video-content`` for an answer the judge
+credited, ``repaired`` for an earlier round's answer that took from the old wording what the
+new one withholds, ``look-only`` for one whose uncredited items are about the look of the
+screen. ``--review`` names the judged round a ruling is about; the last one by default.
+``check --final`` fails on a validated sample whose ``blind_solved`` disagrees with the judged
+answers of its current rubric and no ruling explains it; one judged answer that met that
+rubric and has no ruling against it keeps the flag true whatever a later run answers. A sample
+whose last semi-blind launch is from ``BLIND_JUDGE_SINCE`` on must have its latest round
+judged, and every answer judged once must be judged again after the rubric changes. A verdict
+counts only with ``JUDGE_RUNS`` runs, and an answer is not judged twice by one judge on one
+rubric: the verdict cannot be redrawn until it flips.
 """
 
 from __future__ import annotations
@@ -171,6 +189,19 @@ CHECKLIST = "docs/annotation_checklist.md"
 
 # Roles launched once per window: the role carries the window's index.
 WINDOW_INDEXED = ("full_window", "probe_frame")
+
+
+# A semi-blind launch from this day on owes a judge verdict on its blind answer; the logs
+# written before blind-judge existed are checked only where a verdict was logged.
+BLIND_JUDGE_SINCE = "2026-10-19"
+# What a blind-ruling may say, and the flag it gives (coordinator.md, "Blind solving").
+RULING_BASES = {"screen-guess": False, "video-content": False, "repaired": False,
+                "look-only": True}
+JUDGE_URL = "http://127.0.0.1:8000/v1"
+# The judge is not deterministic on a borderline answer even at temperature 0 (batched vLLM):
+# one answer of 2026-10-19 was credited in three runs of four. An item is met when most runs
+# credit it.
+JUDGE_RUNS = 3
 
 
 def role_error(role: str) -> str | None:
@@ -349,6 +380,288 @@ def record_statuses(path: Path, events: list[tuple[int, dict]]) -> dict[str, str
     return statuses
 
 
+def rubric_sha(record: dict) -> str:
+    """What a blind answer has to contain: the rubric of the required windows, in order. A
+    rewrite that keeps it asks for the same answer, however the question is worded."""
+    rubrics = [t.get("rubric") or [] for t in sorted(record.get("triggers", []),
+                                                    key=lambda t: t.get("idx", 0))
+               if t.get("required", True)]
+    return hashlib.sha256(json.dumps(rubrics, ensure_ascii=False).encode("utf-8")).hexdigest()
+
+
+def current_record(sample_id: str, events: list[tuple[int, dict]]) -> dict | None:
+    """The record as it stands now, found through the file the sample's last launch was
+    prepared from; None when it cannot be read."""
+    names = [e["annotations"] for _, e in events
+             if e.get("sample_id") == sample_id and e.get("annotations")]
+    try:
+        if names:
+            return review_inputs.find_logged_record(ROOT, sample_id, names[-1])[1]
+        return review_inputs.find_record(ROOT, sample_id)[1]
+    except (OSError, KeyError, json.JSONDecodeError, review_inputs.InputsError):
+        return None
+
+
+def judge_answer(record: dict, answer: str, base_url: str, model: str) -> dict:
+    """The evaluation judge's verdict on one answer, as eval_judge.py gives it for a model's
+    output: the answer is one line at question_time."""
+    import httpx
+    from openai import OpenAI
+    import eval_judge
+
+    local = base_url.split("//")[-1].split(":")[0].split("/")[0] in ("127.0.0.1", "localhost")
+    client = OpenAI(base_url=base_url, api_key=os.environ.get("VLLM_API_KEY") or "dummy",
+                    timeout=900, http_client=httpx.Client(trust_env=not local, timeout=900))
+    saved = {"task": f"{record['id']}.blind", "run": 0,
+             "responses": [{"t": float(record.get("question_time") or 0.0),
+                            "content": answer}]}
+    return eval_judge.judge_task(client, model, record, saved)
+
+
+def review_key(name: str) -> str:
+    """A review file as the log names it: relative to the root, whichever way it was given, so
+    that one answer is one answer."""
+    path = Path(name)
+    if not path.is_absolute():
+        path = path if path.exists() else ROOT / path
+    return portable_path(path.resolve())
+
+
+def judge_runs(event: dict) -> int:
+    """How many runs of the judge a verdict pooled; the first majority verdicts were logged
+    without the field, and their votes ("2/3") say it."""
+    if isinstance(event.get("runs"), int):
+        return event["runs"]
+    try:
+        return min(int(str(vote).split("/")[1]) for vote in event["votes"].values())
+    except (KeyError, AttributeError, IndexError, ValueError):
+        return 1
+
+
+def counts(event: dict) -> bool:
+    """A verdict counts when it pooled JUDGE_RUNS runs of the judge. The verdicts of a single
+    run, logged before the majority existed, do not: a single run flips on a borderline item."""
+    return (event.get("event") == "blind_judge" and isinstance(event.get("met"), bool)
+            and judge_runs(event) >= JUDGE_RUNS)
+
+
+def blind_judge_event(args: argparse.Namespace, events: list[tuple[int, dict]],
+                      video_id: str) -> dict | str:
+    """The judge's verdict on a saved blind answer, or why it cannot be had."""
+    key = review_key(args.review)
+    try:
+        review = json.loads((ROOT / key).read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        return f"cannot read the semi-blind review {args.review}: {exc}"
+    if review.get("role") != "semiblind" or review.get("sample_id") != args.sample_id:
+        return (f"{args.review} is a {review.get('role')} review of {review.get('sample_id')}: "
+                f"give the semiblind.<round>.json of {args.sample_id}")
+    answer = (review.get("prior_answer") or "").strip()
+    if not answer:
+        return (f"{args.review} has no prior_answer: send the semi-blind reviewer back for the "
+                f"content of its answer (coordinator.md, \"Blind solving\"), then judge it")
+    record = current_record(args.sample_id, events)
+    if record is None:
+        return f"the record {args.sample_id} cannot be read from the annotation files"
+    try:
+        import httpx  # noqa: F401
+        import openai
+        import eval_judge
+    except ImportError as exc:
+        return (f"the judge cannot be loaded ({exc}): run coordinator_log.py with "
+                f"/home/user/conda/bin/python3")
+    sha = rubric_sha(record)
+    for line, event in events:
+        if (counts(event) and event.get("sample_id") == args.sample_id
+                and review_key(str(event.get("review"))) == key
+                and event.get("rubric_sha") == sha
+                and event.get("judge_prompt") == eval_judge.PROMPT_VERSION):
+            return (f"{key} is judged already on this rubric by this judge (line {line}). A "
+                    f"verdict is not drawn again: it is redone only when the rubric or the judge "
+                    f"changes. Decide from that verdict")
+    runs = []
+    for _ in range(JUDGE_RUNS):  # one after another: runs batched together tend to agree
+        try:
+            runs.append(judge_answer(record, answer, args.base_url, args.model))
+        except RuntimeError as exc:
+            return f"the judge's answer could not be read ({exc}): run blind-judge again"
+        except (openai.OpenAIError, OSError) as exc:
+            return (f"the judge at {args.base_url} gave no verdict: {exc}. It is the vLLM server "
+                    f"you run on; check that it answers (curl {args.base_url}/models). Do not "
+                    f"set blind_solved until the judge has run")
+    required = [item["id"] for item in runs[0]["items"] if item["required"]]
+    votes = {iid: sum(any(i["id"] == iid and i["correct"] and not i["wrong"] for i in run["items"])
+                      for run in runs) for iid in required}
+    met = [iid for iid in required if 2 * votes[iid] > JUDGE_RUNS]
+    label = re.search(r"semiblind\.(\d+[a-z]?)\.json$", key)
+    label = label.group(1) if label else str(review.get("iteration"))
+    saved = (ROOT / "data" / "reviews" / video_id / args.sample_id
+             / f"blind_judge.{label}.{sha[:8]}.{eval_judge.PROMPT_VERSION}.json")
+    saved.parent.mkdir(parents=True, exist_ok=True)
+    saved.write_text(json.dumps({"review": key, "answer": answer, "rubric_sha": sha,
+                                 "votes": votes, "runs": runs}, ensure_ascii=False, indent=1),
+                     encoding="utf-8")
+    return {"ts": timestamp(), "event": "blind_judge", "sample_id": args.sample_id,
+            "review": key, "iteration": review.get("iteration"), "rubric_sha": sha,
+            "judge_model": args.model, "judge_prompt": eval_judge.PROMPT_VERSION,
+            "runs": JUDGE_RUNS, "met": bool(required) and len(met) == len(required),
+            "items_met": met, "items_unmet": [i for i in required if i not in met],
+            "votes": {iid: f"{n}/{JUDGE_RUNS}" for iid, n in votes.items()},
+            "result": portable_path(saved)}
+
+
+def portable_path(path: Path) -> str:
+    try:
+        return str(path.relative_to(ROOT))
+    except ValueError:
+        return str(path)
+
+
+def verdicts_on(sample_id: str, events: list[tuple[int, dict]], sha: str
+                ) -> list[tuple[int, dict]]:
+    """The judge's verdicts on the sample's blind answers against the rubric with this hash,
+    in the order of the semi-blind rounds: the last one for each review, since an answer judged
+    again (after a fix of the judge or of the rubric) is judged anew. Only the verdicts that
+    count (``counts``)."""
+    last = {}
+    for line_number, event in events:
+        if counts(event) and event.get("sample_id") == sample_id and event.get("rubric_sha") == sha:
+            last[review_key(str(event.get("review")))] = (line_number, event)
+
+    def round_order(verdict: tuple[int, dict]) -> tuple[int, int]:
+        iteration = str(verdict[1].get("iteration"))
+        return (int(iteration) if iteration.isdigit() else 0, verdict[0])
+
+    return sorted(last.values(), key=round_order)
+
+
+def blind_ruling_event(args: argparse.Namespace, events: list[tuple[int, dict]]) -> dict | str:
+    """A departure from the judge, checked against its last verdict on the current rubric."""
+    record = current_record(args.sample_id, events)
+    if record is None:
+        return f"the record {args.sample_id} cannot be read from the annotation files"
+    verdicts = verdicts_on(args.sample_id, events, rubric_sha(record))
+    if not verdicts:
+        return (f"{args.sample_id} has no judge verdict on its current rubric: run blind-judge "
+                f"first; a ruling departs from a verdict")
+    chosen = [v for v in verdicts
+              if args.review is None or review_key(str(v[1].get("review"))) == review_key(args.review)]
+    if not chosen:
+        reviews = ", ".join(sorted({str(e.get("review")) for _, e in verdicts}))
+        return (f"no judge verdict on the current rubric for {args.review}; the judged rounds "
+                f"are {reviews}")
+    line, judged = chosen[-1]
+    items = [item.strip() for item in args.items.split(",") if item.strip()]
+    solved = RULING_BASES[args.basis]
+    if args.basis == "repaired" and chosen[-1] == verdicts[-1]:
+        return ("repaired is a ruling on an earlier round's answer, once the new wording has its "
+                "own judged round: run blind-judge on the new round's review, then rule on the "
+                "old one with --review")
+    if not solved and not judged["met"]:
+        return (f"the judge did not credit the blind answer (line {line}, unmet: "
+                f"{', '.join(judged['items_unmet'])}), so blind_solved is false without a ruling")
+    if solved and judged["met"]:
+        return f"the judge credited every required item (line {line}): blind_solved is true already"
+    pool = judged["items_met"] if not solved else judged["items_unmet"]
+    stray = [item for item in items if item not in pool]
+    if solved and not stray and set(items) != set(pool):
+        return (f"look-only names every item the judge did not credit (line {line}): "
+                f"{', '.join(pool)}. If one of them is substantive, the flag stays false and no "
+                f"ruling is needed")
+    if not items or stray:
+        which = "credited" if not solved else "did not credit"
+        return (f"--items must name the items the judge {which} (line {line}): "
+                f"{', '.join(pool)}; {', '.join(stray) or 'none given'} is not among them")
+    if len(args.text.strip()) < 20:
+        return ("--text gives the grounds: the alternative screen content and the answer under "
+                "it, the content only this video has, what the old wording gave that the new one "
+                "withholds, or why the uncredited items are about the look of the screen only")
+    return {"ts": timestamp(), "event": "blind_ruling", "sample_id": args.sample_id,
+            "judge_line": line, "basis": args.basis, "solved": solved, "items": items,
+            "text": args.text.strip()}
+
+
+def blind_errors(video_id: str, events: list[tuple[int, dict]], statuses: dict[str, str]
+                 ) -> list[str]:
+    """Where a validated sample's blind_solved disagrees with the judge (coordinator.md,
+    "Blind solving")."""
+    errors = []
+    samples = {e.get("sample_id") for _, e in events
+               if e.get("event") == "blind_judge"
+               or (e.get("event") == "spawn" and base_role(e.get("role")) == "semiblind")}
+    rulings = {e.get("judge_line"): e for _, e in events if e.get("event") == "blind_ruling"}
+    for sample_id in sorted(s for s in samples if s and statuses.get(s) == "validated"):
+        record = current_record(sample_id, events)
+        if record is None:
+            continue
+        sha = rubric_sha(record)
+        judged = verdicts_on(sample_id, events, sha)
+        spawns = [e for _, e in events if e.get("event") == "spawn"
+                  and e.get("sample_id") == sample_id and base_role(e.get("role")) == "semiblind"]
+        last = spawns[-1] if spawns else None
+        if (last is not None and str(last.get("ts", ""))[:10] >= BLIND_JUDGE_SINCE
+                and not any(e.get("iteration") == last.get("iteration") for _, e in judged)):
+            errors.append(f"{sample_id}: the blind answer of semi-blind round "
+                          f"{last.get('iteration')} has no judge verdict on the current rubric. "
+                          f"Run `coordinator_log.py {video_id} blind-judge --sample-id "
+                          f"{sample_id} --review data/reviews/{video_id}/{sample_id}/"
+                          f"semiblind.{last.get('iteration')}.json` and set blind_solved from "
+                          f"it (coordinator.md, \"Blind solving\")")
+            continue
+        current = {review_key(str(e.get("review"))) for _, e in judged}
+        stale = {}
+        for line, e in events:
+            if (e.get("event") == "blind_judge" and e.get("sample_id") == sample_id
+                    and review_key(str(e.get("review"))) not in current):
+                stale[review_key(str(e.get("review")))] = line
+        if stale:
+            for review, line in sorted(stale.items()):
+                errors.append(f"{sample_id}: the blind answer in {review} was judged (line "
+                              f"{line}) on another rubric or by a single run of the judge. Judge "
+                              f"it again: `coordinator_log.py {video_id} blind-judge --sample-id "
+                              f"{sample_id} --review {review}`. Every judged answer counts, not "
+                              f"only the latest round's (coordinator.md, \"A rewrite that keeps "
+                              f"the rubric keeps the flag\")")
+            continue
+        if not judged:
+            continue
+        verdicts = [(line, e, rulings.get(line)) for line, e in judged]
+        solved = [(line, e, r) for line, e, r in verdicts if (r.get("solved") if r else e["met"])]
+        flag = bool((record.get("validation") or {}).get("blind_solved"))
+        latest_line, latest, _ = verdicts[-1]
+        if solved and not flag:
+            line, e, _ = solved[-1]
+            if line == latest_line:
+                errors.append(
+                    f"{sample_id}: the judge credited every required item of the blind answer "
+                    f"in {e.get('review')} (line {line}), but blind_solved is false and no "
+                    f"blind-ruling explains it. Set blind_solved to true and keep the sample as "
+                    f"a blind baseline, or, if a credited item rests on a guess, log "
+                    f"`blind-ruling --sample-id {sample_id} --basis screen-guess|video-content "
+                    f"--items <ids> --text \"<grounds>\"` naming the alternative screen content "
+                    f"or the content only this video has (coordinator.md, \"Departing from the "
+                    f"judge\")")
+            else:
+                errors.append(
+                    f"{sample_id}: the blind answer in {e.get('review')} (line {line}) met the "
+                    f"rubric the record has now, and no ruling departs from that verdict; the "
+                    f"verdict on {latest.get('review')} (line {latest_line}) does not clear the "
+                    f"flag. Set blind_solved to true, or rule on that answer: `blind-ruling "
+                    f"--sample-id {sample_id} --review {e.get('review')} --basis "
+                    f"repaired|screen-guess|video-content --items <ids> --text \"<grounds>\"` — "
+                    f"repaired when it took from the old wording what the new one withholds "
+                    f"(coordinator.md, \"A rewrite that keeps the rubric keeps the flag\")")
+        elif flag and not solved:
+            errors.append(
+                f"{sample_id}: blind_solved is true, but the judge did not credit the blind "
+                f"answer in {latest.get('review')} (line {latest_line}, unmet: "
+                f"{', '.join(latest.get('items_unmet') or [])}) and no ruling says those items "
+                f"are about the look of the screen only. Set blind_solved to false, or log "
+                f"`blind-ruling --sample-id {sample_id} --basis look-only --items <ids> --text "
+                f"\"<grounds>\"` (coordinator.md, \"Departing from the judge\")")
+    return errors
+
+
 def validate_log(path: Path, final: bool = False) -> int:
     if not path.exists():
         print(f"log does not exist: {path}", file=sys.stderr)
@@ -358,7 +671,7 @@ def validate_log(path: Path, final: bool = False) -> int:
     noted = noted_agents(events)
 
     active: set[str] = set()
-    launches = finishes = edits = adjudications = notes = 0
+    launches = finishes = edits = adjudications = notes = blind = 0
     # kind-tagged edits waiting for their reruns: (line, sample_id, roles still missing)
     pending: list[tuple[int, str, set[str]]] = []
     # adjudicated stretches: (sample_id, window) -> lines; windowed events by (sample, round, window)
@@ -423,6 +736,18 @@ def validate_log(path: Path, final: bool = False) -> int:
             notes += 1
             if not event.get("text"):
                 errors.append(f"line {line_number}: note has no text")
+        elif event_type == "blind_judge":
+            blind += 1
+            if not (event.get("sample_id") and event.get("review") and event.get("rubric_sha")
+                    and isinstance(event.get("met"), bool)):
+                errors.append(f"line {line_number}: blind_judge needs sample_id, review, "
+                              f"rubric_sha and met: log verdicts with blind-judge only")
+        elif event_type == "blind_ruling":
+            blind += 1
+            if not (isinstance(event.get("judge_line"), int) and isinstance(event.get("solved"), bool)
+                    and event.get("basis") in RULING_BASES):
+                errors.append(f"line {line_number}: blind_ruling needs judge_line, solved and a "
+                              f"basis: log rulings with blind-ruling only")
         else:
             errors.append(f"line {line_number}: unknown event: {event_type!r}")
 
@@ -439,6 +764,7 @@ def validate_log(path: Path, final: bool = False) -> int:
              for line, sample_id, missing in pending if missing and sample_id not in rejected]
     if final:
         errors += stale
+        errors += blind_errors(path.parent.name, events, statuses)
         for (sample_id, role), (line, spawn) in sorted(last_probe.items()):
             if sample_id in rejected:
                 continue
@@ -463,7 +789,7 @@ def validate_log(path: Path, final: bool = False) -> int:
         return 1
 
     print(f"log valid: {launches} launches, {finishes} finishes, {edits} sample edits, "
-          f"{adjudications} adjudications, {notes} notes"
+          f"{adjudications} adjudications, {notes} notes, {blind} blind verdicts and rulings"
           + (f", {len(stale)} pending reruns" if stale else ""))
     return 0
 
@@ -670,10 +996,41 @@ def parser() -> argparse.ArgumentParser:
     adj.add_argument("--source", required=True,
                      help="the semi-blind review the trajectory came from")
 
+    judge = commands.add_parser("blind-judge",
+                                help="score the semi-blind reviewer's blind answer with the "
+                                     "evaluation judge against the current rubric")
+    judge.add_argument("--sample-id", required=True)
+    judge.add_argument("--review", required=True, help="the saved semiblind.<round>.json")
+    judge.add_argument("--base-url", default=JUDGE_URL,
+                       help="the vLLM server you run on; the key is $VLLM_API_KEY, or dummy")
+    judge.add_argument("--model", default="local", help="the served model name")
+
+    ruling = commands.add_parser("blind-ruling",
+                                 help="depart from the judge's verdict on the blind answer, "
+                                      "with the grounds")
+    ruling.add_argument("--sample-id", required=True)
+    ruling.add_argument("--basis", required=True, choices=tuple(RULING_BASES),
+                        help="screen-guess or video-content: a credited item rests on a guess or "
+                             "on what only this video has; repaired: an earlier round's answer "
+                             "took from the old wording what the new one withholds (all three "
+                             "blind_solved false); look-only: the uncredited items are about the "
+                             "look of the screen (true)")
+    ruling.add_argument("--review", default=None,
+                        help="the judged semi-blind review the ruling is about, as blind-judge "
+                             "logged it; the last judged round by default")
+    ruling.add_argument("--items", required=True,
+                        help="comma-separated item ids of the judge's verdict, w<window>.<k>")
+    ruling.add_argument("--text", required=True,
+                        help="the grounds: the alternative screen content and the answer under "
+                             "it, the content only this video has, or why the items are about "
+                             "the look only")
+
     check = commands.add_parser("check", help="validate JSON and balance launches with finishes")
     check.add_argument("--final", action="store_true",
-                       help="also fail on kind-tagged edits whose reruns have not happened and "
-                            "on probes whose material the record no longer gives")
+                       help="also fail on kind-tagged edits whose reruns have not happened, on "
+                            "probes whose material the record no longer gives, and on validated "
+                            "samples whose blind_solved disagrees with the judge's verdicts "
+                            "without a ruling")
 
     shown = commands.add_parser("open", help="list the launches with no finish and the review "
                                              "files their subagents have already saved")
@@ -728,6 +1085,11 @@ def spawn_event(args: argparse.Namespace, events: list[tuple[int, dict]]) -> dic
         "window": note.get("window"),
         "inputs": note.get("inputs"),
     }
+
+
+def event_sample(events: list[tuple[int, dict]], agent: str) -> str | None:
+    spawn = last_spawn(events, agent)
+    return spawn.get("sample_id") if spawn else None
 
 
 def read_artifact(path: str) -> dict | None:
@@ -799,10 +1161,15 @@ def main(argv: list[str] | None = None) -> int:
 
     events, _ = read_log(path)
     warnings: list[str] = []
+    hints: list[str] = []
     if args.command == "spawn":
         event = spawn_event(args, events)
     elif args.command == "finish":
         event, warnings = finish_event(args, events)
+        if isinstance(event, dict) and event.get("artifact_role") == "semiblind":
+            hints.append(f"score the blind answer: `coordinator_log.py {args.video_id} blind-judge "
+                         f"--sample-id {event_sample(events, args.agent)} --review "
+                         f"{args.artifact}`; blind_solved is set from its verdict")
     elif args.command == "sample-edit":
         if args.kind in ("boundary", "nudge") and args.window is None:
             event = f"--kind {args.kind} needs --window: the edit is to one window's boundary"
@@ -826,6 +1193,24 @@ def main(argv: list[str] | None = None) -> int:
                 event["window"] = args.window
             if args.span:
                 event["span"] = True
+            if args.kind in ("rubric", "wording"):
+                hints.append("the rubric the blind answer was judged on may have changed: run "
+                             "blind-judge again on the semi-blind review the new version has")
+    elif args.command == "blind-judge":
+        event = blind_judge_event(args, events, args.video_id)
+        if isinstance(event, dict):
+            verdict = ("credited every required item: blind_solved is true unless a blind-ruling "
+                       "names a guess or content only this video has" if event["met"] else
+                       f"did not credit {', '.join(event['items_unmet'])}: blind_solved is false "
+                       f"unless a blind-ruling says these items are about the look of the screen "
+                       f"only")
+            hints.append(f"the judge {verdict} (coordinator.md, \"Blind solving\"). Read the "
+                         f"review's prior_answer_assumptions too: a credited item that rests on "
+                         f"an assumption about the screen listed there is ruled screen-guess. "
+                         f"Copy the item-by-item verdict from {event['result']} into "
+                         f"coordinator.<ROUND>.md")
+    elif args.command == "blind-ruling":
+        event = blind_ruling_event(args, events)
     elif args.command == "note":
         event = {"ts": timestamp(), "event": "note", "text": args.text}
         if args.agent:
@@ -854,6 +1239,8 @@ def main(argv: list[str] | None = None) -> int:
     for warning in warnings:
         print(f"warning: {warning}", file=sys.stderr)
     print(f"logged {event['event']}: {path}")
+    for hint in hints:
+        print(f"next: {hint}")
     return 0
 
 

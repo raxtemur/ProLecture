@@ -351,9 +351,10 @@ COORDINATOR_ITEMS: frozenset[Item] = frozenset({
     # with an assumption about what would be on screen. Hence:
     #
     #   * the semi-blind `checks[solvable-without-video].result` is PRELIMINARY;
-    #   * `validation.blind_solved` is set by the coordinator, comparing `prior_answer`
-    #     against the rubric on two conditions at once — the answer must be both HONEST
-    #     (no assumptions about material that was not seen) and CORRECT.
+    #   * `validation.blind_solved` needs two conditions at once — the answer must be both
+    #     CORRECT and HONEST (no assumptions about material that was not seen). Correctness
+    #     is scored by the evaluation judge (`coordinator_log.py blind-judge`), honesty by the
+    #     coordinator, who departs from the judge's verdict only by a logged ruling.
     Item.SOLVABLE_WITHOUT_VIDEO,
 })
 
@@ -957,8 +958,9 @@ class SemiBlindReview(ReviewBase):
     For the same reason **their verdict on 4.2 is preliminary too**
     (`solvable-without-video`): they have no reference answer, and they judge "it matched"
     by eye against their own `prior_answer`. They do write the line — it is useful as a
-    self-report — but `validation.blind_solved` is set by the coordinator, comparing
-    `prior_answer` and `prior_answer_assumptions` against the rubric.
+    self-report — but `validation.blind_solved` is derived from the evaluation judge's
+    verdict on `prior_answer` against the rubric, and the coordinator departs from it only by
+    a logged ruling, `prior_answer_assumptions` being where a guess shows.
     """
 
     role: Literal[Role.SEMIBLIND] = Role.SEMIBLIND
