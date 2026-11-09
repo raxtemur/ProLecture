@@ -312,8 +312,11 @@ results; that is no contradiction of the level.
 
 **One model for every role.** For now one local model is available: you and every reviewer
 and probe run on it. No role is escalated to a stronger model; a negative probe outcome is
-measured again only when the defect of the attempt is evidenced, as above. Pass `model` and
-`reasoning_effort` at launch and record both in the `spawn` event, and note in
+measured again only when the defect of the attempt is evidenced, as above. Pass `model` at
+launch, and `reasoning_effort` when the spawn tool offers a choice of efforts for that model:
+for the local model it may list none, and then no effort can be passed. Record in the `spawn`
+event what the launch actually ran with — the effort the tool accepted, or `default` when none
+was passed or the tool refused it — not the effort you meant to pass. Note in
 `coordinator.<ROUND>.md` that all roles ran on one model: their agreement is not independent
 confirmation (above).
 
