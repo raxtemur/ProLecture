@@ -80,8 +80,26 @@ cheaper one; ``harder`` — only by a harder route; ``no``; ``na`` when no probe
 ``t_val`` the resulting boundary. A stretch with several ``t_s`` gets one event per ``t_s``,
 and ``t_val`` is the earliest of ``t_val_a`` and the ``t_s`` verified ``yes``. An event may be
 logged as soon as its stage is done: its ``t_val`` is then the boundary as it stands after it,
-and the stretch's last event holds the final one. The table
+and the stretch's last event holds the final one. The tool derives ``t_val`` itself, a later
+row of a stretch without ``--t-val-a`` takes the stretch's, and a row that would not pass the
+check of its stretch is refused before it is written, with what to do instead: an append-only
+log cannot take a written row back. The table
 itself lives in ``coordinator.<ROUND>.md``; the event is the machine-readable summary of it.
+
+The log is never edited, so a wrong ``adjudicate`` row is corrected by a row logged with
+``--correction "<what the earlier rows got wrong>"``: it opens its stretch anew, the earlier rows
+stay in the log as history and drop out of the check, and the rows from the correction on are
+checked as one stretch. A correction re-reads stage A; it cannot hide what the check is there
+for. Its ``t_val_a`` is the moment of an answer of its window's own stretch in the semi-blind
+review it cites: a moment that no answer of the stretch has is a ``t_s``, and only stage C
+makes a ``t_s`` the boundary. It makes the boundary stricter, never looser: no later than the
+earliest answer of the stretch an earlier row logged (for a value logged that is no answer, the
+first answer after it), and null only when no such answer exists — an answer wrongly taken as
+passing is settled by the next round of review. Every ``t_s`` of the earlier rows is logged
+again in the corrected stretch with its source, and until it is, ``check`` lists it as a
+pending correction and ``check --final`` fails. One whose probe has run keeps the outcome the
+probe gave; one logged unverified gets an outcome only from a ``probe_verify`` of the round
+launched at that moment.
 
 ``open`` lists the launches that have no finish yet and, for each, whether its subagent has
 already saved a review file that passes ``schema/review.py --check``. A completion notice
@@ -146,8 +164,15 @@ def timestamp() -> str:
 
 def append_event(path: Path, event: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("a", encoding="utf-8") as stream:
-        stream.write(json.dumps(event, ensure_ascii=False, separators=(",", ":")) + "\n")
+    with path.open("a+b") as stream:  # appends go to the end whatever the read position
+        size = stream.seek(0, os.SEEK_END)
+        cut = False
+        if size:
+            stream.seek(size - 1)
+            cut = stream.read(1) != b"\n"
+        # a line cut off by a failed write stays as it is; the new row starts a line of its own
+        line = json.dumps(event, ensure_ascii=False, separators=(",", ":")) + "\n"
+        stream.write((("\n" if cut else "") + line).encode("utf-8"))
 
 
 EDIT_KINDS = ("boundary", "nudge", "rubric", "level", "timing", "metadata", "wording")
@@ -726,9 +751,11 @@ def validate_log(path: Path, final: bool = False) -> int:
                               f"(coordinator.md, §6, \"Check every span against t_val\")")
         elif event_type == "adjudicate":
             adjudications += 1
-            errors += [f"line {line_number}: {e}" for e in check_adjudication(event)]
             window = event.get("window")
-            if window is not None:
+            if window is None:
+                errors += [f"line {line_number}: {e}" for e in check_adjudication(event)]
+            else:
+                # a windowed row is weighed with its stretch, which a correction may supersede
                 adjudicated.add((event.get("sample_id"), window))
                 key = (event.get("sample_id"), event.get("iteration"), window)
                 stretches.setdefault(key, []).append((line_number, event))
@@ -751,9 +778,18 @@ def validate_log(path: Path, final: bool = False) -> int:
         else:
             errors.append(f"line {line_number}: unknown event: {event_type!r}")
 
+    corrections, owed = [], []
     for (sample_id, iteration, window), rows in stretches.items():
-        errors += [f"line {rows[index][0]}: {sample_id}, round {iteration}, window {window}: {e}"
-                   for index, e in check_stretch([event for _, event in rows])]
+        problems, debts = weigh_stretch(path, (sample_id, iteration, window), rows, events)
+        errors += problems
+        owed += debts
+        current = current_rows(rows)
+        superseded = rows[:len(rows) - len(current)]
+        if superseded:
+            line, correction = current[0]
+            corrections.append(f"line {line}: {sample_id}, round {iteration}, window {window} "
+                               f"corrected, lines {', '.join(str(old) for old, _ in superseded)} "
+                               f"superseded: {correction.get('correction')}")
 
     for agent in sorted(active - noted):
         errors.append(f"launch without finish: {agent}")
@@ -764,6 +800,7 @@ def validate_log(path: Path, final: bool = False) -> int:
              for line, sample_id, missing in pending if missing and sample_id not in rejected]
     if final:
         errors += stale
+        errors += owed
         errors += blind_errors(path.parent.name, events, statuses)
         for (sample_id, role), (line, spawn) in sorted(last_probe.items()):
             if sample_id in rejected:
@@ -782,7 +819,11 @@ def validate_log(path: Path, final: bool = False) -> int:
     else:
         for message in stale:
             print(f"pending rerun: {message}", file=sys.stderr)
+        for message in owed:
+            print(f"pending correction: {message}", file=sys.stderr)
 
+    for message in corrections:
+        print(f"correction: {message}")
     if errors:
         for error in errors:
             print(error, file=sys.stderr)
@@ -790,12 +831,403 @@ def validate_log(path: Path, final: bool = False) -> int:
 
     print(f"log valid: {launches} launches, {finishes} finishes, {edits} sample edits, "
           f"{adjudications} adjudications, {notes} notes, {blind} blind verdicts and rulings"
-          + (f", {len(stale)} pending reruns" if stale else ""))
+          + (f", {len(corrections)} corrected stretches" if corrections else "")
+          + (f", {len(stale)} pending reruns" if stale else "")
+          + (f", {len(owed)} rows owed by corrections" if owed else ""))
     return 0
 
 
 VERIFIED = ("yes", "harder", "no", "na")
 T_S_SOURCE = re.compile(r"^(full_sample|full_window\d+|annotation|provenance|model)$")
+SEMIBLIND_REVIEW = re.compile(r"^(semiblind\.[0-9A-Za-z]+\.json)\b")
+SEMIBLIND_CITED = re.compile(r"(?:^|[/\s(])(semiblind\.[0-9A-Za-z]+\.json)\b")
+MOMENT_TOLERANCE = 0.05  # seconds: a logged moment and the answer's t are the same number
+CORRECTION_HINT = ("If an earlier row of this stretch is wrong, log the stretch anew with "
+                   "adjudicate ... --correction \"<what the earlier rows got wrong>\" "
+                   "(coordinator.md §6, \"Correcting a stretch\")")
+
+# Temporary, 2026-10-21: a caption for the rows whose error check did not report while a
+# coordinator's loosening of check_stretch was in tools/ (04:29 until its revert), and for one
+# that a note tried to correct, keyed by (video, line, ts). Remove an entry once its log passes
+# check --final.
+LOOSENED = ("Earlier this row passed check by mistake: on 2026-10-21 from 04:29 until its revert, "
+            "tools/coordinator_log.py carried a coordinator's loosening of check_stretch, and the "
+            "sample was wrongly taken to pass. Why it is an error: ")
+CAPTIONS = {
+    ("YtkIWDE36qU", 43, "2026-10-20T14:25:09+03:00"): LOOSENED + (
+        "t_val 633.0 is the boundary of window 0's stretch (line 42), not of window 1. Every "
+        "window has its own t_val from its own rows (t_val[k] < t_start[k] is 2.2 of window k), "
+        "and coordinator.1.md gives window 1's as 672.0, the author's reveal. The 2.3 hit and "
+        "the move of question_time rest on window 0 and are not affected: only this row is "
+        "wrong."),
+    ("851U557j6HE", 153, "2026-10-21T01:50:40+03:00"): LOOSENED + (
+        "576.0 is no answer of the semi-blind trajectory: semiblind.1.json has none between "
+        "573.2 and 582.9. It is where full_sample and full_window0 place the length, a sighted "
+        "placement, and a sighted placement becomes the boundary only as a t_s that stage C "
+        "verifies. None was owed here: full_sample returned no t_s, and the span [576.0, 582.9] "
+        "does not end more than 2 s before t_val_A. Line 168 (round 2) carries the same 576.0."),
+    ("VYQVlVoWoPY", 59, "2026-10-21T00:48:04+03:00"): LOOSENED + (
+        "the re-read of stage A in coordinator.1.md (the answers from 135.4 are the route of "
+        "the level, not a harder one) changed t_val_a 936.0 -> 135.4, but a second plain row is "
+        "a disagreement within the stretch, not a correction of it."),
+    ("VYQVlVoWoPY", 18, "2026-10-20T21:47:05+03:00"): (
+        "The note at line 19 records the right values (t_val_a and t_val null; 73.0 is q01's), "
+        "but check reads the adjudicate rows, not notes."),
+}
+# Temporary, 2026-10-21: rows check passes although they are wrong, because nothing compares the
+# first row of a stretch with the trajectory, keyed as CAPTIONS. Each is an error until its
+# stretch is corrected, and a stretch that holds one takes no further row but a correction.
+WRONG_ROWS = {
+    ("851U557j6HE", 168, "2026-10-21T04:21:21+03:00"): (
+        "this row was logged under round 2 to get around check_stretch (the note at line 169), "
+        "with no review of round 2 behind it, and carries the 576.0 of line 153, which is no "
+        "answer of the semi-blind trajectory (see line 153). It passed check only because "
+        "nothing compares the first row of a stretch with the trajectory. Correct this stretch "
+        "in round 2 as you correct round 1's, from the same semiblind.1.json, and log nothing "
+        "further under round 2 unless a round 2 of review takes place"),
+}
+
+
+def stretch_answers(sample_dir: Path, window: int, source) -> tuple[list[float], str | None]:
+    """The moments of the answers in the stretch of `window` of the semi-blind review `source`
+    names (its scan with that idx), or why they cannot be read."""
+    match = SEMIBLIND_REVIEW.match(str(source or ""))
+    if not match:
+        return [], (f"a correction cites the semi-blind review its t_val_a comes from: --source "
+                    f"semiblind.<ROUND>.json, not {source!r}")
+    review = sample_dir / match.group(1)
+    try:
+        scans = json.loads(review.read_text(encoding="utf-8")).get("scans") or []
+    except (OSError, json.JSONDecodeError, AttributeError):
+        return [], f"the semi-blind review {portable_path(review)} cannot be read"
+    own = [scan for scan in scans if isinstance(scan, dict) and scan.get("idx") == window]
+    moments = [t for scan in own for candidate in scan.get("candidates") or []
+               if isinstance(candidate, dict)
+               for t in [candidate.get("t")] if isinstance(t, (int, float))]
+    if not moments:
+        # no stretch of its own (one scan over several windows) or no timed answers (the legacy
+        # shape): "no answer" cannot be told from "not read", so nothing is weighed there
+        found = sorted(str(scan.get("idx")) for scan in scans if isinstance(scan, dict))
+        what = (f"has no timed answers in its stretch of window {window}" if own else
+                f"has no stretch of window {window} (its stretches: {', '.join(found) or 'none'})")
+        return [], (f"the semi-blind review {portable_path(review)} {what}, so the tool cannot "
+                    f"weigh a correction of this window against it. Leave the stretch as it is "
+                    f"and settle it in the next round of review, or record the case with "
+                    f"`note --text \"tool problem: ...\"`")
+    return moments, None
+
+
+def review_round(name: str) -> int | None:
+    """The round of a semi-blind review file (semiblind.2.json, semiblind.2b.json), if any."""
+    match = re.match(r"^semiblind\.(\d+)[a-z]?\.json$", name)
+    return int(match.group(1)) if match else None
+
+
+def correction_trajectory(sample_dir: Path, window: int, superseded: list[tuple[int, dict]],
+                          correction: dict) -> tuple[list[float], str | None]:
+    """The answers in the stretch of `window` of the semi-blind review a correction re-reads, or
+    why it cannot re-read it there. It is the trajectory the earlier rows cite, or, when none
+    cites one, a semi-blind review of the stretch's round or an earlier one."""
+    cited = sorted({match.group(1) for _, row in superseded
+                    for match in [SEMIBLIND_CITED.search(str(row.get("source") or ""))] if match})
+    named = SEMIBLIND_REVIEW.match(str(correction.get("source") or ""))
+    if named and cited and named.group(1) not in cited:
+        return [], (f"--source {named.group(1)}, but the earlier rows of this stretch cite "
+                    f"{' or '.join(cited)}: a correction re-reads the trajectory they were read "
+                    f"from")
+    if named and not cited:
+        round_ = review_round(named.group(1))
+        if round_ is None or not isinstance(correction.get("iteration"), int) \
+                or round_ > correction["iteration"]:
+            return [], (f"--source {named.group(1)}: a correction of a round "
+                        f"{correction.get('iteration')} stretch re-reads a semi-blind review of "
+                        f"that round or an earlier one")
+    return stretch_answers(sample_dir, window, correction.get("source"))
+
+
+def is_answer(moments: list[float], t) -> bool:
+    return isinstance(t, (int, float)) and any(abs(moment - t) <= MOMENT_TOLERANCE
+                                               for moment in moments)
+
+
+def correction_refusal(sample_dir: Path, window: int, superseded: list[tuple[int, dict]],
+                       correction: dict) -> list[str]:
+    """Why a correction cannot be logged: it names nothing it corrects, its stretch has no
+    earlier row, it does not re-read the trajectory of the earlier rows, its t_val_a is no
+    answer of its window's stretch there, or it makes the boundary looser.
+
+    An earlier t_val_a that is an answer bounds the correction by itself. One that is no answer
+    was never stage A (a sighted placement, or another stretch's value copied in): it bounds the
+    correction by the first answer at or after it, where stage A reading the same trajectory
+    would have put the boundary. A sighted placement moves the boundary earlier only as a t_s
+    that stage C verifies, and whether stage C was owed on it is decided by the sighted
+    reviewers' proposals as in coordinator.md §6, the same as for a stretch logged right the
+    first time; the t_s of the superseded rows are logged again (correction_problems)."""
+    problems = []
+    if not str(correction.get("correction") or "").strip():
+        problems.append("a correction says what the earlier rows got wrong")
+    if not superseded:
+        return problems + ["a correction with no earlier row in its stretch has nothing to "
+                           "correct: log the row without --correction"]
+    t_val_a = correction.get("t_val_a")
+    if t_val_a is None and all(row.get("t_val_a") is None for _, row in superseded):
+        return problems  # none for none: nothing on the trajectory to weigh
+    moments, unreadable = correction_trajectory(sample_dir, window, superseded, correction)
+    if unreadable:
+        return problems + [unreadable]
+    if t_val_a is not None and not is_answer(moments, t_val_a):
+        problems.append(f"t_val_a {t_val_a} is the moment of no answer in the stretch of window "
+                        f"{window} of {correction.get('source')}: stage A takes t_val_a from the "
+                        f"answers of the window's own stretch. A moment the sighted reviewers "
+                        f"place earlier is a t_s (--t-s, --t-s-source), and only stage C makes it "
+                        f"the boundary")
+    limits = []
+    for line, row in superseded:
+        value = row.get("t_val_a")
+        if value is None:
+            continue
+        if is_answer(moments, value):
+            limits.append((value, f"{value}, the answer that line {line} logged"))
+            continue
+        later = [moment for moment in moments if moment >= value - MOMENT_TOLERANCE]
+        if later:
+            limits.append((min(later), f"{min(later)}, the first answer at or after the {value} "
+                                       f"that line {line} logged (no answer of the trajectory)"))
+    if limits:
+        limit, what = min(limits)
+        looser = ("A correction makes a boundary stricter, never looser: an answer wrongly taken "
+                  "as passing is settled by the next round of review, not by a correction")
+        if t_val_a is None:
+            problems.append(f"t_val_a null drops {what}. {looser}")
+        elif t_val_a > limit + MOMENT_TOLERANCE:
+            problems.append(f"t_val_a {t_val_a} is later than {what}. {looser}")
+    return problems
+
+
+def passed_placements(sample_dir: Path, window: int, superseded: list[tuple[int, dict]],
+                      correction: dict) -> list[tuple[int, float]]:
+    """The earlier t_val_a that are no answer of the trajectory and that a correction moves
+    past: sighted placements, on which stage C may have been owed."""
+    moments, unreadable = correction_trajectory(sample_dir, window, superseded, correction)
+    if unreadable:
+        return []
+    t_val_a = correction.get("t_val_a")
+    passed = {}
+    for line, row in superseded:
+        value = row.get("t_val_a")
+        if value is not None and not is_answer(moments, value) \
+                and (t_val_a is None or t_val_a > value + MOMENT_TOLERANCE):
+            passed.setdefault(value, line)
+    return [(line, value) for value, line in passed.items()]
+
+
+def stretch_rows(events: list[tuple[int, dict]], sample_id: str, iteration: int,
+                 window: int) -> list[tuple[int, dict]]:
+    """The adjudicate rows of one stretch, in log order."""
+    key = (sample_id, iteration, window)
+    return [(line, e) for line, e in events if e.get("event") == "adjudicate"
+            and (e.get("sample_id"), e.get("iteration"), e.get("window")) == key]
+
+
+def current_rows(rows: list[tuple[int, dict]]) -> list[tuple[int, dict]]:
+    """The rows of a stretch from its last correction on: the ones the check weighs."""
+    marks = [index for index, (_, event) in enumerate(rows) if "correction" in event]
+    return rows[marks[-1]:] if marks else rows
+
+
+def boundary_after(rows: list[dict]) -> float | None:
+    """t_val after the last of these rows of one stretch: the earliest of their t_val_a and the
+    t_s verified yes among them."""
+    candidates = [rows[-1]["t_val_a"]] if rows[-1].get("t_val_a") is not None else []
+    candidates += [row["t_s"] for row in rows
+                   if row.get("verified") == "yes" and row.get("t_s") is not None]
+    return min(candidates) if candidates else None
+
+
+def weigh_stretch(path: Path, key: tuple[str, int, int], rows: list[tuple[int, dict]],
+                  events: list[tuple[int, dict]]) -> tuple[list[str], list[str]]:
+    """What check says of one stretch: its errors, and the rows a correction of it still owes.
+    adjudicate weighs a row with its stretch the same way before writing it, so that the
+    append-only log never takes a row that check would reject."""
+    sample_id, iteration, window = key
+    where = f"{sample_id}, round {iteration}, window {window}"
+    video = path.parent.name
+    current = current_rows(rows)
+    errors, owed = [], []
+    for line, event in current:
+        errors += [f"line {line}: {e}" for e in check_adjudication(event)]
+        wrong = WRONG_ROWS.get((video, line, event.get("ts")))
+        if wrong:
+            errors.append(f"line {line}: {where}: {wrong}. {CORRECTION_HINT}")
+    for index, problem in check_stretch([event for _, event in current]):
+        line, event = current[index]
+        message = f"line {line}: {where}: {problem}. {CORRECTION_HINT}"
+        caption = CAPTIONS.get((video, line, event.get("ts")))
+        errors.append(f"{message}\n  {caption}" if caption else message)
+    if "correction" in current[0][1]:
+        superseded = rows[:len(rows) - len(current)]
+        problems, debts = correction_problems(path.parent / sample_id, window, superseded,
+                                              current, events)
+        errors += [f"line {line}: {where}: {problem}" for line, problem in problems]
+        owed += [f"line {current[0][0]}: {where}: {debt}" for debt in debts]
+    return errors, owed
+
+
+def adjudicate_event(args: argparse.Namespace, events: list[tuple[int, dict]],
+                     path: Path) -> tuple[dict | str, list[str]]:
+    """The adjudicate event and the hints to print, or why nothing is logged.
+
+    A row is weighed with its stretch before it is written, by the weigh_stretch that check
+    runs, so that the log never takes a row that check would reject later: an append-only log
+    cannot take it back. The tool derives t_val itself, and a row without --t-val-a takes the
+    t_val_a of its stretch."""
+    hints: list[str] = []
+    if (args.t_s is None) != (args.t_s_source is None):
+        return "--t-s and --t-s-source go together: a sighted proposal names where it came from", hints
+    if args.t_s_source is not None and not T_S_SOURCE.match(args.t_s_source):
+        return (f"--t-s-source {args.t_s_source!r}: one of full_sample, full_window<N>, "
+                f"annotation, provenance, model"), hints
+    key = (args.sample_id, args.iteration, args.window)
+    where = f"{args.sample_id}, round {args.iteration}, window {args.window}"
+    rows = stretch_rows(events, *key)
+    if args.correction is None and rows:
+        broken, _ = weigh_stretch(path, key, rows, events)
+        if broken:
+            found = "; ".join(problem.replace(f". {CORRECTION_HINT}", "").replace("\n  ", " ")
+                              for problem in broken)
+            return (f"the stretch {where} already fails check, and a further row cannot repair "
+                    f"it ({found}). Log the stretch anew with adjudicate ... "
+                    f"--correction \"<what the earlier rows got wrong>\" (coordinator.md §6, "
+                    f"\"Correcting a stretch\"); the correction may carry this row's t_s"), hints
+    current = [] if args.correction is not None else current_rows(rows)
+    t_val_a = args.t_val_a
+    if current:
+        stretch_line, stretch_t_val_a = current[-1][0], current[-1][1].get("t_val_a")
+        if t_val_a is None and stretch_t_val_a is not None:
+            t_val_a = stretch_t_val_a
+            hints.append(f"t_val_a {t_val_a} is the stretch's (line {stretch_line})")
+        elif t_val_a != stretch_t_val_a:
+            return (f"t_val_a {t_val_a} disagrees with {stretch_t_val_a}, the t_val_a of {where} "
+                    f"(line {stretch_line}): the rows of a stretch share stage A's t_val_a. Omit "
+                    f"--t-val-a to take the stretch's; if stage A was read wrongly, log the "
+                    f"stretch anew with --correction (coordinator.md §6, \"Correcting a "
+                    f"stretch\")"), hints
+    event = {"ts": timestamp(), "event": "adjudicate", "sample_id": args.sample_id,
+             "iteration": args.iteration, "window": args.window,
+             "t_val_a": t_val_a, "t_s": args.t_s, "t_s_source": args.t_s_source,
+             "verified": args.verified, "t_val": None, "source": args.source}
+    if args.correction is not None:
+        event["correction"] = args.correction
+    derived = boundary_after([e for _, e in current] + [event])
+    event["t_val"] = derived
+    problems = []
+    if args.t_val is not None and (derived is None or abs(args.t_val - derived) > MOMENT_TOLERANCE):
+        passed = [f"{e['t_s']} (line {line})" for line, e in current
+                  if e.get("verified") == "yes" and e.get("t_s") is not None]
+        if args.verified == "yes" and args.t_s is not None:
+            passed.append(f"{args.t_s} (this row)")
+        problems.append(f"--t-val {args.t_val}, but the boundary after this row is {derived}: the "
+                        f"earliest of t_val_a {t_val_a} and the t_s verified yes "
+                        f"({', '.join(passed) or 'none'}). A harder route or a failed probe "
+                        f"leaves t_val at t_val_a. Omit --t-val: the tool sets it")
+    line = (len(path.read_text(encoding="utf-8").splitlines()) if path.exists() else 0) + 1
+    after, owed = weigh_stretch(path, key, rows + [(line, event)], events)
+    this = f"line {line}: "
+    problems += ["this row: " + p[len(this):] if p.startswith(this) else p for p in after]
+    if problems:
+        return "; ".join(problems), hints
+    hints.insert(0, f"t_val after this row: {derived}")
+    if args.correction is not None:
+        for placed_line, value in passed_placements(path.parent / args.sample_id, args.window,
+                                                    rows, event):
+            hints.append(f"line {placed_line} logged t_val_a {value}, which is no answer of the "
+                         f"trajectory, and the correction moves past it. If a sighted reviewer "
+                         f"proposed it (a t_s of full_sample, or a span ending more than 2 s "
+                         f"before t_val_A), stage C is owed on it as in coordinator.md §6: log "
+                         f"it with --t-s {value} --t-s-source <that reviewer> and the probe's "
+                         f"outcome")
+        hints.append("re-check what was decided on the old t_val: 2.2 and 2.3 (the ladder "
+                     "of coordinator.md §6) and the spans checked against it (7.5)")
+        hints.append("write the correction and why into the table of "
+                     "coordinator.<ROUND>.md")
+    if owed:
+        hints.append("the corrected stretch stands once these rows follow it, and check --final "
+                     "fails until then: " + "; ".join(owed))
+    return event, hints
+
+
+def probe_ran(events: list[tuple[int, dict]], sample_id: str | None, iteration: int | None,
+              t_s: float) -> bool:
+    """Whether a probe_verify of the sample, launched in this round at t_s (its --until), has
+    finished: the measurement an outcome of t_s stands on."""
+    agents = set()
+    for _, event in events:
+        inputs = event.get("inputs") if event.get("event") == "spawn" else None
+        until = inputs.get("until") if isinstance(inputs, dict) else None
+        if (isinstance(until, (int, float)) and abs(until - t_s) <= MOMENT_TOLERANCE
+                and event.get("sample_id") == sample_id and event.get("iteration") == iteration
+                and base_role(event.get("role")) == "probe_verify"):
+            agents.add(event.get("agent"))
+    return any(event.get("event") == "finish" and event.get("agent") in agents
+               and event.get("status") == "completed" for _, event in events)
+
+
+def correction_problems(sample_dir: Path, window: int, superseded: list[tuple[int, dict]],
+                        current: list[tuple[int, dict]], events: list[tuple[int, dict]]
+                        ) -> tuple[list[tuple[int, str]], list[str]]:
+    """What keeps a corrected stretch from standing, by row, and what it still owes.
+
+    Problems: the refusals of correction_refusal (on the correction's row); a row that changes
+    the outcome a probe measured for a t_s of the superseded rows; a row that gives an outcome
+    to a t_s that no probe_verify of this round ran at, unless a superseded row carries that
+    same outcome. Owed: a t_s of the superseded rows that the corrected stretch has not logged
+    again."""
+    line, correction = current[0]
+    problems = [(line, problem)
+                for problem in correction_refusal(sample_dir, window, superseded, correction)]
+    sample_id, iteration = correction.get("sample_id"), correction.get("iteration")
+    t_val_a = correction.get("t_val_a")
+
+    def same(row: dict, other: dict) -> bool:
+        return (row.get("t_s") is not None and other.get("t_s") is not None
+                and abs(row["t_s"] - other["t_s"]) <= MOMENT_TOLERANCE
+                and row.get("t_s_source") == other.get("t_s_source"))
+
+    owed, seen = [], []
+    for old_line, old in superseded:
+        if old.get("t_s") is None or any(same(old, row) for _, row in current) \
+                or any(same(old, row) for row in seen):
+            continue
+        seen.append(old)
+        logged = f"--t-s {old['t_s']} --t-s-source {old.get('t_s_source')}"
+        if old.get("verified") != "na":
+            how = f"{logged} --verified {old.get('verified')}, the outcome its probe gave"
+        elif t_val_a is None or old["t_s"] < t_val_a:
+            how = (f"{logged}: it lies before the corrected t_val_a, so run stage C at it first "
+                   f"and log the outcome with --verified")
+        else:
+            how = f"{logged} --verified na"
+        owed.append(f"log again the t_s {old['t_s']} ({old.get('t_s_source')}) of line {old_line} "
+                    f"with the corrected t_val_a: {how}")
+    for row_line, row in current:
+        outcome = row.get("verified")
+        if row.get("t_s") is None:
+            continue
+        measured = {old.get("verified"): old_line for old_line, old in superseded
+                    if same(old, row) and old.get("verified") != "na"}
+        if measured and outcome not in measured:
+            what = ", ".join(f"{was} (line {at})" for was, at in measured.items())
+            problems.append((row_line, f"the t_s {row['t_s']} ({row.get('t_s_source')}) was "
+                                       f"verified {what}, and this row says {outcome}: a "
+                                       f"correction does not change what a probe measured"))
+        elif not measured and outcome in ("yes", "harder", "no") \
+                and not probe_ran(events, sample_id, iteration, row["t_s"]):
+            problems.append((row_line, f"the t_s {row['t_s']} gets the outcome {outcome}, but no "
+                                       f"probe_verify of {sample_id} launched in round "
+                                       f"{iteration} at it (--until {row['t_s']}) has finished: "
+                                       f"run stage C at that moment before logging what it "
+                                       f"measured"))
+    return problems, owed
 
 
 def check_adjudication(event: dict) -> list[str]:
@@ -821,7 +1253,9 @@ def check_adjudication(event: dict) -> list[str]:
     problems = []
     needs_probe = t_s is not None and (t_val_a is None or t_s < t_val_a)
     if needs_probe and verified == "na":
-        problems.append("t_s lies before t_val_a (or t_val_a is null) but no verification was run")
+        problems.append("t_s lies before t_val_a (or t_val_a is null) but no verification was "
+                        "run: run stage C, probe_verify at t_s (coordinator.md §6), and log its "
+                        "outcome as --verified yes, harder or no")
     if verified in ("yes", "harder") and t_s is None:
         problems.append(f"verified={verified} without a t_s: nothing was there to verify")
     if event.get("window") is None:
@@ -980,7 +1414,8 @@ def parser() -> argparse.ArgumentParser:
                      help="the required window whose stretch this is")
     adj.add_argument("--t-val-a", type=float, default=None,
                      help="the first answer of the semi-blind trajectory that met the rubric by "
-                          "the route of the level or a cheaper one; omit if none")
+                          "the route of the level or a cheaper one; omit if none. A later row of "
+                          "the stretch may omit it and takes the stretch's")
     adj.add_argument("--t-s", type=float, default=None, help="a sighted proposal, if any")
     adj.add_argument("--t-s-source", default=None,
                      help="where the t_s came from: full_sample, full_window<N>, annotation "
@@ -992,9 +1427,17 @@ def parser() -> argparse.ArgumentParser:
                           "route), no; na when no probe was needed")
     adj.add_argument("--t-val", type=float, default=None,
                      help="the boundary as it stands after this event: the earliest of t_val_a "
-                          "and the t_s verified yes so far; omit if none")
+                          "and the t_s verified yes so far. The tool derives it, so it may be "
+                          "omitted; one that is given and differs is refused")
     adj.add_argument("--source", required=True,
                      help="the semi-blind review the trajectory came from")
+    adj.add_argument("--correction", default=None,
+                     help="what the earlier rows of this stretch got wrong: this row opens the "
+                          "stretch anew and they drop out of the check. Its t_val_a is the moment "
+                          "of an answer of the window's own stretch in the semi-blind review "
+                          "--source names, no later than the earliest answer they logged (null "
+                          "only if there is none); every t_s of the earlier rows is logged again, "
+                          "keeping its probe outcome")
 
     judge = commands.add_parser("blind-judge",
                                 help="score the semi-blind reviewer's blind answer with the "
@@ -1147,7 +1590,52 @@ def finish_event(args: argparse.Namespace, events: list[tuple[int, dict]]) -> tu
 
 
 def main(argv: list[str] | None = None) -> int:
+    """run(), and when the tool itself fails, a message that says so instead of a traceback:
+    whether the row was written (the log grew) and what to do."""
     args = parser().parse_args(argv)
+    try:
+        path = log_path(args.video_id)
+        size = path.stat().st_size if path.exists() else 0
+    except (ValueError, OSError):
+        path, size = None, 0
+    try:
+        return run(args)
+    except Exception as exc:  # noqa: BLE001 — the message is for an agent, who cannot debug
+        error = f"{type(exc).__name__}: {exc}"
+        report = (f"If you cannot see a cause in your arguments, record it with "
+                  f"`coordinator_log.py {args.video_id} note --text \"tool problem: ...\"` and go "
+                  f"on (coordinator.md, \"You change your video's data\")")
+        if args.command in ("check", "open"):
+            print(f"`{args.command}` stopped on an error of its own ({error}); it writes nothing, "
+                  f"so the log is as it was. {report}", file=sys.stderr)
+            return 2
+        grew = path is not None and path.exists() and path.stat().st_size != size
+        last = path.read_text(encoding="utf-8").splitlines()[-1] if grew else ""
+        try:
+            whole = isinstance(json.loads(last), dict) and last.endswith("}")
+        except json.JSONDecodeError:
+            whole = False
+        if grew and not whole:
+            print(f"`{args.command}` failed on an error of its own while it wrote its row to "
+                  f"{portable_path(path)} ({error}), and the last line of the log is cut off: "
+                  f"check will report it as invalid JSON until the person running the pipeline "
+                  f"repairs it. Do not edit the log: log the row again (it starts a line of its "
+                  f"own), record `coordinator_log.py {args.video_id} note --text \"tool problem: "
+                  f"a cut-off line\"`, and say so in your final message", file=sys.stderr)
+        elif grew:
+            print(f"`{args.command}` failed on an error of its own after it wrote its row to "
+                  f"{portable_path(path)} ({error}): the row stands, do not log it again. Its "
+                  f"hints were not printed: run check to see where the log stands. {report}",
+                  file=sys.stderr)
+        else:
+            saved = (" A blind_judge.*.json result file may have been saved; the verdict counts "
+                     "only once it is in the log." if args.command == "blind-judge" else "")
+            print(f"not logged: `{args.command}` stopped on an error of its own ({error}). "
+                  f"Nothing was written to the log.{saved} {report}", file=sys.stderr)
+        return 2
+
+
+def run(args: argparse.Namespace) -> int:
     try:
         path = log_path(args.video_id)
     except ValueError as exc:
@@ -1218,22 +1706,10 @@ def main(argv: list[str] | None = None) -> int:
         if args.refers_to:
             event["refers_to"] = args.refers_to
     else:
-        if (args.t_s is None) != (args.t_s_source is None):
-            event = "--t-s and --t-s-source go together: a sighted proposal names where it came from"
-        elif args.t_s_source is not None and not T_S_SOURCE.match(args.t_s_source):
-            event = (f"--t-s-source {args.t_s_source!r}: one of full_sample, full_window<N>, "
-                     f"annotation, provenance, model")
-        else:
-            event = {"ts": timestamp(), "event": "adjudicate", "sample_id": args.sample_id,
-                     "iteration": args.iteration, "window": args.window,
-                     "t_val_a": args.t_val_a, "t_s": args.t_s, "t_s_source": args.t_s_source,
-                     "verified": args.verified, "t_val": args.t_val, "source": args.source}
-            problems = check_adjudication(event)
-            if problems:
-                event = "; ".join(problems)
+        event, hints = adjudicate_event(args, events, path)
 
     if isinstance(event, str):
-        print(event, file=sys.stderr)
+        print(f"not logged: nothing was written to {portable_path(path)}. {event}", file=sys.stderr)
         return 2
     append_event(path, event)
     for warning in warnings:

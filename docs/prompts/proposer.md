@@ -543,6 +543,11 @@ end-to-end `id`s of the form `3b1b__<VIDEO_ID>__q<NN>` in your file before the r
 merges the files of the video once it is closed; inside your own file number them however
 you like, as long as the numbers do not repeat.
 
+That file is the only thing you write. Code, schemas, prompts, documentation and every other
+file in the repository are not yours to edit; scratch files go in `/tmp`, not in the
+repository. If the validator rejects something you believe is right, say so in your report
+with its output, and do not change the validator: it checks every other proposer's file too.
+
 Do not make control twins (the same question with a different `question_time`): the
 coordinator creates them and fills in their `twin_of` field.
 

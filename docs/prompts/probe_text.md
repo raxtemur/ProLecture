@@ -68,6 +68,12 @@ outright: "a guess about …".
 
 ## What to return
 
+Outside `<WORKSPACE>` you write only the answer file below. Code, schemas, prompts,
+documentation and every other file of the repository are not yours to edit, and scratch files
+stay inside `<WORKSPACE>`. If a tool fails, or rejects your file and you believe the tool is
+wrong, say so in the text for the coordinator with the command and its message, and do not
+repair or work around the tool: the same tools check every other review.
+
 Two things, and they are different things.
 
 ### 1. The answer file

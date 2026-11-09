@@ -346,6 +346,10 @@ impossible — there is no material there. That is the whole point.
 
 ## What to return
 
+If a tool fails, or rejects your file and you believe the tool is wrong, say so in the text
+for the coordinator with the command and its message, and do not repair or work around the
+tool: the same tools check every other review.
+
 Two things, and they are different things.
 
 ### 1. The review file

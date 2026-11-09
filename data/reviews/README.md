@@ -52,9 +52,11 @@ events cannot say — a reconstruction of a missing line, an agent whose fate is
 remark for the audit. It is the chronology of scheduling, edits and boundary decisions, not
 a replacement for the per-question decision files.
 
-**Lines are never edited or deleted.** A wrong or missing record is repaired by appending a
-`note` that names the agent; `check` then tolerates the unmatched `spawn` or `finish` of
-that agent instead of rejecting the log. The lines of `3d6DsjIBzJ4` and `l6DKRf-fAAM`
+**Lines are never edited or deleted.** A wrong or missing launch record is repaired by
+appending a `note` that names the agent; `check` then tolerates the unmatched `spawn` or
+`finish` of that agent instead of rejecting the log. A wrong `adjudicate` row is repaired by
+logging its stretch anew with `adjudicate --correction` (`docs/prompts/coordinator.md`, §6,
+"Correcting a stretch"); a note does not change what `check` reads there. The lines of `3d6DsjIBzJ4` and `l6DKRf-fAAM`
 reconstructed by hand on 2026-09-08, before the event existed, are the one exception on
 record; the coordinator owes each of those logs a `note` listing them.
 

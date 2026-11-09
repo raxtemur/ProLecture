@@ -671,7 +671,10 @@ interrupted, and `sample-edit` after a change is actually applied. The finish su
 artifact and the approximate result; the edit summary names the changed fields and the review that
 caused them. Timestamps come from the coordinator process in ISO 8601 with an offset. Subagents do
 not write this file, resumed sessions append to it rather than truncating it, and unknown historical
-start times are never reconstructed as facts.
+start times are never reconstructed as facts. No line is edited after it is written. The tool
+refuses an `adjudicate` row that would not pass the check of its stretch before writing it, and a
+wrong row already written is corrected by logging its stretch anew with `adjudicate --correction`
+([prompts/coordinator.md](prompts/coordinator.md), §6, "Correcting a stretch").
 
 Before closing the video, run:
 

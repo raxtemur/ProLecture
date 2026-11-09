@@ -21,6 +21,23 @@ turned into a decision.
 Before you start, read [definitions.md](definitions.md), next to this prompt. It defines the
 terms this prompt uses, and its definitions are binding.
 
+**You change your video's data, never the tools.** You write the video's files under
+`data/annotations/`, its folder `data/reviews/<VIDEO_ID>/` and its workspaces in
+`.review_ws/<VIDEO_ID>/`; scratch files go in those workspaces, not in the repository root.
+Code, tests, schemas, prompts and documentation (`tools/`, `tests/`, `schema/`, `docs/`,
+`CLAUDE.md`) are not yours to edit, and neither is another video's material. **Why:** every
+coordinator and every reviewer runs on the same tools. A check one coordinator loosens so that
+its own log passes is loosened for all of them, without anyone deciding it, and the logs it then
+passes no longer show what the check was written to show. A wrong `adjudicate` row is
+corrected as §6 says ("Correcting a stretch"). Anything else a tool rejects that you believe is
+right — a log line that no append can make pass included — is a defect for the project to
+decide, not for the run to repair. Record it with
+`coordinator_log.py <VIDEO_ID> note --text "tool problem: …"` — the command, the tool's message
+and why you believe the tool is wrong — and go on with the rest of the video. If it is the only
+thing keeping the video open, end the turn and name it in your final message. Do not edit
+`coordinator.log` by hand to get round it, and do not log under another round to get round a
+check either: a round is a round of review.
+
 ---
 
 ## 1. Blind solving: a guessed statement of the problem does not count
@@ -598,6 +615,40 @@ on 2.2/2.3. Then record the decision in the log:
     --t-s 198.0 --t-s-source full_sample --verified no --t-val 212.0 \
     --source semiblind.<ROUND>.json
 ```
+
+Each window has a `t_val` of its own, derived from the rows of its own stretch: the
+boundary of another window, even of the same sample, is not this window's. The tool derives
+`t_val` itself (`--t-val` may be omitted; one given that differs is refused), and a later row
+of a stretch without `--t-val-a` takes the stretch's. A row that would not pass `check` with
+the rows of its stretch is refused before it is written, and the message says what to do.
+
+**Correcting a stretch.** The log is never edited. When an `adjudicate` row turns out wrong —
+a copy error, an answer misjudged on stage A, a `t_val` that does not follow from the rows —
+log the stretch anew: the same command with `--correction "<what the earlier rows got
+wrong>"`, for the same sample, round and window. The earlier rows of that stretch stay in the
+log and drop out of the check; from the correction on, the stretch is checked as usual. A
+correction re-reads stage A and nothing else:
+
+- its `t_val_a` is the moment of an answer of the window's own stretch in the semi-blind review
+  the earlier rows were read from (if none of them cites one, a semi-blind review of the
+  stretch's round or an earlier one), named by `--source`. A moment that no answer of the
+  stretch has is a `t_s`, and only stage C makes it the boundary;
+- it makes the boundary stricter, never looser: `t_val_a` no later than the earliest answer of
+  the stretch the earlier rows logged (for a value they logged that is no answer, the first
+  answer after it), and null only when no such answer exists. An answer wrongly taken as
+  passing is settled by the next round of review, not by a correction. When a correction moves
+  past a value that is no answer — a sighted placement logged as stage A — the tool says so:
+  if a sighted reviewer proposed that moment, stage C is owed on it as on any `t_s`;
+- every `t_s` of the earlier rows is logged again after it, with its source; until it is,
+  `check` lists it as a pending correction and `check --final` fails. One whose probe has run
+  keeps the outcome the probe gave, and one logged unverified gets an outcome only from a
+  `probe_verify` of this round launched at that moment (`--until` the `t_s`). A probe outcome
+  or a source recorded wrongly is not corrected: record it as a tool problem ("You change your
+  video's data", at the top of this prompt).
+
+Then re-check what was decided on the old `t_val`: 2.2 and 2.3 by the ladder below, and the
+spans checked against it. Write the correction and its reason into the table of
+`coordinator.<ROUND>.md` too.
 
 **What to do on a hit** is the ladder below, and it is yours to apply to its end.
 

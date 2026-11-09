@@ -70,7 +70,7 @@ class CoordinatorLogCliTest(unittest.TestCase):
     def records(self):
         return review_inputs.read_records(self.annotations)
 
-    def workspace(self, agent, sample_id, role):
+    def workspace(self, agent, sample_id, role, until=95.0):
         """A workspace note as prepare_review_workspace.py --sample-id leaves it."""
         base = role.rstrip("0123456789")
         window = int(role[len(base):]) if role != base else None
@@ -79,7 +79,7 @@ class CoordinatorLogCliTest(unittest.TestCase):
         current = self.records()[sample_id]
         ws = self.log_root / ".review_ws" / "video-id" / sample_id / agent
         ws.mkdir(parents=True, exist_ok=True)
-        inputs = (review_inputs.derive_inputs(base, current, window, until=95.0, duration=1000.0)
+        inputs = (review_inputs.derive_inputs(base, current, window, until=until, duration=1000.0)
                   if base in review_inputs.ROLES else {})
         review_inputs.write_sidecar(ws, {
             "sample_id": sample_id, "annotations": str(self.annotations),
@@ -196,26 +196,53 @@ class CoordinatorLogCliTest(unittest.TestCase):
         self.assertEqual(missing_window.returncode, 2)
 
     def test_several_t_s_of_one_stretch_settle_on_the_earliest_that_passed(self):
-        rows = [("full_sample", "690.0", "harder"), ("annotation", "695.0", "yes"),
-                ("full_window0", "698.0", "yes")]
-        for source, t_s, verified in rows:
-            self.assertEqual(self.adjudicate(
-                "--window", "0", "--t-val-a", "704.0", "--t-s", t_s, "--t-s-source", source,
-                "--verified", verified, "--t-val", "695.0").returncode, 0, source)
+        # the tool derives t_val, and a later row takes the stretch's t_val_a
+        rows = [("full_sample", "690.0", "harder", "704.0"), ("annotation", "695.0", "yes", None),
+                ("full_window0", "698.0", "yes", None)]
+        for source, t_s, verified, t_val_a in rows:
+            result = self.adjudicate(
+                "--window", "0", *(["--t-val-a", t_val_a] if t_val_a else []), "--t-s", t_s,
+                "--t-s-source", source, "--verified", verified)
+            self.assertEqual(result.returncode, 0, result.stderr)
         result = self.run_cli("check")
         self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual([(e["t_val_a"], e["t_val"]) for e in self.read_events()],
+                         [(704.0, 704.0), (704.0, 695.0), (704.0, 695.0)])
         self.assertEqual(self.read_events()[0]["t_s_source"], "full_sample")
 
-        # a row that keeps t_val at a later t_s than the earliest one that passed
+        # a t_val that does not follow from the rows is refused before it is written
         self.assertEqual(self.adjudicate(
             "--window", "1", "--t-val-a", "704.0", "--t-s", "695.0", "--t-s-source", "annotation",
             "--verified", "yes", "--t-val", "695.0", video="v2").returncode, 0)
-        self.assertEqual(self.adjudicate(
-            "--window", "1", "--t-val-a", "704.0", "--t-s", "690.0", "--t-s-source", "full_sample",
-            "--verified", "yes", "--t-val", "695.0", video="v2").returncode, 0)
-        result = self.run_for_video("v2", "check")
-        self.assertEqual(result.returncode, 1)
-        self.assertIn("earliest of t_val_a and the t_s verified yes is 690.0", result.stderr)
+        result = self.adjudicate(
+            "--window", "1", "--t-s", "690.0", "--t-s-source", "full_sample",
+            "--verified", "yes", "--t-val", "695.0", video="v2")
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("not logged: nothing was written", result.stderr)
+        self.assertIn("--t-val 695.0, but the boundary after this row is 690.0", result.stderr)
+        self.assertIn("695.0 (line 1), 690.0 (this row)", result.stderr)
+        self.assertEqual(self.run_for_video("v2", "check").returncode, 0)
+
+    def test_a_row_is_weighed_with_its_stretch_before_it_is_written(self):
+        self.assertEqual(self.adjudicate("--window", "0", "--t-val-a", "300.0",
+                                         "--verified", "na").returncode, 0)
+        disagree = self.adjudicate("--window", "0", "--t-val-a", "290.0", "--verified", "na")
+        self.assertEqual(disagree.returncode, 2)
+        self.assertIn("t_val_a 290.0 disagrees with 300.0", disagree.stderr)
+        self.assertIn("--correction", disagree.stderr)
+        # a stretch check already rejects cannot be extended, only corrected
+        row = {"event": "adjudicate", "sample_id": "sample-q10", "iteration": 1, "window": 0,
+               "t_val_a": None, "t_s": None, "t_s_source": None, "verified": "na",
+               "source": "semiblind.1.json"}
+        self.write_log({**row, "t_val": 73.0}, video="v2")
+        further = self.adjudicate("--window", "0", "--t-s", "60.0", "--t-s-source",
+                                  "annotation", "--verified", "no", video="v2")
+        self.assertEqual(further.returncode, 2)
+        self.assertIn("already fails check, and a further row cannot repair it (line 1: "
+                      "sample-q10, round 1, window 0: t_val 73.0 but", further.stderr)
+        self.assertEqual(further.stderr.count("Correcting a stretch"), 1)
+        self.assertIn("Log the stretch anew", further.stderr)
+        self.assertEqual(len(self.read_events()), 1)
 
     def test_a_stretch_logged_stage_by_stage_holds_the_boundary_as_it_stood(self):
         # stage A as soon as the semi-blind review is scored, stage C once its probe has run
@@ -241,13 +268,407 @@ class CoordinatorLogCliTest(unittest.TestCase):
                       result.stderr)
         self.assertNotIn("line 2", result.stderr)
 
-    def test_a_harder_route_leaves_t_val_at_t_val_a(self):
+    def trajectory(self, *scans, video="video-id"):
+        """A semi-blind review with the answers at these moments, one list per window."""
+        path = self.log_root / "data" / "reviews" / video / "sample-q10" / "semiblind.1.json"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps({"scans": [
+            {"idx": idx, "candidates": [{"t": t, "answer": "an answer"} for t in moments]}
+            for idx, moments in enumerate(scans)]}), encoding="utf-8")
+
+    def test_a_correction_opens_the_stretch_anew(self):
+        self.trajectory([573.2, 582.9, 587.0])
         self.assertEqual(self.adjudicate(
-            "--window", "0", "--t-val-a", "704.0", "--t-s", "690.0", "--t-s-source", "full_sample",
-            "--verified", "harder", "--t-val", "690.0").returncode, 0)
+            "--window", "0", "--t-val-a", "587.0", "--verified", "na",
+            "--t-val", "587.0").returncode, 0)
+        # a stretch that already disagrees, from a log of the time before the refusal
+        self.write_log({"event": "adjudicate", "sample_id": "sample-q10", "iteration": 1,
+                        "window": 0, "t_val_a": 582.9, "t_s": None, "t_s_source": None,
+                        "verified": "na", "t_val": 582.9, "source": "semiblind.1.json"})
         result = self.run_cli("check")
         self.assertEqual(result.returncode, 1)
-        self.assertIn("earliest of t_val_a and the t_s verified yes is 704.0", result.stderr)
+        self.assertIn("rows disagree on t_val_a", result.stderr)
+        self.assertIn("--correction", result.stderr)
+
+        corrected = self.adjudicate(
+            "--window", "0", "--t-val-a", "582.9", "--verified", "na", "--t-val", "582.9",
+            "--correction", "line 1 missed the answer at 582.9")
+        self.assertEqual(corrected.returncode, 0, corrected.stderr)
+        result = self.run_cli("check")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("lines 1, 2 superseded: line 1 missed the answer at 582.9", result.stdout)
+        self.assertIn("1 corrected stretches", result.stdout)
+
+        # a correction never makes the boundary looser: not later than an answer logged before,
+        # not null where an answer was logged; that is for the next round of review
+        for t_val_a in ("587.0", None):
+            args = ["--t-val-a", t_val_a, "--t-val", t_val_a] if t_val_a else []
+            looser = self.adjudicate("--window", "0", *args, "--verified", "na",
+                                     "--correction", "582.9 misses item 2")
+            self.assertEqual(looser.returncode, 2, t_val_a)
+            self.assertIn("stricter, never looser", looser.stderr, t_val_a)
+        self.assertEqual(self.adjudicate(
+            "--window", "0", "--t-val-a", "573.2", "--verified", "na", "--t-val", "573.2",
+            "--correction", "573.2 already passes").returncode, 0)
+        self.assertEqual(self.run_cli("check").returncode, 0)
+
+        # a stretch that found no answer may be corrected to none: no trajectory to weigh
+        row = {"event": "adjudicate", "sample_id": "sample-q10", "iteration": 1, "window": 0,
+               "t_val_a": None, "t_s": None, "t_s_source": None, "verified": "na",
+               "source": "full_window0.1.json"}
+        self.write_log({**row, "t_val": 73.0}, video="v2")
+        other = self.run_for_video(
+            "v2", "adjudicate", "--sample-id", "sample-q10", "--iteration", "1", "--window", "0",
+            "--verified", "na", "--source", "full_window0.1.json", "--correction", "copy error")
+        self.assertEqual(other.returncode, 0, other.stderr)
+        result = self.run_for_video("v2", "check")
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+        # none for a value logged off the trajectory, after its last answer: read from the
+        # trajectory the earlier rows cite
+        self.trajectory([573.2, 582.9, 587.0], video="v3")
+        self.write_log({**row, "t_val_a": 590.0, "t_val": 590.0, "source": "semiblind.1.json"},
+                       video="v3")
+        elsewhere = self.run_for_video(
+            "v3", "adjudicate", "--sample-id", "sample-q10", "--iteration", "1", "--window", "0",
+            "--verified", "na", "--source", "semiblind.2.json", "--correction", "590.0 is q01's")
+        self.assertEqual(elsewhere.returncode, 2)
+        self.assertIn("the earlier rows of this stretch cite semiblind.1.json", elsewhere.stderr)
+        none = self.adjudicate("--window", "0", "--verified", "na", "--correction",
+                               "590.0 is q01's", video="v3")
+        self.assertEqual(none.returncode, 0, none.stderr)
+        self.assertIn("line 1 logged t_val_a 590.0, which is no answer", none.stdout)
+
+    def test_a_correction_takes_its_t_val_a_from_the_trajectory(self):
+        self.trajectory([573.2, 582.9], [590.0])
+        self.assertEqual(self.adjudicate(
+            "--window", "0", "--t-val-a", "582.9", "--verified", "na",
+            "--t-val", "582.9").returncode, 0)
+        refusals = {
+            # where the sighted reviewers place the answer: a t_s, for stage C
+            "576.0": "moment of no answer in the stretch of window 0 of semiblind.1.json",
+            # an answer of the next window's stretch is not this window's
+            "590.0": "moment of no answer",
+        }
+        for t_val_a, message in refusals.items():
+            result = self.adjudicate("--window", "0", "--t-val-a", t_val_a, "--verified", "na",
+                                     "--t-val", t_val_a, "--correction", "re-read")
+            self.assertEqual(result.returncode, 2, t_val_a)
+            self.assertIn(message, result.stderr, t_val_a)
+        result = self.run_for_video(
+            "video-id", "adjudicate", "--sample-id", "sample-q10", "--iteration", "1",
+            "--window", "0", "--t-val-a", "573.2", "--verified", "na", "--t-val", "573.2",
+            "--source", "coordinator.1.md", "--correction", "re-read")
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("cites the semi-blind review", result.stderr)
+        nothing = self.adjudicate("--window", "1", "--t-val-a", "590.0", "--verified", "na",
+                                  "--t-val", "590.0", "--correction", "re-read")
+        self.assertEqual(nothing.returncode, 2)
+        self.assertIn("nothing to correct", nothing.stderr)
+        blank = self.adjudicate("--window", "0", "--t-val-a", "582.9", "--verified", "na",
+                                "--t-val", "582.9", "--correction", " ")
+        self.assertEqual(blank.returncode, 2)
+        self.assertIn("says what the earlier rows got wrong", blank.stderr)
+        self.assertEqual(len(self.read_events()), 1)
+
+        # nor is an answer of an earlier window's stretch: each window has its own boundary
+        self.assertEqual(self.adjudicate("--window", "1", "--t-val-a", "590.0", "--verified",
+                                         "na", "--t-val", "590.0").returncode, 0)
+        result = self.adjudicate("--window", "1", "--t-val-a", "582.9", "--verified", "na",
+                                 "--t-val", "582.9", "--correction", "re-read")
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("moment of no answer in the stretch of window 1", result.stderr)
+        other = self.run_for_video(
+            "video-id", "adjudicate", "--sample-id", "sample-q10", "--iteration", "1",
+            "--window", "1", "--t-val-a", "590.0", "--verified", "na", "--t-val", "590.0",
+            "--source", "semiblind.2.json", "--correction", "re-read")
+        self.assertEqual(other.returncode, 2)
+        self.assertIn("--source semiblind.2.json, but the earlier rows of this stretch cite "
+                      "semiblind.1.json", other.stderr)
+        for args in (["--t-val-a", "500.0", "--source", "semiblind.2.json"],
+                     ["--t-val-a", "500.0", "--source", "semiblind.2.json", "--correction", "x"]):
+            result = self.run_for_video(
+                "video-id", "adjudicate", "--sample-id", "sample-q10", "--iteration", "1",
+                "--window", "2", "--verified", "na", *args)
+            if "--correction" in args:
+                self.assertEqual(result.returncode, 2)
+                self.assertIn("semiblind.2.json cannot be read", result.stderr)
+
+        # a hand-written correction is held to the same rule by check
+        row = {"event": "adjudicate", "sample_id": "sample-q10", "iteration": 1, "window": 0,
+               "t_s": None, "t_s_source": None, "verified": "na", "source": "semiblind.1.json"}
+        self.write_log({**row, "t_val_a": 582.9, "t_val": 582.9},
+                       {**row, "t_val_a": 576.0, "t_val": 576.0, "correction": "re-read"},
+                       video="v2")
+        self.trajectory([573.2, 582.9], video="v2")
+        result = self.run_for_video("v2", "check")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("line 2: sample-q10, round 1, window 0: t_val_a 576.0 is the moment of no "
+                      "answer", result.stderr)
+
+    def test_a_correction_keeps_every_sighted_proposal_and_its_outcome(self):
+        self.trajectory([582.9, 600.0])
+        self.assertEqual(self.adjudicate(
+            "--window", "0", "--t-val-a", "600.0", "--t-s", "590.0", "--t-s-source", "full_sample",
+            "--verified", "no", "--t-val", "600.0").returncode, 0)
+        corrected = self.adjudicate(
+            "--window", "0", "--t-val-a", "582.9", "--verified", "na", "--t-val", "582.9",
+            "--correction", "line 1 missed the answer at 582.9")
+        self.assertEqual(corrected.returncode, 0, corrected.stderr)
+        owed = ("log again the t_s 590.0 (full_sample) of line 1 with the corrected t_val_a: "
+                "--t-s 590.0 --t-s-source full_sample --verified no")
+        self.assertIn(owed, corrected.stdout)
+        result = self.run_cli("check")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn(f"pending correction: line 2: sample-q10, round 1, window 0: {owed}",
+                      result.stderr)
+        self.assertIn("1 rows owed by corrections", result.stdout)
+        result = self.run_cli("check", "--final")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn(owed, result.stderr)
+
+        # logged again with what its probe did not measure: refused before it is written
+        for outcome in ("na", "yes"):
+            changed = self.adjudicate(
+                "--window", "0", "--t-s", "590.0", "--t-s-source", "full_sample",
+                "--verified", outcome)
+            self.assertEqual(changed.returncode, 2, outcome)
+            self.assertIn(f"this row: sample-q10, round 1, window 0: the t_s 590.0 (full_sample) "
+                          f"was verified no (line 1), and this row says {outcome}", changed.stderr)
+        self.assertEqual(len(self.read_events()), 2)
+        again = self.adjudicate("--window", "0", "--t-s", "590.0", "--t-s-source", "full_sample",
+                                "--verified", "no")
+        self.assertEqual(again.returncode, 0, again.stderr)
+        self.assertNotIn("owed", again.stdout)
+        self.assertNotIn("pending correction", self.run_cli("check").stderr)
+
+        # logged again as measured
+        row = {"event": "adjudicate", "sample_id": "sample-q10", "iteration": 1, "window": 0,
+               "source": "semiblind.1.json"}
+        self.write_log({**row, "t_val_a": 600.0, "t_s": 590.0, "t_s_source": "full_sample",
+                        "verified": "no", "t_val": 600.0},
+                       {**row, "t_val_a": 582.9, "t_s": None, "t_s_source": None, "verified": "na",
+                        "t_val": 582.9, "correction": "line 1 missed the answer at 582.9"},
+                       {**row, "t_val_a": 582.9, "t_s": 590.0, "t_s_source": "full_sample",
+                        "verified": "no", "t_val": 582.9}, video="v2")
+        self.trajectory([582.9, 600.0], video="v2")
+        result = self.run_for_video("v2", "check")
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+        # an earlier t_val_a leaves the proposal where it was, and the rows after the
+        # correction answer to check_adjudication as any other
+        self.write_log({**row, "t_val_a": 600.0, "t_s": 590.0, "t_s_source": "full_sample",
+                        "verified": "no", "t_val": 600.0},
+                       {**row, "t_val_a": 582.9, "t_s": 570.0, "t_s_source": "annotation",
+                        "verified": "na", "t_val": 582.9, "correction": "missed 582.9"},
+                       {**row, "t_val_a": 582.9, "t_s": 590.0, "t_s_source": "full_sample",
+                        "verified": "no", "t_val": 582.9}, video="v3")
+        self.trajectory([582.9, 600.0], video="v3")
+        result = self.run_for_video("v3", "check")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("line 2: t_s lies before t_val_a", result.stderr)
+        self.assertNotIn("line 1", result.stderr)
+
+    def test_a_value_logged_off_the_trajectory_still_bounds_a_correction(self):
+        # 576.0 is no answer: stage A reading the same trajectory would have put the boundary
+        # at the first answer after it, so that answer bounds the correction
+        self.trajectory([573.2, 582.9, 587.0])
+        row = {"event": "adjudicate", "sample_id": "sample-q10", "iteration": 2, "window": 0,
+               "t_s": None, "t_s_source": None, "verified": "na", "source": "semiblind.1.json"}
+        self.write_log({**row, "t_val_a": 576.0, "t_val": 576.0})
+        later = self.run_for_video(
+            "video-id", "adjudicate", "--sample-id", "sample-q10", "--iteration", "2",
+            "--window", "0", "--t-val-a", "587.0", "--verified", "na",
+            "--source", "semiblind.1.json", "--correction", "576.0 is no answer")
+        self.assertEqual(later.returncode, 2)
+        self.assertIn("later than 582.9, the first answer at or after the 576.0", later.stderr)
+        right = self.run_for_video(
+            "video-id", "adjudicate", "--sample-id", "sample-q10", "--iteration", "2",
+            "--window", "0", "--t-val-a", "582.9", "--verified", "na",
+            "--source", "semiblind.1.json", "--correction", "576.0 is no answer")
+        self.assertEqual(right.returncode, 0, right.stderr)
+        # whether stage C was owed on the placement is the sighted reviewers' call, as in §6
+        self.assertIn("line 1 logged t_val_a 576.0, which is no answer of the trajectory", right.stdout)
+        self.assertIn("--t-s 576.0 --t-s-source <that reviewer>", right.stdout)
+
+    def test_a_correction_is_not_weighed_against_a_stretch_the_review_lacks(self):
+        # one scan over the whole sample: its answers are not window 1's stretch, and "no
+        # answer there" must not read as "no answer"
+        path = self.log_root / "data" / "reviews" / "video-id" / "sample-q10" / "semiblind.1.json"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps({"scans": [{"idx": 0, "t_from": 0.0, "t_to": 741.0,
+                                               "candidates": [{"t": 588.0}, {"t": 680.0}]}]}),
+                        encoding="utf-8")
+        self.assertEqual(self.adjudicate("--window", "1", "--t-val-a", "588.0",
+                                         "--verified", "na").returncode, 0)
+        for args in ([], ["--t-val-a", "680.0"]):
+            result = self.adjudicate("--window", "1", *args, "--verified", "na",
+                                     "--correction", "re-read")
+            self.assertEqual(result.returncode, 2, args)
+            self.assertIn("has no stretch of window 1 (its stretches: 0)", result.stderr)
+            self.assertIn("settle it in the next round of review", result.stderr)
+        # the legacy shape has no moments to weigh either
+        path.write_text(json.dumps({"scans": [{"idx": 1, "candidates": [{"answer": "x"}]}]}),
+                        encoding="utf-8")
+        result = self.adjudicate("--window", "1", "--verified", "na", "--correction", "re-read")
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("has no timed answers in its stretch of window 1", result.stderr)
+        self.assertEqual(len(self.read_events()), 1)
+
+    def test_a_correction_gives_an_outcome_only_to_a_measured_proposal(self):
+        self.trajectory([582.9, 600.0])
+        row = {"event": "adjudicate", "sample_id": "sample-q10", "iteration": 1, "window": 0,
+               "t_val_a": 600.0, "t_s": 550.0, "t_s_source": "full_sample", "verified": "na",
+               "t_val": 600.0, "source": "semiblind.1.json"}
+        self.write_log(row)
+        corrected = self.adjudicate("--window", "0", "--t-val-a", "582.9", "--verified", "na",
+                                    "--correction", "missed 582.9")
+        self.assertEqual(corrected.returncode, 0, corrected.stderr)
+        self.assertIn("it lies before the corrected t_val_a, so run stage C at it first",
+                      corrected.stdout)
+        unmeasured = ("the t_s 550.0 gets the outcome no, but no probe_verify of sample-q10 "
+                      "launched in round 1 at it (--until 550.0) has finished")
+        result = self.adjudicate("--window", "0", "--t-s", "550.0", "--t-s-source",
+                                 "full_sample", "--verified", "no")
+        self.assertEqual(result.returncode, 2)
+        self.assertIn(unmeasured, result.stderr)
+        # a probe at another moment measured something else
+        self.assertEqual(self.spawn("verify-1", "sample-q10", "probe_verify",
+                                    until=560.0).returncode, 0)
+        self.assertEqual(self.finish("verify-1").returncode, 0)
+        result = self.adjudicate("--window", "0", "--t-s", "550.0", "--t-s-source",
+                                 "full_sample", "--verified", "no")
+        self.assertIn(unmeasured, result.stderr)
+        self.assertEqual(self.spawn("verify-2", "sample-q10", "probe_verify",
+                                    until=550.0).returncode, 0)
+        self.assertEqual(self.finish("verify-2").returncode, 0)
+        result = self.adjudicate("--window", "0", "--t-s", "550.0", "--t-s-source",
+                                 "full_sample", "--verified", "no")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        result = self.run_cli("check")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertNotIn("pending correction", result.stderr)
+
+        # check holds a hand-written stretch to the same rule
+        self.trajectory([582.9, 600.0], video="v2")
+        self.write_log(row, {**row, "t_val_a": 582.9, "t_s": None, "t_s_source": None,
+                             "t_val": 582.9, "correction": "missed 582.9"},
+                       {**row, "t_val_a": 582.9, "verified": "no", "t_val": 582.9}, video="v2")
+        result = self.run_for_video("v2", "check")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn(f"line 3: sample-q10, round 1, window 0: {unmeasured}", result.stderr)
+
+    def test_a_tool_error_says_whether_the_row_was_written(self):
+        import contextlib
+        import io
+        from unittest import mock
+        import coordinator_log
+        args = ["video-id", "adjudicate", "--sample-id", "sample-q10", "--iteration", "1",
+                "--window", "0", "--t-val-a", "300.0", "--verified", "na",
+                "--source", "semiblind.1.json"]
+        path = self.log_root / "data" / "reviews" / "video-id" / "coordinator.log"
+
+        def failing(*_):
+            raise KeyError("t_val_a")
+
+        original = coordinator_log.append_event
+
+        def write_then_fail(*arguments):
+            original(*arguments)
+            raise OSError("disk")
+
+        for name, replacement, written in (("adjudicate_event", failing, False),
+                                           ("append_event", write_then_fail, True)):
+            stderr = io.StringIO()
+            with mock.patch.object(coordinator_log, name, replacement), \
+                    mock.patch.object(coordinator_log, "ROOT", self.log_root), \
+                    contextlib.redirect_stderr(stderr), contextlib.redirect_stdout(io.StringIO()):
+                code = coordinator_log.main(args)
+            self.assertEqual(code, 2)
+            self.assertNotIn("Traceback", stderr.getvalue())
+            if written:
+                self.assertIn("after it wrote its row", stderr.getvalue())
+                self.assertIn("the row stands, do not log it again", stderr.getvalue())
+                self.assertEqual(len(self.read_events()), 1)
+            else:
+                self.assertIn("not logged: `adjudicate` stopped on an error of its own "
+                              "(KeyError: 't_val_a'). Nothing was written", stderr.getvalue())
+                self.assertFalse(path.exists())
+
+    def test_a_failure_of_a_command_that_writes_nothing_says_so(self):
+        import contextlib
+        import io
+        from unittest import mock
+        import coordinator_log
+        stderr = io.StringIO()
+        with mock.patch.object(coordinator_log, "validate_log", side_effect=KeyError("x")), \
+                mock.patch.object(coordinator_log, "ROOT", self.log_root), \
+                contextlib.redirect_stderr(stderr):
+            self.assertEqual(coordinator_log.main(["video-id", "check"]), 2)
+        self.assertIn("`check` stopped on an error of its own (KeyError: 'x'); it writes "
+                      "nothing", stderr.getvalue())
+        self.assertNotIn("not logged", stderr.getvalue())
+
+    def test_a_row_after_a_cut_off_line_starts_a_line_of_its_own(self):
+        path = self.log_root / "data" / "reviews" / "video-id" / "coordinator.log"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text('{"ts":"2026-10-01T00:00:00+03:00","event":"note","text":"a"}\n'
+                        '{"ts":"2026-10-01T00:00:00+03:00","event":"no', encoding="utf-8")
+        self.assertEqual(self.run_cli("note", "--text", "tool problem: a cut-off line")
+                         .returncode, 0)
+        lines = path.read_text(encoding="utf-8").splitlines()
+        self.assertEqual(len(lines), 3)
+        self.assertEqual(json.loads(lines[2])["text"], "tool problem: a cut-off line")
+        self.assertIn("line 2: invalid JSON", self.run_cli("check").stderr)
+
+    def test_the_rows_hidden_by_the_loosened_check_carry_a_caption(self):
+        filler = [{"event": "note", "text": "filler"}] * 17
+        row = {"event": "adjudicate", "sample_id": "sample-q10", "iteration": 1, "window": 0,
+               "t_val_a": None, "t_s": None, "t_s_source": None, "verified": "na",
+               "source": "semiblind.1.json"}
+        self.write_log(*filler, {**row, "t_val": 73.0, "ts": "2026-10-20T21:47:05+03:00"},
+                       video="VYQVlVoWoPY")
+        result = self.run_for_video("VYQVlVoWoPY", "check")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("line 18: sample-q10, round 1, window 0: t_val 73.0", result.stderr)
+        self.assertIn("The note at line 19 records the right values", result.stderr)
+        # the caption is for that row, not for whatever stands on its line
+        self.write_log(*filler, {**row, "t_val": 73.0}, video="other")
+        self.assertNotIn("The note at line 19", self.run_for_video("other", "check").stderr)
+
+        # a row check passes is reported until its stretch is corrected, and takes no further row
+        filler = [{"event": "note", "text": "filler"}] * 167
+        self.write_log(*filler, {**row, "iteration": 2, "t_val_a": 576.0, "t_val": 576.0,
+                                 "ts": "2026-10-21T04:21:21+03:00"}, video="851U557j6HE")
+        result = self.run_for_video("851U557j6HE", "check")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("line 168: sample-q10, round 2, window 0: this row was logged under round 2",
+                      result.stderr)
+        further = self.run_for_video(
+            "851U557j6HE", "adjudicate", "--sample-id", "sample-q10", "--iteration", "2",
+            "--window", "0", "--t-s", "590.0", "--t-s-source", "full_sample", "--verified", "na",
+            "--source", "semiblind.1.json")
+        self.assertEqual(further.returncode, 2)
+        self.assertIn("already fails check", further.stderr)
+        self.trajectory([573.2, 582.9], video="851U557j6HE")
+        corrected = self.run_for_video(
+            "851U557j6HE", "adjudicate", "--sample-id", "sample-q10", "--iteration", "2",
+            "--window", "0", "--t-val-a", "582.9", "--verified", "na",
+            "--source", "semiblind.1.json", "--correction", "576.0 is no answer")
+        self.assertEqual(corrected.returncode, 0, corrected.stderr)
+        result = self.run_for_video("851U557j6HE", "check")
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_a_harder_route_leaves_t_val_at_t_val_a(self):
+        result = self.adjudicate(
+            "--window", "0", "--t-val-a", "704.0", "--t-s", "690.0", "--t-s-source", "full_sample",
+            "--verified", "harder", "--t-val", "690.0")
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("the boundary after this row is 704.0", result.stderr)
+        self.assertEqual(self.adjudicate(
+            "--window", "0", "--t-val-a", "704.0", "--t-s", "690.0", "--t-s-source", "full_sample",
+            "--verified", "harder").returncode, 0)
+        self.assertEqual(self.read_events()[-1]["t_val"], 704.0)
 
     def test_old_adjudications_without_a_window_are_read_by_the_old_rules(self):
         self.write_log(
@@ -273,9 +694,9 @@ class CoordinatorLogCliTest(unittest.TestCase):
         result = self.run_cli("check")
         self.assertEqual(result.returncode, 0, result.stderr)
 
-    def spawn(self, agent, sample_id, role, video="video-id", workspace=None):
+    def spawn(self, agent, sample_id, role, video="video-id", workspace=None, until=95.0):
         if workspace is None:
-            workspace = self.workspace(agent, sample_id, role)
+            workspace = self.workspace(agent, sample_id, role, until=until)
         return self.run_for_video(
             video, "spawn", "--agent", agent, "--sample-id", sample_id, "--role", role,
             "--iteration", "1", "--model", "local", "--reasoning-effort", "default",

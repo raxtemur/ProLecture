@@ -541,6 +541,10 @@ them; a reference to speech is checked against the transcript. A mismatch is `fa
 
 ## What to return
 
+If a tool fails, or rejects your file and you believe the tool is wrong, say so in the text
+for the coordinator with the command and its message, and do not repair or work around the
+tool: the same tools check every other review.
+
 Two things, and they are different things.
 
 ### 1. The review file
