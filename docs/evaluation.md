@@ -16,6 +16,9 @@ the format of a record is in [../data/annotations/README.md](../data/annotations
   Point `PROLECTURE_DATA` at that folder and the scripts read the records and the videos from
   there, while a run's own folder (`--out`) stays in your checkout. Without the variable the
   checkout's own `data/` is read. Read the shared folder, do not write into it.
+  `tools/check_data.py` tells whether a data folder has what the evaluation needs: every
+  video with its sound and subtitles, every record with its flags and windows
+  (`--expect N`: and exactly N videos).
 - **Python**: the judge and the scores run on the standard library plus `openai` and `httpx`.
   A model's runner runs in the model's own environment; what it shares with the rest,
   [tools/eval_common.py](../tools/eval_common.py), is standard library only.

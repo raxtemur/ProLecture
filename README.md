@@ -6,14 +6,21 @@ and must decide both **when** to answer and **what** to answer. The benchmark is
 around 3Blue1Brown videos, where the visual track, narration, formulas, and source
 Manim scenes provide unusually precise evidence for annotation and review.
 
-This repository contains the data-preparation and annotation pipeline used to:
+This repository contains the data-preparation and annotation pipeline and the evaluation
+code, used to:
 
 1. collect a video, its metadata, and subtitles;
 2. assemble an annotation bundle with a timestamped transcript, formulas, and
    content-selected frames;
 3. generate a dense, timestamp-aligned description of the visual track;
 4. create candidate questions and run them through the
-   Proposer → Coordinator → Review → Retry workflow.
+   Proposer → Coordinator → Review → Retry workflow;
+5. check that the finished data is complete;
+6. measure a model on it: its answers, a rubric judge, the scores.
+
+If you are here to measure a model on the existing records, go straight to
+[section 6](#6-measure-a-model) and [`docs/evaluation.md`](docs/evaluation.md): the first
+four sections are about producing records.
 
 The repository also contains a separate Manim sandbox under `demo/` and `scripts/`.
 The workflow below concerns the ProLecture benchmark in `tools/`, `data/`, `schema/`,
@@ -28,12 +35,14 @@ You will need:
 - Python 3.10 or newer;
 - `yt-dlp` for downloading videos, and `ffmpeg`/`ffprobe` available in `PATH`;
 - OpenCV for bundle frame extraction;
-- `openai` and Pillow for visual-track description.
+- `openai` and Pillow for visual-track description;
+- `jsonschema` for the validator (and so for the data check), `pydantic` for the review
+  contract, `openai` and `httpx` for the evaluation judge.
 
 Install the Python dependencies used by the steps in this guide:
 
 ```bash
-python3 -m pip install yt-dlp openai pillow opencv-python-headless
+python3 -m pip install yt-dlp openai pillow opencv-python-headless jsonschema pydantic httpx
 ```
 
 Generating the visual description also requires an OpenAI-compatible VLM server
@@ -62,6 +71,16 @@ data/videos/<VIDEO_ID>/
         └── Proposer → Coordinator → Review → Retry
                 └── data/annotations/<VIDEO_ID>.jsonl
                     data/reviews/<VIDEO_ID>/...
+
+data/annotations/*.jsonl + data/videos/
+        │
+        ├── tools/check_data.py           is everything there and consistent?
+        │
+        └── tools/eval_run_<model>.py → tools/eval_judge.py → tools/eval_score.py
+                └── data/eval/<MODEL>/<DATE>/
+                    ├── responses/        what the model said
+                    ├── judged/           which rubric items it stated
+                    └── scores/summary.md
 ```
 
 ## 1. Download the video
@@ -317,8 +336,9 @@ For server setup, resource estimates, all CLI options, and recovery procedures, 
 
 Two roles are started by hand, each in its own fresh session of a coding agent (Codex or
 Claude Code) launched from the repository root: first the **proposer**, which writes
-candidate questions, then the **coordinator**, which merges them and carries them through
-review, launching the reviewers and probes as subagents. Start the coordinator once the
+candidate questions, then the **coordinator**, which carries them through review, launching
+the reviewers and probes as subagents, and closes the video by merging the proposer's files
+into `data/annotations/<VIDEO_ID>.jsonl`. Start the coordinator once the
 proposer's file exists and passes the validator. One session per role and per video.
 
 Both messages below only point the agent at its role document and name the video: the
@@ -355,37 +375,47 @@ Read in full before you start: docs/prompts/coordinator.md,
 docs/annotation_pipeline.md and docs/prompts/definitions.md. They are binding; where this
 message and they differ, they win.
 
-Your input is the proposer's output, data/annotations/partial/<VIDEO_ID>.*.jsonl. Merge
-it into data/annotations/<VIDEO_ID>.jsonl and carry every sample through the pipeline,
-from the validator to the handoff to a human: the reviewers and probes in the order and
-with the isolation the pipeline defines, your decisions and edits, the repeat reviews and
-the checks across samples.
+Your input is the proposer's output, data/annotations/partial/<VIDEO_ID>.*.jsonl. Carry
+every sample of these files through steps 2-6 of the pipeline: the
+reviewers and probes in the order and with the isolation the pipeline defines, your
+decisions and edits, the repeat reviews, the checks across samples, and closing the video
+with tools/merge_partials.py <VIDEO_ID> (docs/prompts/coordinator.md, §8).
 
 - Give each subagent its complete prompt from docs/prompts/ and only the workspace that
   tools/prepare_review_workspace.py builds for it. Subagents never edit annotation files.
-- Run every subagent on the one local model you run on, and record its name and
-  reasoning effort in the spawn event (docs/prompts/coordinator.md, "One model for
-  every role").
-- Record every launch, result and edit with tools/coordinator_log.py <VIDEO_ID>, and
-  run tools/validate_samples.py after every edit of an annotation file.
+- Run every subagent on the one local model you run on (docs/prompts/coordinator.md,
+  "One model for every role").
+- Record every launch and result with tools/coordinator_log.py <VIDEO_ID>, and change a
+  record only through its sample-edit command (docs/prompts/coordinator.md, §3, "Changing
+  a record"); run tools/validate_samples.py on the video's files after an edit. When the
+  tool refuses a command, its message says what to do.
 - Do not stop after the first round, and do not count a skipped check as passed.
 - Do not end your turn while a subagent is running (docs/prompts/coordinator.md, §3).
 - If this session is compacted, re-read docs/prompts/coordinator.md before you continue.
 ```
 
-For local agents better add something like:
-```
-The session is being executed on the local model (Qwen/Qwen3.8-27B)
-CODEX_HOME=...
-Only use subagents, don't try to connect with local model directly
+For an agent that runs on a local model, with nobody reading the session, add:
+
+```text
+The session is being executed on the local model (Qwen/Qwen3.8-27B) inside a batch job.
+Only use subagents and the repository's tools, don't try to connect with the local model
+directly; tools/coordinator_log.py blind-judge calls the judge on it for you. No human reads
+this session while it runs: do not ask questions and do not wait for answers; decide by
+the documents and write each decision down where they say.
 ```
 
+The coordinator's journal, `data/reviews/<VIDEO_ID>/coordinator.log`, is written only through
+`tools/coordinator_log.py`; its `check` command says whether the journal is consistent and
+`check --final` whether the video may be closed
+([`data/reviews/README.md`](data/reviews/README.md)).
 
 The principal outputs of this stage are:
 
 - `data/annotations/partial/<VIDEO_ID>.<INTERVAL>.jsonl` — the proposer's output
   (`full` for the whole video);
-- `data/annotations/<VIDEO_ID>.jsonl` — the merged annotation set;
+- `data/annotations/<VIDEO_ID>.jsonl` — the merged annotation set, written when the video
+  is closed;
+- `data/reviews/<VIDEO_ID>/coordinator.log` — the journal of every launch, result and edit;
 - `data/reviews/<VIDEO_ID>/<SAMPLE_ID>/` — versioned structured reviews and coordinator
   decisions.
 
@@ -393,6 +423,74 @@ The pipeline is iterative: deterministic validation runs after every edit, chang
 participant-visible wording requires a complete fresh review cycle, and unresolved or
 oscillating samples are handed to a human after the documented retry limit. Human
 acceptance remains mandatory while the benchmark is being calibrated.
+
+## 5. Check the data
+
+```bash
+python3 tools/check_data.py                  # the data/ of this checkout
+python3 tools/check_data.py --expect 34      # also fail unless exactly 34 videos are there
+python3 tools/check_data.py --records-only   # the records alone, before the videos are downloaded
+```
+
+One command for whoever assembled a data folder — closed a video, restored the videos by id
+on another machine, or downloaded the records. Beyond the validator it checks the files a
+record needs and what the evaluation makes of it: the video is there, has sound and runs as
+long as the records state; the subtitles and the transcript exist; every validated record has
+its measured flags and a required window with a rubric item; the windows lie inside the video.
+It prints the counts of the set and, if there are any, the problems, each missing file with
+the command that restores it; the exit code is 1 when something is wrong. `--expect N` is the
+guard against a copy that lacks a video: N is the number of videos the release you copied
+states. `--records-only` checks downloaded records before their videos are there. A video
+whose records are still under
+`annotations/partial/` is in review, not part of the set, and named in a warning.
+`PROLECTURE_DATA=/path/to/data` checks a data folder kept outside the checkout; note that
+`fetch_video.py` and `make_bundle.py` always write into the checkout's own `data/`. The script
+needs `jsonschema` and, for the files, `ffprobe`.
+
+## 6. Measure a model
+
+Three steps, one folder per run; every step is a file per task and can be restarted:
+
+```bash
+OUT=data/eval/<MODEL>/<DATE>
+
+# 1. what the model said: one runner per model, in the model's own environment
+<model env>/python tools/eval_run_minicpm.py --out $OUT --runs 3    # a stream (MiniCPM-o 4.5)
+python3 tools/eval_run_offline.py --out $OUT --runs 3               # or one answer after the material (a model on vLLM)
+
+# 2. which rubric items each answer states: an LLM judge on an OpenAI-compatible server
+python3 tools/eval_judge.py --out $OUT --base-url http://127.0.0.1:8000/v1 --model local
+
+# 3. the scores
+python3 tools/eval_score.py --out $OUT       # -> $OUT/scores/summary.md
+```
+
+[`docs/evaluation.md`](docs/evaluation.md) is the guide: where the data is and how
+`PROLECTURE_DATA` points a checkout at it, what a model is shown, the one file a new model's
+runner must write (`responses/<task>.json`), the judge, and what each score means.
+
+## Tests
+
+```bash
+python3 -m unittest discover -s tests
+```
+
+`tests/` (plain `unittest`, about two minutes) covers the tools that write or judge the
+annotation: the journal, the edits of records, the merge, the workspace builder, the review
+contract and the validator. The data-preparation and evaluation scripts have no unit tests.
+`tests/journal_baseline.py` is not a unit test: it saves the output of the journal checks on
+every real journal and compares it after a change of `tools/coordinator_log.py`.
+
+## Other scripts
+
+| Script | What it is |
+|---|---|
+| `tools/build_3b1b_mapping.py` | builds `data/3b1b_mapping.json`: lesson → YouTube id → manim source |
+| `tools/detect_scenes.py` | the scene-change detector `make_bundle.py` uses, runnable on its own |
+| `tools/validate_samples.py` | the schema and the semantics of annotation files; run after every edit |
+| `tools/review_inputs.py`, `tools/sample_edit.py` | libraries of the workspace builder and of the journal |
+| `tools/eval_common.py` | what the evaluation scripts share; reads `PROLECTURE_DATA` |
+| `notebooks/eval-minicpm.ipynb` | the exploratory notebook the evaluation scripts grew out of; superseded by them |
 
 ## Key documentation
 
@@ -409,6 +507,8 @@ acceptance remains mandatory while the benchmark is being calibrated.
 | [`docs/prompts/coordinator.md`](docs/prompts/coordinator.md) | Coordinator decisions and acceptance methodology |
 | [`schema/sample.schema.json`](schema/sample.schema.json) | Machine-readable sample schema |
 | [`schema/review.py`](schema/review.py) | Structured review contract and review validator |
+| [`data/reviews/README.md`](data/reviews/README.md) | The coordinator's journal and the files of a review |
+| [`docs/evaluation.md`](docs/evaluation.md) | Measuring a model: protocols, the response-file contract, judge, scores |
 
 Before editing annotations or review logic, read the relevant documents above. Several
 rules—especially temporal relation derivation, modality isolation, and reviewer order—are

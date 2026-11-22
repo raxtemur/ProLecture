@@ -24,7 +24,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Two independent lines of work under one roof:
 
 1. **ProLecture** — a benchmark of proactive tasks for streaming VLMs on 3Blue1Brown videos.
-   This is the main line: `tools/`, `data/`, `schema/`, `docs/`, `articles/`.
+   This is the main line: `tools/`, `tests/`, `data/`, `schema/`, `docs/`, `articles/`.
 2. **The manim sandbox** — animation experiments and two home-grown scene quality checks:
    `demo/`, `scripts/`.
 
@@ -39,9 +39,22 @@ draft prompts in [docs/prompts/](docs/prompts/), the question templates with wor
 examples in [docs/question_templates.md](docs/question_templates.md) and two invented complete
 samples in [docs/sample_examples.jsonl](docs/sample_examples.jsonl) (they pass the validator).
 The contract the reviewer subagents report against is [schema/review.py](schema/review.py)
-(pydantic, not a JSON schema: a model reads it too).
+(pydantic, not a JSON schema: a model reads it too); the coordinator's journal and the files of
+a review are described in [data/reviews/README.md](data/reviews/README.md). How a model is
+measured on the finished records — the runners, the judge, the scores and the file a new
+model's runner must write — is in [docs/evaluation.md](docs/evaluation.md).
 Read them before any edit to the annotation or the metrics: they record decisions that have a
 non-obvious "why".
+
+Every script of `tools/` is listed with its purpose in [The tools](#the-tools) below.
+
+**State, 2026-11:** the set is frozen for the first release. No new videos are annotated; the
+closed videos in `data/annotations/` are what is measured (`tools/check_data.py` prints the
+counts), and other models are measured by co-authors from their own checkouts
+(`PROLECTURE_DATA`, [docs/evaluation.md](docs/evaluation.md)). The records of a closed video
+stay as they are: a defect found in one is written down as a limitation, not edited away. A
+video whose records are still in `data/annotations/partial/` is in review and joins the set
+when its coordinator closes it; until then `check_data.py` names it in a warning.
 
 ## Two environments — the main snag
 
@@ -54,8 +67,10 @@ explicitly.**
 | base conda | `/home/user/conda/bin/python3` | matplotlib, pandas, jsonschema, cv2, jupyter | yt-dlp, manim |
 
 `tools/fetch_video.py` looks for an interpreter with `yt_dlp` itself (the list is in
-`CANDIDATE_PYTHONS`). The other tools and the notebook kernel are base conda. LaTeX for manim comes
-from TinyTeX (`~/.TinyTeX/bin/x86_64-linux`, set in `~/.zshrc`).
+`CANDIDATE_PYTHONS`). The other tools, the tests and the notebook kernel are base conda. A
+model's runner (`tools/eval_run_<model>.py`) is the exception: it runs in the model's own
+environment and shares with the rest only `tools/eval_common.py`, which is standard library.
+LaTeX for manim comes from TinyTeX (`~/.TinyTeX/bin/x86_64-linux`, set in `~/.zshrc`).
 
 ## Commands
 
@@ -71,6 +86,26 @@ $BASE tools/detect_scenes.py <youtube_id>          # the scene detector on its o
 $BASE tools/describe_video.py <youtube_id> --settled 0.5   # VLM description of the video track, needs a server
 $BASE tools/validate_samples.py data/annotations/*.jsonl
 $BASE tools/merge_partials.py <youtube_id>         # the coordinator closes a video: partial/ -> <id>.jsonl
+$BASE tools/check_data.py                          # the closed videos: records, videos and subtitles complete?
+$BASE tools/check_data.py --expect 34              # ... and exactly 34 of them
+$BASE tools/check_data.py --records-only           # the records alone, without the video files
+
+# the coordinator's journal of a video: is it consistent, what is still owed
+$BASE tools/coordinator_log.py <youtube_id> check          # --final: may the video be closed
+$BASE tools/coordinator_log.py <youtube_id> open           # launches without a result
+
+# the tests of the tools (unittest, about two minutes)
+$BASE -m unittest discover -s tests
+# around a change of tools/coordinator_log.py: journals written before it must read as before
+$BASE tests/journal_baseline.py --save <DIR>       # before the change; data/ is not versioned,
+$BASE tests/journal_baseline.py --compare <DIR>    # so <DIR> lives outside the repository
+
+# measuring a model: its answers -> the judge -> the scores (docs/evaluation.md)
+OUT=data/eval/<model>/<date>
+<model env>/python tools/eval_run_minicpm.py --out $OUT --runs 3     # a stream; one runner per model
+$BASE tools/eval_run_offline.py --out $OUT --runs 3                  # or one answer after the material
+$BASE tools/eval_judge.py --out $OUT                                 # needs an OpenAI-compatible server
+$BASE tools/eval_score.py --out $OUT                                 # -> $OUT/scores/summary.md
 
 # the review contract: cross-checking the checklist against Item and checking a saved review
 $BASE schema/review.py
@@ -88,9 +123,35 @@ PYTHONPATH=scripts MANIM_LAYOUT_STRICT=1 MANIM_SCENE_STRICT=1 \
     manim -ql demo/demo2.py EigenLecture
 ```
 
-There is no test framework. The role of tests for the annotation is played by
+`tests/` (plain `unittest`) covers the tools that write or judge the annotation — the journal,
+the edits of records, the merge, the workspace builder, the review contract, the validator —
+and not the data-preparation or evaluation scripts. The annotation files are checked by
 `tools/validate_samples.py`: it returns code 1 on any error and prints a coverage breakdown when
 there are none. To check a single file, simply pass it instead of the glob.
+
+## The tools
+
+| Script | What it does | Run by |
+|---|---|---|
+| `tools/build_3b1b_mapping.py` | lesson → YouTube id → manim source, into `data/3b1b_mapping.json` | data preparation |
+| `tools/fetch_video.py` | the video, its metadata and subtitles into `data/videos/<id>/` | data preparation |
+| `tools/detect_scenes.py` | frames where the picture changes | `make_bundle.py`, or on its own |
+| `tools/make_bundle.py` | the bundle of a video: transcript, formulas, frames, `bundle.json` | data preparation |
+| `tools/describe_video.py` | a model's timed description of the video track (needs a VLM server) | data preparation |
+| `tools/validate_samples.py` | the schema and the semantics of annotation files | everyone, after every edit |
+| `tools/prepare_review_workspace.py` | the folder a reviewer or a probe works in: its material and nothing more | the coordinator |
+| `tools/review_inputs.py` | which material a review role gets (a library) | the two around it |
+| `tools/coordinator_log.py` | the journal of a video: launches, results, edits of records (`sample-edit`), the blind judge, `check` | the coordinator |
+| `tools/sample_edit.py` | what an edit of a record changed and which kind of edit it is (a library) | `coordinator_log.py` |
+| `tools/merge_partials.py` | closes a video: `partial/` → `data/annotations/<id>.jsonl` | the coordinator |
+| `tools/check_data.py` | are the closed videos complete: files, measured flags, windows inside the video | whoever assembles the data |
+| `tools/eval_common.py` | what the evaluation scripts share; where the data is (`PROLECTURE_DATA`) | a library |
+| `tools/eval_run_minicpm.py`, `tools/eval_run_offline.py` | what a model said: a stream, or one answer after the material | evaluation |
+| `tools/eval_judge.py` | which lines of an answer state which rubric item (an LLM) | evaluation |
+| `tools/eval_score.py` | the metrics of a judged run | evaluation |
+| `schema/review.py` | the contract of a review, and the check of a saved one | reviewers, the coordinator |
+| `tests/journal_baseline.py` | the journal checks on every real journal, saved and compared | whoever changes `coordinator_log.py` |
+| `notebooks/eval-minicpm.ipynb` | the exploratory notebook the evaluation scripts grew out of ("the notebook" in their comments); superseded by them | nobody |
 
 ## The ProLecture pipeline
 
@@ -107,13 +168,22 @@ vendor/site (3Blue1Brown.com)          vendor/videos (3b1b/videos)
           mp4 + info.json + en.vtt                 │
                      └──────────────┬──────────────┘
                                     ▼
-                       data/bundles/<id>/           tools/make_bundle.py
-                       transcript.md, formulas.md, frames/, bundle.json
+                       data/bundles/<id>/           tools/make_bundle.py, tools/describe_video.py
+                       transcript.md, formulas.md, frames/, description.*, bundle.json
                                     ▼
-                       annotation by hand from the bundle
+                       the proposer (an agent)      docs/prompts/proposer.md
+                       data/annotations/partial/<id>.<interval>.jsonl
                                     ▼
-                     data/annotations/<id>.jsonl    tools/validate_samples.py
+                       the coordinator with reviewers and probes     docs/annotation_pipeline.md
+                       data/reviews/<id>/: coordinator.log, reviews  tools/coordinator_log.py
+                                    ▼
+                     data/annotations/<id>.jsonl    tools/merge_partials.py, tools/validate_samples.py
+                                    ▼
+                     data/eval/<model>/<date>/      tools/eval_*.py, docs/evaluation.md
 ```
+
+`data/` is not under version control, apart from its READMEs, the mapping and the pilot's three
+videos: the records, the videos, the bundles, the reviews and the runs live in the working copy.
 
 **The key to everything is the frontmatter of the site's repository.** `3b1b/videos` itself
 contains not a single link to YouTube; the connection "lesson ↔ video ↔ scene code" exists only in
@@ -143,7 +213,7 @@ Cookies and a login are **not needed**, but:
 ## Annotation invariants
 
 The schema is `schema/sample.schema.json`, with `additionalProperties: false` at every level. The
-semantics on top of the schema are checked by `tools/validate_samples.py`. Two rules that are easy
+semantics on top of the schema are checked by `tools/validate_samples.py`. Three rules that are easy
 to break out of ignorance:
 
 - **`temporal_rel` is not set by hand but derived** from `question_time` and the earliest start
@@ -153,6 +223,10 @@ to break out of ignorance:
 - **`audio_dependency` stays `null` until both probes it comes from have answered**, whatever
   the status — the label is derived from the answers of the modality probes (`visiononly_solved` and `solvable`, checklist 4.5) rather than
   set by the annotator's opinion. The opinion lives separately in `audio_dependency_claim`.
+- **A record under review is changed only through `tools/coordinator_log.py <video> sample-edit`**,
+  never in an editor: the journal keeps every version of a record, and the next launch or edit
+  is refused on a record that is not the version the journal knows
+  ([data/reviews/README.md](data/reviews/README.md)).
 
 What else is checked: non-overlapping windows, `t_ideal` inside its own window, `depends_on` only
 on earlier indices, the uniqueness of `id`. There is no `distractor_windows` field any more
