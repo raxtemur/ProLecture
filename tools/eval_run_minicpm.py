@@ -175,7 +175,7 @@ def main() -> int:
     parser.add_argument("--out", required=True, type=Path,
                         help="the run's folder, e.g. data/eval/minicpmo45/<date>")
     parser.add_argument("--runs", type=int, default=3, help="sessions per sample")
-    parser.add_argument("--videos", nargs="*", help="default: every annotated video but the archived pilot")
+    parser.add_argument("--videos", nargs="*", help="default: every annotated video")
     parser.add_argument("--samples", nargs="*", help="only these sample ids")
     parser.add_argument("--status", nargs="*", default=["validated"])
     parser.add_argument("--fps", type=float, default=1.0)

@@ -31,6 +31,14 @@ traced). So the answers are streamed, and a guard watches the server: when reque
 prefill moves for STALL_SECONDS, the requests of this run that have not started answering are
 cancelled and sent once more with a cache salt; one that has not started answering after
 FIRST_TOKEN_SECONDS is given up and left for the next start, best made with --workers 1.
+
+Since 2026-11-22 a video is one lane: its tasks go one after another, and `--workers` is the
+number of videos in flight. That day six workers on the tasks of one video went well while
+each request found the prefix of the one before it cached; the stalls began when six started
+together on video segments none of them had cached, and did not stop (132 cancellations and
+44 failed tasks in the first 200). Requests of different videos share no segment. The prefix
+cache loses nothing by it: the runs of a sample and the samples of a video still follow each
+other.
 """
 
 from __future__ import annotations
@@ -102,7 +110,7 @@ def narration(cues: list[dict], start: float, end: float) -> str:
 
 def build_messages(sample: dict, cut: float, cache: Path, with_narration: bool) -> list[dict]:
     video_id = sample["video"]["youtube_id"]
-    cues = json.loads((ec.ROOT / "data" / "bundles" / video_id / "bundle.json").read_text(
+    cues = json.loads((ec.BUNDLES / video_id / "bundle.json").read_text(
         encoding="utf-8"))["transcript"]
     content: list[dict] = []
     start = 0.0
@@ -251,17 +259,27 @@ async def run_all(args, todo: list, responses_dir: Path, cache: Path) -> int:
         watcher = asyncio.create_task(guard.watch(client))
 
         async def one(sample, run):
+            try:
+                return ec.task_name(sample["id"], run), await run_task(
+                    client, args, guard, sample, run, cache), None
+            except Exception as exc:  # noqa: BLE001 - one failure must not stop the others
+                return ec.task_name(sample["id"], run), None, (exc, traceback.format_exc())
+
+        # one lane per video, `workers` lanes at a time (the module docstring says why)
+        lanes: dict[str, list] = {}
+        for sample, run in todo:
+            lanes.setdefault(sample["video"]["youtube_id"], []).append((sample, run))
+        results: asyncio.Queue = asyncio.Queue()
+
+        async def lane(tasks):
             async with gate:
-                try:
-                    return ec.task_name(sample["id"], run), await run_task(
-                        client, args, guard, sample, run, cache), None
-                except Exception as exc:  # noqa: BLE001 - one failure must not stop the others
-                    return ec.task_name(sample["id"], run), None, (exc, traceback.format_exc())
+                for sample, run in tasks:
+                    await results.put(await one(sample, run))
 
         failed = 0
-        jobs = [asyncio.create_task(one(s, k)) for s, k in todo]
-        for i, job in enumerate(asyncio.as_completed(jobs), 1):
-            task, result, error = await job
+        jobs = [asyncio.create_task(lane(tasks)) for tasks in lanes.values()]
+        for i in range(1, len(todo) + 1):
+            task, result, error = await results.get()
             if error:
                 failed += 1
                 (responses_dir / f"{task}.error.json").write_text(json.dumps(
@@ -273,10 +291,11 @@ async def run_all(args, todo: list, responses_dir: Path, cache: Path) -> int:
             (responses_dir / f"{task}.json").write_text(
                 json.dumps(result, ensure_ascii=False, indent=1), encoding="utf-8")
             usage = result.get("usage") or {}
-            print(f"[{i}/{len(jobs)}] {task}: {result['seconds']:.0f} s, prompt "
+            print(f"[{i}/{len(todo)}] {task}: {result['seconds']:.0f} s, prompt "
                   f"{usage.get('prompt_tokens')}, completion {usage.get('completion_tokens')}, "
                   f"{result['finish_reason']}, {len(result['responses'])} lines"
                   + (", cache salt" if result["cache_salt"] else ""), flush=True)
+        await asyncio.gather(*jobs)
         watcher.cancel()
     return failed
 
@@ -291,7 +310,7 @@ def main() -> int:
     parser.add_argument("--base-url", default="http://127.0.0.1:8000/v1")
     parser.add_argument("--api-key", default="dummy")
     parser.add_argument("--model", default="local", help="the served model name")
-    parser.add_argument("--workers", type=int, default=2)
+    parser.add_argument("--workers", type=int, default=2, help="videos in flight at once")
     parser.add_argument("--no-narration", action="store_true", help="video only")
     args = parser.parse_args()
 

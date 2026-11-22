@@ -8,15 +8,18 @@ eval_score.py in the base one.
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-ANNOTATIONS = ROOT / "data" / "annotations"
-VIDEOS = ROOT / "data" / "videos"
+# The records and the videos are not in the repository. PROLECTURE_DATA names a `data/` folder
+# kept elsewhere, so that several checkouts measure on the same files; a run's own folder
+# (`--out`) still goes under this checkout.
+DATA = Path(os.environ.get("PROLECTURE_DATA") or ROOT / "data")
+ANNOTATIONS = DATA / "annotations"
+VIDEOS = DATA / "videos"
+BUNDLES = DATA / "bundles"
 EVAL = ROOT / "data" / "eval"
-
-# The pilot's records are archived and not measured: their videos are annotated anew.
-ARCHIVED = ("l6DKRf-fAAM", "GlYgs6v2YfU", "3d6DsjIBzJ4")
 
 # The stream runs on past the last window, so that a late answer is seen as late rather than
 # cut off (the notebook's POST_PAD_SECONDS).
@@ -26,7 +29,8 @@ NEGATIVE_PREFIX = "do not count"
 
 
 def annotation_videos() -> list[str]:
-    return sorted(p.stem for p in ANNOTATIONS.glob("*.jsonl") if p.stem not in ARCHIVED)
+    """Every closed video: data/annotations/<id>.jsonl, the pilot's three included."""
+    return sorted(p.stem for p in ANNOTATIONS.glob("*.jsonl"))
 
 
 def read_records(video_id: str) -> list[dict]:
@@ -39,7 +43,11 @@ def select_samples(videos: list[str] | None = None, statuses: tuple[str, ...] = 
     """The measured samples: blind baselines (blind_solved) included, they are told apart in
     the scores, not here."""
     chosen = []
-    for video_id in videos or annotation_videos():
+    videos = videos or annotation_videos()
+    if not videos:
+        raise SystemExit(f"no records in {ANNOTATIONS}: the data is not in the repository. Set "
+                         "PROLECTURE_DATA to a data/ folder that has it (docs/evaluation.md)")
+    for video_id in videos:
         for record in read_records(video_id):
             if (record.get("validation") or {}).get("status") not in statuses:
                 continue
