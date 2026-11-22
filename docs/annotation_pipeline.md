@@ -666,15 +666,22 @@ data/reviews/<VIDEO_ID>/coordinator.log
 ```
 
 The coordinator writes one JSON object per line through `tools/coordinator_log.py`. Record `spawn`
-immediately after a subagent is successfully launched, `finish` when it completes, fails or is
-interrupted, and `sample-edit` after a change is actually applied. The finish summary names the
-artifact and the approximate result; the edit summary names the changed fields and the review that
-caused them. Timestamps come from the coordinator process in ISO 8601 with an offset. Subagents do
+immediately after a subagent is successfully launched, under the agent id the launch returned, and
+`finish` when it completes, fails or is interrupted. A record is changed through the same tool:
+`sample-edit` checks the edit, logs it — the kind of each change, the values before and after, the
+hashes of the record — and writes the record; from the first launch on the coordinator writes no
+annotation file itself (before it, the end-to-end ids are assigned in the proposer's files
+directly: `docs/prompts/coordinator.md`, §8). The
+finish summary names the approximate result; `--source` of an edit names the review that caused it.
+Timestamps come from the coordinator process in ISO 8601 with an offset. Subagents do
 not write this file, resumed sessions append to it rather than truncating it, and unknown historical
-start times are never reconstructed as facts. No line is edited after it is written. The tool
-refuses an `adjudicate` row that would not pass the check of its stretch before writing it, and a
+start times are never reconstructed as facts. No line is edited after it is written, and nothing is
+repaired by a note: a `finish` restores a launch whose `spawn` was missed from the workspace it ran
+on. The tool refuses an `adjudicate` row that would not pass the check of its stretch before writing
+it, holds the first row of a stretch to the semi-blind trajectory it cites, and a
 wrong row already written is corrected by logging its stretch anew with `adjudicate --correction`
-([prompts/coordinator.md](prompts/coordinator.md), §6, "Correcting a stretch").
+([prompts/coordinator.md](prompts/coordinator.md), §6, "Correcting a stretch"). The formats of a row
+are listed in [data/reviews/README.md](../data/reviews/README.md).
 
 Before closing the video, run:
 
@@ -686,7 +693,8 @@ The check validates the JSON lines and requires every recorded launch to have ex
 event. `--final` also fails on an edit whose reruns have not happened (a terminally rejected sample
 owes none) and on a modality probe whose last run was cut at material the record no longer gives.
 `spawn` records the workspace and the version of the record it was cut from, and `finish` the role
-and verdict of the artifact; a finish under a name with no open launch is refused. The operational
+and verdict of the artifact, with a copy of the review file as it stood. While the video is open,
+`check` also compares every record with the version the log last knew. The operational
 log supplements rather than replaces `coordinator.<ROUND>.md`.
 
 Before reporting, the subagent checks itself:

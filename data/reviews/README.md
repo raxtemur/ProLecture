@@ -44,34 +44,81 @@ checkable is the link "these files → these changes" rather than a set of field
 
 At the video-directory level, `coordinator.log` is an append-only JSON-lines operational
 record. The coordinator writes `spawn` after each successful subagent launch, `finish`
-after each terminal result, `sample_edit` after applying a sample change, and `adjudicate`
+after each terminal result, `sample_edit` when it changes a record, and `adjudicate`
 after deciding the left boundary of a sample (checklist 2.2, stages A–C: the semi-blind
 `t_val_a`, the sighted `t_s`, whether the verification probe met the rubric, the resulting
 `t_val`; the table itself is in `coordinator.<ROUND>.md`), and `note` for anything the other
-events cannot say — a reconstruction of a missing line, an agent whose fate is unknown, a
-remark for the audit. It is the chronology of scheduling, edits and boundary decisions, not
+events cannot say — an agent service that was down, a tool problem, a remark for the audit.
+It is the chronology of scheduling, edits and boundary decisions, not
 a replacement for the per-question decision files.
 
-**Lines are never edited or deleted.** A wrong or missing launch record is repaired by
-appending a `note` that names the agent; `check` then tolerates the unmatched `spawn` or
-`finish` of that agent instead of rejecting the log. A wrong `adjudicate` row is repaired by
-logging its stretch anew with `adjudicate --correction` (`docs/prompts/coordinator.md`, §6,
-"Correcting a stretch"); a note does not change what `check` reads there. The lines of `3d6DsjIBzJ4` and `l6DKRf-fAAM`
-reconstructed by hand on 2026-09-08, before the event existed, are the one exception on
-record; the coordinator owes each of those logs a `note` listing them.
+**Lines are never edited or deleted**, and nothing in a log is repaired by a note. A launch
+whose `spawn` was never logged is restored by its `finish` from the workspace it ran on
+(`recovered: true`); a launch that did not start is finished as `failed`. A wrong `adjudicate`
+row is repaired by logging its stretch anew with `adjudicate --correction`
+(`docs/prompts/coordinator.md`, §6, "Correcting a stretch"). The lines of `3d6DsjIBzJ4` and
+`l6DKRf-fAAM` reconstructed by hand on 2026-09-08, before the event existed, are the one
+exception on record.
 
-`sample_edit` carries a `kind` — `boundary`, `nudge`, `rubric`, `level`, `timing`,
-`metadata` or `wording` — which names the roles that have to be rerun after it (the table in
-`docs/prompts/coordinator.md`, §3). A boundary edit must name the `window` it touched, a
-rubric edit may (one event per touched window), so that only that window's review settles
-the debt; a `nudge` — `t_start` or `t_end` moved by at most 2 s to a reviewer's frame
-measurement — names its window too but owes no rerun (an `evidence_span` disagreement that
-small is a `note`, not an edit); `--window` is refused for the other kinds. `check` reports a missing rerun as pending; `check
---final`, run before acceptance, fails on it. Write and validate the log with:
+**Records are changed through the same tool.** `sample-edit` (`--set <field>=<value>`, or the
+file `sample-get` wrote) checks the edit, logs it and writes the record; the coordinator
+writes no file of `data/annotations/` itself. `sample_edit` carries a `kind` — `boundary`,
+`nudge`, `rubric`, `level`, `timing`, `metadata` or `wording` — which the tool reads off the
+change (`tools/sample_edit.py`) and which names the roles that have to be rerun after it (the
+table in `docs/prompts/coordinator.md`, §3). An edit that touches several things gives one
+event per kind and window, all with the same `sha_before` and `sha_after` of the record and
+the changed values in `fields`. A `boundary` or `rubric` event names its `window`, so that
+only that window's review settles the debt; a `nudge` — `t_start` or `t_end` moved by at most
+2 s to a reviewer's frame measurement — names its window too but owes no rerun. `check`
+reports a missing rerun as pending; `check --final`, run before acceptance, fails on it.
+Next to a sample's reviews the tool keeps `.versions/` (every version of the record it has
+seen), `.edit/` (the file `sample-get` wrote) and `.finished/` (a copy of each review file as
+it stood at its `finish`, named by its hash: a repeated probe writes the same file name).
+
+**A row names a window by the number it had when the row was written.** An optional window
+put before the others, or a window removed, shifts the numbers after it. The `sample_edit`
+that does it carries the map on its first row — `renumbered` (`{"old": new}`) and `removed` —
+and the tool reads the rows before it through that map: the `adjudicate` rows of a stretch
+follow their window to its new number, the rows of a removed window drop out of `check`, the
+window reviews that earlier edits still owe are owed under the new numbers (and no more for a
+window that is gone), and a stretch of a semi-blind review is read under the number its window
+had at the launch that walked it (the `spawn` of that round with that `window` and
+`inputs.until`). Nothing in the log or in a review file is renumbered. Only `sample-edit` of format 2 writes the map, so the logs
+from before read as they did; one of them had its rows renumbered by hand (`ldxFjLJ3rVY`,
+2026-10-16).
+
+### Formats of a row
+
+Every row written from 2026-11-22 on carries `"v": 2`. A row without `v` is format 1. The
+rules below changed how a log *reads*; each applies by the format of the row named, never by
+its date, so that a log written before them checks exactly as it did.
+
+| Rule | Which row decides | Format 1 | Format 2 |
+|---|---|---|---|
+| a `note` that names an agent | the unmatched `spawn` or `finish` of that agent, and the note | a note of format 1 excuses it | no note excuses it |
+| an edit closes the adjudicated stretch of its window | the `sample_edit` row | closes nothing | a `boundary`, `rubric` or `level` edit closes the stretch: the next `adjudicate` row of that window and round re-adjudicates stage A. A row that only renumbers a window or removes one closes nothing |
+| a record is compared with the version the log knows | the last `sample_edit` (`sha_after`) or `spawn` (`record_sha`) of the sample | not compared | compared while the record is in `data/annotations/partial/` |
+
+Fields that exist only in format 2:
+
+| Event | Fields |
+|---|---|
+| `spawn` | `prepared_at`; `repeat_of` (the line of the launch it measures again) and `reason`; `kept` (review files of earlier attempts copied at this launch); `recovered: true` on a launch restored by `finish`, whose `model`, `reasoning_effort` and prompt hashes are null |
+| `finish` | `sample_id`, `role`, `iteration` (copied from the `spawn`); `artifact_copy`, `artifact_sha`; `material: "not found"` on a finish whose launch could not be restored — its outcome sets no flag |
+| `sample_edit` | `kind` on every row; `fields`, `sha_before`, `sha_after`, `annotations`; `renumbered` and `removed` when the windows were renumbered; `adopted: true` for a change made without the tool and logged after the fact; `added: true` for a new sample |
+
+What format 1 holds and format 2 does not: `spawn` without `record_sha`, `workspace` or a
+window index in the role; `sample_edit` without a `kind`; `adjudicate` without a `window`;
+launches logged under a nickname instead of the agent id; `reasoning_effort` in free spelling.
+The old logs are not rewritten into format 2: the fields were never recorded, and filling
+them in now would be inventing them.
+
+Write and validate the log with:
 
 ```bash
 python3 tools/coordinator_log.py <VIDEO_ID> spawn --help
 python3 tools/coordinator_log.py <VIDEO_ID> finish --help
+python3 tools/coordinator_log.py <VIDEO_ID> sample-get --help
 python3 tools/coordinator_log.py <VIDEO_ID> sample-edit --help
 python3 tools/coordinator_log.py <VIDEO_ID> adjudicate --help
 python3 tools/coordinator_log.py <VIDEO_ID> note --help

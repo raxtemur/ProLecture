@@ -476,8 +476,8 @@ move goes by step 2 of the ladder of 2.2, see 2.3):
 - **up to 2 s** — within the precision of the measurement. The gap is reported but not
   re-reviewed: the verdict is still `FIX_INTERVALS` (or the 2.2 gap is recorded in the
   adjudication) with the measured value, the `findings` say the gap is within tolerance,
-  and the coordinator moves the edge to the measured value as `sample-edit --kind nudge
-  --window <idx>`, which owes no second review — the reviewer's frames are the
+  and the coordinator moves the edge to the measured value with `sample-edit`, which logs
+  the move as a `nudge` and owes no second review — the reviewer's frames are the
   verification. This holds when the move widens the window or shifts it; a cut of 2 s or
   less that only narrows the window is not made (2.4);
 - **from 2 to 10 s** — a boundary error: the edge moves, the touched window is reviewed
@@ -2303,7 +2303,7 @@ anew in a month.
   full round (`3d6DsjIBzJ4` q06, round 12) went to overturn a coordinator's misread second;
   every boundary error that changed what a sample measured was off by five seconds or more.
   The saving is modest — a few `full_window` runs per video round — and that is the honest
-  size of it. Sub-tolerance re-measurements are logged as `--kind nudge` and owe no rerun.
+  size of it. Sub-tolerance re-measurements are logged as a `nudge` and owe no rerun.
 - **The scale of the rubric** — not needed at the annotation stage: the probe answers, the
   coordinator scores the answer against the rubric item by item, and a negative outcome is
   measured again at most once (4.1; see the entry on negative probe outcomes). Weights and

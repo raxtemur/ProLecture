@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Append and validate the coordinator's per-video operational log.
+"""Append and validate the coordinator's per-video operational log, and change its records.
 
 Each line of ``data/reviews/<VIDEO_ID>/coordinator.log`` is one JSON event. The
 coordinator is the sole writer; reviewer subagents never touch this file.
@@ -7,66 +7,103 @@ coordinator is the sole writer; reviewer subagents never touch this file.
 Examples::
 
     python3 tools/coordinator_log.py VIDEO spawn \
-        --agent q05_semiblind_r4 --sample-id sample-q05 \
-        --role semiblind --iteration 4 --model local \
-        --reasoning-effort default --workspace .review_ws/VIDEO/q05/semiblind_r4
+        --agent 019a2f7c-51d0-7e52-b3a4-0c6f1d2e9a10 --iteration 4 --model local \
+        --workspace .review_ws/VIDEO/q05/semiblind_r4
     python3 tools/coordinator_log.py VIDEO finish \
-        --agent q05_semiblind_r4 --status completed \
-        --artifact data/reviews/VIDEO/sample-q05/semiblind.4.json \
+        --agent 019a2f7c-51d0-7e52-b3a4-0c6f1d2e9a10 --status completed \
         --summary "Prior could not answer; t_val=951.0."
     python3 tools/coordinator_log.py VIDEO sample-edit \
-        --sample-id sample-q05 --kind boundary --window 0 \
-        --changes "Moved t_start of trigger 0 to 212.0." --source full_sample.4.json
-    python3 tools/coordinator_log.py VIDEO note --agent q05_semiblind_r4 \
-        --text "Relaunched after HTTP 429 under the same name; the first run left no artifact."
+        --sample-id sample-q05 --set 'triggers[0].t_start=212.0' --source full_window0.4.json
+    python3 tools/coordinator_log.py VIDEO sample-get --sample-id sample-q05
+    python3 tools/coordinator_log.py VIDEO sample-edit \
+        --sample-id sample-q05 --source full_sample.4.json
+    python3 tools/coordinator_log.py VIDEO note --text "The agent service was down for an hour."
     python3 tools/coordinator_log.py VIDEO adjudicate \
         --sample-id sample-q10 --iteration 3 --window 0 --t-val-a 212.0 \
-        --t-s 198.0 --t-s-source full_sample --verified no --t-val 212.0 \
-        --source semiblind.3.json
+        --t-s 198.0 --t-s-source full_sample --verified no --source semiblind.3.json
     python3 tools/coordinator_log.py VIDEO check
     python3 tools/coordinator_log.py VIDEO check --final
     python3 tools/coordinator_log.py VIDEO open --wait 50
 
-The log is append-only: a line is never edited or deleted. A wrong or missing record is
-repaired by appending a ``note`` that names the agent; ``check`` then tolerates the
-unmatched ``spawn`` or ``finish`` of that agent instead of rejecting the log, and a relaunch
-under the same name (fix list 5, 5.1). ``finish`` refuses an agent that has no open launch
-and no such note: a finish written under another name (a thread id) would leave the real
-launch open and the log unbalanced.
+The coordinator learns no flag in advance. What a command can read off the log and the files
+it reads itself; a wrong call is refused before anything is written, and the refusal says what
+to do, naming a flag only where one is needed.
 
-``sample-edit`` carries a ``kind`` naming what changed while the participant-visible
-question stayed the same (``boundary``, ``nudge``, ``rubric``, ``level``, ``timing``,
-``metadata``) or ``wording`` when it did not. ``nudge`` is a ``t_start`` or ``t_end``
-moved by at most two seconds to a reviewer's own frame measurement; it names its window
-like ``boundary`` but owes no rerun. ``evidence_span`` edits are never nudges. Each kind names the roles that must be rerun afterwards
-(``RERUN_AFTER``, the table in ``docs/prompts/coordinator.md`` §3). A ``boundary`` edit
-must name the window it touched with ``--window N``, and a ``rubric`` edit may (one event
-per touched window; omit it when every window's rubric changed); the debt is then
-``full_windowN`` exactly, so that a review of another window of the same sample cannot
-settle it. Without ``--window`` any window review counts (``full_window0`` as
-``full_window``), which is right for a wording change — every window runs again anyway —
-so ``--window`` is refused for the kinds that do not touch one window. ``check`` lists a missing
-rerun as pending and passes; ``check --final`` fails on it. Edits without a kind — the lines
-written before the field existed — are not checked.
+The log is append-only: a line is never edited or deleted, and every row carries the format it
+was written in (``v``; ``data/reviews/README.md``, "Formats of a row"). The rules that changed
+how a log reads apply by the row, so a log written before them checks as it did.
 
-``spawn`` accepts only the roles that have a prompt (``ROLE_PROMPTS``), a window review
-and a frame probe with the window's index (``full_window0``, ``probe_frame1``). It records
-which text the subagent was given: the sha256 of the role's prompt and of
-``docs/annotation_checklist.md``, ``git rev-parse HEAD``, and whether either file differs
-from that commit. It also records which material: ``--workspace`` names a folder prepared
-with ``prepare_review_workspace.py --sample-id``, whose note (``<workspace>.inputs.json``)
-says from which version of the record the folder was cut; a launch on a folder whose record
-has changed since is refused. The coordinator types none of it.
+``spawn`` is logged under the ``agent_id`` that ``spawn_agent`` returned and takes the folder
+the subagent works in (``--workspace``), prepared with ``prepare_review_workspace.py
+--sample-id``. The note next to the folder (``<workspace>.inputs.json``) says which sample, role
+and window it was cut for and from which version of the record; ``spawn`` takes them from
+there, with the window's index in the role (``full_window2``, ``probe_frame1``), and refuses a
+folder whose record has changed since. It records which text the subagent was given: the
+sha256 of the role's prompt and of ``docs/annotation_checklist.md``, ``git rev-parse HEAD``,
+and whether either file differs from that commit. ``--reasoning-effort`` is what the launch
+ran with, ``default`` when none was passed. A name is launched again only after an
+``interrupted`` or ``failed`` finish, or for the next stretch of the same semi-blind reviewer;
+any other new launch has a new name.
 
-``finish`` reads the artifact, when one is given: its ``role``, ``sample_id`` and verdict go
-into the event next to the summary, which is free text and has drifted from the file (5.3).
-For a modality probe it also compares the material the probe was given with what the current
-record gives: a probe cut at a window that has moved since measured nothing about the
-current windows (5.10). ``check --final`` fails on such a probe until it has been run again.
-A frame probe cut at a window that is no longer required — the window turned optional, or
-the windows were renumbered when an optional one was put before it — is superseded rather
-than stale: it cannot be run there again, and it sets no flag. ``check --final`` then asks
-only that every required window of the record has a frame probe of its own.
+A probe measured again is a **repeat**: the same probe of the same sample on the same material
+as its last completed launch, with no edit in between after which the probe is owed anyway.
+A negative outcome is measured again at most once, and only with a named defect of the
+attempt (``coordinator.md`` §3): ``spawn`` refuses a repeat without ``--reason``, refuses a
+second one, and refuses a launch while the earlier one on the same material is open. An
+interrupted or failed attempt measured nothing and does not count.
+
+``finish`` goes under the name of its ``spawn`` and reads the review file: its ``role``,
+``sample_id`` and verdict go into the event next to the summary, which is free text and has
+drifted from the file (5.3). ``--artifact`` may be omitted when the launch saved exactly one
+file that passes ``schema/review.py --check``; a completed probe must have one. A completed
+finish keeps a copy of the review file as it stands (``<sample>/.finished/``, named by its
+hash): a repeat writes the same file name, and the first attempt is what the decision to
+measure again rests on. For a modality probe ``finish`` also compares the material the probe was given
+with what the current record gives: a probe cut at a window that has moved since measured
+nothing about the current windows (5.10). ``check --final`` fails on such a probe until it has
+been run again. A frame probe cut at a window that is no longer required — the window turned
+optional, or the windows were renumbered when an optional one was put before it — is
+superseded rather than stale: it cannot be run there again, and it sets no flag. ``check
+--final`` then asks only that every required window of the record has a frame probe of its own.
+
+A ``finish`` whose ``spawn`` was never logged restores the launch: from the review file it
+takes the role and the sample, finds the prepared folder of that role, sample and window that
+no logged launch used and that was cut before the review was saved, and writes the ``spawn``
+row (``recovered``) from the folder's note, then the ``finish``. Such a launch settles the
+rerun an edit owes only if it ran on the record as that edit left it. With several such
+folders the refusal asks for ``--workspace``; with none, the finish is logged with ``material:
+"not found"`` — its outcome sets no flag and settles no rerun, and the role is launched again.
+A ``note`` repairs nothing: in a log of format 1 a note naming an agent excused that agent's
+unmatched ``spawn`` or ``finish``, and it still does there, for rows of format 1 only.
+
+A record is changed only through the tool. ``sample-edit --set <field>=<value>`` changes a
+field in place; for a larger edit ``sample-get`` writes the record to a file, the coordinator
+edits the file, and ``sample-edit`` applies it. The tool refuses a file taken before another
+edit was applied, an edit that adds a validator error, and a change of ``id`` or ``video``; it
+reads the kind of each change off the record (``tools/sample_edit.py``: ``boundary``,
+``nudge``, ``rubric``, ``level``, ``timing``, ``metadata``, ``wording``), logs one event per
+kind and window with the values before and after and the hashes of the record, and only then
+writes the record — to a file next to it that replaces the old one in one step, the other
+records untouched. Each kind names the roles that must be rerun afterwards (``RERUN_AFTER``,
+the table in ``docs/prompts/coordinator.md`` §3); a ``boundary`` or ``rubric`` edit of one
+window owes that window's review exactly (``full_window2``). ``check`` lists a missing rerun
+as pending and passes; ``check --final`` fails on it. An ``evidence_span`` is applied only
+after the stretch of its window has been adjudicated (checklist 7.5). While the video is open
+(its records are in ``data/annotations/partial/``), ``check`` compares every record with the
+version the log last knew and names one that was changed without the tool (``sample-edit
+--adopt`` logs the difference) or left unwritten by an edit that was cut off: the next
+``sample-get`` or ``sample-edit`` of that sample writes it first, from the copy of the new
+version the tool keeps, so that no row stays in the log for a version that never existed. ``spawn`` and ``sample-edit`` refuse to go on a record that is
+not the version the log knows: logged, it would become that version, and the change made
+without the tool, with the reviews it owes, would never be recorded.
+Edits of format 1 without a kind are not checked.
+
+A row names a window by the number it had when the row was written. An edit that puts a
+window before others or removes one logs how the numbers moved (``renumbered``, ``removed``),
+and the rows before it are read through that map: the ``adjudicate`` rows of a stretch follow
+their window, the rows of a removed window drop out of the check, the window reviews that
+earlier edits still owe follow their windows, and a stretch of a semi-blind review is read
+under the number its window had at the launch that walked it.
 
 The ``adjudicate`` event records the outcome of the left-boundary check (checklist 2.2,
 stages A–C) for the stretch of one required window (``--window``): ``t_val_a`` is the first
@@ -85,6 +122,14 @@ row of a stretch without ``--t-val-a`` takes the stretch's, and a row that would
 check of its stretch is refused before it is written, with what to do instead: an append-only
 log cannot take a written row back. The table
 itself lives in ``coordinator.<ROUND>.md``; the event is the machine-readable summary of it.
+
+The first row of a stretch is stage A, and it is held to the trajectory: it cites the
+semi-blind review (``--source semiblind.<ROUND>.json``), its ``t_val_a`` is the moment of an
+answer of its window's own stretch there (null only where that stretch was walked), and it is
+logged under the round of that review or a round that has a launch. After an edit of format 2
+that changes a boundary or the rubric of the window, or the level, stage A is read again: the
+next row of the stretch opens a new part of it, weighed by itself, and may move the boundary
+either way; ``check`` names every such re-adjudication.
 
 The log is never edited, so a wrong ``adjudicate`` row is corrected by a row logged with
 ``--correction "<what the earlier rows got wrong>"``: it opens its stretch anew, the earlier rows
@@ -106,10 +151,6 @@ already saved a review file that passes ``schema/review.py --check``. A completi
 reaches the coordinator only while its turn lasts and only while the agent tools work; the
 file on disk does not depend on either. ``--wait N`` polls for up to N seconds and returns as
 soon as one more launch has a valid file. It writes nothing to the log.
-
-``sample-edit --span`` marks an edit of a window's ``evidence_span``. It is refused until
-that window's stretch has been adjudicated: a span is applied only after it has been checked
-against ``t_val`` (checklist 7.5).
 
 ``blind-judge`` scores the semi-blind reviewer's answer before viewing (``prior_answer``)
 with the evaluation judge, ``tools/eval_judge.py``, against the rubric the record has now, and
@@ -146,6 +187,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import review_inputs  # noqa: E402
+import sample_edit  # noqa: E402
 
 REPO = Path(__file__).resolve().parent.parent
 ROOT = Path(os.environ.get("COORDINATOR_LOG_ROOT", REPO)).resolve()
@@ -162,7 +204,26 @@ def timestamp() -> str:
     return datetime.now().astimezone().isoformat(timespec="seconds")
 
 
-def append_event(path: Path, event: dict) -> None:
+# The format of a row. A row without "v" is format 1: every row written before 2026-11-22.
+# The rules that changed how a log READS apply by the row, never by the date, so that a log
+# written before them checks as it did (data/reviews/README.md, "Formats of a row"):
+#   * a note names an agent: it excuses an unmatched spawn or finish of format 1 only, and
+#     only a note of format 1 does;
+#   * a sample_edit of format 2 that changes a boundary, a rubric or the level closes the
+#     adjudicated stretch of its window (a re-adjudication follows it);
+#   * the hash of a record is compared with the one the log knows only from rows of format 2.
+FORMAT = 2
+
+
+def is_new(event: dict) -> bool:
+    return isinstance(event.get("v"), int) and event["v"] >= 2
+
+
+def append_event(path: Path, event: dict | list[dict]) -> None:
+    """Append a row, or the rows of one command — an edit of several kinds, a restored spawn
+    with its finish — in a single write: a failure half-way must not leave a part of them,
+    with the reviews the other rows owe never recorded."""
+    rows = event if isinstance(event, list) else [event]
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("a+b") as stream:  # appends go to the end whatever the read position
         size = stream.seek(0, os.SEEK_END)
@@ -171,8 +232,9 @@ def append_event(path: Path, event: dict) -> None:
             stream.seek(size - 1)
             cut = stream.read(1) != b"\n"
         # a line cut off by a failed write stays as it is; the new row starts a line of its own
-        line = json.dumps(event, ensure_ascii=False, separators=(",", ":")) + "\n"
-        stream.write((("\n" if cut else "") + line).encode("utf-8"))
+        lines = "".join(json.dumps({**row, "v": FORMAT}, ensure_ascii=False,
+                                   separators=(",", ":")) + "\n" for row in rows)
+        stream.write((("\n" if cut else "") + lines).encode("utf-8"))
 
 
 EDIT_KINDS = ("boundary", "nudge", "rubric", "level", "timing", "metadata", "wording")
@@ -214,6 +276,11 @@ CHECKLIST = "docs/annotation_checklist.md"
 
 # Roles launched once per window: the role carries the window's index.
 WINDOW_INDEXED = ("full_window", "probe_frame")
+# The roles whose outcome sets a flag or verifies a boundary: a negative outcome is measured
+# again at most once, and only with a named defect of the attempt (coordinator.md §3).
+PROBES = ("probe_text", "probe_vision", "probe_frame", "probe_full", "probe_verify")
+# What a launch may have run with; "default" when the launch tool was given no effort.
+EFFORTS = ("default", "none", "minimal", "low", "medium", "high", "xhigh")
 
 
 # A semi-blind launch from this day on owes a judge verdict on its blind answer; the logs
@@ -299,9 +366,16 @@ def read_log(path: Path) -> tuple[list[tuple[int, dict]], list[str]]:
 
 
 def noted_agents(events: list[tuple[int, dict]]) -> set[str]:
-    """A note that names an agent documents a hole in that agent's spawn/finish pair,
-    wherever in the log the note stands: the repair is appended after the fact."""
-    return {e.get("agent") for _, e in events if e.get("event") == "note" and e.get("agent")}
+    """In a log of format 1, a note that names an agent documents a hole in that agent's
+    spawn/finish pair, wherever the note stands. A note of format 2 excuses nothing: a missed
+    spawn is restored by finish, and a launch that did not start is finished as failed."""
+    return {e.get("agent") for _, e in events
+            if e.get("event") == "note" and e.get("agent") and not is_new(e)}
+
+
+def excused(event: dict, noted: set[str]) -> bool:
+    """Whether a note covers this unmatched spawn or finish: rows of format 1 only."""
+    return not is_new(event) and event.get("agent") in noted
 
 
 def open_launches(events: list[tuple[int, dict]]) -> dict[str, tuple[int, dict]]:
@@ -415,16 +489,9 @@ def rubric_sha(record: dict) -> str:
 
 
 def current_record(sample_id: str, events: list[tuple[int, dict]]) -> dict | None:
-    """The record as it stands now, found through the file the sample's last launch was
-    prepared from; None when it cannot be read."""
-    names = [e["annotations"] for _, e in events
-             if e.get("sample_id") == sample_id and e.get("annotations")]
-    try:
-        if names:
-            return review_inputs.find_logged_record(ROOT, sample_id, names[-1])[1]
-        return review_inputs.find_record(ROOT, sample_id)[1]
-    except (OSError, KeyError, json.JSONDecodeError, review_inputs.InputsError):
-        return None
+    """The record as it stands now; None when it cannot be read."""
+    found = record_file(sample_id, events)
+    return found[1] if found else None
 
 
 def judge_answer(record: dict, answer: str, base_url: str, model: str) -> dict:
@@ -695,15 +762,21 @@ def validate_log(path: Path, final: bool = False) -> int:
     events, errors = read_log(path)
     noted = noted_agents(events)
 
-    active: set[str] = set()
+    active: dict[str, dict] = {}
     launches = finishes = edits = adjudications = notes = blind = 0
     # kind-tagged edits waiting for their reruns: (line, sample_id, roles still missing)
     pending: list[tuple[int, str, set[str]]] = []
+    # the versions each sample went through, by the edits that say them: (line, hash after)
+    versions: dict[str, list[tuple[int, str]]] = {}
     # adjudicated stretches: (sample_id, window) -> lines; windowed events by (sample, round, window)
     adjudicated: set[tuple[str, int]] = set()
     stretches: dict[tuple[str, int, int], list[tuple[int, dict]]] = {}
     # the last launch of each probe, by (sample_id, role with its index)
     last_probe: dict[tuple[str, str], tuple[int, dict]] = {}
+    # the edits made to a record without the tool and logged after the fact
+    adopted: list[str] = []
+    # the edits that renumbered the windows of each sample
+    renumbered: dict[str, list] = {}
 
     for line_number, event in events:
         event_type = event.get("event")
@@ -712,15 +785,22 @@ def validate_log(path: Path, final: bool = False) -> int:
             launches += 1
             if not agent:
                 errors.append(f"line {line_number}: spawn has no agent")
-            elif agent in active and agent not in noted:
+            elif agent in active and not excused(event, noted):
                 errors.append(f"line {line_number}: duplicate active launch: {agent}")
             else:
-                active.add(agent)
+                active[agent] = event
             role, sample_id = event.get("role") or "", event.get("sample_id")
-            for _, edited, missing in pending:
-                if edited == sample_id:
-                    missing.discard(role)             # full_window3 settles full_window3
-                    missing.discard(base_role(role))  # full_window3 settles full_window
+            for edit_line, edited, missing in pending:
+                if edited != sample_id:
+                    continue
+                # A launch restored by finish was not checked against the record when it
+                # started: it settles an edit only if it ran on the record as that edit, or a
+                # later one, left it.
+                if event.get("recovered") and event.get("record_sha") not in {
+                        sha for at, sha in versions.get(sample_id, []) if at >= edit_line}:
+                    continue
+                missing.discard(role)             # full_window3 settles full_window3
+                missing.discard(base_role(role))  # full_window3 settles full_window
             if base_role(role) in review_inputs.STALE_ROLES:
                 last_probe[(sample_id, role)] = (line_number, event)
         elif event_type == "finish":
@@ -728,12 +808,28 @@ def validate_log(path: Path, final: bool = False) -> int:
             if not agent:
                 errors.append(f"line {line_number}: finish has no agent")
             elif agent in active:
-                active.remove(agent)
-            elif agent not in noted:
+                del active[agent]
+            elif not excused(event, noted) and event.get("material") != "not found":
                 errors.append(f"line {line_number}: finish without launch: {agent}")
         elif event_type == "sample_edit":
             edits += 1
+            if event.get("sha_after"):
+                versions.setdefault(event.get("sample_id", ""), []).append(
+                    (line_number, event["sha_after"]))
             kind = event.get("kind")
+            if event.get("renumbered") or event.get("removed"):
+                # the window reviews that earlier edits still owe follow their windows to the
+                # new numbers; the review of a window that is gone is owed no more
+                moved_to = {int(old): int(new) for old, new in (event.get("renumbered") or {}).items()}
+                gone = set(event.get("removed") or [])
+                for _, edited, missing in pending:
+                    if edited != event.get("sample_id"):
+                        continue
+                    owed_windows = {role: role_window(role) for role in missing
+                                    if base_role(role) == "full_window" and role != "full_window"}
+                    missing -= set(owed_windows)
+                    missing |= {f"full_window{moved_to.get(window, window)}"
+                                for window in owed_windows.values() if window not in gone}
             if kind is not None:
                 if kind not in RERUN_AFTER:
                     errors.append(f"line {line_number}: unknown edit kind: {kind!r}")
@@ -744,7 +840,13 @@ def validate_log(path: Path, final: bool = False) -> int:
                         required.remove("full_window")
                         required.add(f"full_window{window}")
                     pending.append((line_number, event.get("sample_id", ""), required))
-            if event.get("span") and (event.get("sample_id"), event.get("window")) not in adjudicated:
+            remap_windows(adjudicated, event)  # the windows keep their marks under new numbers
+            if event.get("adopted"):
+                adopted.append(f"line {line_number}: {event.get('sample_id')} was changed without "
+                               f"sample-edit ({kind}"
+                               + (f", window {event['window']}" if event.get("window") is not None
+                                  else "") + f"): {event.get('changes')}")
+            elif event.get("span") and (event.get("sample_id"), event.get("window")) not in adjudicated:
                 errors.append(f"line {line_number}: evidence_span of window {event.get('window')} "
                               f"of {event.get('sample_id')} edited before its stretch was "
                               f"adjudicated: check the span against t_val first "
@@ -755,10 +857,17 @@ def validate_log(path: Path, final: bool = False) -> int:
             if window is None:
                 errors += [f"line {line_number}: {e}" for e in check_adjudication(event)]
             else:
-                # a windowed row is weighed with its stretch, which a correction may supersede
+                # a windowed row is weighed with its stretch, which a correction may supersede;
+                # the stretch is named by the number its window has now, and the rows of a
+                # window that was removed since are history
                 adjudicated.add((event.get("sample_id"), window))
-                key = (event.get("sample_id"), event.get("iteration"), window)
-                stretches.setdefault(key, []).append((line_number, event))
+                sample_id = event.get("sample_id")
+                if sample_id not in renumbered:
+                    renumbered[sample_id] = renumberings(events, sample_id)
+                now = window_now(renumbered[sample_id], window, line_number)
+                if now is not None:
+                    key = (event.get("sample_id"), event.get("iteration"), now)
+                    stretches.setdefault(key, []).append((line_number, event))
         elif event_type == "note":
             notes += 1
             if not event.get("text"):
@@ -778,21 +887,31 @@ def validate_log(path: Path, final: bool = False) -> int:
         else:
             errors.append(f"line {line_number}: unknown event: {event_type!r}")
 
-    corrections, owed = [], []
-    for (sample_id, iteration, window), rows in stretches.items():
-        problems, debts = weigh_stretch(path, (sample_id, iteration, window), rows, events)
-        errors += problems
-        owed += debts
-        current = current_rows(rows)
-        superseded = rows[:len(rows) - len(current)]
-        if superseded:
-            line, correction = current[0]
-            corrections.append(f"line {line}: {sample_id}, round {iteration}, window {window} "
-                               f"corrected, lines {', '.join(str(old) for old, _ in superseded)} "
-                               f"superseded: {correction.get('correction')}")
+    corrections, owed, reread = [], [], []
+    for sample_id, iteration, window in stretches:
+        parts, _ = stretch_segments(events, sample_id, iteration, window)
+        for index, part in enumerate(parts):
+            rows = part["rows"]
+            problems, debts = weigh_stretch(path, (sample_id, iteration, window), rows, events)
+            errors += problems
+            owed += debts
+            current = current_rows(rows)
+            superseded = rows[:len(rows) - len(current)]
+            if superseded:
+                line, correction = current[0]
+                corrections.append(f"line {line}: {sample_id}, round {iteration}, window {window} "
+                                   f"corrected, lines {', '.join(str(old) for old, _ in superseded)} "
+                                   f"superseded: {correction.get('correction')}")
+            if part["edit"] is not None:
+                before = parts[index - 1]["rows"][-1][1]
+                reread.append(f"line {rows[0][0]}: {sample_id}, round {iteration}, window {window} "
+                              f"re-adjudicated after the edit of line {part['edit']}: t_val_a "
+                              f"{before.get('t_val_a')} -> {rows[0][1].get('t_val_a')}, t_val "
+                              f"{before.get('t_val')} -> {rows[-1][1].get('t_val')}")
 
-    for agent in sorted(active - noted):
+    for agent in sorted(agent for agent, spawn in active.items() if not excused(spawn, noted)):
         errors.append(f"launch without finish: {agent}")
+    errors += record_drift(events)
 
     statuses = record_statuses(path, events) if final else {}
     rejected = {sample_id for sample_id, status in statuses.items() if status == "rejected"}
@@ -824,6 +943,10 @@ def validate_log(path: Path, final: bool = False) -> int:
 
     for message in corrections:
         print(f"correction: {message}")
+    for message in reread:
+        print(f"re-adjudication: {message}")
+    for message in adopted:
+        print(f"adopted: {message}")
     if errors:
         for error in errors:
             print(error, file=sys.stderr)
@@ -846,70 +969,109 @@ CORRECTION_HINT = ("If an earlier row of this stretch is wrong, log the stretch 
                    "adjudicate ... --correction \"<what the earlier rows got wrong>\" "
                    "(coordinator.md §6, \"Correcting a stretch\")")
 
-# Temporary, 2026-10-21: a caption for the rows whose error check did not report while a
-# coordinator's loosening of check_stretch was in tools/ (04:29 until its revert), and for one
-# that a note tried to correct, keyed by (video, line, ts). Remove an entry once its log passes
-# check --final.
-LOOSENED = ("Earlier this row passed check by mistake: on 2026-10-21 from 04:29 until its revert, "
-            "tools/coordinator_log.py carried a coordinator's loosening of check_stretch, and the "
-            "sample was wrongly taken to pass. Why it is an error: ")
-CAPTIONS = {
-    ("YtkIWDE36qU", 43, "2026-10-20T14:25:09+03:00"): LOOSENED + (
-        "t_val 633.0 is the boundary of window 0's stretch (line 42), not of window 1. Every "
-        "window has its own t_val from its own rows (t_val[k] < t_start[k] is 2.2 of window k), "
-        "and coordinator.1.md gives window 1's as 672.0, the author's reveal. The 2.3 hit and "
-        "the move of question_time rest on window 0 and are not affected: only this row is "
-        "wrong."),
-    ("851U557j6HE", 153, "2026-10-21T01:50:40+03:00"): LOOSENED + (
-        "576.0 is no answer of the semi-blind trajectory: semiblind.1.json has none between "
-        "573.2 and 582.9. It is where full_sample and full_window0 place the length, a sighted "
-        "placement, and a sighted placement becomes the boundary only as a t_s that stage C "
-        "verifies. None was owed here: full_sample returned no t_s, and the span [576.0, 582.9] "
-        "does not end more than 2 s before t_val_A. Line 168 (round 2) carries the same 576.0."),
-    ("VYQVlVoWoPY", 59, "2026-10-21T00:48:04+03:00"): LOOSENED + (
-        "the re-read of stage A in coordinator.1.md (the answers from 135.4 are the route of "
-        "the level, not a harder one) changed t_val_a 936.0 -> 135.4, but a second plain row is "
-        "a disagreement within the stretch, not a correction of it."),
-    ("VYQVlVoWoPY", 18, "2026-10-20T21:47:05+03:00"): (
-        "The note at line 19 records the right values (t_val_a and t_val null; 73.0 is q01's), "
-        "but check reads the adjudicate rows, not notes."),
-}
-# Temporary, 2026-10-21: rows check passes although they are wrong, because nothing compares the
-# first row of a stretch with the trajectory, keyed as CAPTIONS. Each is an error until its
-# stretch is corrected, and a stretch that holds one takes no further row but a correction.
-WRONG_ROWS = {
-    ("851U557j6HE", 168, "2026-10-21T04:21:21+03:00"): (
-        "this row was logged under round 2 to get around check_stretch (the note at line 169), "
-        "with no review of round 2 behind it, and carries the 576.0 of line 153, which is no "
-        "answer of the semi-blind trajectory (see line 153). It passed check only because "
-        "nothing compares the first row of a stretch with the trajectory. Correct this stretch "
-        "in round 2 as you correct round 1's, from the same semiblind.1.json, and log nothing "
-        "further under round 2 unless a round 2 of review takes place"),
-}
+def renumberings(events: list[tuple[int, dict]], sample_id: str
+                 ) -> list[tuple[int, dict[int, int], set[int]]]:
+    """The edits that renumbered or removed windows of a sample: (line, {old: new}, removed).
+    Only sample-edit of format 2 writes them, so a log from before reads as it did."""
+    found = []
+    for line, event in events:
+        if event.get("event") == "sample_edit" and event.get("sample_id") == sample_id \
+                and (event.get("renumbered") or event.get("removed")):
+            moved = {int(old): int(new) for old, new in (event.get("renumbered") or {}).items()}
+            found.append((line, moved, set(event.get("removed") or [])))
+    return found
 
 
-def stretch_answers(sample_dir: Path, window: int, source) -> tuple[list[float], str | None]:
+def window_now(changes: list[tuple[int, dict[int, int], set[int]]], window, line: int):
+    """The number that the window called `window` at `line` of the log has at its end, or None
+    if the window was removed since. The log names a window by the number it had when the row
+    was written; an optional window put before it shifts that number."""
+    for at, moved, removed in changes:
+        if at <= line or window is None:
+            continue
+        if window in removed:
+            return None
+        window = moved.get(window, window)
+    return window
+
+
+def only_structure(event: dict) -> bool:
+    """An edit row that changes the content of no window: one renumbered, or one removed."""
+    fields = event.get("fields") or {}
+    return bool(fields) and all(name.endswith((".idx", " (removed)")) for name in fields)
+
+
+def scan_windows(events: list[tuple[int, dict]], sample_id: str, name: str, scans: list) -> list:
+    """For each stretch of a semi-blind review, the number its window has now.
+
+    A stretch carries the number its window had when the reviewer walked it. After an edit
+    that renumbered the windows, the same file may hold stretches under the old numbers and
+    under the new: each is told by the launch that walked it — the semi-blind launch of that
+    round cut at that window, up to that stretch's end — and carried over the edits logged
+    after that launch."""
+    numbers = [scan.get("idx") if isinstance(scan, dict) else None for scan in scans]
+    changes = renumberings(events, sample_id)
+    if not changes:
+        return numbers
+    round_ = review_round(name)
+    launches = [(line, e) for line, e in events
+                if e.get("event") == "spawn" and e.get("sample_id") == sample_id
+                and base_role(e.get("role")) == "semiblind"
+                and (round_ is None or e.get("iteration") == round_)]
+    for index, scan in enumerate(scans):
+        idx, t_to = numbers[index], scan.get("t_to") if isinstance(scan, dict) else None
+        if not isinstance(idx, int) or not isinstance(t_to, (int, float)):
+            continue
+        walked = [line for line, e in launches
+                  if e.get("window") in (None, idx)
+                  and isinstance((e.get("inputs") or {}).get("until"), (int, float))
+                  and abs(e["inputs"]["until"] - t_to) <= MOMENT_TOLERANCE]
+        if walked:
+            numbers[index] = window_now(changes, idx, walked[-1])
+    return numbers
+
+
+def read_stretch(sample_dir: Path, window: int, name: str, events: list[tuple[int, dict]] = ()
+                 ) -> tuple[list[float], bool, str | None]:
+    """The stretch of `window` in a semi-blind review: the moments of its answers, whether the
+    review has that stretch at all, and what is missing when the moments cannot be read from
+    it. `window` is the window's number now; the stretch is found under the number it was
+    walked with (scan_windows)."""
+    review = sample_dir / name
+    try:
+        scans = json.loads(review.read_text(encoding="utf-8")).get("scans") or []
+    except (OSError, json.JSONDecodeError, AttributeError):
+        return [], False, "cannot be read"
+    numbers = scan_windows(list(events), sample_dir.name, name, scans)
+    own = [scan for scan, number in zip(scans, numbers)
+           if isinstance(scan, dict) and number == window]
+    moments = [t for scan in own for candidate in scan.get("candidates") or []
+               if isinstance(candidate, dict)
+               for t in [candidate.get("t")] if isinstance(t, (int, float))]
+    if moments:
+        return moments, True, None
+    found = sorted(str(number) for scan, number in zip(scans, numbers)
+                   if isinstance(scan, dict) and number is not None)
+    return [], bool(own), (
+        f"has no timed answers in its stretch of window {window}" if own else
+        f"has no stretch of window {window} (its stretches: {', '.join(found) or 'none'})")
+
+
+def stretch_answers(sample_dir: Path, window: int, source, events: list[tuple[int, dict]] = ()
+                    ) -> tuple[list[float], str | None]:
     """The moments of the answers in the stretch of `window` of the semi-blind review `source`
-    names (its scan with that idx), or why they cannot be read."""
+    names, or why a correction cannot be weighed against it."""
     match = SEMIBLIND_REVIEW.match(str(source or ""))
     if not match:
         return [], (f"a correction cites the semi-blind review its t_val_a comes from: --source "
                     f"semiblind.<ROUND>.json, not {source!r}")
     review = sample_dir / match.group(1)
-    try:
-        scans = json.loads(review.read_text(encoding="utf-8")).get("scans") or []
-    except (OSError, json.JSONDecodeError, AttributeError):
+    moments, _, what = read_stretch(sample_dir, window, match.group(1), events)
+    if what == "cannot be read":
         return [], f"the semi-blind review {portable_path(review)} cannot be read"
-    own = [scan for scan in scans if isinstance(scan, dict) and scan.get("idx") == window]
-    moments = [t for scan in own for candidate in scan.get("candidates") or []
-               if isinstance(candidate, dict)
-               for t in [candidate.get("t")] if isinstance(t, (int, float))]
     if not moments:
         # no stretch of its own (one scan over several windows) or no timed answers (the legacy
         # shape): "no answer" cannot be told from "not read", so nothing is weighed there
-        found = sorted(str(scan.get("idx")) for scan in scans if isinstance(scan, dict))
-        what = (f"has no timed answers in its stretch of window {window}" if own else
-                f"has no stretch of window {window} (its stretches: {', '.join(found) or 'none'})")
         return [], (f"the semi-blind review {portable_path(review)} {what}, so the tool cannot "
                     f"weigh a correction of this window against it. Leave the stretch as it is "
                     f"and settle it in the next round of review, or record the case with "
@@ -924,7 +1086,8 @@ def review_round(name: str) -> int | None:
 
 
 def correction_trajectory(sample_dir: Path, window: int, superseded: list[tuple[int, dict]],
-                          correction: dict) -> tuple[list[float], str | None]:
+                          correction: dict, events: list[tuple[int, dict]] = ()
+                          ) -> tuple[list[float], str | None]:
     """The answers in the stretch of `window` of the semi-blind review a correction re-reads, or
     why it cannot re-read it there. It is the trajectory the earlier rows cite, or, when none
     cites one, a semi-blind review of the stretch's round or an earlier one."""
@@ -942,7 +1105,7 @@ def correction_trajectory(sample_dir: Path, window: int, superseded: list[tuple[
             return [], (f"--source {named.group(1)}: a correction of a round "
                         f"{correction.get('iteration')} stretch re-reads a semi-blind review of "
                         f"that round or an earlier one")
-    return stretch_answers(sample_dir, window, correction.get("source"))
+    return stretch_answers(sample_dir, window, correction.get("source"), events)
 
 
 def is_answer(moments: list[float], t) -> bool:
@@ -951,7 +1114,7 @@ def is_answer(moments: list[float], t) -> bool:
 
 
 def correction_refusal(sample_dir: Path, window: int, superseded: list[tuple[int, dict]],
-                       correction: dict) -> list[str]:
+                       correction: dict, events: list[tuple[int, dict]] = ()) -> list[str]:
     """Why a correction cannot be logged: it names nothing it corrects, its stretch has no
     earlier row, it does not re-read the trajectory of the earlier rows, its t_val_a is no
     answer of its window's stretch there, or it makes the boundary looser.
@@ -972,7 +1135,8 @@ def correction_refusal(sample_dir: Path, window: int, superseded: list[tuple[int
     t_val_a = correction.get("t_val_a")
     if t_val_a is None and all(row.get("t_val_a") is None for _, row in superseded):
         return problems  # none for none: nothing on the trajectory to weigh
-    moments, unreadable = correction_trajectory(sample_dir, window, superseded, correction)
+    moments, unreadable = correction_trajectory(sample_dir, window, superseded, correction,
+                                                events)
     if unreadable:
         return problems + [unreadable]
     if t_val_a is not None and not is_answer(moments, t_val_a):
@@ -1005,10 +1169,12 @@ def correction_refusal(sample_dir: Path, window: int, superseded: list[tuple[int
 
 
 def passed_placements(sample_dir: Path, window: int, superseded: list[tuple[int, dict]],
-                      correction: dict) -> list[tuple[int, float]]:
+                      correction: dict, events: list[tuple[int, dict]] = ()
+                      ) -> list[tuple[int, float]]:
     """The earlier t_val_a that are no answer of the trajectory and that a correction moves
     past: sighted placements, on which stage C may have been owed."""
-    moments, unreadable = correction_trajectory(sample_dir, window, superseded, correction)
+    moments, unreadable = correction_trajectory(sample_dir, window, superseded, correction,
+                                                events)
     if unreadable:
         return []
     t_val_a = correction.get("t_val_a")
@@ -1021,12 +1187,88 @@ def passed_placements(sample_dir: Path, window: int, superseded: list[tuple[int,
     return [(line, value) for value, line in passed.items()]
 
 
-def stretch_rows(events: list[tuple[int, dict]], sample_id: str, iteration: int,
-                 window: int) -> list[tuple[int, dict]]:
-    """The adjudicate rows of one stretch, in log order."""
-    key = (sample_id, iteration, window)
-    return [(line, e) for line, e in events if e.get("event") == "adjudicate"
-            and (e.get("sample_id"), e.get("iteration"), e.get("window")) == key]
+def stretch_segments(events: list[tuple[int, dict]], sample_id: str, iteration: int,
+                     window: int) -> tuple[list[dict], int | None]:
+    """The adjudicate rows of one stretch, split where an edit closed it, and the line of the
+    edit after which the next row will open a new part (None when the stretch is open).
+
+    An edit of format 2 that changes a boundary or the rubric of the window, or the level of
+    the sample, asks for stage A to be read again (coordinator.md §3, the last column of the
+    table). The rows logged after it are that re-adjudication: a part of their own, weighed
+    by themselves, with the earlier rows left as history. It may move the boundary either
+    way, which a correction may not: what the answers are scored against has changed. A
+    record that is back at the version the rows were read on (the level lowered and raised
+    again) opens nothing. Edits of format 1 close nothing: the logs written before the rule
+    read as they did. Each part is {"rows": [(line, event)], "edit": the line of the edit that
+    opened it, or None}.
+
+    `window` is the window's number now. A row logged before an edit that renumbered the
+    windows names the window by its number then, and is read under the number the window has
+    now (window_now): the stretch follows its window. A row that only renumbers a window, or
+    removes another, changes nothing its answers are scored against and closes nothing."""
+    changes = renumberings(events, sample_id)
+    parts: list[dict] = [{"rows": [], "edit": None}]
+    closed: tuple[int, str | None] | None = None   # the closing edit and the version before it
+    for line, event in events:
+        kind = event.get("event")
+        if event.get("sample_id") != sample_id:
+            continue
+        if kind == "sample_edit" and is_new(event):
+            mine = event.get("window") is None \
+                or window_now(changes, event["window"], line) == window
+            if closed is not None and event.get("sha_after") == closed[1]:
+                closed = None
+            elif (closed is None and parts[-1]["rows"] and event.get("kind") in CLOSING_KINDS
+                  and mine and not only_structure(event)):
+                closed = (line, event.get("sha_before"))
+        elif kind == "adjudicate" and event.get("iteration") == iteration \
+                and event.get("window") is not None \
+                and window_now(changes, event["window"], line) == window:
+            if closed is not None:
+                parts.append({"rows": [], "edit": closed[0]})
+                closed = None
+            parts[-1]["rows"].append((line, event))
+    return parts, (closed[0] if closed else None)
+
+
+def stage_a_refusal(path: Path, events: list[tuple[int, dict]], args: argparse.Namespace,
+                    opens_stretch: bool) -> str | None:
+    """Why the row that sets a stretch's t_val_a is not logged, or None.
+
+    The first row of a stretch is stage A: its t_val_a is the first answer of the semi-blind
+    trajectory that met the rubric. Nothing used to hold it to the trajectory: a value the
+    sighted reviewers had placed, or one probed in stage C, went in as stage A under a round
+    that had no review at all. The rows after it, one per t_s, cite what they like."""
+    cited = SEMIBLIND_CITED.search(str(args.source or ""))
+    if not cited:
+        return (f"the first row of a stretch sets stage A's t_val_a, and it cites the semi-blind "
+                f"review whose trajectory it was read from: --source semiblind.<ROUND>.json, not "
+                f"{args.source!r}. A moment that a sighted reviewer, the annotation or a probe "
+                f"gives is a t_s of a later row (--t-s, --t-s-source), not stage A")
+    name, window = cited.group(1), args.window
+    moments, walked, missing = read_stretch(path.parent / args.sample_id, window, name, events)
+    if not walked:
+        return (f"{name} {missing}: stage A of window {window} is read from the semi-blind "
+                f"reviewer's stretch of that window. Cite the review that walked it; if none "
+                f"did, run the semi-blind reviewer over that stretch first (coordinator.md §6, "
+                f"stage A)")
+    if args.t_val_a is not None and not is_answer(moments, args.t_val_a):
+        return (f"t_val_a {args.t_val_a} is the moment of no answer in the stretch of window "
+                f"{window} of {name} (its answers: {', '.join(map(str, moments)) or 'none'}). "
+                f"Stage A takes t_val_a from the answers of the window's own stretch: copy the "
+                f"moment from the file, or omit --t-val-a if no answer met the rubric. A moment "
+                f"that a sighted reviewer or the annotation places earlier is a t_s: log it with "
+                f"--t-s {args.t_val_a} --t-s-source <full_sample | full_window<N> | annotation | "
+                f"provenance | model>, and only stage C makes it the boundary (coordinator.md §6)")
+    if opens_stretch and review_round(name) != args.iteration and not any(
+            e.get("event") == "spawn" and e.get("sample_id") == args.sample_id
+            and e.get("iteration") == args.iteration for _, e in events):
+        return (f"round {args.iteration} of {args.sample_id} has no launch yet, and {name} is not "
+                f"its trajectory: a stage A row is logged under the round whose review it reads. "
+                f"Log it with --iteration {review_round(name)}. A re-adjudication after an edit "
+                f"of a boundary, the rubric or the level needs no new round: logged under the "
+                f"round of the stretch, it opens a new part of it by itself (coordinator.md §6)")
+    return None
 
 
 def current_rows(rows: list[tuple[int, dict]]) -> list[tuple[int, dict]]:
@@ -1051,19 +1293,13 @@ def weigh_stretch(path: Path, key: tuple[str, int, int], rows: list[tuple[int, d
     append-only log never takes a row that check would reject."""
     sample_id, iteration, window = key
     where = f"{sample_id}, round {iteration}, window {window}"
-    video = path.parent.name
     current = current_rows(rows)
     errors, owed = [], []
     for line, event in current:
         errors += [f"line {line}: {e}" for e in check_adjudication(event)]
-        wrong = WRONG_ROWS.get((video, line, event.get("ts")))
-        if wrong:
-            errors.append(f"line {line}: {where}: {wrong}. {CORRECTION_HINT}")
     for index, problem in check_stretch([event for _, event in current]):
         line, event = current[index]
-        message = f"line {line}: {where}: {problem}. {CORRECTION_HINT}"
-        caption = CAPTIONS.get((video, line, event.get("ts")))
-        errors.append(f"{message}\n  {caption}" if caption else message)
+        errors.append(f"line {line}: {where}: {problem}. {CORRECTION_HINT}")
     if "correction" in current[0][1]:
         superseded = rows[:len(rows) - len(current)]
         problems, debts = correction_problems(path.parent / sample_id, window, superseded,
@@ -1089,12 +1325,29 @@ def adjudicate_event(args: argparse.Namespace, events: list[tuple[int, dict]],
                 f"annotation, provenance, model"), hints
     key = (args.sample_id, args.iteration, args.window)
     where = f"{args.sample_id}, round {args.iteration}, window {args.window}"
-    rows = stretch_rows(events, *key)
+    parts, reopened = stretch_segments(events, *key)
+    logged_before = any(part["rows"] for part in parts)
+    # the rows this one is weighed with: the open part of the stretch, or none when an edit
+    # has closed it and this row re-adjudicates
+    rows = [] if reopened is not None else parts[-1]["rows"]
+    if reopened is not None and args.correction is not None:
+        return (f"the stretch {where} was closed by the edit of line {reopened}: this row "
+                f"re-adjudicates stage A after it and may move the boundary either way. Log it "
+                f"without --correction"), hints
+    if args.correction is None and not rows:
+        refusal = stage_a_refusal(path, events, args, opens_stretch=not logged_before)
+        if refusal:
+            return refusal, hints
+    if reopened is not None:
+        before = parts[-1]["rows"][-1][1]
+        hints.append(f"this row re-adjudicates stage A after the edit of line {reopened}: "
+                     f"t_val_a {before.get('t_val_a')} -> {args.t_val_a}; the earlier rows of "
+                     f"the stretch stay in the log as history. Write it into the table of "
+                     f"coordinator.<ROUND>.md")
     if args.correction is None and rows:
         broken, _ = weigh_stretch(path, key, rows, events)
         if broken:
-            found = "; ".join(problem.replace(f". {CORRECTION_HINT}", "").replace("\n  ", " ")
-                              for problem in broken)
+            found = "; ".join(problem.replace(f". {CORRECTION_HINT}", "") for problem in broken)
             return (f"the stretch {where} already fails check, and a further row cannot repair "
                     f"it ({found}). Log the stretch anew with adjudicate ... "
                     f"--correction \"<what the earlier rows got wrong>\" (coordinator.md §6, "
@@ -1139,7 +1392,7 @@ def adjudicate_event(args: argparse.Namespace, events: list[tuple[int, dict]],
     hints.insert(0, f"t_val after this row: {derived}")
     if args.correction is not None:
         for placed_line, value in passed_placements(path.parent / args.sample_id, args.window,
-                                                    rows, event):
+                                                    rows, event, events):
             hints.append(f"line {placed_line} logged t_val_a {value}, which is no answer of the "
                          f"trajectory, and the correction moves past it. If a sighted reviewer "
                          f"proposed it (a t_s of full_sample, or a span ending more than 2 s "
@@ -1184,7 +1437,8 @@ def correction_problems(sample_dir: Path, window: int, superseded: list[tuple[in
     again."""
     line, correction = current[0]
     problems = [(line, problem)
-                for problem in correction_refusal(sample_dir, window, superseded, correction)]
+                for problem in correction_refusal(sample_dir, window, superseded, correction,
+                                                  events)]
     sample_id, iteration = correction.get("sample_id"), correction.get("iteration")
     t_val_a = correction.get("t_val_a")
 
@@ -1296,10 +1550,10 @@ def check_stretch(rows: list[dict]) -> list[tuple[int, str]]:
     return problems
 
 
-def saved_review(path: Path, spawn: dict) -> Path | None:
-    """The review file the launch has saved since it started, if any: ``<role>.<iteration>``
-    with the role as logged (``full_window0``), a number after ``probe_verify`` and a letter
-    after the round (a repeat, ``probe_frame0.1b``)."""
+def saved_reviews(path: Path, spawn: dict) -> list[Path]:
+    """The review files the launch has saved since it started: ``<role>.<iteration>`` with the
+    role as logged (``full_window0``), a number after ``probe_verify`` and a letter after the
+    round (a repeat, ``probe_frame0.1b``)."""
     role, iteration = spawn.get("role") or "", spawn.get("iteration")
     pattern = re.compile(rf"{re.escape(role)}\d*\.{iteration}[a-z]?\.json")
     try:
@@ -1307,8 +1561,13 @@ def saved_review(path: Path, spawn: dict) -> Path | None:
     except (KeyError, ValueError):
         started = 0.0
     folder = path.parent / (spawn.get("sample_id") or "")
-    found = [f for f in folder.glob(f"{role}*.json")
-             if pattern.fullmatch(f.name) and f.stat().st_mtime >= started]
+    return [f for f in folder.glob(f"{role}*.json")
+            if pattern.fullmatch(f.name) and f.stat().st_mtime >= started]
+
+
+def saved_review(path: Path, spawn: dict) -> Path | None:
+    """The latest of them, if any."""
+    found = saved_reviews(path, spawn)
     return max(found, key=lambda f: f.stat().st_mtime) if found else None
 
 
@@ -1363,12 +1622,21 @@ def parser() -> argparse.ArgumentParser:
     commands = result.add_subparsers(dest="command", required=True)
 
     spawn = commands.add_parser("spawn", help="record a successful subagent launch")
-    spawn.add_argument("--agent", required=True)
-    spawn.add_argument("--sample-id", required=True)
-    spawn.add_argument("--role", required=True)
+    spawn.add_argument("--agent", required=True,
+                       help="the agent_id that spawn_agent returned (not the nickname)")
+    spawn.add_argument("--sample-id", default=None,
+                       help="read from the workspace note; when given, checked against it")
+    spawn.add_argument("--role", default=None,
+                       help="read from the workspace note, with the window's index; when "
+                            "given, checked against it")
     spawn.add_argument("--iteration", required=True, type=int)
     spawn.add_argument("--model", required=True)
-    spawn.add_argument("--reasoning-effort", required=True)
+    spawn.add_argument("--reasoning-effort", default="default",
+                       help=f"what the launch ran with: {', '.join(EFFORTS)}; default when "
+                            f"spawn_agent was given none")
+    spawn.add_argument("--reason", default=None,
+                       help="for a repeat of a probe only, when the tool asks for it: the "
+                            "defect of the earlier attempt, with the evidence")
     spawn.add_argument("--workspace", required=True, type=Path,
                        help="the folder the subagent works in, prepared with "
                             "prepare_review_workspace.py --sample-id; its inputs note is checked "
@@ -1376,32 +1644,58 @@ def parser() -> argparse.ArgumentParser:
 
     finish = commands.add_parser("finish", help="record a terminal subagent result")
     finish.add_argument("--agent", required=True,
-                        help="the name the launch was logged with, not a thread id")
+                        help="the name its spawn was logged with: the agent_id that "
+                             "spawn_agent returned")
     finish.add_argument("--status", required=True,
                         choices=("completed", "failed", "interrupted"))
-    finish.add_argument("--artifact")
+    finish.add_argument("--artifact",
+                        help="the review file the subagent saved; may be omitted when the "
+                             "launch saved exactly one file that passes --check")
     finish.add_argument("--summary", required=True)
+    finish.add_argument("--workspace", type=Path, default=None,
+                        help="only when the tool asks for it: the workspace of a launch whose "
+                             "spawn was never logged")
+    finish.add_argument("--reason", default=None,
+                        help="only when the tool asks for it: the defect of the earlier "
+                             "attempt, for a restored launch that repeats a probe")
 
-    edit = commands.add_parser("sample-edit", help="record an applied sample change")
+    get = commands.add_parser("sample-get", help="write a record to a file to be edited")
+    get.add_argument("--sample-id", required=True)
+    get.add_argument("--out", type=Path, default=None,
+                     help="where to write it; data/reviews/<VIDEO_ID>/<SAMPLE_ID>/.edit/record.json "
+                          "by default")
+    get.add_argument("--annotations", type=Path, default=None,
+                     help="only when the tool asks for it: the file the record is in")
+
+    edit = commands.add_parser("sample-edit",
+                               help="change a record: the tool reads what changed, checks the "
+                                    "record, logs the edit and writes the file")
     edit.add_argument("--sample-id", required=True)
-    edit.add_argument("--kind", choices=EDIT_KINDS, default=None,
-                      help="what changed: boundary, rubric, level, timing, metadata with the "
-                           "question text untouched, or wording; decides which roles must rerun")
-    edit.add_argument("--window", type=int, default=None,
-                      help="index of the trigger the edit touched; for boundary and rubric the "
-                           "rerun debt is then that window's review, not any window's")
-    edit.add_argument("--span", action="store_true",
-                      help="the edit changes the window's evidence_span; refused until that "
-                           "window's stretch has been adjudicated")
-    edit.add_argument("--changes", required=True)
-    edit.add_argument("--source", required=True)
+    edit.add_argument("--source", required=True,
+                      help="the review or decision the edit comes from (full_window0.2.json, "
+                           "coordinator.2.md)")
+    edit.add_argument("--set", action="append", default=[], metavar="FIELD=VALUE",
+                      help="change one field in place, as often as needed: "
+                           "validation.blind_solved=false, 'triggers[1].t_start=212.0'")
+    edit.add_argument("--from", dest="source_file", type=Path, default=None,
+                      help="the edited file sample-get wrote, when it is not the default one")
+    edit.add_argument("--adopt", action="store_true",
+                      help="only when check asks for it: log a change that was made to the "
+                           "record without the tool")
+    edit.add_argument("--annotations", type=Path, default=None,
+                      help="only when the tool asks for it: the file the record is in, or the "
+                           "file of data/annotations/partial/ a new sample goes to")
+    for flag, extra in (("--kind", {}), ("--changes", {}), ("--window", {}),
+                        ("--span", {"action": "store_true"})):  # refused with what to do instead
+        edit.add_argument(flag, default=None, help=argparse.SUPPRESS, **extra)
 
     note = commands.add_parser("note", help="append a remark: a reconstruction, an unknown "
                                             "fate, anything the other events cannot say")
     note.add_argument("--text", required=True)
     note.add_argument("--agent", default=None,
-                      help="the agent whose spawn/finish pair the note documents; check then "
-                           "tolerates that agent's unmatched event or a relaunch under its name")
+                      help="the agent the note is about. A note repairs nothing: a launch that "
+                           "did not start is finished with --status failed, and a spawn that "
+                           "was never logged is restored by finish")
     note.add_argument("--refers-to", default=None,
                       help="a line number or artifact the note is about")
 
@@ -1483,51 +1777,993 @@ def parser() -> argparse.ArgumentParser:
     return result
 
 
-def spawn_event(args: argparse.Namespace, events: list[tuple[int, dict]]) -> dict | str:
-    """The spawn event, or why the launch is refused."""
-    error = role_error(args.role)
+# ---- the records: get, edit, adopt ---------------------------------------------------------
+
+# The review files a nudge may rest on: a boundary is nudged to a full_window or semi-blind
+# review's own frame measurement (coordinator.md §3).
+REVIEW_NAMED = re.compile(r"\b((?:full_window\d+|semiblind)\.\d+[a-z]?\.json)\b")
+# The kinds of edit after which stage A of the window is read again (the last column of the
+# table in coordinator.md §3): such an edit of format 2 closes the adjudicated stretch.
+CLOSING_KINDS = ("boundary", "rubric", "level")
+# What each kind of edit owes, said when the edit is logged.
+AFTER_EDIT = {
+    "wording": "a new version of the question: every role runs again on new workspaces — the "
+               "semi-blind reviewer, the probes, full_sample and every full_window — and "
+               "blind-judge scores the new semi-blind review. Set validation.status to draft "
+               "if it is not",
+    "boundary": "run {window_review} again, and every probe whose material moved (check --final "
+                "names them); re-adjudicate stage A of the window against the new boundary",
+    "nudge": "no rerun is owed: the reviewer's frames are the verification",
+    "rubric": "run full_sample and {window_review} again; run blind-judge again on the saved "
+              "blind answer; re-score the saved probe answers against the new rubric; "
+              "re-adjudicate stage A",
+    "level": "no rerun is owed; re-read every 2.5 split against the new level and re-adjudicate "
+             "stage A by the route of the new level",
+    "timing": "no rerun is owed",
+    "metadata": "no rerun is owed",
+}
+# A boundary row that changes the content of no window (only_structure).
+AFTER_RENUMBERING = ("run {window_review} again: reviews and probes are named by the new "
+                     "number. Nothing is re-adjudicated: the tool reads the window's earlier "
+                     "adjudicate rows under its new number")
+AFTER_REMOVAL = ("run a full_window of a window that remains (a launch owed for another row of "
+                 "this edit settles it). Nothing is re-adjudicated")
+
+
+def edit_file(path: Path, sample_id: str) -> Path:
+    """Where sample-get puts a record to be edited, unless --out names another file."""
+    return path.parent / sample_id / ".edit" / "record.json"
+
+
+def base_note(file: Path) -> Path:
+    """The note next to a file sample-get wrote: which version of the record it holds."""
+    return file.with_name(file.name + ".base.json")
+
+
+def keep_version(path: Path, record: dict) -> None:
+    """A copy of a version of a record the tool has seen, next to the sample's reviews."""
+    sha = review_inputs.record_sha(record)
+    copy = path.parent / str(record.get("id")) / ".versions" / f"{sha[:12]}.json"
+    if kept_version(path, str(record.get("id")), sha) is not None:
+        return
+    # written next to it and moved into place: a write cut off half-way leaves no copy rather
+    # than a broken one, and a copy that does not read back as this version is written again
+    copy.parent.mkdir(parents=True, exist_ok=True)
+    temporary = copy.with_name(f".{copy.name}.{os.getpid()}.tmp")
+    temporary.write_text(json.dumps(record, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    os.replace(temporary, copy)
+
+
+def kept_version(path: Path, sample_id: str, sha: str | None) -> dict | None:
+    if not sha:
+        return None
+    try:
+        record = json.loads((path.parent / sample_id / ".versions" / f"{sha[:12]}.json")
+                            .read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    return record if review_inputs.record_sha(record) == sha else None
+
+
+def locate_record(sample_id: str, events: list[tuple[int, dict]], annotations=None
+                  ) -> tuple[Path, dict]:
+    """The record as it stands now and the file it is in: the file --annotations names, else
+    the one the sample's last launch or edit names, else wherever the id is found."""
+    if annotations is not None:
+        return review_inputs.find_record(ROOT, sample_id,
+                                         review_inputs.locate(ROOT, str(annotations)))
+    names = [e["annotations"] for _, e in events
+             if e.get("sample_id") == sample_id and e.get("annotations")]
+    if names:
+        return review_inputs.find_logged_record(ROOT, sample_id, names[-1])
+    return review_inputs.find_record(ROOT, sample_id)
+
+
+def record_file(sample_id: str, events: list[tuple[int, dict]]) -> tuple[Path, dict] | None:
+    """locate_record, or None when the record cannot be read."""
+    try:
+        return locate_record(sample_id, events)
+    except (OSError, KeyError, json.JSONDecodeError, review_inputs.InputsError):
+        return None
+
+
+def known_versions(events: list[tuple[int, dict]]) -> dict[str, tuple[int, dict]]:
+    """For each sample, the last row of format 2 that says which version of its record the log
+    knows: an edit (the hash after it) or a launch (the hash it ran on; not a launch restored
+    by finish, which ran on an earlier version)."""
+    known: dict[str, tuple[int, dict]] = {}
+    for line, event in events:
+        if not is_new(event) or not event.get("sample_id"):
+            continue
+        if event.get("event") == "sample_edit" and event.get("sha_after"):
+            known[event["sample_id"]] = (line, event)
+        elif event.get("event") == "spawn" and event.get("record_sha") and not event.get("recovered"):
+            known[event["sample_id"]] = (line, event)
+    return known
+
+
+def record_drift(events: list[tuple[int, dict]]) -> list[str]:
+    """The records of an open video that are not the version the log last knew: changed
+    without sample-edit, or left unwritten by a sample-edit that was cut off.
+
+    Only while the record is in data/annotations/partial/: a merged file is closed, and a
+    later migration of the schema changes every hash in it."""
+    problems = []
+    for sample_id, (line, event) in sorted(known_versions(events).items()):
+        found = record_file(sample_id, events)
+        cut_off = (f"the tool was cut off between the two. Run `sample-get --sample-id "
+                   f"{sample_id}` (or the same sample-edit command again): the tool writes the "
+                   f"record from the copy it kept and logs nothing new")
+        if found is None:
+            if event.get("added"):
+                problems.append(f"{sample_id}: the new sample of line {line} is in the log, but "
+                                f"not in {event.get('annotations')}: {cut_off}")
+            continue
+        if found[0].parent.name != "partial":
+            continue
+        now = review_inputs.record_sha(found[1])
+        if now == (event.get("sha_after") or event.get("record_sha")):
+            continue
+        if event.get("event") == "sample_edit" and not event.get("adopted") \
+                and now == event.get("sha_before"):
+            problems.append(f"{sample_id}: the edit of line {line} is in the log, but the record "
+                            f"does not hold it: {cut_off}")
+        else:
+            problems.append(
+                f"{sample_id}: the record is not the version the log last knew (line {line}): it "
+                f"was changed without sample-edit. A record is changed only through the tool "
+                f"(coordinator.md §3). Log what was changed: `sample-edit --sample-id "
+                f"{sample_id} --adopt --source \"<what was changed and why>\"`")
+    return problems
+
+
+def measured_in(path: Path, events: list[tuple[int, dict]], sample_id: str, source: str
+                ) -> "callable":
+    """Whether a moment is a reviewer's own measurement: a number of a full_window or
+    semi-blind review the edit names as its source, or a t_s verified yes."""
+    values: list[float] = []
+    for name in REVIEW_NAMED.findall(source or ""):
+        try:
+            review = json.loads((path.parent / sample_id / name).read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        values += sample_edit.numbers_in(review)
+    values += [e["t_s"] for _, e in events
+               if e.get("event") == "adjudicate" and e.get("sample_id") == sample_id
+               and e.get("verified") == "yes" and isinstance(e.get("t_s"), (int, float))]
+    return lambda t: any(abs(value - t) <= MOMENT_TOLERANCE for value in values)
+
+
+def remap_windows(marks: set[tuple[str, int]], event: dict) -> None:
+    """Carry the marks of a sample's windows over an edit that renumbered them."""
+    moved, gone = event.get("renumbered") or {}, set(event.get("removed") or [])
+    if not moved and not gone:
+        return
+    sample_id = event.get("sample_id")
+    mine = {window for sample, window in marks if sample == sample_id}
+    marks -= {(sample_id, window) for window in mine}
+    marks |= {(sample_id, int(moved.get(str(window), moved.get(window, window))))
+              for window in mine if window not in gone}
+
+
+def adjudicated_windows(events: list[tuple[int, dict]]) -> set[tuple[str, int]]:
+    """The windows whose stretch has an adjudicate row, under the numbers they have now."""
+    marks: set[tuple[str, int]] = set()
+    for _, event in events:
+        if event.get("event") == "adjudicate" and event.get("window") is not None:
+            marks.add((event.get("sample_id"), event["window"]))
+        elif event.get("event") == "sample_edit":
+            remap_windows(marks, event)
+    return marks
+
+
+FIELD_PATH = re.compile(r"^([A-Za-z_]+)((?:\[\d+\])*)$")
+
+
+def set_field(record: dict, assignment: str) -> None:
+    """Apply one --set <path>=<value>: validation.blind_solved=false, triggers[1].t_start=212.0.
+    The value is read as JSON, and as plain text when it is not JSON."""
+    path, equals, raw = assignment.partition("=")
+    if not equals or not path.strip():
+        raise sample_edit.EditError(f"--set {assignment!r}: write <field>=<value>, for example "
+                                    f"validation.blind_solved=false or triggers[1].t_start=212.0")
+    try:
+        value = json.loads(raw)
+    except json.JSONDecodeError:
+        value = raw
+    steps: list = []
+    for part in path.strip().split("."):
+        match = FIELD_PATH.match(part)
+        if not match:
+            raise sample_edit.EditError(f"--set {assignment!r}: {part!r} is not a field name")
+        steps.append(match.group(1))
+        steps += [int(index) for index in re.findall(r"\[(\d+)\]", match.group(2))]
+    target = record
+    for step in steps[:-1]:
+        try:
+            target = target[step]
+        except (KeyError, IndexError, TypeError):
+            raise sample_edit.EditError(f"--set {assignment!r}: the record has no {step!r} on "
+                                        f"the way to that field") from None
+    last = steps[-1]
+    if isinstance(last, int):
+        if not isinstance(target, list) or last >= len(target):
+            raise sample_edit.EditError(f"--set {assignment!r}: no element {last} there; to "
+                                        f"add or remove one, use sample-get and edit the file")
+        target[last] = value
+    elif isinstance(target, dict):
+        target[last] = value
+    else:
+        raise sample_edit.EditError(f"--set {assignment!r}: {last!r} is not a field there")
+
+
+def sample_get(args: argparse.Namespace, events: list[tuple[int, dict]], path: Path) -> int:
+    """Write a record to a file to be edited, with a note of the version it is."""
+    done, waiting = finish_cut_off(path, events, args.sample_id)
+    if waiting:
+        print(f"nothing was written. {waiting}", file=sys.stderr)
+        return 2
+    if done:
+        print(done)
+    try:
+        file, record = locate_record(args.sample_id, events, args.annotations)
+    except (OSError, json.JSONDecodeError, review_inputs.InputsError) as exc:
+        print(f"nothing was written. {exc}", file=sys.stderr)
+        return 2
+    out = args.out or edit_file(path, args.sample_id)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(record, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    base_note(out).write_text(json.dumps({
+        "sample_id": args.sample_id, "annotations": portable_path(file),
+        "sha": review_inputs.record_sha(record), "got_at": timestamp()}) + "\n", encoding="utf-8")
+    keep_version(path, record)
+    named = "" if args.out is None else f" --from {out}"
+    print(f"{args.sample_id} (from {portable_path(file)}) is in {portable_path(out)}\n"
+          f"next: edit that file — any field but id and video — and run `coordinator_log.py "
+          f"{args.video_id} sample-edit --sample-id {args.sample_id}{named} --source \"<the "
+          f"review or decision the edit comes from>\"`. The tool reads what changed off the "
+          f"file, checks the record, logs the edit, writes the record and says which reviews "
+          f"the edit owes. Nothing is logged for sample-get")
+    return 0
+
+
+def put_record(file: Path, sample_id: str, expected_sha: str | None, record: dict) -> str | None:
+    """sample_edit.write_record; a failure of the disk is a reason like any other."""
+    try:
+        return sample_edit.write_record(file, sample_id, expected_sha, record)
+    except (OSError, ValueError) as exc:
+        return f"{type(exc).__name__}: {exc}"
+
+
+def finish_cut_off(path: Path, events: list[tuple[int, dict]], sample_id: str
+                   ) -> tuple[str | None, str | None]:
+    """Write the record of an edit that was logged and then cut off before the record was
+    written: (what was written, why the record still does not hold the edit); both None when
+    no edit is waiting.
+
+    The log is the account of what the record holds, and the reviews an edit owes are counted
+    from its rows. So a logged edit is finished before anything else is done to the record: a
+    different edit applied instead would leave a row in the log for a version that never
+    existed. The tool keeps a copy of the new version before it logs the edit (keep_version),
+    and writes the record from it."""
+    known = known_versions(events).get(sample_id)
+    if known is None or known[1].get("event") != "sample_edit" or known[1].get("adopted"):
+        return None, None
+    line, edit = known
+    try:
+        file, current = review_inputs.find_logged_record(ROOT, sample_id, edit["annotations"])
+        was = review_inputs.record_sha(current)
+    except review_inputs.InputsError:
+        if not edit.get("added"):
+            return None, None
+        file, was = review_inputs.locate(ROOT, edit["annotations"]), None
+    except (OSError, KeyError, json.JSONDecodeError):
+        return None, None
+    if was == edit["sha_after"] or (was is not None and was != edit.get("sha_before")):
+        return None, None  # written, or changed without the tool: check names the second
+    kept = kept_version(path, sample_id, edit["sha_after"])
+    waiting = f"the edit of line {line} is in the log and not in the record"
+    if kept is None:
+        return None, (f"{waiting}, and the copy the tool kept of the new version is gone. Run "
+                      f"the sample-edit command of that edit again, with the same values "
+                      f"({edit.get('changes')}); it writes the record and logs nothing new")
+    why = put_record(file, sample_id, was, kept)
+    if why:
+        return None, f"{waiting}, and it cannot be written now: {why}"
+    return (f"the edit of line {line} was in the log and not in the record: the record is "
+            f"written now ({portable_path(file)}) from the copy the tool kept; nothing new was "
+            f"logged"), None
+
+
+def edit_events(args: argparse.Namespace, rows: list[dict], moved: dict, file: Path,
+                before: str | None, after: str, **marks) -> list[dict]:
+    """The rows of one edit: one per kind and window, all with the hashes of the record before
+    and after it. How the windows were renumbered goes on the first."""
+    stamp = timestamp()
+    events = []
+    for row in rows:
+        event = {"ts": stamp, "event": "sample_edit", "sample_id": args.sample_id,
+                 "kind": row["kind"], "changes": row.get("changes") or sample_edit.describe(row["fields"]),
+                 "source": args.source, "fields": row["fields"], "sha_before": before,
+                 "sha_after": after, "annotations": portable_path(file), **marks}
+        if row["window"] is not None:
+            event["window"] = row["window"]
+        if row["span"]:
+            event["span"] = True
+        events.append(event)
+    if moved.get("renumbered"):
+        events[0]["renumbered"] = {str(was): now for was, now in moved["renumbered"].items()}
+    if moved.get("removed"):
+        events[0]["removed"] = moved["removed"]
+    return events
+
+
+def owed_after(event: dict) -> str:
+    window = event.get("window")
+    review = f"full_window{window}" if window is not None else "a full_window"
+    what = f"{event['kind']}" + (f", window {window}" if window is not None else "") \
+        + (", evidence_span" if event.get("span") else "")
+    owed = AFTER_EDIT[event["kind"]]
+    if event["kind"] == "boundary" and only_structure(event):
+        owed = AFTER_REMOVAL if window is None else AFTER_RENUMBERING
+    return f"{what} ({event['changes']}): {owed.format(window_review=review)}"
+
+
+def old_edit_flags(args: argparse.Namespace) -> str | None:
+    given = [flag for flag, value in (("--kind", args.kind), ("--changes", args.changes),
+                                      ("--window", args.window), ("--span", args.span))
+             if value not in (None, False)]
+    if not given:
+        return None
+    return (f"sample-edit no longer takes {', '.join(given)}: the tool reads what changed off the "
+            f"record itself and logs the kind, the window and the values. Change a field or two "
+            f"with `sample-edit --sample-id {args.sample_id} --set <field>=<value> --source "
+            f"\"<the review or decision the edit comes from>\"`; for a larger edit, `sample-get "
+            f"--sample-id {args.sample_id}`, edit the file it names, then `sample-edit --sample-id "
+            f"{args.sample_id} --source \"...\"` (coordinator.md §3)")
+
+
+def sample_edit_command(args: argparse.Namespace, events: list[tuple[int, dict]], path: Path) -> int:
+    """Apply an edit of one record: log it, then write the record.
+
+    The rows go to the log first and the record second: a failure between the two leaves a
+    record that check names, and the same command run again finishes the edit. The other way
+    round, a record would change with nothing in the log to say so."""
+    sample_id = args.sample_id
+
+    def refuse(message: str) -> int:
+        print(f"not logged: nothing was written to {portable_path(path)} or to the record. "
+              f"{message}", file=sys.stderr)
+        return 2
+
+    flags = old_edit_flags(args)
+    if flags:
+        return refuse(flags)
+    if sum([args.adopt, bool(args.set), args.source_file is not None]) > 1:
+        return refuse("--set, --from and --adopt are three ways to say what changed: use one")
+    last = [(line, e) for line, e in events if e.get("event") == "sample_edit" and is_new(e)
+            and e.get("sample_id") == sample_id and e.get("sha_after")]
+    done, waiting = finish_cut_off(path, events, sample_id)
+    if done:
+        print(done)
+    try:
+        if args.adopt:
+            return refuse(waiting) if waiting else adopt_edit(args, events, path, refuse)
+        source = args.source_file or edit_file(path, sample_id)
+        base = None
+        if args.set:
+            file, current = locate_record(sample_id, events, args.annotations)
+            new = json.loads(json.dumps(current))
+            for assignment in args.set:
+                set_field(new, assignment)
+        else:
+            try:
+                new = json.loads(source.read_text(encoding="utf-8"))
+            except OSError:
+                return refuse(f"there is no {source}. Change a field with --set <field>=<value>, "
+                              f"or get the record with `coordinator_log.py {args.video_id} "
+                              f"sample-get --sample-id {sample_id}`, edit the file it names and "
+                              f"run this command again")
+            except json.JSONDecodeError as exc:
+                return refuse(f"{source} is not valid JSON ({exc.msg}, line {exc.lineno}): fix "
+                              f"the file and run this command again")
+            if not isinstance(new, dict) or new.get("id") != sample_id:
+                found = new.get("id") if isinstance(new, dict) else type(new).__name__
+                return refuse(f"{source} holds {found!r}, not the record {sample_id}: id is not "
+                              f"edited, and --sample-id names the record the file was taken from")
+            try:
+                base = json.loads(base_note(source).read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError):
+                base = None
+            if base is None and args.annotations is not None:
+                return add_record(args, events, path, new, refuse)
+            file, current = locate_record(sample_id, events,
+                                          args.annotations or (base or {}).get("annotations"))
+    except sample_edit.EditError as exc:
+        return refuse(str(exc))
+    except (json.JSONDecodeError, AttributeError) as exc:
+        return refuse(f"a file of data/annotations/ has a line that is not a record ({exc}). "
+                      f"`tools/validate_samples.py data/annotations/partial/{args.video_id}."
+                      f"*.jsonl` names the file and the line; the tool does not write a file "
+                      f"it cannot read whole")
+    except (OSError, review_inputs.InputsError) as exc:
+        missing = str(exc).startswith("no record")
+        return refuse(str(exc) + (
+            f". To add a new sample, write its record to a file and name the file of "
+            f"data/annotations/partial/ it goes to: sample-edit --sample-id {sample_id} --from "
+            f"<file> --annotations <partial file> --source \"...\"" if missing else ""))
+    was, now = review_inputs.record_sha(current), review_inputs.record_sha(new)
+    if last and last[-1][1]["sha_after"] == now:
+        line = last[-1][0]
+        if was == now:
+            if not args.set and base is not None:
+                base_note(source).write_text(json.dumps({**base, "sha": now}) + "\n",
+                                             encoding="utf-8")
+            print(f"the record already holds this edit (line {line}): nothing was written")
+            return 0
+        if was == last[-1][1].get("sha_before"):
+            # logged, then cut off before the record was written: finish it
+            why = put_record(file, sample_id, was, new)
+            if why:
+                return refuse(f"the record still does not hold the edit of line {line}: {why}")
+            keep_version(path, new)
+            if not args.set:
+                base_note(source).write_text(json.dumps({
+                    **(base or {}), "sample_id": sample_id, "annotations": portable_path(file),
+                    "sha": now}) + "\n", encoding="utf-8")
+            print(f"the edit of line {line} was in the log and not in the record: the record is "
+                  f"written now ({portable_path(file)}); nothing new was logged")
+            return 0
+    if waiting:
+        return refuse(waiting)
+    # A record changed without the tool is logged first (--adopt): an edit applied on top of
+    # it would make the changed record the version the log knows, with the change, and the
+    # reviews it owes, never recorded.
+    drift = [problem for problem in record_drift(events) if problem.startswith(f"{sample_id}: ")]
+    if drift:
+        return refuse(f"{drift[0]}. Then run this command again")
+    if not args.set:
+        if base is None:
+            return refuse(f"{base_note(source).name} is missing, so the tool cannot tell which "
+                          f"version of the record {source} was taken from. Get the record with "
+                          f"sample-get and make the edit in the file it writes")
+        if base.get("sha") != was:
+            return refuse(f"{sample_id} has changed since {source} was taken from it: another "
+                          f"edit was applied in between, and this file would write the earlier "
+                          f"version back over it. Run sample-get again and make this edit in the "
+                          f"fresh file")
+    if was == now:
+        return refuse("the record already has these values: nothing changed")
+    try:
+        rows, moved, remarks = sample_edit.diff_record(
+            current, new, measured_in(path, events, sample_id, args.source))
+    except sample_edit.EditError as exc:
+        return refuse(str(exc))
+    if not rows:
+        return refuse("the values are the ones the record has, written differently (212 and "
+                      "212.0, for example): nothing changed that a review reads, so there is "
+                      "nothing to log or write. Write a value as the record has it")
+    fresh = sample_edit.new_errors(current, new)
+    if fresh:
+        return refuse(f"the edit breaks the record ({'; '.join(fresh)}). Fix "
+                      f"{'the values' if args.set else source} and run the command again; "
+                      f"`tools/validate_samples.py --rules` lists the rules")
+    adjudicated = adjudicated_windows(events)
+    remap_windows(adjudicated, {"sample_id": sample_id, **moved})
+    for row in rows:
+        if row["span"] and (sample_id, row["window"]) not in adjudicated:
+            return refuse(f"window {row['window']} of {sample_id} has no adjudicate event yet: a "
+                          f"span is applied only after it has been checked against t_val of its "
+                          f"stretch (coordinator.md, §6, \"Check every span against t_val\"). "
+                          f"Adjudicate the stretch with --window {row['window']}, then apply the "
+                          f"span if it agrees" + ("; the other changes of this edit can be "
+                                                  "applied now without it" if len(rows) > 1 else ""))
+    logged = edit_events(args, rows, moved, file, was, now)
+    keep_version(path, current)
+    keep_version(path, new)
+    append_event(path, logged)
+    why = put_record(file, sample_id, was, new)
+    if why:
+        print(f"the edit is logged ({len(logged)} rows), but the record was not written: {why}. "
+              f"Do not write the record yourself. Run `coordinator_log.py {args.video_id} check`: "
+              f"it says how to bring the log and the record together", file=sys.stderr)
+        return 2
+    if not args.set:
+        base_note(source).write_text(json.dumps({**base, "sha": now}) + "\n", encoding="utf-8")
+    return report_edit(logged, remarks, file, path)
+
+
+def report_edit(logged: list[dict], remarks: list[str], file: Path, path: Path) -> int:
+    print(f"logged {len(logged)} sample_edit row{'s' if len(logged) > 1 else ''} ({path}) and "
+          f"wrote the record ({portable_path(file)})")
+    for event in logged:
+        print(f"next: {owed_after(event)}")
+    for remark in remarks:
+        print(f"note: {remark}")
+    if any(event["kind"] in ("wording", "boundary", "nudge", "timing") for event in logged):
+        print("next: re-read validation.notes, question_time_note and provenance for sentences "
+              "that state the old value (coordinator.md §3)")
+    return 0
+
+
+def add_record(args: argparse.Namespace, events: list[tuple[int, dict]], path: Path,
+               new: dict, refuse) -> int:
+    """A new sample: its record goes to the end of the file --annotations names."""
+    file = review_inputs.locate(ROOT, str(args.annotations))
+    if file.parent.name != "partial":
+        return refuse(f"a new sample goes to a file of data/annotations/partial/, not "
+                      f"{portable_path(file)}")
+    now = review_inputs.record_sha(new)
+    logged_before = any(e.get("event") == "sample_edit" and e.get("added")
+                        and e.get("sha_after") == now and e.get("sample_id") == args.sample_id
+                        for _, e in events)
+    try:
+        elsewhere, existing = review_inputs.find_record(ROOT, args.sample_id)
+        if logged_before and review_inputs.record_sha(existing) == now:
+            print(f"{args.sample_id} is in {portable_path(elsewhere)} and in the log already: "
+                  f"nothing was written")
+            return 0
+        return refuse(f"{args.sample_id} is already in {portable_path(elsewhere)}: to change it, "
+                      f"use sample-get; a new sample takes a new id")
+    except review_inputs.InputsError as exc:
+        if "several files" in str(exc):
+            return refuse(str(exc))
+    errors = sample_edit.record_errors(new)
+    if errors:
+        return refuse(f"the new record does not pass the validator ({'; '.join(errors)}). Fix "
+                      f"the file and run the command again")
+    if logged_before:
+        why = put_record(file, args.sample_id, None, new)  # logged before, cut off: finish it
+        if why:
+            return refuse(why)
+        print(f"{args.sample_id} was in the log and not in {portable_path(file)}: the record is "
+              f"written now; nothing new was logged")
+        return 0
+    row = {"kind": "wording", "window": None, "span": False, "fields": {},
+           "changes": "a new sample: every role runs on it from the start"}
+    logged = edit_events(args, [row], {}, file, None, now, added=True)
+    keep_version(path, new)
+    append_event(path, logged[0])
+    why = put_record(file, args.sample_id, None, new)
+    if why:
+        print(f"the new sample is logged, but its record was not written: {why}. Run the same "
+              f"command again", file=sys.stderr)
+        return 2
+    print(f"logged sample_edit ({path}) and added {args.sample_id} to {portable_path(file)}\n"
+          f"next: the sample goes through the full cycle from the start (coordinator.md §3)")
+    return 0
+
+
+def adopt_edit(args: argparse.Namespace, events: list[tuple[int, dict]], path: Path, refuse) -> int:
+    """Log a change that was made to a record without the tool: the difference between the
+    last version the log knows and the record as it is."""
+    sample_id = args.sample_id
+    file, current = locate_record(sample_id, events, args.annotations)
+    now = review_inputs.record_sha(current)
+    known = known_versions(events).get(sample_id)
+    if known is None:
+        # nothing to compare the record with, so nothing can be said to have changed: an
+        # adopt row here would owe every review of a record that may never have been touched
+        return refuse(f"the log holds no version of {sample_id} to compare the record with (no "
+                      f"launch or edit of it logged by this version of the tool), so there is "
+                      f"nothing to adopt and nothing is owed. `check` names a record that was "
+                      f"changed without sample-edit, and only such a record is adopted")
+    was = known[1].get("sha_after") or known[1].get("record_sha")
+    if was == now:
+        return refuse(f"the record is the version the log knows (line {known[0]}): there is "
+                      f"nothing to adopt")
+    old = kept_version(path, sample_id, was)
+    remarks = []
+    rows, moved = None, {}
+    if old is not None:
+        try:
+            rows, moved, remarks = sample_edit.diff_record(
+                old, current, measured_in(path, events, sample_id, args.source))
+        except sample_edit.EditError as exc:
+            remarks.append(f"the change cannot be read field by field ({exc})")
+        if rows == []:
+            # the same values written differently (212 and 212.0): no review reads that
+            rows = [{"kind": "metadata", "window": None, "span": False, "fields": {},
+                     "changes": "the same values written differently; nothing a review reads "
+                                "changed"}]
+    if not rows:
+        rows, moved = [{"kind": "wording", "window": None, "span": False, "fields": {},
+                        "changes": "changed without the tool, and the version before is not "
+                                   "kept: logged as a new version of the question"}], {}
+        remarks.append("the version of the record before the change is not kept, so the tool "
+                       "cannot tell what changed: every role runs again")
+    logged = edit_events(args, rows, moved, file, was, now, adopted=True)
+    keep_version(path, current)
+    append_event(path, logged)
+    errors = sample_edit.record_errors(current)
+    if errors:
+        remarks.append(f"the record does not pass the validator: {'; '.join(errors)}")
+    print(f"logged {len(logged)} sample_edit row{'s' if len(logged) > 1 else ''} ({path}) for a "
+          f"change made without the tool; the record ({portable_path(file)}) is left as it is")
+    for event in logged:
+        print(f"next: {owed_after(event)}")
+    for remark in remarks:
+        print(f"note: {remark}")
+    print("next: change records only through sample-edit (--set, or sample-get and the file): "
+          "the tool checks the record, keeps every version and never leaves the file half-written")
+    return 0
+
+
+def launch_pairs(events: list[tuple[int, dict]]) -> list[dict]:
+    """Every logged launch with its finish, in log order."""
+    pairs: list[dict] = []
+    running: dict[str, dict] = {}
+    for line, event in events:
+        agent = event.get("agent")
+        if event.get("event") == "spawn" and agent:
+            pair = {"line": line, "spawn": event, "finish": None, "finish_line": None}
+            pairs.append(pair)
+            running[agent] = pair
+        elif event.get("event") == "finish" and agent in running:
+            pair = running.pop(agent)
+            pair["finish"], pair["finish_line"] = event, line
+    return pairs
+
+
+def measured_before(events: list[tuple[int, dict]], sample_id: str, role: str,
+                    inputs: dict | None) -> tuple[str, dict | None]:
+    """What a launch of a probe is, next to the launches the log holds: "open" with the
+    launch of the same probe on the same material that has no finish yet; "repeat" with the
+    completed launch it measures again; "second" when that one was a repeat already; "new".
+
+    A repeat is the same probe on the same material as its last completed launch, with no edit
+    in between after which the probe is owed anyway: a change of wording, or a kind whose row
+    in the table of coordinator.md §3 names the role. Such an edit makes a new measurement.
+    An interrupted or failed launch measured nothing and does not count. probe_verify is one
+    probe per moment: its launches at other moments are other probes."""
+    same = [p for p in launch_pairs(events)
+            if p["spawn"].get("sample_id") == sample_id and p["spawn"].get("role") == role]
+    if base_role(role) == "probe_verify":
+        same = [p for p in same if p["spawn"].get("inputs") == inputs]
+    if not inputs:
+        return "new", None
+    for pair in same:
+        if pair["finish"] is None and pair["spawn"].get("inputs") == inputs:
+            return "open", pair
+    done = [p for p in same if p["finish"] and p["finish"].get("status") == "completed"]
+    if not done or done[-1]["spawn"].get("inputs") != inputs:
+        return "new", None
+    last = done[-1]
+
+    def asked_again(after: int, before: float) -> bool:
+        """An edit between two lines after which the probe is measured anew."""
+        for line, event in events:
+            if after < line < before and event.get("event") == "sample_edit" \
+                    and event.get("sample_id") == sample_id:
+                kind = event.get("kind")
+                if kind is None or kind == "wording" or base_role(role) in RERUN_AFTER.get(kind, ()):
+                    return True
+        return False
+
+    if asked_again(last["line"], float("inf")):
+        return "new", None
+    # the last attempt was a repeat itself: its row says so, and a row of format 1, which
+    # has no such field, is told by the same rule from the attempt before it
+    was_repeat = last["spawn"].get("repeat_of") is not None or (
+        len(done) > 1 and done[-2]["spawn"].get("inputs") == inputs
+        and not asked_again(done[-2]["line"], last["line"]))
+    return ("second" if was_repeat else "repeat"), last
+
+
+REPEAT_RULE = ("A negative outcome is measured again at most once per probe and version of "
+               "the sample, and only when you can name the defect of the attempt with evidence "
+               "(coordinator.md §3, \"Flags are set from probe outcomes only\")")
+
+
+def repeat_refusal(events: list[tuple[int, dict]], sample_id: str, role: str,
+                   inputs: dict | None, reason: str | None) -> tuple[str | None, dict]:
+    """Why a launch of a probe is refused, or the fields it adds to the spawn row."""
+    if base_role(role) not in PROBES:
+        return None, {}
+    what, pair = measured_before(events, sample_id, role, inputs)
+    if what == "new":
+        return None, {}
+    agent, line = pair["spawn"].get("agent"), pair["line"]
+    if what == "open":
+        return (f"{role} of {sample_id} on the same material is still open: {agent} (line "
+                f"{line}). Log its finish first — completed with its review file, or "
+                f"interrupted or failed — and launch again only then"), {}
+    if what == "second":
+        return (f"{role} of {sample_id} was measured again already: {agent} (line {line}) is "
+                f"itself a repeat on the same material. {REPEAT_RULE}. A second repeat sets no "
+                f"flag: the outcome of line {pair['finish_line']} is final. If this agent is "
+                f"running, close it; nothing is logged for it"), {}
+    if not (reason or "").strip():
+        return (f"this is a repeat of {agent} (line {line}): the same probe on the same material, "
+                f"with no edit of the sample in between that asks for it again. {REPEAT_RULE}. "
+                f"If the attempt had such a defect, log this row again with --reason \"<the "
+                f"defect, with the evidence>\"; if not, the outcome of line "
+                f"{pair['finish_line']} stands and this launch sets no flag"), {}
+    return None, {"repeat_of": line, "reason": reason.strip()}
+
+
+def artifact_file(name: str) -> Path | None:
+    for candidate in (Path(name), ROOT / name, REPO / name):
+        if candidate.is_file():
+            return candidate.resolve()
+    return None
+
+
+def keep_copy(file: Path) -> tuple[str, str]:
+    """A copy of a review file as it stands, next to it in .finished/ and named by its hash:
+    a later launch of the same role may write the same file name, and the earlier attempt is
+    what a decision to measure again stands on."""
+    data = file.read_bytes()
+    sha = hashlib.sha256(data).hexdigest()
+    copy = file.parent / ".finished" / f"{file.stem}.{sha[:12]}{file.suffix}"
+    if not copy.exists():
+        copy.parent.mkdir(parents=True, exist_ok=True)
+        copy.write_bytes(data)
+    return portable_path(copy), sha
+
+
+def keep_earlier(events: list[tuple[int, dict]], sample_id: str, role: str,
+                 current: Path | None = None) -> list[dict]:
+    """Copies of the review files of this role's finished launches that have none yet (the
+    finishes of format 1), taken before the next launch can write over them."""
+    kept, seen = [], set()
+    for pair in launch_pairs(events):
+        spawn, finish = pair["spawn"], pair["finish"]
+        if (spawn.get("sample_id"), spawn.get("role")) != (sample_id, role) or not finish:
+            continue
+        name = finish.get("artifact")
+        if finish.get("status") != "completed" or not name or finish.get("artifact_copy"):
+            continue
+        file = artifact_file(name)
+        if file is None or file == current or file in seen:
+            continue
+        try:
+            finished = datetime.fromisoformat(finish["ts"]).timestamp()
+        except (KeyError, ValueError):
+            finished = None
+        if finished is not None and file.stat().st_mtime > finished + 120:
+            continue  # written again since that finish: it is no longer that attempt
+        seen.add(file)
+        copy, sha = keep_copy(file)
+        kept.append({"finish_line": pair["finish_line"], "artifact": name, "copy": copy, "sha": sha})
+    return kept
+
+
+def workspace_key(name) -> str:
+    """A workspace as two rows name it alike: the path from .review_ws on, whichever way it
+    was typed and wherever the repository is mounted."""
+    parts = Path(str(name)).parts
+    if ".review_ws" in parts:
+        return "/".join(parts[len(parts) - 1 - parts[::-1].index(".review_ws"):])
+    path = Path(str(name))
+    return portable_path((path if path.is_absolute() else ROOT / path).resolve())
+
+
+def epoch(stamp) -> float | None:
+    try:
+        return datetime.fromisoformat(str(stamp)).timestamp()
+    except ValueError:
+        return None
+
+
+def used_by_a_launch(workspace: Path, note: dict, prepared: float, slack: float,
+                     events: list[tuple[int, dict]]) -> bool:
+    """Whether a logged launch ran on this workspace as this note describes it: the same
+    folder, version of the record and material, logged after the folder was cut. `slack` is
+    how far the two clocks may disagree: a note that says when it was written (prepared_at)
+    and the log go by the same clock; an older note is dated by its file, on the file
+    server's clock. Too much slack only calls a folder used that was not, and then finish
+    restores nothing from it — the safe side."""
+    key = workspace_key(workspace)
+    for _, event in events:
+        if event.get("event") != "spawn" or not event.get("workspace"):
+            continue
+        if (workspace_key(event["workspace"]) == key
+                and event.get("record_sha") == note.get("record_sha")
+                and event.get("inputs") == note.get("inputs")):
+            logged = epoch(event.get("ts"))
+            if logged is None or logged >= prepared - slack:
+                return True
+    return False
+
+
+ARTIFACT_NAME = re.compile(r"^([a-z_]+?)(\d*)\.(\d+)[a-z]?\.json$")
+
+
+def restore_launch(args: argparse.Namespace, events: list[tuple[int, dict]], path: Path,
+                   artifact: dict, file: Path) -> tuple[dict | str | None, list[str]]:
+    """The spawn row of a launch that was never logged, restored from the workspace note it
+    ran on; a refusal; or None when no note can be told to be its material.
+
+    The note is the one of the artifact's role, sample and window that no logged launch used
+    and that was cut before the artifact was saved. The row says what the subagent was given
+    as the note says it; it is not compared with the record as it is now."""
+    role, sample_id = artifact.get("role"), artifact.get("sample_id")
+    if role not in ROLE_PROMPTS or not sample_id:
+        return (f"{args.artifact} names no role and sample the tool knows (role {role!r}, "
+                f"sample {sample_id!r}), so the launch it came from cannot be restored"), []
+    name = ARTIFACT_NAME.match(file.name)
+    window = None
+    if role in WINDOW_INDEXED:
+        window = artifact.get("window_idx")
+        if window is None and name and name.group(2):
+            window = int(name.group(2))
+    iteration = artifact.get("iteration")
+    if not isinstance(iteration, int) and name:
+        iteration = int(name.group(3))
+    saved = file.stat().st_mtime
+    chosen = workspace_key(args.workspace) if args.workspace else None
+    candidates = []
+    for sidecar in sorted((ROOT / ".review_ws" / path.parent.name).rglob("*.inputs.json")):
+        try:
+            note = json.loads(sidecar.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        workspace = sidecar.with_name(sidecar.name[:-len(".inputs.json")])
+        if chosen is not None and workspace_key(workspace) != chosen:
+            continue
+        if note.get("role") != role or note.get("sample_id") != sample_id:
+            continue
+        if window is not None and note.get("window") not in (None, window):
+            continue
+        cut = sidecar.stat().st_mtime
+        if cut > saved + 1:
+            continue  # cut after the answer was saved: the subagent did not see it
+        prepared = epoch(note.get("prepared_at"))
+        slack = 1.0 if prepared is not None else 120.0
+        prepared = prepared or cut
+        if used_by_a_launch(workspace, note, prepared, slack, events):
+            continue
+        candidates.append((workspace, note, prepared))
+    if len(candidates) > 1:
+        names = ", ".join(portable_path(w) for w, _, _ in candidates)
+        return (f"the launch of {args.agent} was never logged, and several prepared workspaces "
+                f"could be its material: {names}. Name the one it ran on: add --workspace "
+                f"<folder> to this finish"), []
+    if not candidates:
+        return None, []
+    workspace, note, prepared = candidates[0]
+    if window is None:
+        window = note.get("window")
+    if role in WINDOW_INDEXED and window is None:
+        return None, []
+    full_role = f"{role}{window}" if role in WINDOW_INDEXED else role
+    refusal, repeat = repeat_refusal(events, sample_id, full_role, note.get("inputs"),
+                                     getattr(args, "reason", None))
+    if refusal:
+        return refusal.replace("log this row again with --reason", "log this finish again with --reason"), []
+    spawn = {"ts": timestamp(), "event": "spawn", "agent": args.agent, "sample_id": sample_id,
+             "role": full_role, "iteration": iteration, "model": None, "reasoning_effort": None,
+             "prompt": f"docs/prompts/{ROLE_PROMPTS[role]}", "prompt_sha": None,
+             "checklist_sha": None, "git_head": None, "prompts_dirty": None,
+             "workspace": portable_path(workspace), "annotations": note.get("annotations"),
+             "record_sha": note.get("record_sha"), "window": note.get("window"),
+             "inputs": note.get("inputs"),
+             "prepared_at": datetime.fromtimestamp(prepared).astimezone().isoformat(timespec="seconds"),
+             "recovered": True, **repeat}
+    kept = keep_earlier(events, sample_id, full_role, current=file)
+    if kept:
+        spawn["kept"] = kept
+    return spawn, [f"the spawn of {args.agent} was never logged: it is restored from "
+                   f"{portable_path(review_inputs.sidecar_path(workspace))} ({full_role} of "
+                   f"{sample_id}, {describe(note.get('inputs') or {})}). Log every spawn as soon "
+                   f"as spawn_agent returns the agent id"]
+
+
+def last_rows(events: list[tuple[int, dict]], agent: str
+              ) -> tuple[tuple[int, dict] | None, tuple[int, dict] | None]:
+    """The last spawn and the last finish logged under this name, with their lines."""
+    spawn = finish = None
+    for line, event in events:
+        if event.get("agent") != agent:
+            continue
+        if event.get("event") == "spawn":
+            spawn = (line, event)
+        elif event.get("event") == "finish":
+            finish = (line, event)
+    return spawn, finish
+
+
+def spawn_event(args: argparse.Namespace, events: list[tuple[int, dict]], path: Path
+                ) -> dict | str:
+    """The spawn event, or why the launch is refused.
+
+    The sample, the role and the window come from the note prepare_review_workspace.py left
+    next to the workspace; --sample-id and --role, when given, are checked against it."""
+    if args.reasoning_effort not in EFFORTS:
+        return (f"--reasoning-effort {args.reasoning_effort!r}: one of {', '.join(EFFORTS)}. "
+                f"Log what the launch ran with: the effort spawn_agent accepted, or default "
+                f"when none was passed (omit the key)")
+    if args.role and args.role not in WINDOW_INDEXED and role_error(args.role):
+        return role_error(args.role)
+    try:
+        note = review_inputs.read_sidecar(args.workspace)
+    except (OSError, json.JSONDecodeError, review_inputs.InputsError) as exc:
+        return str(exc)
+    sample_id = args.sample_id or note.get("sample_id")
+    role = args.role or note.get("role") or ""
+    if role in WINDOW_INDEXED:
+        if note.get("role") == role and note.get("window") is not None:
+            role = f"{role}{note['window']}"   # the note names the window; nobody types it
+        elif note.get("role") == role:
+            return (f"{args.workspace} was prepared for {role} with no window, and {role} is "
+                    f"launched and logged per window. Prepare it again: "
+                    f"prepare_review_workspace.py <VIDEO_ID> --sample-id {sample_id} --role "
+                    f"{role} --window <idx> --out {args.workspace}")
+    error = role_error(role)
     if error:
         return error
     active = open_launches(events)
-    if args.agent in active and args.agent not in noted_agents(events):
+    if args.agent in active:
         return (f"{args.agent} is still open (line {active[args.agent][0]}). Log its finish "
-                f"first; to relaunch under the same name after a failed start, first add "
-                f"`note --agent {args.agent} --text \"<why>\"`")
+                f"first: completed with its review file, interrupted if it was cut off, failed "
+                f"if it never started. A relaunch after an interrupted or failed finish may keep "
+                f"the name")
     try:
-        note = review_inputs.read_sidecar(args.workspace)
-        if note.get("sample_id") != args.sample_id:
+        if note.get("sample_id") != sample_id:
             raise review_inputs.InputsError(
-                f"{args.workspace} was prepared for {note.get('sample_id')}, not {args.sample_id}")
-        if note.get("role") != base_role(args.role):
+                f"{args.workspace} was prepared for {note.get('sample_id')}, not {sample_id}")
+        if note.get("role") != base_role(role):
             raise review_inputs.InputsError(
-                f"{args.workspace} was prepared for --role {note.get('role')}, not {args.role}")
-        window = role_window(args.role) if base_role(args.role) in WINDOW_INDEXED else None
+                f"{args.workspace} was prepared for --role {note.get('role')}, not {role}")
+        window = role_window(role) if base_role(role) in WINDOW_INDEXED else None
         if window is not None and note.get("window") not in (None, window):
             raise review_inputs.InputsError(
                 f"{args.workspace} was cut at window {note.get('window')}, not {window}")
-        _, record = review_inputs.find_logged_record(ROOT, args.sample_id, note["annotations"])
+        _, record = review_inputs.find_logged_record(ROOT, sample_id, note["annotations"])
         if review_inputs.record_sha(record) != note.get("record_sha"):
             raise review_inputs.InputsError(
-                f"{args.sample_id} has changed since {args.workspace} was prepared: prepare it "
+                f"{sample_id} has changed since {args.workspace} was prepared: prepare it "
                 f"again with the same prepare_review_workspace.py command, then launch")
     except (OSError, KeyError, json.JSONDecodeError, review_inputs.InputsError) as exc:
         return str(exc)
-    return {
+    # A launch on a version of the record the log does not know would become the version it
+    # knows: an edit made without the tool, or one logged and never written, would pass unseen.
+    drift = [problem for problem in record_drift(events) if problem.startswith(f"{sample_id}: ")]
+    if drift:
+        return f"{drift[0]}. Then prepare the workspace again and launch"
+    earlier, finished = last_rows(events, args.agent)
+    if finished is not None and finished[1].get("status") == "completed":
+        before = (earlier[1].get("inputs") or {}).get("until") if earlier else None
+        after = (note.get("inputs") or {}).get("until")
+        next_stretch = (base_role(role) == "semiblind" and earlier is not None
+                        and earlier[1].get("sample_id") == sample_id
+                        and base_role(earlier[1].get("role")) == "semiblind"
+                        and (before is None or (after is not None and after > before)))
+        if not next_stretch:
+            return (f"{args.agent} has finished (line {finished[0]}, completed): a new launch is "
+                    f"logged under a new name — the agent_id that spawn_agent returned for it. "
+                    f"Only a relaunch after an interrupted or failed finish, and the next "
+                    f"stretch of the same semi-blind reviewer (a workspace cut further), keep "
+                    f"the name. A launch that ran and finished earlier is not logged after the "
+                    f"fact: finish restores a spawn that was missed, from the workspace it ran on")
+    refusal, repeat = repeat_refusal(events, sample_id, role, note.get("inputs"), args.reason)
+    if refusal:
+        return refusal
+    event = {
         "ts": timestamp(),
         "event": "spawn",
         "agent": args.agent,
-        "sample_id": args.sample_id,
-        "role": args.role,
+        "sample_id": sample_id,
+        "role": role,
         "iteration": args.iteration,
         "model": args.model,
         "reasoning_effort": args.reasoning_effort,
-        **prompt_version(args.role),
+        **prompt_version(role),
         "workspace": str(args.workspace),
         "annotations": note["annotations"],
         "record_sha": note["record_sha"],
         "window": note.get("window"),
         "inputs": note.get("inputs"),
+        **repeat,
     }
+    if note.get("prepared_at"):
+        event["prepared_at"] = note["prepared_at"]
+    kept = keep_earlier(events, sample_id, role)
+    if kept:
+        event["kept"] = kept
+    keep_version(path, record)  # what an edit made without the tool is compared with
+    return event
 
 
 def event_sample(events: list[tuple[int, dict]], agent: str) -> str | None:
@@ -1536,34 +2772,109 @@ def event_sample(events: list[tuple[int, dict]], agent: str) -> str | None:
 
 
 def read_artifact(path: str) -> dict | None:
-    for candidate in (Path(path), REPO / path):
-        if candidate.is_file():
-            try:
-                return json.loads(candidate.read_text(encoding="utf-8"))
-            except (OSError, json.JSONDecodeError):
-                return None
-    return None
+    file = artifact_file(path)
+    if file is None:
+        return None
+    try:
+        return json.loads(file.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
 
 
-def finish_event(args: argparse.Namespace, events: list[tuple[int, dict]]) -> tuple[dict | str, list[str]]:
-    """The finish event and the warnings to print, or why it is refused."""
+def finish_event(args: argparse.Namespace, events: list[tuple[int, dict]], path: Path
+                 ) -> tuple[list[dict] | str, list[str], list[str]]:
+    """The rows a finish writes — the finish, preceded by the spawn when it was never logged —
+    with the warnings and hints to print; or why nothing is written."""
     active = open_launches(events)
-    if args.agent not in active and args.agent not in noted_agents(events):
+    warnings: list[str] = []
+    hints: list[str] = []
+    rows: list[dict] = []
+    spawn = active[args.agent][1] if args.agent in active else None
+    artifact_name = args.artifact
+    unlaunched = False
+    several = ""
+    if spawn is None:
+        earlier, finished = last_rows(events, args.agent)
+        file = artifact_file(artifact_name) if artifact_name else None
+        artifact = read_artifact(artifact_name) if artifact_name else None
         names = ", ".join(sorted(active)) or "none"
-        return (f"no open launch named {args.agent!r}. A finish goes under the name its spawn "
-                f"was logged with, not under a thread id. Open launches: {names}. If the spawn "
-                f"was never logged, add `note --agent {args.agent} --text \"<what happened>\"` "
-                f"first"), []
+        had = (f" {args.agent} already has a finish (line {finished[0]}): one launch has one "
+               f"finish." if finished is not None else "")
+        if file is None or not isinstance(artifact, dict):
+            return (f"no open launch named {args.agent!r}.{had} A finish goes under the name its "
+                    f"spawn was logged with: the agent_id that spawn_agent returned. Open "
+                    f"launches: {names}. If the spawn of this agent was never logged, give the "
+                    f"review file it saved (--artifact <file>): the tool restores the launch "
+                    f"from the workspace it ran on"), [], []
+        # the same role of the same sample is open under another name: most likely this is its
+        # finish, typed under a name the spawn was not logged with
+        named = ARTIFACT_NAME.match(file.name)
+        window = artifact.get("window_idx")
+        if window is None and artifact.get("role") in WINDOW_INDEXED and named and named.group(2):
+            window = int(named.group(2))  # probe_frame2.1.json
+        twins = [(name, line) for name, (line, row) in sorted(active.items())
+                 if row.get("sample_id") == artifact.get("sample_id")
+                 and base_role(row.get("role")) == artifact.get("role")
+                 and (window is None or role_window(row.get("role") or "") in (None, window))]
+        if twins and args.workspace is None:
+            listed = ", ".join(f"{name} (line {line})" for name, line in twins)
+            return (f"no open launch named {args.agent!r}, and {args.artifact} is a review of "
+                    f"{artifact.get('role')} of {artifact.get('sample_id')}, which is open under "
+                    f"another name: {listed}. A finish goes under the name its spawn was logged "
+                    f"with: log it with --agent <that name>. Only if {args.agent} is a different "
+                    f"launch whose spawn was never logged, add --workspace <the folder it ran "
+                    f"in> to this finish"), [], []
+        restored, notes = restore_launch(args, events, path, artifact, file)
+        if isinstance(restored, str):
+            return restored, [], []
+        if restored is None and finished is not None:
+            return (f"{args.agent} already has a finish (line {finished[0]}), and no prepared "
+                    f"workspace that a launch has not used matches {artifact_name}. One launch "
+                    f"has one finish. Open launches: {names}"), [], []
+        if restored is None:
+            unlaunched = True
+            warnings.append(
+                f"the spawn of {args.agent} was never logged, and no workspace note says what it "
+                f"was given (none of this role and sample that no launch used and that was cut "
+                f"before {artifact_name} was saved). The finish is logged with material \"not "
+                f"found\": this outcome sets no flag and settles no rerun. Prepare a workspace "
+                f"and launch the role again; that launch is a new measurement, not a repeat")
+        else:
+            spawn = restored
+            rows.append(restored)
+            warnings += notes
+    elif not artifact_name and args.status == "completed":
+        valid = [f for f in saved_reviews(path, spawn) if passes_check(f)]
+        if len(valid) == 1:
+            artifact_name = portable_path(valid[0])
+            hints.append(f"artifact: {artifact_name} (the one review file this launch saved)")
+        elif len(valid) > 1:
+            several = ", ".join(portable_path(f) for f in valid)
     event = {"ts": timestamp(), "event": "finish", "agent": args.agent,
              "status": args.status, "summary": args.summary}
-    warnings: list[str] = []
-    spawn = last_spawn(events, args.agent)
-    if args.artifact:
-        event["artifact"] = args.artifact
-        artifact = read_artifact(args.artifact)
+    if spawn is not None:
+        for field in ("sample_id", "role", "iteration"):
+            event[field] = spawn.get(field)
+    if unlaunched:
+        event["material"] = "not found"
+        for field in ("sample_id", "role", "iteration"):
+            event[field] = artifact.get(field)
+    role = base_role(spawn.get("role")) if spawn else None
+    artifact = read_artifact(artifact_name) if artifact_name else None
+    if args.status == "completed" and role in PROBES and artifact is None:
+        found = (f"{artifact_name} cannot be read as one" if artifact_name else
+                 f"this launch has saved several that pass --check ({several}): name the one "
+                 f"of this launch" if several else
+                 "this launch has saved none that passes --check")
+        return (f"a completed {spawn.get('role')} leaves its review file, and {found}. Give the "
+                f"file with --artifact (`open` lists what each launch has saved); if the probe "
+                f"saved none, it did not complete: log --status interrupted or failed and launch "
+                f"it again"), [], []
+    if artifact_name:
+        event["artifact"] = artifact_name
         if artifact is None:
             if args.status == "completed":
-                warnings.append(f"the artifact {args.artifact} cannot be read: a completed review "
+                warnings.append(f"the artifact {artifact_name} cannot be read: a completed review "
                                 f"leaves a valid JSON file — check the path")
         else:
             event["artifact_role"] = artifact.get("role")
@@ -1579,6 +2890,9 @@ def finish_event(args: argparse.Namespace, events: list[tuple[int, dict]]) -> tu
                 if mismatch:
                     event["artifact_mismatch"] = "; ".join(mismatch)
                     warnings.append(f"the artifact does not match the launch: {event['artifact_mismatch']}")
+            if args.status == "completed":
+                # the attempt as it finished: a later launch may write the same file name
+                event["artifact_copy"], event["artifact_sha"] = keep_copy(artifact_file(artifact_name))
     if spawn is not None:
         why = stale_inputs(spawn)
         if why:
@@ -1586,7 +2900,8 @@ def finish_event(args: argparse.Namespace, events: list[tuple[int, dict]]) -> tu
             warnings.append(f"{spawn.get('role')} of {spawn.get('sample_id')} is stale: {why}. Its "
                             f"outcome sets no flag: prepare the workspace again with --sample-id "
                             f"and run {spawn.get('role')} anew")
-    return event, warnings
+    rows.append(event)
+    return rows, warnings, hints
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -1605,9 +2920,9 @@ def main(argv: list[str] | None = None) -> int:
         report = (f"If you cannot see a cause in your arguments, record it with "
                   f"`coordinator_log.py {args.video_id} note --text \"tool problem: ...\"` and go "
                   f"on (coordinator.md, \"You change your video's data\")")
-        if args.command in ("check", "open"):
-            print(f"`{args.command}` stopped on an error of its own ({error}); it writes nothing, "
-                  f"so the log is as it was. {report}", file=sys.stderr)
+        if args.command in ("check", "open", "sample-get"):
+            print(f"`{args.command}` stopped on an error of its own ({error}); it writes nothing "
+                  f"to the log, so the log is as it was. {report}", file=sys.stderr)
             return 2
         grew = path is not None and path.exists() and path.stat().st_size != size
         last = path.read_text(encoding="utf-8").splitlines()[-1] if grew else ""
@@ -1622,6 +2937,12 @@ def main(argv: list[str] | None = None) -> int:
                   f"repairs it. Do not edit the log: log the row again (it starts a line of its "
                   f"own), record `coordinator_log.py {args.video_id} note --text \"tool problem: "
                   f"a cut-off line\"`, and say so in your final message", file=sys.stderr)
+        elif grew and args.command == "sample-edit":
+            print(f"`sample-edit` failed on an error of its own after it logged the edit to "
+                  f"{portable_path(path)} ({error}); the record may not hold it yet. Do not write "
+                  f"the record yourself: run `coordinator_log.py {args.video_id} check`, which "
+                  f"says whether the log and the record agree and what to do. {report}",
+                  file=sys.stderr)
         elif grew:
             print(f"`{args.command}` failed on an error of its own after it wrote its row to "
                   f"{portable_path(path)} ({error}): the row stands, do not log it again. Its "
@@ -1648,42 +2969,23 @@ def run(args: argparse.Namespace) -> int:
         return show_open(path, args.wait)
 
     events, _ = read_log(path)
+    if args.command == "sample-get":
+        return sample_get(args, events, path)
+    if args.command == "sample-edit":
+        return sample_edit_command(args, events, path)
     warnings: list[str] = []
     hints: list[str] = []
     if args.command == "spawn":
-        event = spawn_event(args, events)
+        event = spawn_event(args, events, path)
+        if isinstance(event, dict) and event.get("kept"):
+            hints.append("the review files of the earlier attempts are kept: "
+                         + ", ".join(k["copy"] for k in event["kept"]))
     elif args.command == "finish":
-        event, warnings = finish_event(args, events)
-        if isinstance(event, dict) and event.get("artifact_role") == "semiblind":
+        event, warnings, hints = finish_event(args, events, path)
+        if isinstance(event, list) and event[-1].get("artifact_role") == "semiblind":
             hints.append(f"score the blind answer: `coordinator_log.py {args.video_id} blind-judge "
-                         f"--sample-id {event_sample(events, args.agent)} --review "
-                         f"{args.artifact}`; blind_solved is set from its verdict")
-    elif args.command == "sample-edit":
-        if args.kind in ("boundary", "nudge") and args.window is None:
-            event = f"--kind {args.kind} needs --window: the edit is to one window's boundary"
-        elif args.window is not None and args.kind not in ("boundary", "nudge", "rubric", "metadata"):
-            event = f"--window applies to --kind boundary, nudge, rubric or metadata, not {args.kind!r}"
-        elif args.span and (args.window is None or args.kind not in ("boundary", "metadata")):
-            event = ("--span needs --window and --kind boundary (the derived temporal_rel changes) "
-                     "or metadata (it does not); a span edit is never a nudge")
-        elif args.span and not any(e.get("event") == "adjudicate" and e.get("sample_id") == args.sample_id
-                                   and e.get("window") == args.window for _, e in events):
-            event = (f"window {args.window} of {args.sample_id} has no adjudicate event yet: a span "
-                     f"is applied only after it has been checked against t_val of its stretch "
-                     f"(coordinator.md, §6, \"Check every span against t_val\"). Adjudicate the "
-                     f"stretch with --window {args.window}, then apply the span if it agrees")
-        else:
-            event = {"ts": timestamp(), "event": "sample_edit", "sample_id": args.sample_id,
-                     "changes": args.changes, "source": args.source}
-            if args.kind:
-                event["kind"] = args.kind
-            if args.window is not None:
-                event["window"] = args.window
-            if args.span:
-                event["span"] = True
-            if args.kind in ("rubric", "wording"):
-                hints.append("the rubric the blind answer was judged on may have changed: run "
-                             "blind-judge again on the semi-blind review the new version has")
+                         f"--sample-id {event[-1].get('sample_id')} --review "
+                         f"{event[-1].get('artifact')}`; blind_solved is set from its verdict")
     elif args.command == "blind-judge":
         event = blind_judge_event(args, events, args.video_id)
         if isinstance(event, dict):
@@ -1711,10 +3013,11 @@ def run(args: argparse.Namespace) -> int:
     if isinstance(event, str):
         print(f"not logged: nothing was written to {portable_path(path)}. {event}", file=sys.stderr)
         return 2
-    append_event(path, event)
+    rows = event if isinstance(event, list) else [event]
+    append_event(path, rows)
     for warning in warnings:
         print(f"warning: {warning}", file=sys.stderr)
-    print(f"logged {event['event']}: {path}")
+    print(f"logged {' and '.join(row['event'] for row in rows)}: {path}")
     for hint in hints:
         print(f"next: {hint}")
     return 0

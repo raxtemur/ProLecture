@@ -21,8 +21,9 @@ turned into a decision.
 Before you start, read [definitions.md](definitions.md), next to this prompt. It defines the
 terms this prompt uses, and its definitions are binding.
 
-**You change your video's data, never the tools.** You write the video's files under
-`data/annotations/`, its folder `data/reviews/<VIDEO_ID>/` and its workspaces in
+**You change your video's data, never the tools.** You change the video's records under
+`data/annotations/` — only through `coordinator_log.py sample-edit` (§3, "Changing a record") —
+and write its folder `data/reviews/<VIDEO_ID>/` and its workspaces in
 `.review_ws/<VIDEO_ID>/`; scratch files go in those workspaces, not in the repository root.
 Code, tests, schemas, prompts and documentation (`tools/`, `tests/`, `schema/`, `docs/`,
 `CLAUDE.md`) are not yours to edit, and neither is another video's material. **Why:** every
@@ -239,7 +240,7 @@ only while the agent service is up; when it returns an error, the completion not
 reach you either. Then wait in the shell instead: run
 `tools/coordinator_log.py <VIDEO_ID> open --wait 50`, with the shell call allowed about a
 minute before it yields, and repeat it. For every launch it reports as saved and passing
-`--check`, record the finish with that file as `--artifact`. Run the same command whenever a
+`--check`, record the finish. Run the same command whenever a
 launch has been running much longer than its role usually takes.
 
 Normally, do not repair a question from the first cheap result while its other cheap
@@ -285,12 +286,19 @@ defect of the attempt with evidence — the probe misread a frame (quote the
 frame and what the probe wrote), its workspace lacked material, or its `basis` says the answer
 came from general knowledge in place of the material or from recognising the video. That last
 attempt measured a memory, not the modality; the outcome of its repeat is final, and if it rests
-on memory again it is negative — say so in `coordinator.<ROUND>.md`. Record the reason with
-`coordinator_log.py note --agent <new agent> --text "…"`. Launch `probe_full` when the outcomes
-of `probe_text` and `probe_vision` are negative after these reruns. The flag is the outcome of
-the last run. A probe that fails because the question omits a convention exposes a defect of the
-question, not of the attempt: fix the question. An edit that changes a probe's inputs gives a
-new measurement, not a repeat (the table below).
+on memory again it is negative — say so in `coordinator.<ROUND>.md`. Launch `probe_full` when the
+outcomes of `probe_text` and `probe_vision` are negative after these reruns. The flag is the
+outcome of the last run. A probe that fails because the question omits a convention exposes a
+defect of the question, not of the attempt: fix the question. An edit that changes a probe's
+inputs gives a new measurement, not a repeat (the table below).
+
+A repeat is prepared, launched and logged like any launch, and writes the file its prompt names:
+the `finish` of the first attempt has kept a copy of that attempt's file, so nothing is renamed.
+`spawn` recognises a repeat by itself — the same probe of the same sample on the same material
+as its last completed launch, with no edit in between that asks for the probe again — and asks
+for the reason: add `--reason "<the defect, with the evidence>"`. It refuses a second repeat,
+and a repeat launched while the first attempt has no `finish` yet. An attempt that was
+interrupted or failed to start measured nothing: launching it again is not a repeat.
 
 Why: the coordinator must not override flags by reasoning — admission to the primary
 benchmark and the `audio_dependency` label rest on the negative outcomes. Rerunning the same
@@ -314,9 +322,9 @@ results; that is no contradiction of the level.
 and probe run on it. No role is escalated to a stronger model; a negative probe outcome is
 measured again only when the defect of the attempt is evidenced, as above. Pass `model` at
 launch, and `reasoning_effort` when the spawn tool offers a choice of efforts for that model:
-for the local model it may list none, and then no effort can be passed. Record in the `spawn`
-event what the launch actually ran with — the effort the tool accepted, or `default` when none
-was passed or the tool refused it — not the effort you meant to pass. Note in
+for the local model it may list none, and then no effort can be passed. The `spawn` event
+records what the launch actually ran with, not the effort you meant to pass: give
+`--reasoning-effort` only when the tool accepted one — without it the event says `default`. Note in
 `coordinator.<ROUND>.md` that all roles ran on one model: their agreement is not independent
 confirmation (above).
 
@@ -326,24 +334,62 @@ their verdicts or modality flags for the new wording. Return the question to the
 the cheap queue and pass the barrier again before launching fresh `full_sample` and every
 `full_window` with new iteration numbers and separate workspaces. Any change to the text of
 `question` — a referent, a when-clause, an added or removed demand — is a new version; no
-kind of wording change skips `full_window`. Log it as `sample-edit --kind wording`, and
+kind of wording change skips `full_window`. The tool logs such an edit as `wording`, and
 `check --final` will hold the sample until the roles have been spawned again; it counts one
 `full_window` as enough, so make sure yourself that every window was reviewed again.
 
 If the participant-visible `question` is unchanged, an interval, provenance, rubric or other
 repair that leaves the question text unchanged needs only the roles whose input changed. Which
-ones is not a judgement but this table; record the kind in the `sample-edit` event (`--kind`),
-and `check --final` verifies that the reviews were rerun:
+ones is not a judgement but this table. You do not choose the kind: `sample-edit` reads it off
+the change ("Changing a record", below), logs it and says what the edit owes, and
+`check --final` verifies that the reviews were rerun:
 
-| Repair (`question` text untouched) | `--kind` | Rerun | Without a rerun |
+| Repair (`question` text untouched) | Logged as | Rerun | Without a rerun |
 |---|---|---|---|
-| a window boundary, or an `evidence_span` that changes the derived `temporal_rel` — a span only after §6 has checked it against `t_val` | `boundary --window <idx>`, with `--span` when the span changed | `full_window<idx>` of that window — the index is required, or any window's review would settle the debt; and every probe whose input moved: `probe_frame` of that window (its frame is the window's middle), and `probe_text`, `probe_vision`, `probe_full` when the `t_end` their material ran to has moved. The flag of the old run does not carry over | re-adjudicate stage A against the new `t_start` |
-| an `evidence_span` that leaves the derived `temporal_rel` unchanged and passes the validator — a span only after §6 has checked it against `t_val` | `metadata --window <idx> --span` | — | — |
-| `t_start` or `t_end` moved by **at most 2 s** to a `full_window` or semi-blind review's own frame measurement, or to a `t_s` verified in stage C, widening or shifting the window | `nudge --window <idx>` | — (the reviewer's frames are the verification). A cut of 2 s or less that only narrows a window is not made. An `evidence_span` disagreement of 2 s or less is not applied: the annotated value stands and the measurement goes into a `note` | nothing; if a later review measures a different second within the same 2 s, the first measurement stands and the disagreement goes into a `note` |
-| the text of a rubric item | `rubric --window <idx>`, one event per touched window; omit `--window` when every window's rubric changed | `full_sample` (5.x); `full_window<idx>` of each touched window (2.5, the residue) | run `blind-judge` again on the saved blind answer (§1); re-score the probe answers against the new rubric; re-adjudicate stage A |
-| `reasoning_level` only | `level` | — | re-read every 2.5 split against the new level — its copies show the level the review ran with, which is not a defect of the review — and re-adjudicate stage A by the route of the new level |
+| `t_start` or `t_end` of a window, or an `evidence_span` that changes the derived `temporal_rel` — a span only after §6 has checked it against `t_val` | `boundary` of that window | `full_window<idx>` of that window — a review of another window does not settle it; and every probe whose input moved: `probe_frame` of that window (its frame is the window's middle), and `probe_text`, `probe_vision`, `probe_full` when the `t_end` their material ran to has moved. The flag of the old run does not carry over | re-adjudicate stage A against the new `t_start` (§6, "Re-adjudicating after an edit") |
+| a window added; a window renumbered because one was added or removed before it; `required` changed | `boundary` of the new window and of every renumbered one, with the old → new indices | `full_window<idx>` of each | a window that was only renumbered is not adjudicated again: the tool reads its earlier `adjudicate` rows under the new number, and from the edit on you name every window by its new number. A window whose `required` changed: re-adjudicate stage A |
+| a window removed | `boundary` of the sample, with no window, next to the `boundary` of every window it renumbers | a `full_window` of a window that remains; the launch owed for a renumbered window settles it | nothing: the rows of the removed window stay in the log as history |
+| an `evidence_span` that leaves the derived `temporal_rel` unchanged and passes the validator — a span only after §6 has checked it against `t_val` | `metadata` of that window | — | — |
+| `t_start` or `t_end` moved by **at most 2 s** to a `full_window` or semi-blind review's own frame measurement, or to a `t_s` verified in stage C, widening or shifting the window | `nudge` of that window | — (the reviewer's frames are the verification). A cut of 2 s or less that only narrows a window is not made. An `evidence_span` disagreement of 2 s or less is not applied: the annotated value stands and the measurement goes into a `note` | nothing; if a later review measures a different second within the same 2 s, the first measurement stands and the disagreement goes into a `note` |
+| the rubric of a window — the text of an item, an item added or removed — its reference answer (`response`) or its `depends_on`; `twin_of` (the sample as a whole) | `rubric` of that window | `full_sample` (5.x); `full_window<idx>` of each touched window (2.5, the residue) | run `blind-judge` again on the saved blind answer (§1); re-score the probe answers against the new rubric; re-adjudicate stage A |
+| `reasoning_level` or `act` only | `level` | — | re-read every 2.5 split against the new level — its copies show the level the review ran with, which is not a defect of the review — and re-adjudicate stage A by the route of the new level |
 | `question_time` moved by **at most 2 s** | `timing` | — | stage A's `t_val` does not depend on `question_time`. A larger move changes the moment at which the question must make sense: it is a new version of the question, as a wording change ([definitions.md](definitions.md), "Boundary tolerance") |
-| provenance, notes, `trap_note` | `metadata` | — | — |
+| provenance, notes, `trap_note`, the flags and the status, `followup`, `template`, `t_ideal`, `trigger_modality`, `temporal_rel`, `audio_dependency`, `audio_dependency_claim` | `metadata` | — | — |
+
+**Changing a record.** A record is changed only through the tool: do not write a file of
+`data/annotations/` with a script or an editor of your own. For a field or two, in one command:
+
+```bash
+/home/user/conda/bin/python3 tools/coordinator_log.py <VIDEO_ID> sample-edit \
+    --sample-id <SAMPLE_ID> --set 'triggers[1].t_start=212.0' \
+    --set validation.textonly_solved=false --source "full_window1.<ROUND>.json"
+```
+
+For a larger edit — a reworded question with its rubric, an added window —
+`sample-get --sample-id <SAMPLE_ID>` writes the record to a file and names it; edit that file,
+then run `sample-edit --sample-id <SAMPLE_ID> --source "…"`. `--source` names the review or the
+decision the edit comes from. Before anything is written the tool checks the edit: the schema
+and the validator's rules for one record, that `id` and `video` are untouched, and that the
+record has not changed since the file was taken. Then it logs one event per kind and window,
+writes the record, and prints what the edit owes by the table. Three things follow from the
+table:
+
+- a boundary moved by at most 2 s is a `nudge` only when its new value is a number of the
+  `full_window` or semi-blind review named in `--source`, or a `t_s` verified `yes`; otherwise
+  it is a `boundary` edit and owes the window's review, and the tool says which it logged;
+- an `evidence_span` is refused until the stretch of its window has been adjudicated (§6);
+- a new sample — one rebuilt from a rejected idea, below — is added the same way: its record in
+  a file, and `--annotations <the file of partial/ it goes to>` on `sample-edit`.
+
+`check` compares every record with the version the log last knew, and says what to do when
+they differ; `spawn` and `sample-edit` refuse to go on such a record, with the same message.
+An edit that was logged and cut off before the record was written is finished by
+the tool itself, from the copy it keeps, at the next `sample-get` or `sample-edit` of that
+sample.
+
+**Why.** A script that writes the file directly leaves it empty when it fails half-way, and
+one that writes a record from a copy read earlier undoes the edits made since. A kind chosen by
+hand decides which reviews run again, and the same change has been logged under four kinds.
 
 Consolidate all relevant findings before applying the repair, then rerun the roles the table
 names; unaffected evidence remains. `check --final` tracks the reviews of the windows and of
@@ -392,14 +438,19 @@ allows; at the limit the sample is closed by §8 with the objection still writte
 
 **Keep one append-only operational log per video.** Immediately after every successful
 subagent launch and terminal result, call `tools/coordinator_log.py <VIDEO_ID> spawn` or
-`finish`; after an applied sample change, call `sample-edit`. A launch is successful once
-`spawn_agent` has returned an agent id: log its `spawn` then, never ahead of a batch of
-launches. If a launch whose `spawn` is already logged fails to start, log
-`finish --status failed` for it at once. `spawn` takes `--workspace`, the
-folder §5 prepared, and refuses it if the record has changed since; `finish` goes under the
-name the spawn was logged with, never under a thread id, and the tool refuses a name with no
-open launch. A span edit carries `--span` and is refused until its stretch has been
-adjudicated (§6). Only the coordinator writes
+`finish`. A launch is successful once `spawn_agent` has returned an agent id: log its `spawn`
+then, never ahead of a batch of launches, under that agent id (`--agent`; not the nickname), and
+its `finish` under the same id. `spawn` takes `--workspace`, the folder §5 prepared,
+`--iteration` and `--model`; the sample, the role and the window it reads from the note next to
+the folder, and it refuses a folder whose record has changed since. If a launch whose `spawn`
+is already logged fails to start, log `finish --status failed` for it at once; its relaunch may
+keep the name, and so may the next stretch of the same semi-blind reviewer. Every other launch
+has an agent id of its own. `finish` takes `--status` and `--summary`, and finds the review
+file itself when the launch saved exactly one. If a `spawn` was missed, do not log it after the
+fact: log the `finish` with `--artifact <the review file>`, and the tool restores the launch
+from the folder it ran on. A `note` records a remark and repairs nothing. When a command
+refuses, its message says what to do: follow it rather than look for another way to make the
+log pass. Only the coordinator writes
 `data/reviews/<VIDEO_ID>/coordinator.log`, never truncates it, and runs `check --final` before
 it closes the video (§8). The log records scheduling and edits; it does not replace
 per-question `coordinator.<ROUND>.md` decisions.
@@ -462,7 +513,7 @@ Use this source matrix; a boundary-clipped source is clipped to the permitted in
 
 **Prepare every workspace from the record.** Do not type a boundary: the script finds the
 record by its id, cuts the material for the role, and leaves a note of the record's version
-next to the folder (`<folder>.inputs.json`). Name the file you edit:
+next to the folder (`<folder>.inputs.json`). Name the file that holds the record:
 
 ```bash
 P=/home/user/conda/bin/python3
@@ -478,10 +529,12 @@ $P tools/prepare_review_workspace.py <VIDEO_ID> --sample-id <SAMPLE_ID> \
 | `probe_text`, `probe_vision`, `probe_full` | — | up to `t_end` of the last required window |
 | `probe_frame` | `--window <k>` | the middle frame of required window `k`; one probe per required window |
 | `probe_verify` | `--until <t_s>` | up to the `t_s` being verified |
-| `full_sample`, `full_window` | — | the whole video, frames as a manifest |
+| `full_sample` | — | the whole video, frames as a manifest |
+| `full_window` | `--window <k>` | the same, for the review of window `k`; one review per window |
 
-Then log the launch with `spawn --workspace` and the same folder. A folder whose record has
-changed since it was prepared is refused: prepare it again.
+Then log the launch with `spawn --workspace` and the same folder: the sample, the role and
+the window are read from the note. A folder whose record has changed since it was prepared is
+refused: prepare it again.
 
 **The file a role writes** is named in its prompt, and you substitute the placeholders:
 `<ROUND>` is the review iteration; `<WINDOW_IDX>` is the window `k` of `full_window` and
@@ -506,6 +559,11 @@ into `coordinator.<ROUND>.md`, remove that role's reproducible workspace:
 
 Keep an invalid or unconsolidated workspace for diagnosis. Never ask a validator to delete
 it, and never share one workspace between roles.
+
+**Build every launch message from the role's prompt, not from an earlier message.** Substitute
+each placeholder that the opening lines of the prompt list as substituted in, at every
+occurrence; a message copied from the launch of another window or sample keeps that one's
+values in its body. The other placeholders of a prompt are for the subagent to fill.
 
 **What the launch message may contain.** Besides the role prompt with its substitutions (the
 question or the task, and `question_time` for the semi-blind reviewer), a semi-blind role
@@ -625,6 +683,23 @@ boundary of another window, even of the same sample, is not this window's. The t
 of a stretch without `--t-val-a` takes the stretch's. A row that would not pass `check` with
 the rows of its stretch is refused before it is written, and the message says what to do.
 
+The first row of a stretch is stage A, and the tool holds it to the trajectory. It cites the
+semi-blind review the trajectory was read from (`--source semiblind.<ROUND>.json`), and its
+`--t-val-a` is the moment of an answer of the window's own stretch in that file, copied from it
+— or omitted when no answer of that stretch met the rubric. A moment that a sighted reviewer,
+the annotation or a probe gives is the `t_s` of a later row, never `t_val_a`. The row is logged
+under the round of the review it reads.
+
+**Re-adjudicating after an edit.** After an edit that the table of §3 marks "re-adjudicate
+stage A" — a boundary or the rubric of the window, the level — score the trajectory again
+against the record as it is now and log the rows again, under the same round and window and
+without `--correction`. The tool sees the edit in the log and opens a new part of the stretch:
+its rows are checked by themselves and may move the boundary either way, the earlier rows stay
+as history, and `check` names the re-adjudication. Put it into the table of
+`coordinator.<ROUND>.md` as well. An edit that only renumbers the windows opens nothing: the
+rows of a stretch follow their window to its new number, and a semi-blind stretch walked under
+the old number is still read as that window's.
+
 **Correcting a stretch.** The log is never edited. When an `adjudicate` row turns out wrong —
 a copy error, an answer misjudged on stage A, a `t_val` that does not follow from the rows —
 log the stretch anew: the same command with `--correction "<what the earlier rows got
@@ -659,31 +734,31 @@ spans checked against it. Write the correction and its reason into the table of
   when there is no hit): not a hit. The stretch from that answer (or from `question_time`, if
   it is later) to `t_val`, or to `t_start` if no hit comes, gets an optional window when it
   can hold one — at least 5 s, with the transcript line 2.1 keeps between the windows — and
-  none otherwise; log `sample-edit --kind boundary --window <idx>` and run `full_window` on
+  none otherwise; add it with `sample-edit` (§3, "Changing a record") and run `full_window` on
   it. Within 2 s of `t_start` the route is not asked: the point on a gap up to 2 s applies.
-  Inserting a window renumbers the later ones: log `--kind boundary --window <idx>` for the
-  new window and for every renumbered one, and name the old → new indices in
-  `coordinator.<ROUND>.md`.
+  Inserting a window renumbers the later ones: the tool logs a `boundary` edit for the new
+  window and for every renumbered one, each owing its `full_window`; name the old → new
+  indices in `coordinator.<ROUND>.md`.
 - **The author's own answer as `t_val`** on an `L2`, `L3` or `predict` sample: do not move a
   window onto it — a window there repeats the author — and the 2 s tolerance and the gaps
   below do not apply to it. Treat it as an empty residue in a required window:
   `FIX_INTERVALS` when a window of at least 5 s that still contains what the answer is
   worked out from can close 10 s before that moment, otherwise `CRITICAL_FAIL` (§3).
 - **Gap up to 2 s** (`t_start − t_val`): not a hit. Move `t_start` to `t_val` (the
-  `evidence_span` stays as annotated if it agrees with `t_val`, see the spans above), log
-  `sample-edit --kind nudge --window <idx>`, no re-review; a sub-second
+  `evidence_span` stays as annotated if it agrees with `t_val`, see the spans above), naming
+  the semi-blind review in `--source` — the tool logs a `nudge` — and there is no re-review; a sub-second
   gap the frame step cannot resolve is recorded in the table and the boundary stays. For 2.3,
-  a `question_time − t_val` of up to 2 s: move `question_time`, log `--kind timing`, no
+  a `question_time − t_val` of up to 2 s: move `question_time` (logged as `timing`), no
   re-review, and measure `t_start` against the same `t_val` by these points.
 - **Gap of 2 to 10 s** (`t_start − t_val`): an interval edit. Move `t_start` to `t_val` with
-  `evidence_span`, log `sample-edit --kind boundary --window <idx>`, re-review the touched
+  `evidence_span` in one `sample-edit` (a `boundary` edit of that window), re-review the touched
   window with `full_window<idx>` and rerun the probes whose material moved (the repairs table
   in section 3). For 2.3, a `question_time − t_val` over 2 s goes by step 2 of the ladder
   below.
 - **Larger gap:** ask which rubric items become satisfiable, by the route of the level or a
   cheaper one, only once the event of the when-clause has occurred. **Substantive** clause →
-  keep the window, add an optional trigger for the early form, log `--kind boundary` for it
-  (and for the windows it renumbers), `full_window` on it. **Empty**
+  keep the window, add an optional trigger for the early form (a `boundary` edit for it and
+  for the windows it renumbers), `full_window` on it. **Empty**
   clause → the ladder, in this order:
 
   0. **Referents and uniqueness.** Re-read the question without its when-part and check that
@@ -814,13 +889,17 @@ that changes gradually reads the same on every frame opened alone; side by side 
 not. The same holds for your own claims: **no verdict, boundary or repair may rest on a
 second that no role and no sheet has looked at.**
 
-## 8. The proposer's files are edited in place and merged when the video is closed
+## 8. The proposer's files hold the records until the video is closed and merged
 
-**The rule.** Work on the proposer's files `data/annotations/partial/<VIDEO_ID>.<INTERVAL>.jsonl`
-in place. Before the first review, give every sample its end-to-end `id`
-`3b1b__<VIDEO_ID>__q<NN>`, unique across the files, and remove the duplicates between them.
-From then on edit each record in the file that holds it: that file is the `--annotations` of
-`prepare_review_workspace.py`, and the validator runs on all the files of the video at once:
+**The rule.** The records stay in the proposer's files
+`data/annotations/partial/<VIDEO_ID>.<INTERVAL>.jsonl` until the video is closed. Before the
+first launch, give every sample its end-to-end `id` `3b1b__<VIDEO_ID>__q<NN>`, unique across
+the files, and remove the duplicates between them. This is the one change you make in the files
+directly — the log knows no sample yet, and the tool does not change an `id`: copy each file
+into your workspace before you write it. From the first launch on, a record is changed only
+through `sample-edit` (§3, "Changing a record"), in the file that holds it: that file is the
+`--annotations` of `prepare_review_workspace.py`, and the validator runs on all the files of
+the video at once:
 
 ```bash
 /home/user/conda/bin/python3 tools/validate_samples.py data/annotations/partial/<VIDEO_ID>.*.jsonl
@@ -843,5 +922,6 @@ in your final report.
 **Why.** The ids come first because the review folders and the log are kept by id. A merge at
 the start left two copies of every record, the proposer's and the edited one, and a lookup by
 id found both; now one file holds each record until the end, and a file in
-`data/annotations/` means a closed video. Nobody accepts the samples after you, so a sample
+`data/annotations/` means a closed video. The records are not under version control, so an
+edit that goes wrong outside the tool has nothing to be restored from. Nobody accepts the samples after you, so a sample
 left in `draft` would be neither measured nor rejected.

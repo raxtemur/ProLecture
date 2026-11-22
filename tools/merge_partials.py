@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Close a video: merge the proposer's files of one video into data/annotations/<VIDEO_ID>.jsonl.
 
-The coordinator works on ``data/annotations/partial/<VIDEO_ID>.<INTERVAL>.jsonl`` in place,
-from the end-to-end ids to the last status, and merges the files only when the video is
+The records stay in ``data/annotations/partial/<VIDEO_ID>.<INTERVAL>.jsonl`` from the
+end-to-end ids to the last status — the coordinator changes them there through
+``coordinator_log.py sample-edit`` — and the files are merged only when the video is
 closed: every sample ``validated`` or ``rejected``, the validator green on the whole video,
 the operational log passing ``check --final``. The merged file is written once, in the order
 of the ids, and the parts are removed. A ``data/annotations/<VIDEO_ID>.jsonl`` that already

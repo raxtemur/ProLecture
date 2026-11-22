@@ -43,6 +43,7 @@ import json
 import shutil
 import subprocess
 import sys
+from datetime import datetime
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -476,6 +477,10 @@ def derive_from_record(args: argparse.Namespace) -> dict:
                 f"not {args.video_id}")
         duration = load_bundle(args.video_id).get("duration")
         inputs = review_inputs.derive_inputs(args.role, record, args.window, args.until, duration)
+        if args.role == "full_window":
+            # the window review is launched and logged per window (full_window<idx>), and the
+            # log takes the index from this note
+            review_inputs.window_trigger(record, args.window, args.role, required=False)
     except review_inputs.InputsError as exc:
         sys.exit(str(exc))
     for flag, value in ROLE_MODES[args.role].items():
@@ -486,7 +491,9 @@ def derive_from_record(args: argparse.Namespace) -> dict:
         args.until = inputs["until"]
     return {"sample_id": args.sample_id, "annotations": review_inputs.portable(path, ROOT),
             "record_sha": review_inputs.record_sha(record), "role": args.role,
-            "window": args.window, "inputs": inputs}
+            "window": args.window, "inputs": inputs,
+            # when the folder was cut, by the clock that also stamps the coordinator's log
+            "prepared_at": datetime.now().astimezone().isoformat(timespec="seconds")}
 
 
 def main() -> None:
@@ -535,8 +542,8 @@ def main() -> None:
                          "and probe_frame")
     ap.add_argument("--sample-id", dest="sample_id",
                     help="read the boundaries of the material off this record instead of "
-                         "typing them: needs --role, and --window for semiblind and "
-                         "probe_frame. Leaves <out>.inputs.json, which coordinator_log.py "
+                         "typing them: needs --role, and --window for semiblind, "
+                         "probe_frame and full_window. Leaves <out>.inputs.json, which coordinator_log.py "
                          "spawn checks against the record")
     ap.add_argument("--annotations", type=Path,
                     help="the file holding the record, when its id is in several files")
@@ -545,7 +552,7 @@ def main() -> None:
     ap.add_argument("--window", type=int,
                     help="with --sample-id: the window the material is cut at (semiblind: "
                          "the stretch ends at its t_end, any window; probe_frame: the middle "
-                         "of a required window)")
+                         "of a required window; full_window: the window under review)")
     ap.add_argument("--index-only", action="store_true", dest="index_only",
                     help="do not copy the frames but put in a manifest frames.md "
                          "with the timecodes and the path. ONLY for full_sample and "
